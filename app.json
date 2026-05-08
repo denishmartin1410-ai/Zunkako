@@ -13,5 +13,10 @@
   "android": {
     "runtimeVersion": "1.0.0"
   },
-  "ios": {}
+  "ios": {},
+  "expo": {
+    "autolinking": {
+      "exclude": ["expo-application"]
+    }
+  }
 }
