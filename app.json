@@ -1,20 +1,23 @@
 {
   "name": "F2C",
   "displayName": "F2C",
-  "extra": {
-    "eas": {
-      "projectId": "1d842287-e190-4f67-8275-e79c6c69ec88"
-    }
-  },
-  "owner": "denish_14-10-2004",
-  "updates": {
-    "url": "https://u.expo.dev/1d842287-e190-4f67-8275-e79c6c69ec88"
-  },
-  "android": {
-    "runtimeVersion": "1.0.0"
-  },
-  "ios": {},
   "expo": {
+    "name": "F2C",
+    "slug": "f2c",
+    "owner": "denish_14-10-2004",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.f2capp",
+      "runtimeVersion": "1.0.0"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1d842287-e190-4f67-8275-e79c6c69ec88"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1d842287-e190-4f67-8275-e79c6c69ec88"
+      }
+    },
     "autolinking": {
       "exclude": ["expo-application"]
     }
