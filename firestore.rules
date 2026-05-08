@@ -1,0 +1,168 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ---------------------------------------------------------
+    // HELPER FUNCTIONS (பாதுகாப்பு விதிகள்)
+    // ---------------------------------------------------------
+    function isLoggedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+    
+    function isOwner(userId) {
+      return isLoggedIn() && request.auth.uid == userId;
+    }
+
+    function isFarmer() {
+      return isLoggedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'farmer') 
+        || 
+        exists(/databases/$(database)/documents/farmers/$(request.auth.uid))
+      );
+    }
+
+    function isAdmin() {
+      return isLoggedIn() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
+    }
+
+    // ---------------------------------------------------------
+    // DATA VALIDATION & COLLECTIONS
+    // ---------------------------------------------------------
+
+    match /users/{userId} {
+      allow read: if isLoggedIn();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'totalReviews', 'updatedAt', 'fcmToken']));
+      allow delete: if false;
+    }
+
+    match /farmers/{userId} {
+      // ✅ Allow everyone to read farmers list (fixes getAllFarmers error)
+      allow read: if true;
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'totalReviews', 'updatedAt']));
+      allow delete: if false;
+    }
+    
+    match /deliveryBoys/{userId} {
+      // ✅ Added new rules for delivery boys collection
+      allow read: if isLoggedIn();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /products/{productId} {
+      // ✅ Allow everyone to read products catalog
+      allow read: if true;
+      // Only farmer who owns the product can create
+      allow create: if isFarmer() && request.resource.data.farmerId == request.auth.uid;
+      // Only owner or admin can update, but any logged in user can update ratings
+      allow update: if isOwner(resource.data.farmerId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'reviews', 'updatedAt']));
+      allow delete: if isOwner(resource.data.farmerId) || isAdmin();
+
+      // RATINGS (Subcollection)
+      match /ratings/{ratingId} {
+        // Any user can read/write ratings
+        allow read, write: if isLoggedIn();
+      }
+    }
+
+    match /harvests/{harvestId} {
+      // ✅ Allow everyone to read harvests
+      allow read: if true;
+      allow create: if isFarmer() && request.resource.data.farmerId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.farmerId) || isAdmin();
+    }
+
+    match /orders/{orderId} {
+      // Both buyer, seller, AND delivery boy can read their orders
+      allow read: if isLoggedIn() && (
+        resource.data.consumerId == request.auth.uid || 
+        resource.data.farmerId == request.auth.uid || 
+        resource.data.deliveryBoyId == request.auth.uid ||
+        isAdmin()
+      );
+      // Consumer creates order for themselves
+      allow create: if isLoggedIn() && request.resource.data.consumerId == request.auth.uid;
+      // Anyone involved can update
+      allow update: if isLoggedIn() && (
+        resource.data.consumerId == request.auth.uid || 
+        resource.data.farmerId == request.auth.uid || 
+        resource.data.deliveryBoyId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if false; // Orders should never be deleted
+    }
+
+    match /chats/{chatId} {
+      allow read: if isLoggedIn() && (
+        resource == null ||
+        request.auth.uid == resource.data.farmerId ||
+        request.auth.uid == resource.data.consumerId
+      );
+      allow update: if isLoggedIn() && (
+        request.auth.uid == resource.data.farmerId ||
+        request.auth.uid == resource.data.consumerId
+      );
+      allow create: if isLoggedIn() && (
+        request.auth.uid == request.resource.data.farmerId ||
+        request.auth.uid == request.resource.data.consumerId
+      );
+      
+      match /messages/{msgId} {
+        allow read, write: if isLoggedIn() && 
+          exists(/databases/$(database)/documents/chats/$(chatId)) && (
+          request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.farmerId ||
+          request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.consumerId
+        );
+      }
+    }
+
+    // NOTIFICATIONS
+    match /notifications/{userId} {
+       // ✅ Any logged in user can send notifications (e.g., system auto-notify)
+       // ✅ User can read only their own notifications
+       allow read: if isLoggedIn() && (request.auth.uid == userId || isAdmin());
+       allow write: if isLoggedIn();
+       
+       match /items/{itemId} {
+         allow read: if isLoggedIn() && (request.auth.uid == userId || isAdmin());
+         allow write: if isLoggedIn();
+       }
+    }
+
+    // GROUP BUYS
+    match /groupBuys/{groupId} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn() && (
+        request.auth.uid == resource.data.organizerId ||
+        request.auth.uid in resource.data.members ||
+        request.auth.uid in request.resource.data.members // Allow joining
+      );
+    }
+
+    // FARM VISITS
+    match /farmVisits/{visitId} {
+      allow read: if isLoggedIn();
+      allow create: if isFarmer();
+      allow update: if isLoggedIn() && (
+        request.auth.uid == resource.data.farmerId || 
+        request.resource.data.totalVisitors != resource.data.totalVisitors // Allow booking increments
+      );
+      
+      match /bookings/{bookingId} {
+        allow read, write: if isLoggedIn();
+      }
+    }
+    
+    // Default Deny Rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

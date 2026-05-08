@@ -1,0 +1,23 @@
+const { getDefaultConfig } = require('expo/metro-config');
+const { mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
+
+/**
+ * Metro configuration
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
+  watchFolders: [path.resolve(__dirname)],
+  resolver: {
+    blockList: [
+      // Android build folders - causes EBUSY lock errors on Windows
+      /android\/build\/.*/,
+      /android\/app\/build\/.*/,
+      /node_modules\/.*\/android\/build\/.*/,
+    ],
+  },
+};
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);

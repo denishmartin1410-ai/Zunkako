@@ -1,0 +1,28 @@
+{
+  "java.project.sourcePaths": [],
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/archetype-resources/**",
+    "**/META-INF/maven/**",
+    "**/android/build/**",
+    "**/android/app/build/**"
+  ],
+  "java.import.gradle.enabled": false,
+  "java.autobuild.enabled": false,
+  "java.configuration.checkProjectSettingsExclusions": false,
+  "java.project.resourceFilters": [
+    "node_modules"
+  ],
+  "java.jdt.ls.lombokSupport.enabled": false,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/android/build/**": true,
+    "**/android/app/build/**": true,
+    "**/.bundle/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/android/build": true
+  }
+}
