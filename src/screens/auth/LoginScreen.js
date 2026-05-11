@@ -42,7 +42,7 @@ const InputField = ({ label, value, onChangeText, placeholder, secureEntry, erro
 
 const LoginScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, resendVerificationEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -121,6 +121,29 @@ const LoginScreen = ({ navigation }) => {
             [
               { text: 'சரி / OK', style: 'cancel' },
               { text: '🔑 கடவுச்சொல் மீட்டமை', onPress: () => navigation.navigate('ForgotPassword') }
+            ]
+          );
+        } else if (errorType === 'email-not-verified') {
+          // Email not verified - offer to resend
+          Alert.alert(
+            '📧 மின்னஞ்சல் சரிபார்க்கப்படவில்லை / Email Not Verified',
+            'உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nபதிவு செய்யும்போது அனுப்பிய Verification Link-ஐ உங்கள் Email Inbox-ல் பாருங்கள். அதை Click செய்து Verify செய்த பிறகு மீண்டும் Login செய்யுங்கள்.\n\nPlease verify your email first. Check your inbox for the verification link.',
+            [
+              { text: 'சரி / OK', style: 'cancel' },
+              {
+                text: '📩 மீண்டும் Verification Link அனுப்பு',
+                onPress: async () => {
+                  const res = await resendVerificationEmail();
+                  if (res.success) {
+                    Alert.alert(
+                      '✅ அனுப்பப்பட்டது / Sent!',
+                      'புதிய Verification Link உங்கள் Email-க்கு அனுப்பப்பட்டது!\n\nEmail Inbox-ல் பாருங்கள், Spam/Junk folder-ஐயும் சரிபார்க்கவும்.\n\nNew verification link sent! Check your inbox and spam folder.'
+                    );
+                  } else {
+                    Alert.alert('பிழை / Error', 'மீண்டும் முயற்சிக்கவும் / Please try again later.');
+                  }
+                }
+              }
             ]
           );
         } else if (errorType === 'network') {

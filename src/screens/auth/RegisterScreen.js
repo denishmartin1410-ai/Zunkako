@@ -70,7 +70,7 @@ const Field = ({
 // ══════════════════════════════════════════════════════
 const RegisterScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const { register } = useAuth();
+  const { register, logout } = useAuth();
   const [userType, setUserType] = useState('consumer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -166,6 +166,24 @@ const RegisterScreen = ({ navigation }) => {
           result.error || 'பதிவு செய்வதில் பிழை\nRegistration failed',
         );
       }
+    } else {
+      // ✅ Registration successful - Show email verification alert
+      Alert.alert(
+        '✅ பதிவு வெற்றி! / Registration Successful!',
+        '📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\nஉங்கள் மின்னஞ்சலுக்கு (Email) ஒரு Verification Link அனுப்பப்பட்டுள்ளது.\n\n👉 உங்கள் Email Inbox-ஐ திறந்து Verification Link-ஐ Click செய்யுங்கள்.\n👉 Spam/Junk folder-ஐயும் சரிபார்க்கவும்.\n👉 Verify செய்த பிறகு Login செய்யுங்கள்.\n\nA verification link has been sent to your email. Please verify before logging in.',
+        [
+          {
+            text: 'சரி, Login பக்கம் செல் →',
+            onPress: async () => {
+              // Logout so user must verify email before accessing app
+              try {
+                await logout();
+              } catch (e) { console.log('Auto signout after register:', e); }
+              navigation.navigate('Login');
+            }
+          }
+        ]
+      );
     }
   };
 

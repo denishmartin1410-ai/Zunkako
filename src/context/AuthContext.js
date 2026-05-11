@@ -60,6 +60,17 @@ export const AuthProvider = ({ children }) => {
       if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
 
+      // ✅ Email Verification Check
+      if (!fbUser.emailVerified) {
+        // User hasn't verified email yet - block login
+        return {
+          success: false,
+          error: '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nபதிவு செய்யும்போது உங்கள் மின்னஞ்சலுக்கு ஒரு சரிபார்ப்பு லிங்க் அனுப்பப்பட்டது. அதை க்ளிக் செய்து சரிபார்த்த பிறகு மீண்டும் Login செய்யவும்.\n\nYour email is not verified yet. Please check your inbox and click the verification link first.',
+          errorType: 'email-not-verified',
+          fbUser: fbUser,
+        };
+      }
+
       // Get profile data for name/phone etc
       const pr = await getUserProfile(fbUser.uid);
       let userData;
@@ -70,16 +81,20 @@ export const AuthProvider = ({ children }) => {
           id: fbUser.uid, uid: fbUser.uid,
           name: fbUser.displayName || email.split('@')[0],
           email: fbUser.email || email, phone: '', avatar: '',
-          isVerified: false,
+          isVerified: true, emailVerified: true,
         };
       }
+
+      // ✅ Update emailVerified status in Firestore
+      userData.emailVerified = true;
+      userData.isVerified = true;
 
       // ✅ Preserve 'admin' and 'delivery' types from Firestore, otherwise use selectedType from login screen
       const storedType = pr.success && pr.data ? pr.data.userType : null;
       const finalUserType = (storedType === 'admin') ? 'admin' : selectedType;
 
       userData.userType = finalUserType;
-      await saveUserProfile(fbUser.uid, { userType: finalUserType });
+      await saveUserProfile(fbUser.uid, { userType: finalUserType, emailVerified: true, isVerified: true });
 
       await AsyncStorage.setItem('@F2C_user', JSON.stringify(userData));
       await AsyncStorage.setItem('@F2C_userType', finalUserType);
@@ -91,16 +106,39 @@ export const AuthProvider = ({ children }) => {
     } catch (e) { return { success: false, error: e.message }; }
   };
 
+  // ✅ Resend Email Verification
+  const resendVerificationEmail = async () => {
+    try {
+      const currentUser = auth().currentUser;
+      if (currentUser && !currentUser.emailVerified) {
+        await currentUser.sendEmailVerification();
+        return { success: true };
+      }
+      return { success: false, error: 'User not found or already verified' };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  };
+
   const register = async (formData, type) => {
     try {
       const r = await firebaseEmailRegister(formData.email, formData.password);
       if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
+
+      // ✅ Send Email Verification
+      try {
+        await fbUser.sendEmailVerification();
+      } catch (verifyErr) {
+        console.log('Email verification send error (non-critical):', verifyErr.message);
+      }
+
       const userData = {
         id: fbUser.uid, uid: fbUser.uid, name: formData.name,
         email: formData.email, phone: formData.phone || '',
         location: formData.location || '', userType: type,
-        avatar: '', isVerified: false, createdAt: new Date().toISOString(),
+        avatar: '', isVerified: false, emailVerified: false,
+        createdAt: new Date().toISOString(),
         ...(type === 'farmer' && {
           farmName: formData.name + "'s Farm",
           qrCode: `F2C-FARMER-${fbUser.uid.slice(0, 8).toUpperCase()}`,
@@ -126,7 +164,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('@F2C_userType', type);
       setUser(userData); setUserType(type); setFirebaseUser(fbUser);
       saveFCMToken(fbUser.uid);
-      return { success: true };
+      return { success: true, emailVerificationSent: true };
     } catch (e) { return { success: false, error: e.message }; }
   };
 
@@ -189,7 +227,7 @@ export const AuthProvider = ({ children }) => {
       isFarmer: userType === 'farmer',
       isConsumer: userType === 'consumer',
       isDelivery: userType === 'delivery',
-      login, register, sendOTP, verifyOTP, logout, forgotPassword, updateUser,
+      login, register, sendOTP, verifyOTP, logout, forgotPassword, updateUser, resendVerificationEmail,
     }}>
       {children}
     </AuthContext.Provider>

@@ -23,33 +23,28 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
   const handleSendLink = async () => {
     if (!email.trim()) {
-      Alert.alert(t('common.error', { defaultValue: 'Error' }), t('forgot.enterEmail', { defaultValue: 'Please enter your email' }));
+      Alert.alert('⚠ பிழை / Error', '📧 மின்னஞ்சல் முகவரியை உள்ளிடவும்.\n\nPlease enter your email address.');
       return;
     }
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      Alert.alert(t('common.error', { defaultValue: 'Error' }), t('forgot.validEmail', { defaultValue: 'Enter a valid email' }));
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+      Alert.alert('⚠ பிழை / Error', '❌ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nPlease enter a valid email address.');
       return;
     }
 
     setIsLoading(true);
     try {
-      const result = await sendPasswordResetEmail(email.trim());
+      const result = await sendPasswordResetEmail(email.trim().toLowerCase());
       setIsLoading(false);
 
       if (result.success) {
         setEmailSent(true);
       } else {
-        let msg = result.error || 'மீட்டமை லிங்க் அனுப்ப முடியவில்லை';
-        if (result.error?.includes('user-not-found')) {
-          msg = 'இந்த மின்னஞ்சலில் கணக்கு இல்லை\nNo account with this email';
-        } else if (result.error?.includes('invalid-email')) {
-          msg = 'தவறான மின்னஞ்சல்\nInvalid email';
-        }
-        Alert.alert('பிழை / Error', msg);
+        // ✅ Firebase already returns detailed Tamil+English messages from our updated firebase.js
+        Alert.alert('பிழை / Error', result.error);
       }
     } catch (e) {
       setIsLoading(false);
-      Alert.alert('பிழை', e.message);
+      Alert.alert('பிழை / Error', e.message);
     }
   };
 
