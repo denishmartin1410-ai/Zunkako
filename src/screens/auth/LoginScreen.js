@@ -63,10 +63,16 @@ const LoginScreen = ({ navigation }) => {
 
   const validate = () => {
     const e = {};
-    if (!email.trim()) e.email = 'மின்னஞ்சல் உள்ளிடவும்';
-    else if (!/\S+@\S+\.\S+/.test(email)) e.email = 'சரியான மின்னஞ்சல் உள்ளிடவும்';
-    if (!password) e.password = 'கடவுச்சொல் உள்ளிடவும்';
-    else if (password.length < 6) e.password = 'குறைந்தது 6 எழுத்துகள்';
+    if (!email.trim()) {
+      e.email = '⚠ மின்னஞ்சல் உள்ளிடவும் / Enter email';
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+      e.email = '⚠ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்\n  எ.கா: example@gmail.com';
+    }
+    if (!password) {
+      e.password = '⚠ கடவுச்சொல் உள்ளிடவும் / Enter password';
+    } else if (password.length < 6) {
+      e.password = '⚠ குறைந்தது 6 எழுத்துக்கள் வேண்டும் / Min 6 characters';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -78,21 +84,68 @@ const LoginScreen = ({ navigation }) => {
       const result = await login(email.trim(), password, userType);
       if (!result.success) {
         shake();
+        const errorType = result.errorType || 'generic';
         
-        // If it's a generic invalid credential, show a helpful alert for first-time users
-        const errorMsg = result.error?.includes('invalid-credential') || result.error?.includes('user-not-found') 
-          ? 'தவறான மின்னஞ்சல்/கடவுச்சொல்.\n\nநீங்கள் புதிய பயனர் என்றால், முதலில் "புதிய கணக்கு உருவாக்கு" (Register) பட்டனை அழுத்தி கணக்கை உருவாக்கவும். அதன் பிறகு மட்டுமே இங்கு Login செய்ய முடியும்.'
-          : (result.error || 'தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்');
-          
-        Alert.alert('பிழை / Login Error', errorMsg, [
-          { text: 'OK' },
-          { text: 'புதிய கணக்கு உருவாக்கு →', onPress: () => navigation.navigate('Register') }
-        ]);
+        if (errorType === 'user-not-found') {
+          // Email doesn't exist - guide to register
+          Alert.alert(
+            '❌ கணக்கு இல்லை / No Account Found',
+            'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nNo account exists with this email. Please register first.',
+            [
+              { text: 'சரி / OK', style: 'cancel' },
+              { text: '📝 புதிய கணக்கு உருவாக்கு', onPress: () => navigation.navigate('Register') }
+            ]
+          );
+        } else if (errorType === 'wrong-password') {
+          // Wrong password - guide to forgot password
+          Alert.alert(
+            '🔑 தவறான கடவுச்சொல் / Wrong Password',
+            'நீங்கள் உள்ளிட்ட கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nThe password you entered is incorrect. Please try the correct password or reset it.',
+            [
+              { text: 'சரி / OK', style: 'cancel' },
+              { text: '🔑 கடவுச்சொல் மறந்தீர்களா?', onPress: () => navigation.navigate('ForgotPassword') }
+            ]
+          );
+        } else if (errorType === 'account-disabled') {
+          // Account disabled by admin
+          Alert.alert(
+            '🚫 கணக்கு முடக்கப்பட்டது / Account Disabled',
+            'உங்கள் கணக்கு முடக்கப்பட்டுள்ளது.\nநிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled. Please contact the administrator.',
+            [{ text: 'சரி / OK' }]
+          );
+        } else if (errorType === 'too-many-requests') {
+          // Too many failed attempts
+          Alert.alert(
+            '⏳ அதிக முயற்சிகள் / Too Many Attempts',
+            'பல முறை தவறான கடவுச்சொல் உள்ளிட்டதால் உங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது.\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nAccount temporarily locked due to too many failed attempts.',
+            [
+              { text: 'சரி / OK', style: 'cancel' },
+              { text: '🔑 கடவுச்சொல் மீட்டமை', onPress: () => navigation.navigate('ForgotPassword') }
+            ]
+          );
+        } else if (errorType === 'network') {
+          Alert.alert(
+            '📶 இணைய இணைப்பு இல்லை / No Internet',
+            'உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nPlease check your internet connection and try again.',
+            [{ text: 'சரி / OK' }]
+          );
+        } else {
+          // Generic error with both options
+          Alert.alert(
+            '⚠️ பிழை / Login Error',
+            result.error || 'தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்.\n\nIncorrect email or password.',
+            [
+              { text: 'சரி / OK', style: 'cancel' },
+              { text: '🔑 கடவுச்சொல் மறந்தீர்களா?', onPress: () => navigation.navigate('ForgotPassword') },
+              { text: '📝 புதிய கணக்கு', onPress: () => navigation.navigate('Register') }
+            ]
+          );
+        }
       }
       // ✅ Success: AuthContext onAuthStateChanged → RootNavigator auto-navigate
     } catch (e) {
       shake();
-      Alert.alert('பிழை', e.message);
+      Alert.alert('பிழை / Error', e.message);
     }
     setIsLoading(false);
   };

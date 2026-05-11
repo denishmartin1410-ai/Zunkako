@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, selectedType) => {
     try {
       const r = await firebaseEmailLogin(email, password);
-      if (!r.success) return { success: false, error: r.error };
+      if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
 
       // Get profile data for name/phone etc
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData, type) => {
     try {
       const r = await firebaseEmailRegister(formData.email, formData.password);
-      if (!r.success) return { success: false, error: r.error };
+      if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
       const userData = {
         id: fbUser.uid, uid: fbUser.uid, name: formData.name,

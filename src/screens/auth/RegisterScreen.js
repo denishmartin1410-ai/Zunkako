@@ -86,15 +86,56 @@ const RegisterScreen = ({ navigation }) => {
 
   const validate = () => {
     const e = {};
-    if (!name.trim()) e.name = 'பெயர் உள்ளிடவும் / Enter name';
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email))
-      e.email = 'சரியான மின்னஞ்சல் / Valid email needed';
-    if (!phone.trim() || phone.length < 10)
-      e.phone = 'சரியான 10 இலக்கங்கள் / Valid 10-digit phone';
-    if (!password || password.length < 6)
-      e.password = 'குறைந்தது 6 எழுத்துகள் / Min 6 characters';
-    if (password !== confirmPassword)
-      e.confirmPassword = 'கடவுச்சொல் பொருந்தவில்லை / Passwords do not match';
+    // Name validation
+    if (!name.trim()) {
+      e.name = '⚠ பெயர் உள்ளிடவும் / Enter your name';
+    } else if (name.trim().length < 2) {
+      e.name = '⚠ பெயர் குறைந்தது 2 எழுத்துக்கள் இருக்க வேண்டும் / Name must be at least 2 characters';
+    }
+
+    // Email validation - strict format check
+    if (!email.trim()) {
+      e.email = '⚠ மின்னஞ்சல் உள்ளிடவும் / Enter email';
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())) {
+      e.email = '⚠ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்\n  எ.கா: example@gmail.com\n  Valid email format needed';
+    }
+
+    // Phone validation
+    if (!phone.trim()) {
+      e.phone = '⚠ தொலைபேசி எண் உள்ளிடவும் / Enter phone number';
+    } else if (phone.length !== 10) {
+      e.phone = '⚠ சரியான 10 இலக்க எண் உள்ளிடவும் / Enter valid 10-digit number';
+    } else if (!/^[6-9]\d{9}$/.test(phone)) {
+      e.phone = '⚠ சரியான இந்திய மொபைல் எண் உள்ளிடவும் / Valid Indian mobile number needed';
+    }
+
+    // Location validation - mandatory
+    if (!location.trim()) {
+      e.location = '⚠ இடம் உள்ளிடவும் / Enter your location/city';
+    }
+
+    // Password validation - strong password rules
+    if (!password) {
+      e.password = '⚠ கடவுச்சொல் உள்ளிடவும் / Enter password';
+    } else if (password.length < 6) {
+      e.password = '⚠ குறைந்தது 6 எழுத்துக்கள் வேண்டும் / Min 6 characters';
+    } else if (!/[A-Z]/.test(password)) {
+      e.password = '⚠ ஒரு பெரிய எழுத்து வேண்டும் (A-Z) / Need at least 1 uppercase letter';
+    } else if (!/[a-z]/.test(password)) {
+      e.password = '⚠ ஒரு சிறிய எழுத்து வேண்டும் (a-z) / Need at least 1 lowercase letter';
+    } else if (!/[0-9]/.test(password)) {
+      e.password = '⚠ ஒரு எண் வேண்டும் (0-9) / Need at least 1 number';
+    } else if (!/[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]/.test(password)) {
+      e.password = '⚠ ஒரு சிறப்பு எழுத்து வேண்டும் (!@#$%^&*) / Need at least 1 special character';
+    }
+
+    // Confirm password validation
+    if (!confirmPassword) {
+      e.confirmPassword = '⚠ உறுதி கடவுச்சொல் உள்ளிடவும் / Enter confirm password';
+    } else if (password !== confirmPassword) {
+      e.confirmPassword = '⚠ கடவுச்சொல் பொருந்தவில்லை! இரண்டும் ஒரே மாதிரி இருக்க வேண்டும்.\n  Passwords do not match!';
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -103,15 +144,28 @@ const RegisterScreen = ({ navigation }) => {
     if (!validate()) return;
     setIsLoading(true);
     const result = await register(
-      { name, email, phone, location, password },
+      { name: name.trim(), email: email.trim().toLowerCase(), phone, location: location.trim(), password },
       userType,
     );
     setIsLoading(false);
     if (!result.success) {
-      Alert.alert(
-        'பிழை / Error',
-        result.error || 'பதிவு செய்வதில் பிழை\nRegistration failed',
-      );
+      const errorType = result.errorType || 'generic';
+      
+      if (errorType === 'email-exists') {
+        Alert.alert(
+          '⚠️ மின்னஞ்சல் ஏற்கனவே உள்ளது / Email Already Exists',
+          'இந்த Email Address ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது!\n\nவேறு Email பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered. Use a different email or login.',
+          [
+            { text: 'சரி / OK', style: 'cancel' },
+            { text: '🔐 Login செய்ய', onPress: () => navigation.navigate('Login') }
+          ]
+        );
+      } else {
+        Alert.alert(
+          'பிழை / Error',
+          result.error || 'பதிவு செய்வதில் பிழை\nRegistration failed',
+        );
+      }
     }
   };
 
@@ -190,6 +244,7 @@ const RegisterScreen = ({ navigation }) => {
           label={'📍 இடம்\n    Location / City'}
           value={location}
           onChangeText={setLocation}
+          error={errors.location}
           autoCompleteType='postal-code'
           textContentType='none'
         />
