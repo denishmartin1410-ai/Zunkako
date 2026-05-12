@@ -12,6 +12,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { sendPasswordResetEmail } from '../../services/firebase';
+import firestore from '@react-native-firebase/firestore';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
@@ -33,13 +34,35 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      const result = await sendPasswordResetEmail(email.trim().toLowerCase());
+      // ✅ CRITICAL: Check if email is registered in our Firestore users collection FIRST
+      const trimmedEmail = email.trim().toLowerCase();
+      const usersSnap = await firestore()
+        .collection('users')
+        .where('email', '==', trimmedEmail)
+        .limit(1)
+        .get();
+
+      if (usersSnap.empty) {
+        // Email NOT registered in our app - block reset
+        setIsLoading(false);
+        Alert.alert(
+          '❌ கணக்கு இல்லை / No Account Found',
+          'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account.',
+          [
+            { text: 'சரி / OK', style: 'cancel' },
+            { text: '📝 புதிய கணக்கு', onPress: () => navigation.navigate('Register') }
+          ]
+        );
+        return;
+      }
+
+      // Email EXISTS in our app - now send reset link
+      const result = await sendPasswordResetEmail(trimmedEmail);
       setIsLoading(false);
 
       if (result.success) {
         setEmailSent(true);
       } else {
-        // ✅ Firebase already returns detailed Tamil+English messages from our updated firebase.js
         Alert.alert('பிழை / Error', result.error);
       }
     } catch (e) {

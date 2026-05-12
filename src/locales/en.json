@@ -21,7 +21,11 @@
     "or": "OR",
     "otpLogin": "OTP Login",
     "noAccount": "No account? ",
-    "registerLink": "Register"
+    "registerLink": "Register",
+    "delivery": "Delivery",
+    "deliverOrders": "Deliver orders",
+    "buyFresh": "Buy fresh vegetables",
+    "sellProducts": "Sell your products"
   },
   "home": {
     "greeting": "Welcome!",
@@ -293,5 +297,22 @@
     "errorInvalidDate": "Please enter a valid date.",
     "weekendOnlyTitle": "Weekends Only",
     "weekendOnlyDesc": "Farm visits are only allowed on Saturdays and Sundays. Due to the farmer's workload, weekday visits are not permitted. Please select a weekend date."
+  },
+  "story": {
+    "title": "Share your farm story!",
+    "info": "• Show your farm in a video\n• Customers will buy with trust\n• Maximum 2 minutes, 50MB\n• Select video from gallery",
+    "noVideo": "No video uploaded yet",
+    "uploading": "Uploading video... Please wait",
+    "videoUploaded": "Video uploaded! Customers can watch now!",
+    "videoReady": "Video ready!",
+    "customersCanWatch": "Customers can watch now",
+    "changeVideo": "Change Video",
+    "uploadVideo": "Select video from gallery",
+    "videoTooLarge": "Video must be under 50MB",
+    "tips": "Tips",
+    "tip1": "🌅 Record farm video in the morning",
+    "tip2": "🌿 Show your crops, harvest process",
+    "tip3": "😊 Look at camera and speak directly",
+    "tip4": "📱 Record video in landscape mode"
   }
 }

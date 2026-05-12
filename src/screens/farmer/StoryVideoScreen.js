@@ -81,7 +81,7 @@ const StoryVideoScreen = ({ navigation }) => {
         <View style={styles.container}>
             <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
                 <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                    <Text style={styles.backTxt}>←</Text>
+                    <Text style={styles.backTxt}>‹</Text>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>
                     🎬 {t('farmer.myStory', { defaultValue: 'என் கதை வீடியோ' })}
@@ -181,8 +181,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: SPACING.xl,
         flexDirection: 'row', alignItems: 'center',
     },
-    backBtn: { width: rs(40) },
-    backTxt: { color: COLORS.white, fontSize: rs(22), fontWeight: 'bold' },
+    backBtn: {
+        width: rs(40), height: rs(40), borderRadius: rs(20),
+        backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center',
+        justifyContent: 'center',
+    },
+    backTxt: { color: COLORS.white, fontSize: rs(20), fontWeight: 'bold', marginTop: -2 },
     headerTitle: {
         flex: 1, textAlign: 'center',
         fontSize: rs(FONTS.xl), fontWeight: 'bold', color: COLORS.white,
