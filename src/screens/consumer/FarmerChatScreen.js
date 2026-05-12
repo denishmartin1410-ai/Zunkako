@@ -114,9 +114,6 @@ export const ChatListScreen = ({ navigation }) => {
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 60 }}>
               <Text style={{ fontSize: 56 }}>👨‍🌾</Text>
-              <Text style={{ fontSize: FONTS.lg, color: COLORS.textMuted, marginTop: SPACING.md }}>
-                {t('farmer.noFarmers', { defaultValue: 'விவசாயிகள் இல்லை' })}
-              </Text>
             </View>
           }
         />

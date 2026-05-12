@@ -27,16 +27,13 @@ const CartScreen = ({ navigation }) => {
   if (cartItems.length === 0) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
+        <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={[styles.header, { justifyContent: 'center' }]}>
           <Text style={styles.headerTitle}>🛒 {t('nav.cart', { defaultValue: 'என் கார்ட்' })}</Text>
         </LinearGradient>
         <View style={styles.emptyBox}>
           <Text style={styles.emptyEmoji}>🛒</Text>
           <Text style={styles.emptyTitle}>
             {t('cart.empty', { defaultValue: 'கார்ட் காலியாக உள்ளது' })}
-          </Text>
-          <Text style={styles.emptySub}>
-            {t('cart.addItems', { defaultValue: 'புதிய காய்கறிகளும் பழங்களும் சேர்க்கவும்' })}
           </Text>
           <TouchableOpacity
             style={styles.shopBtn}
@@ -55,7 +52,8 @@ const CartScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
-        <Text style={styles.headerTitle}>
+        <View style={{ width: 40 }} />
+        <Text style={[styles.headerTitle, { textAlign: 'center' }]}>
           🛒 {t('nav.cart', { defaultValue: 'என் கார்ட்' })}
         </Text>
         <TouchableOpacity

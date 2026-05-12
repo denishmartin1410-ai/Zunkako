@@ -70,7 +70,6 @@ export const OrdersScreen = ({ navigation }) => {
             <View style={S.emptyBox}>
               <Text style={S.emptyEmoji}>📦</Text>
               <Text style={S.emptyText}>{t('orders.noOrders', { defaultValue: 'இன்னும் ஆர்டர் செய்யவில்லை' })}</Text>
-              <Text style={S.emptySubText}>{t('orders.startShopping', { defaultValue: 'Start shopping to see orders here' })}</Text>
             </View>
           ) : orders.map(order => (
             <TouchableOpacity key={order.id} style={S.orderCard} onPress={() => navigation.navigate('OrderDetail', { order })}>
@@ -303,7 +302,7 @@ export const AllFarmersScreen = ({ navigation }) => {
         <View style={{ width: 40 }} />
       </LinearGradient>
       {isLoading ? <ActivityIndicator color={COLORS.primaryGreen} size="large" style={{ marginTop: 40 }} /> :
-        farmers.length === 0 ? <View style={S.emptyBox}><Text style={S.emptyEmoji}>👨‍🌾</Text><Text style={S.emptyText}>{t('farmer.noFarmers', { defaultValue: 'இன்னும் விவசாயிகள் இல்லை' })}</Text></View> :
+        farmers.length === 0 ? <View style={S.emptyBox}><Text style={S.emptyEmoji}>👨‍🌾</Text></View> :
           <FlatList data={farmers} keyExtractor={i => i.id} contentContainerStyle={{ padding: SPACING.lg }}
             renderItem={({ item }) => (
               <TouchableOpacity style={S.farmerListCard} onPress={() => navigation.navigate('FarmerProfile', { farmer: item })}>

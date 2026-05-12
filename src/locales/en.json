@@ -314,5 +314,9 @@
     "tip2": "🌿 Show your crops, harvest process",
     "tip3": "😊 Look at camera and speak directly",
     "tip4": "📱 Record video in landscape mode"
+  },
+  "chat": {
+    "farmerChat": "Farmer Chat",
+    "startChatting": "Start chatting"
   }
 }

@@ -140,7 +140,6 @@ export const FarmerChatListScreen = ({ navigation }) => {
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Text style={{ fontSize: 56 }}>💬</Text>
-              <Text style={styles.emptyTitle}>{t('farmer.noCustomerChats', { defaultValue: 'வாடிக்கையாளர் அரட்டை இல்லை' })}</Text>
             </View>
           }
         />

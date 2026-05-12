@@ -251,11 +251,11 @@ const RegisterScreen = ({ navigation }) => {
         <Field
           label={'📧 மின்னஞ்சல்\n    Email Address'}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={text => setEmail(text.trim())}
           keyboardType="email-address"
           error={errors.email}
-          autoCompleteType='off'
-          textContentType='none'
+          autoCompleteType='email'
+          textContentType='emailAddress'
           autoCorrect={false}
         />
         <Field
