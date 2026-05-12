@@ -12,7 +12,6 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { sendPasswordResetEmail } from '../../services/firebase';
-import firestore from '@react-native-firebase/firestore';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
@@ -34,16 +33,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      // ✅ CRITICAL: Check if email is registered in our Firestore users collection FIRST
       const trimmedEmail = email.trim().toLowerCase();
-      const usersSnap = await firestore()
-        .collection('users')
-        .where('email', '==', trimmedEmail)
-        .limit(1)
-        .get();
 
-      if (usersSnap.empty) {
-        // Email NOT registered in our app - block reset
+      // ✅ Check if email exists in Firebase Auth (no Firestore permission needed!)
+      const auth = require('@react-native-firebase/auth').default;
+      const signInMethods = await auth().fetchSignInMethodsForEmail(trimmedEmail);
+
+      if (!signInMethods || signInMethods.length === 0) {
+        // Email NOT registered - block reset
         setIsLoading(false);
         Alert.alert(
           '❌ கணக்கு இல்லை / No Account Found',
@@ -56,7 +53,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         return;
       }
 
-      // Email EXISTS in our app - now send reset link
+      // Email EXISTS - now send reset link
       const result = await sendPasswordResetEmail(trimmedEmail);
       setIsLoading(false);
 
@@ -67,7 +64,24 @@ const ForgotPasswordScreen = ({ navigation }) => {
       }
     } catch (e) {
       setIsLoading(false);
-      Alert.alert('பிழை / Error', e.message);
+      // Handle Firebase email enumeration protection (newer Firebase versions)
+      if (e.code === 'auth/invalid-email') {
+        Alert.alert('⚠ பிழை / Error', 'தவறான மின்னஞ்சல் / Invalid email');
+      } else {
+        // If fetchSignInMethods fails (e.g., email enumeration protection enabled),
+        // fallback: just try sending the reset email directly
+        try {
+          const result = await sendPasswordResetEmail(email.trim().toLowerCase());
+          setIsLoading(false);
+          if (result.success) {
+            setEmailSent(true);
+          } else {
+            Alert.alert('பிழை / Error', result.error);
+          }
+        } catch (e2) {
+          Alert.alert('பிழை / Error', e2.message);
+        }
+      }
     }
   };
 

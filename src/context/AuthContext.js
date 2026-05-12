@@ -122,51 +122,67 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (formData, type) => {
     try {
-      // ✅ CRITICAL: Phone Number Lock - Check if phone already registered
-      if (formData.phone) {
-        const phoneCheck = await firestore()
-          .collection('users')
-          .where('phone', '==', formData.phone)
-          .limit(1)
-          .get();
-
-        if (!phoneCheck.empty) {
-          const existingUser = phoneCheck.docs[0].data();
-          const existingType = existingUser.userType || 'unknown';
-          const typeLabels = { consumer: 'நுகர்வோர் / Customer', farmer: 'விவசாயி / Farmer', delivery: 'டெலிவரி / Delivery' };
-          return {
-            success: false,
-            error: `📱 இந்த தொலைபேசி எண் ஏற்கனவே "${typeLabels[existingType] || existingType}" கணக்கில் பதிவு செய்யப்பட்டுள்ளது!\n\nஒரு தொலைபேசி எண்ணுக்கு ஒரே ஒரு கணக்கு மட்டுமே அனுமதிக்கப்படும்.\n\nThis phone number is already registered with a "${existingType}" account. Only one account per phone number is allowed.`,
-            errorType: 'phone-exists',
-          };
-        }
-      }
-
-      // ✅ Also check if email already exists in Firestore (extra safety)
-      const emailCheck = await firestore()
-        .collection('users')
-        .where('email', '==', formData.email)
-        .limit(1)
-        .get();
-
-      if (!emailCheck.empty) {
-        return {
-          success: false,
-          error: 'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\nThis email is already registered!',
-          errorType: 'email-exists',
-        };
-      }
-
+      // Step 1: Create Firebase Auth account FIRST (so user becomes authenticated)
       const r = await firebaseEmailRegister(formData.email, formData.password);
       if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
-      // ✅ Send Email Verification
+
+      // Step 2: NOW user is authenticated → Firestore reads are allowed by rules
+      // ✅ CRITICAL: Phone Number Lock - Check if phone already registered
+      if (formData.phone) {
+        try {
+          const phoneCheck = await firestore()
+            .collection('users')
+            .where('phone', '==', formData.phone)
+            .limit(1)
+            .get();
+
+          if (!phoneCheck.empty) {
+            const existingUser = phoneCheck.docs[0].data();
+            const existingType = existingUser.userType || 'unknown';
+            const typeLabels = { consumer: 'நுகர்வோர் / Customer', farmer: 'விவசாயி / Farmer', delivery: 'டெலிவரி / Delivery' };
+            // ❌ Phone already exists → Delete the just-created auth account
+            await fbUser.delete();
+            return {
+              success: false,
+              error: `📱 இந்த தொலைபேசி எண் ஏற்கனவே "${typeLabels[existingType] || existingType}" கணக்கில் பதிவு செய்யப்பட்டுள்ளது!\n\nஒரு தொலைபேசி எண்ணுக்கு ஒரே ஒரு கணக்கு மட்டுமே அனுமதிக்கப்படும்.\n\nThis phone number is already registered with a "${existingType}" account. Only one account per phone number is allowed.`,
+              errorType: 'phone-exists',
+            };
+          }
+        } catch (phoneErr) {
+          console.log('Phone check error (non-critical):', phoneErr.message);
+        }
+      }
+
+      // ✅ Also check if email already exists in Firestore (extra safety for duplicate profiles)
+      try {
+        const emailCheck = await firestore()
+          .collection('users')
+          .where('email', '==', formData.email)
+          .limit(1)
+          .get();
+
+        if (!emailCheck.empty) {
+          // Email profile already exists in Firestore → Delete the auth account
+          await fbUser.delete();
+          return {
+            success: false,
+            error: 'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\nThis email is already registered!',
+            errorType: 'email-exists',
+          };
+        }
+      } catch (emailErr) {
+        console.log('Email check error (non-critical):', emailErr.message);
+      }
+
+      // Step 3: All checks passed → Send Email Verification
       try {
         await fbUser.sendEmailVerification();
       } catch (verifyErr) {
         console.log('Email verification send error (non-critical):', verifyErr.message);
       }
 
+      // Step 4: Save user profile to Firestore
       const userData = {
         id: fbUser.uid, uid: fbUser.uid, name: formData.name,
         email: formData.email, phone: formData.phone || '',
