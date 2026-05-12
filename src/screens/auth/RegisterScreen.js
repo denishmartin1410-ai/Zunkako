@@ -160,6 +160,15 @@ const RegisterScreen = ({ navigation }) => {
             { text: '🔐 Login செய்ய', onPress: () => navigation.navigate('Login') }
           ]
         );
+      } else if (errorType === 'phone-exists') {
+        Alert.alert(
+          '📱 தொலைபேசி எண் ஏற்கனவே உள்ளது / Phone Already Registered',
+          result.error,
+          [
+            { text: 'சரி / OK', style: 'cancel' },
+            { text: '🔐 Login செய்ய', onPress: () => navigation.navigate('Login') }
+          ]
+        );
       } else {
         Alert.alert(
           'பிழை / Error',
