@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, Alert, Dimensions,
+  TouchableOpacity, TextInput, Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,34 +17,35 @@ import { listenToGroupBuys, createGroupBuy, joinGroupBuy } from '../../services/
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
-const { width } = Dimensions.get('window');
-
 // Read from Firestore instead of hardcoded data
 
 const STATUS_CONFIG = {
   open: {
     color: COLORS.primaryGreen,
     bg: '#E8F5E9',
-    label: '✅ இடம் உள்ளது',
-    labelEn: 'Spots Available',
+    labelKey: 'spotsAvailable',
   },
   almostFull: {
     color: COLORS.accentGold,
     bg: '#FFF9E6',
-    label: '⚡ கிட்டத்தட்ட நிரம்பியது',
-    labelEn: 'Almost Full',
+    labelKey: 'almostFull',
   },
   full: {
     color: COLORS.accentRed,
     bg: '#FFEBEE',
-    label: '🔴 நிரம்பிவிட்டது',
-    labelEn: 'Full',
+    labelKey: 'full',
   },
 };
 
-const GroupCard = ({ group, onJoin, onCreate }) => {
-  const status = STATUS_CONFIG[group.status];
-  const fillPercent = (group.currentMembers / group.targetMembers) * 100;
+const GroupCard = ({ group, onJoin, user }) => {
+  const { t } = useTranslation();
+  
+  const fillPercent = Math.min((group.currentMembers / group.targetMembers) * 100, 100);
+  const statusKey = group.currentMembers >= group.targetMembers ? 'full' 
+    : (group.targetMembers - group.currentMembers <= 2 ? 'almostFull' : 'open');
+  const status = STATUS_CONFIG[statusKey];
+  
+  const isMember = group.members && group.members.includes(user?.uid || user?.id);
 
   return (
     <View style={styles.groupCard}>
@@ -61,8 +62,7 @@ const GroupCard = ({ group, onJoin, onCreate }) => {
           </View>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-          <Text style={[styles.statusLabel, { color: status.color }]}>{status.label}</Text>
-          <Text style={[styles.statusLabelEn, { color: status.color }]}>{status.labelEn}</Text>
+          <Text style={[styles.statusLabel, { color: status.color }]}>{statusKey === 'open' ? '✅ ' : statusKey === 'almostFull' ? '⚡ ' : '🔴 '}{t(`groupBuy.${status.labelKey}`)}</Text>
         </View>
       </LinearGradient>
 
@@ -71,7 +71,7 @@ const GroupCard = ({ group, onJoin, onCreate }) => {
         <View style={styles.membersSection}>
           <View style={styles.membersHeader}>
             <Text style={styles.membersLabel}>
-              👥 உறுப்பினர்கள் / Members:
+              👥 {t('groupBuy.members')}:
             </Text>
             <Text style={styles.membersCount}>
               {group.currentMembers} / {group.targetMembers}
@@ -100,15 +100,15 @@ const GroupCard = ({ group, onJoin, onCreate }) => {
             )}
             <Text style={styles.membersNeeded}>
               {group.targetMembers - group.currentMembers > 0
-                ? `இன்னும் ${group.targetMembers - group.currentMembers} பேர் தேவை`
-                : 'நிரம்பிவிட்டது!'}
+                ? `${group.targetMembers - group.currentMembers} ${t('groupBuy.needed')}`
+                : t('groupBuy.full')}
             </Text>
           </View>
         </View>
 
         {/* Products */}
         <View style={styles.productsSection}>
-          <Text style={styles.productsSectionTitle}>🛒 தயாரிப்புகள் / Products:</Text>
+          <Text style={styles.productsSectionTitle}>🛒 {t('groupBuy.products')}:</Text>
           {(group.products || []).map((p, i) => (
             <View key={i} style={styles.productRow}>
               <Text style={styles.productName}>{p.name}</Text>
@@ -122,13 +122,13 @@ const GroupCard = ({ group, onJoin, onCreate }) => {
         <View style={styles.benefitsRow}>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>🎁</Text>
-            <Text style={styles.benefitLabel}>{group.discount} தள்ளுபடி</Text>
-            <Text style={styles.benefitValue}>₹{group.discountAmount} சேமிப்பு</Text>
+            <Text style={styles.benefitLabel}>{group.discount} {t('groupBuy.discount')}</Text>
+            <Text style={styles.benefitValue}>₹{group.discountAmount} {t('groupBuy.savings')}</Text>
           </View>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>🚚</Text>
             <Text style={styles.benefitLabel}>Delivery</Text>
-            <Text style={styles.benefitValue}>இலவசம் FREE!</Text>
+            <Text style={styles.benefitValue}>{t('groupBuy.free')}</Text>
           </View>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>📅</Text>
@@ -137,19 +137,30 @@ const GroupCard = ({ group, onJoin, onCreate }) => {
           </View>
         </View>
 
-        {/* Join button */}
+        {/* Join or Invite button */}
         {group.status !== 'full' ? (
-          <TouchableOpacity style={styles.joinBtn} onPress={() => onJoin(group)}>
-            <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-              <Text style={styles.joinBtnTxt}>
-                ✅ இந்த குழுவில் சேர் / Join This Group
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+          isMember ? (
+            <TouchableOpacity style={styles.joinBtn} onPress={() => Alert.alert(t('groupBuy.inviteFriends'), t('groupBuy.inviteMsg'))}>
+              <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Text style={styles.joinBtnTxt}>
+                  📢 {t('groupBuy.inviteFriends')}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.joinBtn} onPress={() => onJoin(group)}>
+              <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Text style={styles.joinBtnTxt}>
+                  ✅ {t('groupBuy.joinGroup')}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )
         ) : (
           <View style={styles.fullBtn}>
-            <Text style={styles.fullBtnTxt}>🔴 நிரம்பிவிட்டது / Group Full</Text>
+            <Text style={styles.fullBtnTxt}>🔴 {t('groupBuy.groupFull')}</Text>
           </View>
         )}
       </View>
@@ -262,17 +273,17 @@ const VillageGroupBuyScreen = ({ navigation }) => {
         <Text style={styles.howTitle}>⚡ {t('groupBuy.howItWorks', { defaultValue: 'எப்படி வேலை செய்யும்?' })}</Text>
         <View style={styles.stepsRow}>
           {[
-            { step: '1', emoji: '👥', label: t('groupBuy.step1', { defaultValue: 'குழு உருவாக்கு' }) },
-            { step: '2', emoji: '📢', label: t('groupBuy.step2', { defaultValue: 'நண்பர்களை சேர்' }) },
-            { step: '3', emoji: '🛒', label: t('groupBuy.step3', { defaultValue: 'சேர்ந்து order' }) },
-            { step: '4', emoji: '🎁', label: t('groupBuy.step4', { defaultValue: 'Discount பெறு' }) },
+            { step: '1', emoji: '👥', label: t('groupBuy.step1') },
+            { step: '2', emoji: '📢', label: t('groupBuy.step2') },
+            { step: '3', emoji: '🛒', label: t('groupBuy.step3') },
+            { step: '4', emoji: '🎁', label: t('groupBuy.step4') },
           ].map((s, i) => (
             <View key={i} style={styles.stepItem}>
               <View style={styles.stepNum}>
                 <Text style={styles.stepNumTxt}>{s.step}</Text>
               </View>
               <Text style={styles.stepEmoji}>{s.emoji}</Text>
-              <Text style={styles.stepLabel}>{s.label}</Text>
+              <Text style={styles.stepLabel} numberOfLines={2}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -294,11 +305,11 @@ const VillageGroupBuyScreen = ({ navigation }) => {
         {/* Create form */}
         {showCreate && (
           <View style={styles.createForm}>
-            <Text style={styles.createFormTitle}>🆕 புதிய Group உருவாக்கு</Text>
+            <Text style={styles.createFormTitle}>🆕 {t('groupBuy.createTitle')}</Text>
             {[
-              { key: 'title', label: 'குழு பெயர் / Group Name', placeholder: 'எ.கா: அண்ணா நகர் காய்கறி குழு' },
-              { key: 'location', label: 'இடம் / Location', placeholder: 'எ.கா: அண்ணா நகர், சென்னை' },
-              { key: 'targetMembers', label: 'தேவையான உறுப்பினர்கள் / Target Members', placeholder: 'எ.கா: 5', keyboard: 'numeric' },
+              { key: 'title', label: t('groupBuy.formName'), placeholder: 'எ.கா: அண்ணா நகர் காய்கறி குழு' },
+              { key: 'location', label: t('groupBuy.formLocation'), placeholder: 'எ.கா: அண்ணா நகர், சென்னை' },
+              { key: 'targetMembers', label: t('groupBuy.formTarget'), placeholder: 'எ.கா: 5', keyboard: 'numeric' },
             ].map(field => (
               <View key={field.key} style={styles.formField}>
                 <Text style={styles.formLabel}>{field.label}</Text>
@@ -314,7 +325,7 @@ const VillageGroupBuyScreen = ({ navigation }) => {
             ))}
             <TouchableOpacity style={styles.createSubmitBtn} onPress={handleCreate}>
               <LinearGradient colors={COLORS.gradientButton} style={styles.createSubmitGrad}>
-                <Text style={styles.createSubmitTxt}>✅ குழு உருவாக்கு / Create Group</Text>
+                <Text style={styles.createSubmitTxt}>✅ {t('groupBuy.createBtnSubmit')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -326,11 +337,9 @@ const VillageGroupBuyScreen = ({ navigation }) => {
         </Text>
         {loading ? (
           <Text style={{ textAlign: 'center', marginTop: 20 }}>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
-        ) : groups.length === 0 ? (
-          <Text style={{ textAlign: 'center', marginTop: 20, color: COLORS.textGray }}>{t('groupBuy.noGroups', { defaultValue: 'தற்போது எந்த குழுவும் இல்லை.' })}</Text>
-        ) : (
+        ) : groups.length === 0 ? null : (
           groups.map(group => (
-            <GroupCard key={group.id} group={group} onJoin={handleJoin} />
+            <GroupCard key={group.id} group={group} onJoin={handleJoin} user={user} />
           ))
         )}
       </ScrollView>
@@ -361,7 +370,7 @@ const styles = StyleSheet.create({
   },
   stepNumTxt: { color: COLORS.white, fontSize: FONTS.sm, fontWeight: FONTS.bold },
   stepEmoji: { fontSize: 22, marginBottom: 4 },
-  stepLabel: { fontSize: FONTS.xs, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 14 },
+  stepLabel: { fontSize: 10, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 14, paddingHorizontal: 2 },
 
   // Group card
   groupCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, marginBottom: SPACING.lg, overflow: 'hidden', ...SHADOWS.medium },

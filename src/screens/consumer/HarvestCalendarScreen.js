@@ -90,8 +90,7 @@ const HarvestCalendarScreen = ({ navigation }) => {
                 onPress={() => setSelectedDay(day.key)}>
                 {isSelected ? (
                   <LinearGradient colors={COLORS.gradientButton} style={styles.dayChipGrad}>
-                    <Text style={styles.dayTaActive}>{day.ta}</Text>
-                    <Text style={styles.dayEnActive}>{day.en}</Text>
+                    <Text style={styles.dayActiveTxt}>{t(`harvestCalendar.day_${day.key.toLowerCase()}`)}</Text>
                     {count > 0 && (
                       <View style={styles.dayBadge}>
                         <Text style={styles.dayBadgeTxt}>{count}</Text>
@@ -100,8 +99,7 @@ const HarvestCalendarScreen = ({ navigation }) => {
                   </LinearGradient>
                 ) : (
                   <View style={styles.dayChipInner}>
-                    <Text style={[styles.dayTa, isToday && styles.dayTaToday]}>{day.ta}</Text>
-                    <Text style={[styles.dayEn, isToday && styles.dayEnToday]}>{day.en}</Text>
+                    <Text style={[styles.dayTxt, isToday && styles.dayTxtToday]}>{t(`harvestCalendar.day_${day.key.toLowerCase()}`)}</Text>
                     {isToday && <Text style={styles.todayDot}>●</Text>}
                   </View>
                 )}
@@ -133,7 +131,6 @@ const HarvestCalendarScreen = ({ navigation }) => {
           <View style={styles.emptyBox}>
             <Text style={styles.emptyEmoji}>😴</Text>
             <Text style={styles.emptyTxt}>{loading ? t('common.loading', { defaultValue: 'Loading...' }) : t('harvestCalendar.noHarvest', { defaultValue: 'இந்த நாள் harvest இல்லை' })}</Text>
-            <Text style={styles.emptySubTxt}>{loading ? t('common.pleaseWait', { defaultValue: 'Please wait' }) : t('harvestCalendar.noHarvestSub', { defaultValue: 'No harvest scheduled' })}</Text>
           </View>
         ) : (
           items.map((item, idx) => (
@@ -206,12 +203,9 @@ const styles = StyleSheet.create({
     alignItems: 'center', backgroundColor: COLORS.background,
     borderRadius: RADIUS.lg,
   },
-  dayTa: { fontSize: FONTS.xs, color: COLORS.textSecondary, fontWeight: FONTS.semiBold },
-  dayTaToday: { color: COLORS.primaryGreen, fontWeight: FONTS.bold },
-  dayEn: { fontSize: FONTS.xs, color: COLORS.textMuted },
-  dayEnToday: { color: COLORS.primaryGreen },
-  dayTaActive: { fontSize: FONTS.xs, color: COLORS.white, fontWeight: FONTS.bold },
-  dayEnActive: { fontSize: FONTS.xs, color: 'rgba(255,255,255,0.8)' },
+  dayTxt: { fontSize: FONTS.sm, color: COLORS.textSecondary, fontWeight: FONTS.semiBold },
+  dayTxtToday: { color: COLORS.primaryGreen, fontWeight: FONTS.bold },
+  dayActiveTxt: { fontSize: FONTS.sm, color: COLORS.white, fontWeight: FONTS.bold },
   dayBadge: {
     backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 10,
     paddingHorizontal: 6, paddingVertical: 1, marginTop: 2,

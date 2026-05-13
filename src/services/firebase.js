@@ -291,13 +291,32 @@ export const getAllFarmers = async () => {
       .collection('farmers')
       .where('isActive', '==', true)
       .get();
-    return {
-      success: true,
-      data: snap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-    };
+    
+    let farmersList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Fallback: If farmers collection is empty, check users collection for userType == 'farmer'
+    if (farmersList.length === 0) {
+      const usersSnap = await firestore()
+        .collection('users')
+        .where('userType', '==', 'farmer')
+        .get();
+      farmersList = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    return { success: true, data: farmersList };
   } catch (error) {
     console.log('getAllFarmers error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    
+    // Fallback if permission error on farmers collection
+    try {
+      const usersSnap = await firestore()
+        .collection('users')
+        .where('userType', '==', 'farmer')
+        .get();
+      return { success: true, data: usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
+    } catch (fallbackError) {
+      return { success: false, error: error.message, data: [] };
+    }
   }
 };
 

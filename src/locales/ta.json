@@ -82,6 +82,13 @@
     "cancelSuccess": "ஆர்டர் வெற்றிகரமாக ரத்து செய்யப்பட்டது!",
     "cancelExpired": "ரத்து செய்ய இயலாது",
     "cancelExpiredMsg": "ஆர்டர் செய்த 12 மணி நேரத்திற்குள் மட்டுமே ரத்து செய்ய முடியும்.",
+    "cancelReason": "ரத்து செய்வதற்கான காரணம்",
+    "reasonNoNeed": "தயாரிப்பு இப்போது தேவையில்லை",
+    "reasonMistake": "தவறுதலாக ஆர்டர் செய்துவிட்டேன்",
+    "reasonPrice": "விலை அதிகமாக உள்ளது",
+    "reasonDelivery": "டெலிவரி நேரம் அதிகம்",
+    "close": "மூடு",
+    "submit": "சமர்ப்பி",
     "startShopping": "ஆர்டர் செய்ய தொடங்குங்கள்",
     "statusCancelled": "ரத்து செய்யப்பட்டது",
     "status_Refund_Requested": "பணம் திரும்புவதற்கான கோரிக்கை"
@@ -267,7 +274,8 @@
     "day_fri": "வெள்ளி",
     "day_sat": "சனி",
     "todayBadge": "📍 இன்று",
-    "freshBadgeText": "🌿 புதியது = இன்று"
+    "freshBadgeText": "🌿 புதியது = இன்று",
+    "desc": "இந்த வாரம் என்ன fresh-ஆ கிடைக்கும்?"
   },
   "freshness": {
     "title": "புத்துணர்வு கண்காணிப்பு",
@@ -310,7 +318,26 @@
     "desc": "நீங்கள் வாங்கிய F2C products-ல் இருந்து\nஉங்கள் வார ஊட்டச்சத்து பார்க்கலாம்!",
     "thisWeek": "இந்த வாரம்",
     "lastWeek": "கடந்த வாரம்",
-    "twoWeeksAgo": "2 வாரம் முன்பு"
+    "twoWeeksAgo": "2 வாரம் முன்பு",
+    "noOrders": "இந்த வாரம் எந்த ஆர்டரும் இல்லை.",
+    "productsPurchased": "Products\nவாங்கினீர்கள்",
+    "spent": "செலவு\nSpent",
+    "healthScore": "Health\nScore",
+    "details": "📊 ஊட்டச்சத்து விவரம்",
+    "detailsSub": "இந்த வாரம் வாங்கிய products-ல் இருந்து",
+    "purchased": "🛒 வாங்கிய products",
+    "healthTips": "💡 உங்களுக்கான ஆலோசனை",
+    "organicAdvantage": "🌿 F2C Organic Advantage",
+    "organicDesc": "இயற்கை முறையில் வளர்க்கப்பட்ட products வாங்கியதால்\nPesticide: 0% | Chemical: 0% | Fresh: 100%\n\nChemical-free farming products purchased\nZero pesticides in your family's food! 🎉",
+    "over": "⬆ அதிகம் / Over by",
+    "low": "⬇ கம்மி / more needed",
+    "optimal": "✅ சரியான அளவு",
+    "calories": "கலோரி",
+    "protein": "புரதம்",
+    "carbs": "கார்போ",
+    "fat": "கொழுப்பு",
+    "fiber": "நார்ச்சத்து",
+    "iron": "இரும்பு"
   },
   "farmVisit": {
     "title": "பண்ணை வருகை",
@@ -346,5 +373,35 @@
   "chat": {
     "farmerChat": "விவசாயி அரட்டை",
     "startChatting": "அரட்டையை தொடங்குங்கள்"
+  },
+  "groupBuy": {
+    "title": "கூட்டு வாங்கல்",
+    "desc": "5 பேர் சேர்ந்து ஆர்டர் பண்ணினால்\n15-25% தள்ளுபடி + இலவச டெலிவரி!",
+    "howItWorks": "எப்படி வேலை செய்யும்?",
+    "step1": "குழு உருவாக்கு",
+    "step2": "நண்பர்களை சேர்",
+    "step3": "சேர்ந்து ஆர்டர்",
+    "step4": "தள்ளுபடி பெறு",
+    "createBtn": "புதிய குழு உருவாக்கு",
+    "activeGroups": "இப்போ உள்ள குழுக்கள்",
+    "noGroups": "தற்போது எந்த குழுவும் இல்லை.",
+    "createTitle": "புதிய குழு உருவாக்கு",
+    "formName": "குழு பெயர்",
+    "formLocation": "இடம்",
+    "formTarget": "தேவையான உறுப்பினர்கள்",
+    "createBtnSubmit": "குழு உருவாக்கு",
+    "spotsAvailable": "இடம் உள்ளது",
+    "almostFull": "கிட்டத்தட்ட நிரம்பியது",
+    "full": "நிரம்பிவிட்டது",
+    "members": "உறுப்பினர்கள்",
+    "needed": "பேர் தேவை",
+    "products": "தயாரிப்புகள்",
+    "discount": "தள்ளுபடி",
+    "savings": "சேமிப்பு",
+    "free": "இலவசம்",
+    "joinGroup": "இந்த குழுவில் சேர்",
+    "inviteFriends": "நண்பர்களை அழைக்கவும்",
+    "inviteMsg": "நண்பர்களை அழைக்க Link-ஐ பகிரவும்",
+    "groupFull": "குழு நிரம்பிவிட்டது"
   }
 }

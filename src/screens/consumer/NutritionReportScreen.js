@@ -42,6 +42,7 @@ const RECOMMENDED = {
 };
 
 const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
+  const { t } = useTranslation();
   const percent = Math.min((value / recommended) * 100, 100);
   const isGood = percent >= 70 && percent <= 100;
   const isLow = percent < 70;
@@ -67,9 +68,9 @@ const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
       </View>
       <Text style={[styles.nutritionStatus,
         {color: isOver ? COLORS.accentRed : isLow ? COLORS.accentGold : COLORS.primaryGreen}]}>
-        {isOver ? `⬆ அதிகம் / Over by ${value - recommended}${unit}`
-          : isLow ? `⬇ கம்மி / ${recommended - value}${unit} more needed`
-          : '✅ சரியான அளவு / Optimal'}
+        {isOver ? `${t('nutrition.over')} ${value - recommended}${unit}`
+          : isLow ? `${t('nutrition.low')} ${recommended - value}${unit}`
+          : t('nutrition.optimal')}
       </Text>
     </View>
   );
@@ -158,19 +159,19 @@ const NutritionReportScreen = ({navigation}) => {
           totalSpent,
           totalItems,
           nutrition: {
-            calories: {value: Math.round(totals.calories), recommended: RECOMMENDED.calories, unit: 'kcal', label: 'கலோரி\nCalories', emoji: '🔥', color: '#FF7043'},
-            protein: {value: Math.round(totals.protein), recommended: RECOMMENDED.protein, unit: 'g', label: 'புரதம்\nProtein', emoji: '💪', color: '#7B1FA2'},
-            carbs: {value: Math.round(totals.carbs), recommended: RECOMMENDED.carbs, unit: 'g', label: 'கார்போ\nCarbs', emoji: '🌾', color: '#F57F17'},
-            fat: {value: Math.round(totals.fat), recommended: RECOMMENDED.fat, unit: 'g', label: 'கொழுப்பு\nFat', emoji: '🥑', color: '#00897B'},
-            fiber: {value: Math.round(totals.fiber), recommended: RECOMMENDED.fiber, unit: 'g', label: 'நார்ச்சத்து\nFiber', emoji: '🥦', color: '#2E7D32'},
-            iron: {value: Math.round(totals.iron), recommended: RECOMMENDED.iron, unit: 'mg', label: 'இரும்பு\nIron', emoji: '⚡', color: '#1565C0'},
+            calories: {value: Math.round(totals.calories), recommended: RECOMMENDED.calories, unit: 'kcal', label: t('nutrition.calories'), emoji: '🔥', color: '#FF7043'},
+            protein: {value: Math.round(totals.protein), recommended: RECOMMENDED.protein, unit: 'g', label: t('nutrition.protein'), emoji: '💪', color: '#7B1FA2'},
+            carbs: {value: Math.round(totals.carbs), recommended: RECOMMENDED.carbs, unit: 'g', label: t('nutrition.carbs'), emoji: '🌾', color: '#F57F17'},
+            fat: {value: Math.round(totals.fat), recommended: RECOMMENDED.fat, unit: 'g', label: t('nutrition.fat'), emoji: '🥑', color: '#00897B'},
+            fiber: {value: Math.round(totals.fiber), recommended: RECOMMENDED.fiber, unit: 'g', label: t('nutrition.fiber'), emoji: '🥦', color: '#2E7D32'},
+            iron: {value: Math.round(totals.iron), recommended: RECOMMENDED.iron, unit: 'mg', label: t('nutrition.iron'), emoji: '⚡', color: '#1565C0'},
           },
           purchasedItems: Object.values(purchasedItemsMap),
           healthScore: totalItems === 0 ? 0 : score,
           tips: totalItems === 0 ? [] : [
-            {emoji: '✅', tip: 'இந்த வாரம் நிறைய கீரை சாப்பிட்டீர்கள்! Iron level நல்லா இருக்கு.', tipEn: 'Great greens intake this week! Iron levels look good.'},
-            {emoji: '💡', tip: 'இன்னும் கொஞ்சம் protein வேண்டும். பருப்பு, நட்ஸ் சேர்க்கவும்.', tipEn: 'Add more protein: lentils, nuts recommended.'},
-            {emoji: '🌟', tip: 'இயற்கை products வாங்கியதால் pesticide exposure இல்லை!', tipEn: 'Zero pesticide exposure - great organic choice!'},
+            {emoji: '✅', tip: t('nutrition.tip1')},
+            {emoji: '💡', tip: t('nutrition.tip2')},
+            {emoji: '🌟', tip: t('nutrition.tip3')},
           ],
         });
       }
@@ -226,7 +227,7 @@ const NutritionReportScreen = ({navigation}) => {
           <View style={{ alignItems: 'center', marginTop: 50 }}>
             <Text style={{ fontSize: 60, marginBottom: 20 }}>🛒</Text>
             <Text style={{ fontSize: 16, color: COLORS.textGray, textAlign: 'center' }}>
-              இந்த வாரம் எந்த ஆர்டரும் இல்லை.
+              {t('nutrition.noOrders')}
             </Text>
           </View>
         ) : (
@@ -242,12 +243,12 @@ const NutritionReportScreen = ({navigation}) => {
                   <View style={styles.scoreStatsRow}>
                     <View style={styles.scoreStat}>
                       <Text style={styles.scoreStatNum}>{report.totalItems}</Text>
-                      <Text style={styles.scoreStatLabel}>Products{'\n'}வாங்கினீர்கள்</Text>
+                      <Text style={styles.scoreStatLabel}>{t('nutrition.productsPurchased')}</Text>
                     </View>
                     <View style={styles.scoreDivider} />
                     <View style={styles.scoreStat}>
                       <Text style={styles.scoreStatNum}>₹{report.totalSpent}</Text>
-                      <Text style={styles.scoreStatLabel}>செலவு{'\n'}Spent</Text>
+                      <Text style={styles.scoreStatLabel}>{t('nutrition.spent')}</Text>
                     </View>
                   </View>
                 </View>
@@ -255,15 +256,15 @@ const NutritionReportScreen = ({navigation}) => {
                 <View style={[styles.scoreCircle, {borderColor: scoreColor}]}>
                   <Text style={[styles.scoreNum, {color: scoreColor}]}>{report.healthScore}</Text>
                   <Text style={styles.scoreOutOf}>/100</Text>
-              <Text style={styles.scoreLabel}>Health{'\n'}Score</Text>
+              <Text style={styles.scoreLabel}>{t('nutrition.healthScore')}</Text>
             </View>
           </LinearGradient>
         </View>
 
         {/* Nutrition Bars */}
         <View style={styles.nutritionCard}>
-          <Text style={styles.sectionTitle}>📊 ஊட்டச்சத்து விவரம் / Nutrition Details</Text>
-          <Text style={styles.sectionSub}>இந்த வாரம் வாங்கிய products-ல் இருந்து</Text>
+          <Text style={styles.sectionTitle}>{t('nutrition.details')}</Text>
+          <Text style={styles.sectionSub}>{t('nutrition.detailsSub')}</Text>
           {Object.entries(report.nutrition).map(([key, data]) => (
             <NutritionBar key={key} {...data} />
           ))}
@@ -271,7 +272,7 @@ const NutritionReportScreen = ({navigation}) => {
 
         {/* Products purchased */}
         <View style={styles.productsCard}>
-          <Text style={styles.sectionTitle}>🛒 வாங்கிய products / Purchased this week</Text>
+          <Text style={styles.sectionTitle}>{t('nutrition.purchased')}</Text>
           {report.purchasedItems.map((item, i) => (
             <View key={i} style={styles.purchasedRow}>
               <Text style={styles.purchasedEmoji}>{item.emoji}</Text>
@@ -287,13 +288,12 @@ const NutritionReportScreen = ({navigation}) => {
 
         {/* Health Tips */}
         <View style={styles.tipsCard}>
-          <Text style={styles.sectionTitle}>💡 உங்களுக்கான ஆலோசனை / Health Tips</Text>
+          <Text style={styles.sectionTitle}>{t('nutrition.healthTips')}</Text>
           {report.tips.map((tip, i) => (
             <View key={i} style={styles.tipRow}>
               <Text style={styles.tipEmoji}>{tip.emoji}</Text>
               <View style={styles.tipContent}>
                 <Text style={styles.tipText}>{tip.tip}</Text>
-                <Text style={styles.tipTextEn}>{tip.tipEn}</Text>
               </View>
             </View>
           ))}
@@ -303,13 +303,9 @@ const NutritionReportScreen = ({navigation}) => {
         <View style={styles.f2cAdvantage}>
           <LinearGradient colors={COLORS.gradientSoft} style={styles.f2cGrad}>
             <Text style={styles.f2cEmoji}>🌿</Text>
-            <Text style={styles.f2cTitle}>F2C Organic Advantage</Text>
+            <Text style={styles.f2cTitle}>{t('nutrition.organicAdvantage')}</Text>
             <Text style={styles.f2cDesc}>
-              இயற்கை முறையில் வளர்க்கப்பட்ட products வாங்கியதால்{'\n'}
-              Pesticide: 0% | Chemical: 0% | Fresh: 100%{'\n'}
-              {'\n'}
-              Chemical-free farming products purchased{'\n'}
-              Zero pesticides in your family's food! 🎉
+              {t('nutrition.organicDesc')}
             </Text>
           </LinearGradient>
         </View>
@@ -342,15 +338,15 @@ const styles = StyleSheet.create({
   weekChipActiveTxt: {fontSize: FONTS.xs, color: COLORS.white, fontWeight: FONTS.bold},
 
   scoreCard: {borderRadius: RADIUS.xl, overflow: 'hidden', marginBottom: SPACING.lg, ...SHADOWS.card},
-  scoreCardGrad: {flexDirection: 'row', alignItems: 'center', padding: SPACING.xl, justifyContent: 'space-between'},
-  scoreLeft: {flex: 1},
+  scoreCardGrad: {flexDirection: 'row', alignItems: 'center', padding: SPACING.lg, justifyContent: 'space-between'},
+  scoreLeft: {flex: 1, paddingRight: SPACING.sm},
   scoreWeek: {fontSize: FONTS.md, fontWeight: FONTS.bold, color: COLORS.textPrimary},
   scoreWeekEn: {fontSize: FONTS.xs, color: COLORS.textMuted, marginBottom: SPACING.md},
   scoreStatsRow: {flexDirection: 'row', alignItems: 'center'},
-  scoreStat: {alignItems: 'center'},
+  scoreStat: {alignItems: 'center', flex: 1},
   scoreStatNum: {fontSize: FONTS.xl, fontWeight: FONTS.extraBold, color: COLORS.primaryGreen},
-  scoreStatLabel: {fontSize: FONTS.xs, color: COLORS.textMuted, textAlign: 'center', lineHeight: 14},
-  scoreDivider: {width: 1, height: 40, backgroundColor: COLORS.border, marginHorizontal: SPACING.lg},
+  scoreStatLabel: {fontSize: FONTS.xs, color: COLORS.textMuted, textAlign: 'center', lineHeight: 16},
+  scoreDivider: {width: 1, height: 40, backgroundColor: COLORS.border, marginHorizontal: SPACING.sm},
   scoreCircle: {
     width: 90, height: 90, borderRadius: 45,
     borderWidth: 4, alignItems: 'center', justifyContent: 'center',

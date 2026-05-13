@@ -15,7 +15,7 @@ import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
-import {listenToFarmVisits, bookFarmVisit} from '../../services/firebase';
+import { getAllFarmers } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 
 // Data loaded from Firestore
@@ -32,13 +32,36 @@ const FarmVisitScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
-    const unsubscribe = listenToFarmVisits((res) => {
-      if (res.success) {
-        setFarms(res.data);
+    const fetchFarmers = async () => {
+      const res = await getAllFarmers();
+      if (res.success && res.data) {
+        // Map farmers to Farm Visit format
+        const mappedFarms = res.data.map(farmer => ({
+          id: farmer.id,
+          farmerId: farmer.id,
+          farmName: farmer.farmName || `${farmer.nameTa || farmer.name}'s Farm`,
+          farmerName: farmer.nameTa || farmer.name,
+          farmerNameEn: farmer.name,
+          location: farmer.location || 'Tamil Nadu',
+          locationTa: farmer.locationTa || 'தமிழ்நாடு',
+          avatar: farmer.photoURL || farmer.avatar || 'https://via.placeholder.com/150',
+          coverImage: farmer.coverImage || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=500&q=80',
+          distance: '2-5 km',
+          rating: farmer.rating || 4.8,
+          totalVisitors: Math.floor(Math.random() * 50) + 10,
+          visitSlots: ['09:00 AM', '11:00 AM', '04:00 PM'],
+          visitSlotsEn: ['09:00 AM', '11:00 AM', '04:00 PM'],
+          maxVisitorsPerSlot: 10,
+          highlights: ['Organic', 'Fresh', 'Direct Farm'],
+          availableDaysTa: ['சனி', 'ஞாயிறு'],
+          availableDays: ['Saturday', 'Sunday'],
+          activities: ['✅ நேரடி அறுவடை செய்யலாம்', '✅ விளைநிலங்களை சுற்றிப்பார்க்கலாம்', '✅ இயற்கை விவசாய முறைகளை அறியலாம்'],
+        }));
+        setFarms(mappedFarms);
       }
       setLoading(false);
-    });
-    return () => unsubscribe();
+    };
+    fetchFarmers();
   }, []);
 
   const handleBookVisit = async () => {
@@ -71,33 +94,20 @@ const FarmVisitScreen = ({navigation}) => {
       return;
     }
 
-    const res = await bookFarmVisit(
-      selectedFarm.id,
-      user.uid || user.id,
-      user.name || 'User',
-      selectedDate,
-      selectedSlot,
-      parseInt(visitors, 10)
-    );
-
-    if (res.success) {
-      Alert.alert(
-        '✅ பண்ணை வருகை உறுதி! / Farm Visit Confirmed!',
-        `பண்ணை: ${selectedFarm?.farmName}\n` +
-        `Farm: ${selectedFarm?.farmName}\n\n` +
-        `தேதி: ${selectedDate}\nDate: ${selectedDate}\n\n` +
-        `நேரம்: ${selectedSlot}\n\n` +
-        `உறுப்பினர்கள்: ${visitors} பேர்\nVisitors: ${visitors}\n\n` +
-        `விவசாயி உங்களை Chat-ல் தொடர்பு கொண்டு தேதியை உறுதி செய்வார். ஒருவேளை அவருக்கு வேறு வேலை இருந்தால், அவர் உங்களுக்கு மாற்று தேதியை வழங்குவார். நீங்களும் அவரிடம் Chat மூலம் ஒருங்கிணைத்துக்கொள்ளலாம்!\n\n` +
-        `Farmer will confirm the date via Chat. You can coordinate further directly!`,
-        [{
-          text: '🎉 சரி / OK',
-          onPress: () => {setShowBooking(false); setSelectedFarm(null);},
-        }],
-      );
-    } else {
-      Alert.alert('Error', res.error);
-    }
+    const formattedMessage = `👋 வணக்கம்! பண்ணை வருகைக்கு (Farm Visit) அனுமதி கேட்கிறேன்.\n📅 தேதி: ${selectedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} பேர்\nநாங்கள் வரலாமா? / Can we visit?`;
+    
+    setShowBooking(false);
+    setSelectedFarm(null);
+    
+    navigation.navigate('FarmerChatRoom', {
+      farmer: {
+        id: selectedFarm.farmerId,
+        name: selectedFarm.farmerNameEn,
+        nameTa: selectedFarm.farmerName,
+        avatar: selectedFarm.avatar
+      },
+      initialMessage: formattedMessage
+    });
   };
 
   const FarmCard = ({farm}) => (

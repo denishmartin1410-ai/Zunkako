@@ -82,6 +82,13 @@
     "cancelSuccess": "ഓർഡർ വിജയകരമായി റദ്ദാക്കി!",
     "cancelExpired": "റദ്ദാക്കാൻ കഴിയില്ല",
     "cancelExpiredMsg": "ഓർഡർ ചെയ്ത് 12 മണിക്കൂറിനുള്ളിൽ മാത്രമേ റദ്ദാക്കാൻ കഴിയൂ.",
+    "cancelReason": "റദ്ദാക്കാനുള്ള കാരണം",
+    "reasonNoNeed": "ഉൽപ്പന്നം ഇപ്പോൾ ആവശ്യമില്ല",
+    "reasonMistake": "അബദ്ധത്തിൽ ഓർഡർ ചെയ്തു",
+    "reasonPrice": "വില വളരെ കൂടുതലാണ്",
+    "reasonDelivery": "ഡെലിവറി സമയം കൂടുതലാണ്",
+    "close": "അടയ്ക്കുക",
+    "submit": "സമർപ്പിക്കുക",
     "startShopping": "ഷോപ്പിംഗ് തുടങ്ങുക",
     "statusCancelled": "റദ്ദാക്കി",
     "status_Refund_Requested": "റീഫണ്ട് അഭ്യർത്ഥിച്ചു"
@@ -256,7 +263,8 @@
     "day_fri": "വെള്ളി",
     "day_sat": "ശനി",
     "todayBadge": "📍 ഇന്ന്",
-    "freshBadgeText": "🌿 പുതിയത് = ഇന്ന്"
+    "freshBadgeText": "🌿 പുതിയത് = ഇന്ന്",
+    "desc": "ഈ ആഴ്ച പുതിയതായി എന്ത് ലഭിക്കും?"
   },
   "freshness": {
     "title": "പുതുമ ട്രാക്കർ",
@@ -299,7 +307,26 @@
     "desc": "നിങ്ങൾ വാങ്ങിയ F2C ഉൽപ്പന്നങ്ങളിൽ നിന്ന്\nനിങ്ങളുടെ പ്രതിവാര പോഷകാഹാരം കാണുക!",
     "thisWeek": "ഈ ആഴ്ച",
     "lastWeek": "കഴിഞ്ഞ ആഴ്ച",
-    "twoWeeksAgo": "2 ആഴ്ച മുമ്പ്"
+    "twoWeeksAgo": "2 ആഴ്ച മുമ്പ്",
+    "noOrders": "ഈ ആഴ്ച ഓർഡറുകൾ ഇല്ല.",
+    "productsPurchased": "ഉൽപ്പന്നങ്ങൾ\nവാങ്ങി",
+    "spent": "ആകെ\nചെലവ്",
+    "healthScore": "ഹെൽത്ത്\nസ്കോർ",
+    "details": "📊 പോഷകാഹാര വിവരങ്ങൾ",
+    "detailsSub": "ഈ ആഴ്ച വാങ്ങിയ ഉൽപ്പന്നങ്ങളിൽ നിന്ന്",
+    "purchased": "🛒 ഈ ആഴ്ച വാങ്ങിയവ",
+    "healthTips": "💡 നിങ്ങൾക്കുള്ള ആരോഗ്യ നുറുങ്ങുകൾ",
+    "organicAdvantage": "🌿 F2C Organic Advantage",
+    "organicDesc": "ജൈവരീതിയിൽ വളർത്തിയ ഉൽപ്പന്നങ്ങൾ വാങ്ങിയതിനാൽ\nPesticide: 0% | Chemical: 0% | Fresh: 100%\n\nChemical-free farming products purchased\nZero pesticides in your family's food! 🎉",
+    "over": "⬆ കൂടുതൽ / Over by",
+    "low": "⬇ കുറവ് / more needed",
+    "optimal": "✅ കൃത്യം",
+    "calories": "കലോറി",
+    "protein": "പ്രോട്ടീൻ",
+    "carbs": "അന്നജം",
+    "fat": "കൊഴുപ്പ്",
+    "fiber": "നാരുകൾ",
+    "iron": "ഇരുമ്പ്"
   },
   "farmVisit": {
     "title": "ഫാം സന്ദർശനം",
@@ -347,5 +374,35 @@
   "chat": {
     "farmerChat": "കർഷകനുമായി ചാറ്റ് ചെയ്യുക",
     "startChatting": "ചാറ്റ് തുടങ്ങുക"
+  },
+  "groupBuy": {
+    "title": "കൂട്ടായി വാങ്ങൽ",
+    "desc": "5 പേർ ചേർന്ന് ഓർഡർ ചെയ്താൽ\n15-25% കിഴിവ് + സൗജന്യ ഡെലിവറി!",
+    "howItWorks": "എങ്ങനെ പ്രവർത്തിക്കുന്നു?",
+    "step1": "ഗ്രൂപ്പ് ഉണ്ടാക്കുക",
+    "step2": "സുഹൃത്തുക്കളെ ചേർക്കുക",
+    "step3": "കൂട്ടായി ഓർഡർ",
+    "step4": "കിഴിവ് നേടുക",
+    "createBtn": "പുതിയ ഗ്രൂപ്പ് ഉണ്ടാക്കുക",
+    "activeGroups": "സജീവ ഗ്രൂപ്പുകൾ",
+    "noGroups": "നിലവിൽ ഗ്രൂപ്പുകളൊന്നുമില്ല.",
+    "createTitle": "പുതിയ ഗ്രൂപ്പ് ഉണ്ടാക്കുക",
+    "formName": "ഗ്രൂപ്പ് പേര്",
+    "formLocation": "സ്ഥലം",
+    "formTarget": "ആവശ്യമായ അംഗങ്ങൾ",
+    "createBtnSubmit": "ഗ്രൂപ്പ് ഉണ്ടാക്കുക",
+    "spotsAvailable": "ലഭ്യമാണ്",
+    "almostFull": "ഏകദേശം നിറഞ്ഞു",
+    "full": "നിറഞ്ഞു",
+    "members": "അംഗങ്ങൾ",
+    "needed": "പേർ കൂടി വേണം",
+    "products": "ഉൽപ്പന്നങ്ങൾ",
+    "discount": "കിഴിവ്",
+    "savings": "ലാഭം",
+    "free": "സൗജന്യം",
+    "joinGroup": "ഗ്രൂപ്പിൽ ചേരുക",
+    "inviteFriends": "കൂട്ടുകാരെ ക്ഷണിക്കുക",
+    "inviteMsg": "സുഹൃത്തുക്കളെ ക്ഷണിക്കാൻ Link പങ്കിടുക",
+    "groupFull": "ഗ്രൂപ്പ് നിറഞ്ഞു"
   }
 }

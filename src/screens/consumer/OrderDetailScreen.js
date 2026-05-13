@@ -377,13 +377,13 @@ const OrderDetailScreen = ({ route, navigation }) => {
 
                         <View style={styles.modalActions}>
                             <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setCancelModalVisible(false)}>
-                                <Text style={styles.modalCancelBtnTxt}>{t('common.close', { defaultValue: 'மூடு' })}</Text>
+                                <Text style={styles.modalCancelBtnTxt}>{t('orders.close', { defaultValue: 'மூடு' })}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={[styles.modalSubmitBtn, !cancelReason && { opacity: 0.5 }]} 
                                 onPress={submitCancellation}
                                 disabled={!cancelReason}>
-                                <Text style={styles.modalSubmitBtnTxt}>{t('common.submit', { defaultValue: 'சமர்ப்பி' })}</Text>
+                                <Text style={styles.modalSubmitBtnTxt}>{t('orders.submit', { defaultValue: 'சமர்ப்பி' })}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

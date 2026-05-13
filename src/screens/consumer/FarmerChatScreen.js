@@ -114,6 +114,8 @@ export const ChatListScreen = ({ navigation }) => {
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 60 }}>
               <Text style={{ fontSize: 56 }}>👨‍🌾</Text>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.textSecondary, marginTop: SPACING.md }}>விவசாயிகள் யாரும் இல்லை / No Farmers</Text>
+              <Text style={{ fontSize: 14, color: COLORS.textMuted, marginTop: 4 }}>விரைவில் விவசாயிகள் இணைவார்கள் / Farmers will join soon</Text>
             </View>
           }
         />
@@ -128,7 +130,7 @@ const FarmerChatRoomScreen = ({ route, navigation }) => {
   const { farmer } = route.params;
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(route.params?.initialMessage || '');
   const [isSending, setIsSending] = useState(false);
   const flatListRef = useRef(null);
 
