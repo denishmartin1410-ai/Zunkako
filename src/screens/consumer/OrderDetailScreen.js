@@ -58,7 +58,16 @@ const OrderDetailScreen = ({ route, navigation }) => {
     }
 
     const statusColor = STATUS_COLOR[order.status] || '#999';
-    const statusTa = t('orders.status_' + order.status.replace(' ', '_'), { defaultValue: STATUS_TA[order.status] || order.status });
+    const getStatusI18nKey = (status) => {
+        if (status === 'Pending') return 'orders.statusPending';
+        if (status === 'Confirmed') return 'orders.statusConfirmed';
+        if (status === 'Shipped') return 'orders.statusShipped';
+        if (status === 'Delivered') return 'orders.statusDelivered';
+        if (status === 'Cancelled') return 'orders.statusCancelled';
+        if (status === 'Refund Requested') return 'orders.status_Refund_Requested';
+        return 'orders.status_' + status.replace(' ', '_');
+    };
+    const statusTa = t(getStatusI18nKey(order.status), { defaultValue: STATUS_TA[order.status] || order.status });
     const orderDate = order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || '';
 
     const [cancelModalVisible, setCancelModalVisible] = React.useState(false);

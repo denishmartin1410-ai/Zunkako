@@ -226,15 +226,7 @@ const ProductDetailScreen = ({route, navigation}) => {
             ) : (
               <View style={styles.rateBox}>
                 <StarRating rating={userRating} onRate={setUserRating} size={36} />
-                <TextInput
-                  style={styles.reviewInput}
-                  value={reviewText}
-                  onChangeText={setReviewText}
-                  placeholder={t('product.reviewPlaceholder', {defaultValue: 'உங்கள் கருத்து எழுதுங்கள் (விருப்பம்)...'})}
-                  placeholderTextColor={COLORS.textGray}
-                  multiline
-                  maxLength={200}
-                />
+
                 <TouchableOpacity style={styles.submitRatingBtn} onPress={handleSubmitRating} disabled={isSubmitting}>
                   <LinearGradient colors={isSubmitting ? ['#9E9E9E', '#757575'] : COLORS.gradientButton} style={styles.submitRatingGrad} start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
                     {isSubmitting ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.submitRatingTxt}>⭐ {t('product.submitReview', {defaultValue: 'மதிப்பீடு சமர்ப்பி'})}</Text>}

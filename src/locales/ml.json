@@ -52,7 +52,7 @@
     "addToCart": "കാർട്ട്",
     "subtotal": "തുക",
     "delivery": "ഡെലിവറി",
-    "freeDelivery": "സൗജന്യ ഡെലിവറി!",
+    "freeDelivery": "ആദ്യത്തെ 3 മാസം സൗജന്യം!",
     "checkout": "ഓർഡർ ചെയ്യൂ"
   },
   "orders": {
@@ -75,7 +75,16 @@
     "refundConfirmMsg": "ഈ ഓർഡറിന് റീഫണ്ട് അഭ്യർത്ഥിക്കണോ?",
     "refundSuccess": "റീഫണ്ട് അഭ്യർത്ഥന സമർപ്പിച്ചു!",
     "refundRequested": "റീഫണ്ട് അഭ്യർത്ഥന\nസമർപ്പിച്ചു",
-    "refundProcessing": "നിങ്ങളുടെ അഭ്യർത്ഥന പ്രോസസ്സ് ചെയ്യുന്നു"
+    "refundProcessing": "നിങ്ങളുടെ അഭ്യർത്ഥന പ്രോസസ്സ് ചെയ്യുന്നു",
+    "cancelOrder": "ഓർഡർ റദ്ദാക്കുക",
+    "cancelConfirmTitle": "ഓർഡർ റദ്ദാക്കണോ?",
+    "cancelConfirmMsg": "നിങ്ങൾക്ക് ഈ ഓർഡർ റദ്ദാക്കണമെന്ന് ഉറപ്പാണോ?",
+    "cancelSuccess": "ഓർഡർ വിജയകരമായി റദ്ദാക്കി!",
+    "cancelExpired": "റദ്ദാക്കാൻ കഴിയില്ല",
+    "cancelExpiredMsg": "ഓർഡർ ചെയ്ത് 12 മണിക്കൂറിനുള്ളിൽ മാത്രമേ റദ്ദാക്കാൻ കഴിയൂ.",
+    "startShopping": "ഷോപ്പിംഗ് തുടങ്ങുക",
+    "statusCancelled": "റദ്ദാക്കി",
+    "status_Refund_Requested": "റീഫണ്ട് അഭ്യർത്ഥിച്ചു"
   },
   "profile": {
     "wishlist": "എന്റെ ആഗ്രഹ പട്ടിക",
@@ -208,7 +217,7 @@
     "priceDetails": "വില വിവരങ്ങൾ",
     "subtotal": "തുക",
     "delivery": "ഡെലിവറി",
-    "free": "സൗജന്യം!",
+    "free": "ആദ്യത്തെ 3 മാസം സൗജന്യം!",
     "total": "ആകെ",
     "cod": "ക്യാഷ് ഓൺ ഡെലിവറി",
     "codSub": "ഓർഡർ എത്തുമ്പോൾ പണം നൽകുക",

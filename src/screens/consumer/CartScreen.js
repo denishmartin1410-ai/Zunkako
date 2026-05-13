@@ -21,7 +21,7 @@ const CartScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
 
-  const deliveryFee = totalAmount > 0 && totalAmount < 500 ? 40 : 0;
+  const deliveryFee = 0; // Free for first 3 months
   const finalAmount = totalAmount + deliveryFee;
 
   if (cartItems.length === 0) {

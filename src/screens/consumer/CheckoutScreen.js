@@ -31,7 +31,7 @@ const CheckoutScreen = ({ navigation }) => {
     const [pincode, setPincode] = useState(user?.pincode || '');
     const [isLoading, setIsLoading] = useState(false);
 
-    const deliveryFee = totalAmount < 500 ? 40 : 0;
+    const deliveryFee = 0; // Free for first 3 months
     const finalAmount = totalAmount + deliveryFee;
 
     // ✅ Get consumer's current location for delivery navigation

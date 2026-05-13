@@ -52,7 +52,7 @@
     "addToCart": "Cart",
     "subtotal": "Subtotal",
     "delivery": "Delivery",
-    "freeDelivery": "Free Delivery!",
+    "freeDelivery": "Free for first 3 months!",
     "checkout": "Place Order"
   },
   "orders": {
@@ -82,7 +82,9 @@
     "cancelSuccess": "Order cancelled successfully!",
     "cancelExpired": "Cannot Cancel",
     "cancelExpiredMsg": "Orders can only be cancelled within 12 hours of placing.",
-    "startShopping": "Start shopping to see orders here"
+    "startShopping": "Start shopping to see orders here",
+    "statusCancelled": "Cancelled",
+    "status_Refund_Requested": "Refund Requested"
   },
   "notification": {
     "title": "Notifications",
@@ -226,7 +228,7 @@
     "priceDetails": "Price Details",
     "subtotal": "Subtotal",
     "delivery": "Delivery",
-    "free": "Free!",
+    "free": "Free for first 3 months!",
     "total": "Total",
     "cod": "Cash on Delivery",
     "codSub": "Pay when the order arrives",
