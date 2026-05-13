@@ -152,6 +152,12 @@ const LoginScreen = ({ navigation }) => {
             'உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nPlease check your internet connection and try again.',
             [{ text: 'சரி / OK' }]
           );
+        } else if (errorType === 'wrong-dashboard') {
+          Alert.alert(
+            '🚫 தவறான பக்கம் / Wrong Dashboard',
+            result.error,
+            [{ text: 'சரி / OK', style: 'default' }]
+          );
         } else {
           // Generic error with both options
           Alert.alert(

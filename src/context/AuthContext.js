@@ -52,17 +52,32 @@ export const AuthProvider = ({ children }) => {
     return () => unsub();
   }, []);
 
-  // ✅ CRITICAL FIX: selectedType (from login screen) ALWAYS used
-  // Never override with Firestore value during login
   const login = async (email, password, selectedType) => {
     try {
-      const r = await firebaseEmailLogin(email, password);
+      // ✅ CRITICAL FIX for Issue 3: Firebase "invalid-credential" hides "user-not-found"
+      // Use fetchSignInMethods to explicitly check if account exists before logging in
+      const authModule = require('@react-native-firebase/auth').default;
+      const formattedEmail = email.trim().toLowerCase();
+      try {
+        const signInMethods = await authModule().fetchSignInMethodsForEmail(formattedEmail);
+        if (!signInMethods || signInMethods.length === 0) {
+          return {
+            success: false,
+            errorType: 'user-not-found'
+          };
+        }
+      } catch (checkErr) {
+        // If email enumeration protection strictly blocks this, we fallback to normal login
+        console.log('SignInMethods check:', checkErr.message);
+      }
+
+      const r = await firebaseEmailLogin(formattedEmail, password);
       if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;
 
       // ✅ Email Verification Check
       if (!fbUser.emailVerified) {
-        // User hasn't verified email yet - block login
+        await authModule().signOut(); // Don't keep unverified user logged in
         return {
           success: false,
           error: '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nபதிவு செய்யும்போது உங்கள் மின்னஞ்சலுக்கு ஒரு சரிபார்ப்பு லிங்க் அனுப்பப்பட்டது. அதை க்ளிக் செய்து சரிபார்த்த பிறகு மீண்டும் Login செய்யவும்.\n\nYour email is not verified yet. Please check your inbox and click the verification link first.',
@@ -73,14 +88,31 @@ export const AuthProvider = ({ children }) => {
 
       // Get profile data for name/phone etc
       const pr = await getUserProfile(fbUser.uid);
+      
+      // ✅ CRITICAL FIX for Issue 2: Strict Dashboard Segregation
+      if (pr.success && pr.data) {
+        const storedType = pr.data.userType;
+        if (storedType && storedType !== 'admin' && storedType !== selectedType) {
+          // ❌ User tried to login to the WRONG dashboard!
+          await authModule().signOut(); // Immediately sign them out
+          
+          const typeLabels = { consumer: 'நுகர்வோர் / Customer', farmer: 'விவசாயி / Farmer', delivery: 'டெலிவரி / Delivery' };
+          return {
+            success: false,
+            errorType: 'wrong-dashboard',
+            error: `🚫 தவறான கணக்கு வகை! / Wrong Account Type!\n\nஇந்த மின்னஞ்சல் "${typeLabels[storedType] || storedType}" கணக்கிற்காக பதிவு செய்யப்பட்டுள்ளது.\n\nதயவுசெய்து சரியான "${typeLabels[storedType] || storedType}" பக்கத்தில் Login செய்யவும்.\n\nThis email is registered as a "${storedType}". Please login through the correct dashboard.`
+          };
+        }
+      }
+
       let userData;
       if (pr.success && pr.data) {
         userData = pr.data;
       } else {
         userData = {
           id: fbUser.uid, uid: fbUser.uid,
-          name: fbUser.displayName || email.split('@')[0],
-          email: fbUser.email || email, phone: '', avatar: '',
+          name: fbUser.displayName || formattedEmail.split('@')[0],
+          email: fbUser.email || formattedEmail, phone: '', avatar: '',
           isVerified: true, emailVerified: true,
         };
       }

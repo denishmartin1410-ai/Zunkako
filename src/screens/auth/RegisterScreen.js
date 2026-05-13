@@ -262,7 +262,7 @@ const RegisterScreen = ({ navigation }) => {
           label={'📱 தொலைபேசி\n    Phone Number'}
           value={phone}
           onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
-          keyboardType="phone-pad"
+          keyboardType="numeric"
           error={errors.phone}
           autoCompleteType='off'
           textContentType='none'
