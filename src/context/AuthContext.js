@@ -54,23 +54,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, selectedType) => {
     try {
-      // ✅ CRITICAL FIX for Issue 3: Firebase "invalid-credential" hides "user-not-found"
-      // Use fetchSignInMethods to explicitly check if account exists before logging in
       const authModule = require('@react-native-firebase/auth').default;
       const formattedEmail = email.trim().toLowerCase();
-      try {
-        const signInMethods = await authModule().fetchSignInMethodsForEmail(formattedEmail);
-        if (!signInMethods || signInMethods.length === 0) {
-          return {
-            success: false,
-            errorType: 'user-not-found'
-          };
-        }
-      } catch (checkErr) {
-        // If email enumeration protection strictly blocks this, we fallback to normal login
-        console.log('SignInMethods check:', checkErr.message);
-      }
-
+      
       const r = await firebaseEmailLogin(formattedEmail, password);
       if (!r.success) return { success: false, error: r.error, errorType: r.errorType };
       const fbUser = r.user;

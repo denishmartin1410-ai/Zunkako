@@ -99,8 +99,8 @@ const LoginScreen = ({ navigation }) => {
         } else if (errorType === 'wrong-password') {
           // Wrong password - guide to forgot password
           Alert.alert(
-            '🔑 தவறான கடவுச்சொல் / Wrong Password',
-            'நீங்கள் உள்ளிட்ட கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nThe password you entered is incorrect. Please try the correct password or reset it.',
+            '🔑 தவறான தகவல் / Incorrect Details',
+            'நீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான தகவல்களை உள்ளிடவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nIncorrect email or password. Please try again or create an account.',
             [
               { text: 'சரி / OK', style: 'cancel' },
               { text: '🔑 கடவுச்சொல் மறந்தீர்களா?', onPress: () => navigation.navigate('ForgotPassword') }
