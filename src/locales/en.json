@@ -184,7 +184,8 @@
     "qty": "Quantity (Qty)",
     "discountPrice": "Discount Price (₹)",
     "originalPrice": "Regular Price (₹)",
-    "saveHarvest": "Save to Calendar"
+    "saveHarvest": "Save to Calendar",
+    "f2cFarmer": "F2C Farmer"
   },
   "language": {
     "select": "Select Language"
@@ -383,6 +384,21 @@
   },
   "chat": {
     "farmerChat": "Farmer Chat",
-    "startChatting": "Start chatting"
+    "startChatting": "Start Chatting",
+    "startConversation": "Start Conversation!",
+    "placeholder": "Send a message...",
+    "quickReply1": "In stock? 📦",
+    "quickReply2": "What is the price? 💰",
+    "quickReply3": "When is delivery? 🚚",
+    "quickReply4": "Thank you! 🙏",
+    "farmerReply1": "Order Confirmed ✅",
+    "farmerReply2": "Delivery Tomorrow 🚚",
+    "farmerReply3": "In Stock 👍",
+    "farmerReply4": "Thank you! 🙏",
+    "deleteTitle": "Delete Message",
+    "deletePrompt": "Are you sure you want to delete this message?",
+    "deleteForMe": "Delete for me",
+    "deleteForEveryone": "Delete for everyone",
+    "cancel": "Cancel"
   }
 }

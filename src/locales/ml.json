@@ -173,7 +173,8 @@
     "qty": "അളവ് (Qty)",
     "discountPrice": "കുറഞ്ഞ വില (₹)",
     "originalPrice": "സാധാരണ വില (₹)",
-    "saveHarvest": "കലണ്ടറിലേക്ക് സംരക്ഷിക്കുക"
+    "saveHarvest": "കലണ്ടറിലേക്ക് സംരക്ഷിക്കുക",
+    "f2cFarmer": "F2C കർഷകൻ"
   },
   "language": {
     "select": "ഭാഷ തിരഞ്ഞെടുക്കുക"
@@ -379,7 +380,22 @@
   },
   "chat": {
     "farmerChat": "കർഷകനുമായി ചാറ്റ് ചെയ്യുക",
-    "startChatting": "ചാറ്റ് തുടങ്ങുക"
+    "startChatting": "ചാറ്റ് തുടങ്ങുക",
+    "startConversation": "സംഭാഷണം തുടങ്ങുക!",
+    "placeholder": "ഒരു സന്ദേശം അയക്കുക...",
+    "quickReply1": "സ്റ്റോക്കുണ്ടോ? 📦",
+    "quickReply2": "വിലയെന്താണ്? 💰",
+    "quickReply3": "എപ്പോഴാണ് ഡെലിവറി? 🚚",
+    "quickReply4": "നന്ദി! 🙏",
+    "farmerReply1": "ഓർഡർ സ്ഥിരീകരിച്ചു ✅",
+    "farmerReply2": "നാളെ ഡെലിവറി 🚚",
+    "farmerReply3": "സ്റ്റോക്കുണ്ട് 👍",
+    "farmerReply4": "നന്ദി! 🙏",
+    "deleteTitle": "സന്ദേശം ഇല്ലാതാക്കുക",
+    "deletePrompt": "ഈ സന്ദേശം ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?",
+    "deleteForMe": "എനിക്കായി ഇല്ലാതാക്കുക",
+    "deleteForEveryone": "എല്ലാവർക്കുമായി ഇല്ലാതാക്കുക",
+    "cancel": "റദ്ദാക്കുക"
   },
   "groupBuy": {
     "title": "കൂട്ടായി വാങ്ങൽ",

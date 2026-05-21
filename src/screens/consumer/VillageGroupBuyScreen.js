@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, Alert,
+  TouchableOpacity, TextInput, Alert, Share
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
@@ -47,6 +47,13 @@ const GroupCard = ({ group, onJoin, user }) => {
   
   const isMember = group.members && group.members.includes(user?.uid || user?.id);
 
+  const handleInvite = async () => {
+    const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: f2capp://groupbuy/${group.id}`;
+    try {
+      await Share.share({ message: shareMsg });
+    } catch (e) {}
+  };
+
   return (
     <View style={styles.groupCard}>
       {/* Card Header */}
@@ -55,14 +62,11 @@ const GroupCard = ({ group, onJoin, user }) => {
         style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
           <Text style={styles.groupEmoji}>{group.emoji}</Text>
-          <View>
+          <View style={{ flex: 1, paddingRight: 8 }}>
             <Text style={styles.groupTitle} numberOfLines={1}>{group.title}</Text>
             <Text style={styles.groupTitleEn} numberOfLines={1}>{group.titleEn}</Text>
             <Text style={styles.groupLocation}>📍 {group.location}</Text>
           </View>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-          <Text style={[styles.statusLabel, { color: status.color }]}>{statusKey === 'open' ? '✅ ' : statusKey === 'almostFull' ? '⚡ ' : '🔴 '}{t(`groupBuy.${status.labelKey}`)}</Text>
         </View>
       </LinearGradient>
 
@@ -140,7 +144,7 @@ const GroupCard = ({ group, onJoin, user }) => {
         {/* Join or Invite button */}
         {group.status !== 'full' ? (
           isMember ? (
-            <TouchableOpacity style={styles.joinBtn} onPress={() => Alert.alert(t('groupBuy.inviteFriends'), t('groupBuy.inviteMsg'))}>
+            <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
               <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
                 <Text style={styles.joinBtnTxt}>
@@ -369,8 +373,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   stepNumTxt: { color: COLORS.white, fontSize: FONTS.sm, fontWeight: FONTS.bold },
-  stepEmoji: { fontSize: 22, marginBottom: 4 },
-  stepLabel: { fontSize: 10, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 14, paddingHorizontal: 2 },
+  stepEmoji: { fontSize: 26, marginBottom: 6 },
+  stepLabel: { fontSize: 12, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 16, paddingHorizontal: 4, fontWeight: '600' },
 
   // Group card
   groupCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, marginBottom: SPACING.lg, overflow: 'hidden', ...SHADOWS.medium },

@@ -41,7 +41,7 @@ const MessageBubble = ({ message, isMe, onLongPress }) => (
     <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleCustomer]}>
       <Text style={[styles.bubbleText, isMe && styles.bubbleTextMe]}>{message.text}</Text>
       <View style={styles.bubbleMeta}>
-        <Text style={[styles.bubbleTime, isMe && styles.bubbleTimeMe]}>{message.time || ''}</Text>
+        <Text style={[styles.bubbleTime, isMe && styles.bubbleTimeMe]}>{message.time || ''} {isMe ? '✓✓' : ''}</Text>
       </View>
     </View>
   </TouchableOpacity>
@@ -140,8 +140,6 @@ export const FarmerChatListScreen = ({ navigation }) => {
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Text style={{ fontSize: 56 }}>💬</Text>
-              <Text style={styles.emptyTitle}>நுகர்வோர் யாரும் இல்லை / No Customers</Text>
-              <Text style={styles.emptySub}>இன்னும் அரட்டைகள் தொடங்கப்படவில்லை / No chats started yet</Text>
             </View>
           }
         />
@@ -191,11 +189,14 @@ export const FarmerCustomerChatRoomScreen = ({ route, navigation }) => {
   };
 
   const handleDeleteMessage = (msgId) => {
-    Alert.alert('Delete Message / செய்தியை நீக்கு', 'Are you sure you want to delete this message?', [
-      { text: 'Cancel / ரத்துசெய்', style: 'cancel' },
-      { text: 'Delete / நீக்கு', style: 'destructive', onPress: async () => {
+    Alert.alert(t('chat.deleteTitle', { defaultValue: 'Delete Message' }), t('chat.deletePrompt', { defaultValue: 'Are you sure you want to delete this message?' }), [
+      { text: t('chat.deleteForMe', { defaultValue: 'Delete for me' }), onPress: async () => {
         await deleteChatMessage(farmerId, consumerId, msgId);
-      }}
+      }},
+      { text: t('chat.deleteForEveryone', { defaultValue: 'Delete for everyone' }), style: 'destructive', onPress: async () => {
+        await deleteChatMessage(farmerId, consumerId, msgId);
+      }},
+      { text: t('chat.cancel', { defaultValue: 'Cancel' }), style: 'cancel' }
     ]);
   };
 
@@ -239,13 +240,13 @@ export const FarmerCustomerChatRoomScreen = ({ route, navigation }) => {
       {/* Quick replies for farmer */}
       <View style={styles.quickRow}>
         {[
-          'ஆர்டர் உறுதி ஆகிவிட்டது ✅',
-          'விநியோகம் நாளை வரும் 🚚',
-          'கையிருப்பு உள்ளது 👍',
-          'நன்றி! 🙏',
-        ].map((text, i) => (
-          <TouchableOpacity key={i} style={styles.quickChip} onPress={() => setInputText(text)}>
-            <Text style={styles.quickTxt} numberOfLines={1}>{text}</Text>
+          'chat.farmerReply1',
+          'chat.farmerReply2',
+          'chat.farmerReply3',
+          'chat.farmerReply4',
+        ].map((key, i) => (
+          <TouchableOpacity key={i} style={styles.quickChip} onPress={() => setInputText(t(key))}>
+            <Text style={styles.quickTxt} numberOfLines={1}>{t(key)}</Text>
           </TouchableOpacity>
         ))}
       </View>

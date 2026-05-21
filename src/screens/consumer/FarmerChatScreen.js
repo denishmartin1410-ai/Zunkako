@@ -29,10 +29,10 @@ const AvatarView = ({ uri, name, size = 58, style }) => {
 
 // ── Quick Reply suggestions ──
 const QUICK_REPLIES = [
-  { ta: 'கையிருப்பு இருக்கா?', en: 'In stock?' },
-  { ta: 'விலை என்ன?', en: 'What is the price?' },
-  { ta: 'டெலிவரி எப்போ?', en: 'When delivery?' },
-  { ta: 'நன்றி! 🙏', en: 'Thank you!' },
+  'chat.quickReply1',
+  'chat.quickReply2',
+  'chat.quickReply3',
+  'chat.quickReply4',
 ];
 
 // ── Single Message Bubble ──
@@ -49,7 +49,7 @@ const MessageBubble = ({ message, isMe, onLongPress }) => (
       </Text>
       <View style={styles.bubbleMeta}>
         <Text style={[styles.bubbleTime, isMe && styles.bubbleTimeMe]}>
-          {message.time || ''}
+          {message.time || ''} {isMe ? '✓✓' : ''}
         </Text>
       </View>
     </View>
@@ -114,8 +114,6 @@ export const ChatListScreen = ({ navigation }) => {
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 60 }}>
               <Text style={{ fontSize: 56 }}>👨‍🌾</Text>
-              <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.textSecondary, marginTop: SPACING.md }}>விவசாயிகள் யாரும் இல்லை / No Farmers</Text>
-              <Text style={{ fontSize: 14, color: COLORS.textMuted, marginTop: 4 }}>விரைவில் விவசாயிகள் இணைவார்கள் / Farmers will join soon</Text>
             </View>
           }
         />
@@ -175,11 +173,14 @@ const FarmerChatRoomScreen = ({ route, navigation }) => {
   };
 
   const handleDeleteMessage = (msgId) => {
-    Alert.alert('Delete Message / செய்தியை நீக்கு', 'Are you sure you want to delete this message?', [
-      { text: 'Cancel / ரத்துசெய்', style: 'cancel' },
-      { text: 'Delete / நீக்கு', style: 'destructive', onPress: async () => {
+    Alert.alert(t('chat.deleteTitle', { defaultValue: 'Delete Message' }), t('chat.deletePrompt', { defaultValue: 'Are you sure you want to delete this message?' }), [
+      { text: t('chat.deleteForMe', { defaultValue: 'Delete for me' }), onPress: async () => {
         await deleteChatMessage(farmer.id, userId, msgId);
-      }}
+      }},
+      { text: t('chat.deleteForEveryone', { defaultValue: 'Delete for everyone' }), style: 'destructive', onPress: async () => {
+        await deleteChatMessage(farmer.id, userId, msgId);
+      }},
+      { text: t('chat.cancel', { defaultValue: 'Cancel' }), style: 'cancel' }
     ]);
   };
 
@@ -228,7 +229,7 @@ const FarmerChatRoomScreen = ({ route, navigation }) => {
               {farmer.nameTa || farmer.name} - {t('chat.startConversation', { defaultValue: 'அரட்டையை தொடங்குங்கள்!' })}
             </Text>
             <Text style={styles.emptyChatSubTxt}>
-              Start chatting with {farmer.name || farmer.nameTa}!
+              {t('chat.startConversation', { defaultValue: 'Start chatting with ' })}{farmer.name || farmer.nameTa}!
             </Text>
           </View>
         }
@@ -245,8 +246,8 @@ const FarmerChatRoomScreen = ({ route, navigation }) => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.quickReplyChip}
-              onPress={() => sendQuickReply(item)}>
-              <Text style={styles.quickReplyTxt}>{item.ta}</Text>
+              onPress={() => sendQuickReply({ ta: t(item) })}>
+              <Text style={styles.quickReplyTxt}>{t(item)}</Text>
             </TouchableOpacity>
           )}
         />

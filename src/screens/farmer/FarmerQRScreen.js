@@ -149,7 +149,7 @@ const FarmerQRScreen = ({ navigation }) => {
 
                     {/* Badge */}
                     <View style={styles.badge}>
-                        <Text style={styles.badgeTxt}>🏆 F2C விவசாயி</Text>
+                        <Text style={styles.badgeTxt}>🏆 {t('farmer.f2cFarmer', { defaultValue: 'F2C விவசாயி' })}</Text>
                     </View>
                 </LinearGradient>
             </View>

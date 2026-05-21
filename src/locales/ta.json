@@ -182,9 +182,10 @@
     "noCustomerChats": "வாடிக்கையாளர் அரட்டை இல்லை",
     "harvestDate": "அறுவடை தேதி (YYYY-MM-DD)",
     "qty": "அளவு (Qty)",
-    "discountPrice": "தள்ளுபடி விலை (₹)",
-    "originalPrice": "வழக்கமான விலை (₹)",
-    "saveHarvest": "நாள்காட்டியில் சேமி"
+    "discountPrice": "குறைந்த விலை (₹)",
+    "originalPrice": "சாதாரண விலை (₹)",
+    "saveHarvest": "Calendar-ல் சேமி",
+    "f2cFarmer": "F2C விவசாயி"
   },
   "language": {
     "select": "மொழி தேர்வு"
@@ -378,7 +379,22 @@
   },
   "chat": {
     "farmerChat": "விவசாயி அரட்டை",
-    "startChatting": "அரட்டையை தொடங்குங்கள்"
+    "startChatting": "அரட்டையை தொடங்குங்கள்",
+    "startConversation": "அரட்டையை தொடங்குங்கள்!",
+    "placeholder": "செய்தி அனுப்புங்கள்...",
+    "quickReply1": "கையிருப்பு இருக்கா? 📦",
+    "quickReply2": "விலை என்ன? 💰",
+    "quickReply3": "டெலிவரி எப்போ? 🚚",
+    "quickReply4": "நன்றி! 🙏",
+    "farmerReply1": "ஆர்டர் உறுதி ஆகிவிட்டது ✅",
+    "farmerReply2": "விநியோகம் நாளை வரும் 🚚",
+    "farmerReply3": "கையிருப்பு உள்ளது 👍",
+    "farmerReply4": "நன்றி! 🙏",
+    "deleteTitle": "செய்தியை நீக்கு",
+    "deletePrompt": "இந்த செய்தியை உறுதியாக நீக்க வேண்டுமா?",
+    "deleteForMe": "எனக்கு மட்டும் நீக்கு",
+    "deleteForEveryone": "அனைவருக்கும் நீக்கு",
+    "cancel": "ரத்து செய்"
   },
   "groupBuy": {
     "title": "கூட்டு வாங்கல்",
