@@ -298,6 +298,18 @@
     "inviteMsg": "Share link to invite friends",
     "groupFull": "Group is full"
   },
+  "freshness": {
+    "title": "Freshness Tracker",
+    "desc": "See live how long it’s been since harvest!",
+    "veryFreshShort": "Very Fresh",
+    "stillGoodShort": "Still Good",
+    "expiringShort": "Expiring Soon",
+    "timeSinceHarvest": "Time since harvest",
+    "hoursShort": "h ",
+    "minsAgo": "m ago",
+    "minsShort": "m",
+    "freshFor": "Fresh for:"
+  },
   "preOrder": {
     "title": "Pre-Order",
     "desc": "Order before harvest = More savings!",
@@ -344,7 +356,13 @@
     "errorDateFormat": "Date must be DD/MM/YYYY (e.g., 12/05/2026).",
     "errorInvalidDate": "Please enter a valid date.",
     "weekendOnlyTitle": "Weekends Only",
-    "weekendOnlyDesc": "Farm visits are only allowed on Saturdays and Sundays. Due to the farmer's workload, weekday visits are not permitted. Please select a weekend date."
+    "weekendOnlyDesc": "Farm visits are only allowed on Saturdays and Sundays.",
+    "visitorsCount": "{{count}} visited",
+    "visitDays": "Visit Days",
+    "activities": "Activities",
+    "freeVisit": "FREE Visit!",
+    "attendance": "Attendance",
+    "confirmBtn": "Yes"
   },
   "story": {
     "title": "Share your farm story!",

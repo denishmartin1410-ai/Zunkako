@@ -59,6 +59,7 @@ const getFreshnessLabel = (percent) => {
 
 // ── Individual Product Freshness Card ──
 const FreshnessCard = ({ product, onAddToCart }) => {
+  const { t } = useTranslation();
   const [tick, setTick] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -84,7 +85,11 @@ const FreshnessCard = ({ product, onAddToCart }) => {
   const parsedHarvestTime = new Date(product.harvestTime);
   const info = getElapsedAndPercent(parsedHarvestTime, product.freshHours || 24);
   const colors = getFreshnessColor(info.percent);
-  const label = getFreshnessLabel(info.percent);
+  const getBadgeTranslation = () => {
+    if (info.percent < 40) return '🟢 ' + t('freshness.veryFreshShort', { defaultValue: 'மிகவும் புதுசு' });
+    if (info.percent < 70) return '🟡 ' + t('freshness.stillGoodShort', { defaultValue: 'நல்லது' });
+    return '🔴 ' + t('freshness.expiringShort', { defaultValue: 'விரைவில் பழசாகும்' });
+  };
 
   return (
     <Animated.View style={[styles.card, { transform: [{ scale: pulseAnim }] }]}>
@@ -98,8 +103,7 @@ const FreshnessCard = ({ product, onAddToCart }) => {
       {/* Freshness overlay badge */}
       <View style={[styles.freshnessBadge,
       { backgroundColor: info.isExpiring ? '#FFEBEE' : info.isWarning ? '#FFF9E6' : '#E8F5E9' }]}>
-        <Text style={styles.freshnessLabel}>{label.ta}</Text>
-        <Text style={styles.freshnessLabelEn}>{label.en}</Text>
+        <Text style={styles.freshnessLabel}>{getBadgeTranslation()}</Text>
       </View>
 
       <View style={styles.cardBody}>
@@ -121,10 +125,10 @@ const FreshnessCard = ({ product, onAddToCart }) => {
         <View style={styles.freshnessSection}>
           <View style={styles.freshnessHeaderRow}>
             <Text style={styles.freshnessTitle}>
-              ⏱ அறுவடை ஆன நேரம் / Time since harvest
+              ⏱ {t('freshness.timeSinceHarvest', { defaultValue: 'அறுவடை ஆன நேரம்' })}
             </Text>
             <Text style={styles.elapsedTime}>
-              {info.elapsedHrsDisplay}மணி {info.elapsedMins}நிமிடம் முன்பு
+              {info.elapsedHrsDisplay}{t('freshness.hoursShort', { defaultValue: 'மணி ' })}{info.elapsedMins}{t('freshness.minsAgo', { defaultValue: 'நிமிடம் முன்பு' })}
             </Text>
           </View>
 
@@ -140,16 +144,16 @@ const FreshnessCard = ({ product, onAddToCart }) => {
           {/* Remaining time */}
           <View style={styles.remainingRow}>
             <Text style={styles.remainingLabel}>
-              இன்னும் எத்தனை நேரம் நல்லது? / Fresh for:
+              {t('freshness.freshFor', { defaultValue: 'இன்னும் எத்தனை நேரம் நல்லது?' })}
             </Text>
             {info.remainingHrsDisplay > 0 || info.remainingMinsDisplay > 0 ? (
               <Text style={[styles.remainingTime, { color: colors[0] }]}>
-                {info.remainingHrsDisplay > 0 ? `${info.remainingHrsDisplay}மணி ` : ''}
-                {info.remainingMinsDisplay}நிமிடம்
+                {info.remainingHrsDisplay > 0 ? `${info.remainingHrsDisplay}${t('freshness.hoursShort', { defaultValue: 'மணி ' })}` : ''}
+                {info.remainingMinsDisplay}{t('freshness.minsShort', { defaultValue: 'நிமிடம்' })}
               </Text>
             ) : (
               <Text style={[styles.remainingTime, { color: COLORS.accentRed }]}>
-                காலாவதியானது
+                {t('freshness.expired', { defaultValue: 'காலாவதியானது' })}
               </Text>
             )}
           </View>
@@ -170,7 +174,7 @@ const FreshnessCard = ({ product, onAddToCart }) => {
           onPress={() => onAddToCart(product)}>
           <LinearGradient colors={colors} style={styles.addBtnGrad}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-            <Text style={styles.addBtnTxt}>🛒 கார்ட்டில் சேர் / Add to Cart</Text>
+            <Text style={styles.addBtnTxt}>🛒 {t('product.addToCart', { defaultValue: 'கார்ட்டில் சேர்' })}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

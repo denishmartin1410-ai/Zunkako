@@ -47,8 +47,8 @@ const FarmVisitScreen = ({navigation}) => {
           avatar: farmer.photoURL || farmer.avatar || 'https://via.placeholder.com/150',
           coverImage: farmer.coverImage || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=500&q=80',
           distance: '2-5 km',
-          rating: farmer.rating || 4.8,
-          totalVisitors: Math.floor(Math.random() * 50) + 10,
+          rating: farmer.rating || 0,
+          totalVisitors: farmer.visitorsCount || 0,
           visitSlots: ['09:00 AM', '11:00 AM', '04:00 PM'],
           visitSlotsEn: ['09:00 AM', '11:00 AM', '04:00 PM'],
           maxVisitorsPerSlot: 10,
@@ -56,6 +56,7 @@ const FarmVisitScreen = ({navigation}) => {
           availableDaysTa: ['சனி', 'ஞாயிறு'],
           availableDays: ['Saturday', 'Sunday'],
           activities: ['✅ நேரடி அறுவடை செய்யலாம்', '✅ விளைநிலங்களை சுற்றிப்பார்க்கலாம்', '✅ இயற்கை விவசாய முறைகளை அறியலாம்'],
+          activitiesEn: ['✅ Harvest directly', '✅ Farm tour', '✅ Learn organic farming'],
         }));
         setFarms(mappedFarms);
       }
@@ -75,7 +76,8 @@ const FarmVisitScreen = ({navigation}) => {
     }
 
     // Parse date DD/MM/YYYY
-    const parts = selectedDate.split('/');
+    const formattedDate = selectedDate.replace(/-/g, '/');
+    const parts = formattedDate.split('/');
     if (parts.length !== 3) {
       Alert.alert(t('farmVisit.errorTitle', { defaultValue: 'பிழை' }), t('farmVisit.errorDateFormat', { defaultValue: 'தேதி வடிவம் DD/MM/YYYY ஆக இருக்க வேண்டும் (எ.கா: 12/05/2026).' }));
       return;
@@ -126,7 +128,7 @@ const FarmVisitScreen = ({navigation}) => {
 
       {/* FREE badge */}
       <View style={styles.freeBadge}>
-        <Text style={styles.freeTxt}>இலவசம் / FREE Visit!</Text>
+        <Text style={styles.freeTxt}>{t('farmVisit.freeVisit', { defaultValue: 'இலவசம் / FREE Visit!' })}</Text>
       </View>
 
       {/* Farmer info on image */}
@@ -141,12 +143,12 @@ const FarmVisitScreen = ({navigation}) => {
       <View style={styles.farmCardBody}>
         {/* Farm name & location */}
         <Text style={styles.farmName}>{farm.farmName}</Text>
-        <Text style={styles.farmLocation}>📍 {farm.locationTa} • {farm.location}</Text>
+        <Text style={styles.farmLocation}>📍 {t('language', { defaultValue: '' }).includes('Language') ? farm.location : farm.locationTa}</Text>
 
         {/* Rating & visitors */}
         <View style={styles.farmMetaRow}>
           <Text style={styles.farmRating}>⭐ {farm.rating}</Text>
-          <Text style={styles.farmVisitors}>👥 {farm.totalVisitors} பேர் வருகை தந்துள்ளனர்</Text>
+          <Text style={styles.farmVisitors}>👥 {t('farmVisit.visitorsCount', { count: farm.totalVisitors, defaultValue: `${farm.totalVisitors} பேர் வருகை தந்துள்ளனர்` })}</Text>
         </View>
 
         {/* Highlights */}
@@ -159,9 +161,9 @@ const FarmVisitScreen = ({navigation}) => {
         </View>
 
         {/* Available days */}
-        <Text style={styles.subTitle}>📅 வருகை நாட்கள் / Visit Days:</Text>
+        <Text style={styles.subTitle}>📅 {t('farmVisit.visitDays', { defaultValue: 'வருகை நாட்கள் / Visit Days' })}:</Text>
         <View style={styles.daysRow}>
-          {(farm.availableDaysTa || farm.availableDays || []).map((day, i) => (
+          {(t('language', { defaultValue: '' }).includes('Language') ? farm.availableDays : farm.availableDaysTa).map((day, i) => (
             <View key={i} style={styles.dayChip}>
               <Text style={styles.dayTxt}>{day}</Text>
             </View>
@@ -169,8 +171,8 @@ const FarmVisitScreen = ({navigation}) => {
         </View>
 
         {/* Activities */}
-        <Text style={styles.subTitle}>🌟 செய்யலாம் / Activities:</Text>
-        {(farm.activities || []).map((act, i) => (
+        <Text style={styles.subTitle}>🌟 {t('farmVisit.activities', { defaultValue: 'செய்யலாம் / Activities' })}:</Text>
+        {(t('language', { defaultValue: '' }).includes('Language') ? (farm.activitiesEn || farm.activities) : farm.activities).map((act, i) => (
           <Text key={i} style={styles.activityTxt}>{act}</Text>
         ))}
 
@@ -209,7 +211,7 @@ const FarmVisitScreen = ({navigation}) => {
         <View style={styles.bookingOverlay}>
           <View style={styles.bookingModal}>
             <Text style={styles.bookingTitle}>
-              📅 {selectedFarm.farmName} - வருகை பதிவு
+              📅 {selectedFarm.farmName} - {t('farmVisit.attendance', { defaultValue: 'வருகை பதிவு' })}
             </Text>
             <Text style={styles.bookingSubtitle}>Book your farm visit</Text>
 
@@ -218,7 +220,7 @@ const FarmVisitScreen = ({navigation}) => {
             <TextInput
               style={styles.bookingInput}
               value={selectedDate}
-              onChangeText={setSelectedDate}
+              onChangeText={(txt) => setSelectedDate(txt.replace(/-/g, '/'))}
               placeholder="01/02/2024"
               placeholderTextColor={COLORS.textGray}
               keyboardType="numeric"
@@ -258,11 +260,11 @@ const FarmVisitScreen = ({navigation}) => {
               <TouchableOpacity
                 style={styles.cancelBtn}
                 onPress={() => {setShowBooking(false); setSelectedFarm(null);}}>
-                <Text style={styles.cancelBtnTxt}>{t('common.cancel', { defaultValue: 'ரத்து' })}</Text>
+                <Text style={styles.cancelBtnTxt}>{t('common.cancel', { defaultValue: 'No' })}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.confirmBtn} onPress={handleBookVisit}>
                 <LinearGradient colors={COLORS.gradientButton} style={styles.confirmGrad}>
-                  <Text style={styles.confirmTxt}>✅ {t('common.confirm', { defaultValue: 'உறுதி செய்' })}</Text>
+                  <Text style={styles.confirmTxt}>✅ {t('farmVisit.confirmBtn', { defaultValue: 'Confirm' })}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -388,12 +390,12 @@ const styles = StyleSheet.create({
   bookingBtnsRow: {flexDirection: 'row', gap: SPACING.md},
   cancelBtn: {
     flex: 1, borderWidth: 2, borderColor: COLORS.border,
-    borderRadius: RADIUS.lg, paddingVertical: 12, alignItems: 'center',
+    borderRadius: RADIUS.lg, paddingVertical: 12, alignItems: 'center', justifyContent: 'center'
   },
-  cancelBtnTxt: {fontSize: FONTS.md, color: COLORS.textSecondary, fontWeight: FONTS.semiBold},
+  cancelBtnTxt: {fontSize: FONTS.sm, color: COLORS.textSecondary, fontWeight: FONTS.semiBold, textAlign: 'center'},
   confirmBtn: {flex: 1, borderRadius: RADIUS.lg, overflow: 'hidden'},
-  confirmGrad: {paddingVertical: 12, alignItems: 'center'},
-  confirmTxt: {color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold},
+  confirmGrad: {paddingVertical: 12, alignItems: 'center', justifyContent: 'center'},
+  confirmTxt: {color: COLORS.white, fontSize: FONTS.sm, fontWeight: FONTS.bold, textAlign: 'center'},
 });
 
 export default FarmVisitScreen;
