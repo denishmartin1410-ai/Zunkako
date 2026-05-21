@@ -349,7 +349,10 @@
     "carbs": "Carbs",
     "fat": "Fat",
     "fiber": "Fiber",
-    "iron": "Iron"
+    "iron": "Iron",
+    "tip1": "Great job! Eating organic food keeps your immunity strong and reduces toxins.",
+    "tip2": "Tip: Try to include more fiber in your daily meals by eating fresh green vegetables.",
+    "tip3": "Good hydration: Drink at least 8-10 glasses of water along with these healthy items."
   },
   "farmVisit": {
     "title": "Farm Visit",

@@ -79,6 +79,7 @@ const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
 const NutritionReportScreen = ({navigation}) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [allOrders, setAllOrders] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(0);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -89,97 +90,166 @@ const NutritionReportScreen = ({navigation}) => {
     { label: t('nutrition.twoWeeksAgo', { defaultValue: '2 வாரம் முன்பு' }), offset: 2 }
   ];
 
+  // Fetch all delivered orders once on mount for ultra-fast, instant tab switching!
   React.useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchAllOrders = async () => {
       if (!user) { setLoading(false); return; }
       setLoading(true);
-
-      const end = new Date();
-      end.setDate(end.getDate() - (selectedWeek * 7));
-      const start = new Date(end);
-      start.setDate(start.getDate() - 7);
-
-      const res = await getDeliveredOrdersForPeriod(user.uid || user.id, start, end);
-      
-      if (res.success) {
-        let totalSpent = 0;
-        let totalItems = 0;
-        let totals = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, iron: 0 };
-        let purchasedItemsMap = {};
-
-        res.data.forEach(order => {
-          totalSpent += order.total;
-          (order.items || []).forEach(item => {
-            totalItems += item.quantity;
-            
-            // Simplified matching for demo
-            let matchedNut = NUTRITION_DB['default'];
-            const nTa = item.nameTa || item.name;
-            for (const key of Object.keys(NUTRITION_DB)) {
-              if (nTa.includes(key) || (item.nameEn && item.nameEn.toLowerCase().includes(key.toLowerCase()))) {
-                matchedNut = NUTRITION_DB[key];
-                break;
-              }
-            }
-
-            // Assume base unit is multiplier (e.g. 1kg = 10 * 100g units)
-            const multiplier = item.quantity * 10; // rough estimate
-
-            totals.calories += matchedNut.calories * multiplier;
-            totals.protein += matchedNut.protein * multiplier;
-            totals.carbs += matchedNut.carbs * multiplier;
-            totals.fat += matchedNut.fat * multiplier;
-            totals.fiber += matchedNut.fiber * multiplier;
-            totals.iron += matchedNut.iron * multiplier;
-
-            if (purchasedItemsMap[nTa]) {
-              purchasedItemsMap[nTa].qty += item.quantity;
-            } else {
-              purchasedItemsMap[nTa] = {
-                name: nTa,
-                qty: item.quantity,
-                emoji: matchedNut.emoji,
-                calories: matchedNut.calories * multiplier,
-                protein: matchedNut.protein * multiplier,
-                carbs: matchedNut.carbs * multiplier
-              };
-            }
+      try {
+        const res = await getDeliveredOrdersForPeriod(user.uid || user.id, new Date(0), new Date());
+        if (res.success) {
+          const sorted = (res.data || []).sort((a, b) => {
+            const da = a.createdAt?.toDate?.() || new Date(0);
+            const db = b.createdAt?.toDate?.() || new Date(0);
+            return db - da;
           });
-        });
-
-        // Simple Health Score calculation based on balanced macros (just for demo)
-        const score = Math.min(100, Math.round(
-          ((totals.protein / RECOMMENDED.protein) * 30) + 
-          ((totals.fiber / RECOMMENDED.fiber) * 40) + 
-          (Math.min(1, RECOMMENDED.fat / (totals.fat || 1)) * 30)
-        ));
-
-        setReport({
-          weekStr: `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
-          totalSpent,
-          totalItems,
-          nutrition: {
-            calories: {value: Math.round(totals.calories), recommended: RECOMMENDED.calories, unit: 'kcal', label: t('nutrition.calories'), emoji: '🔥', color: '#FF7043'},
-            protein: {value: Math.round(totals.protein), recommended: RECOMMENDED.protein, unit: 'g', label: t('nutrition.protein'), emoji: '💪', color: '#7B1FA2'},
-            carbs: {value: Math.round(totals.carbs), recommended: RECOMMENDED.carbs, unit: 'g', label: t('nutrition.carbs'), emoji: '🌾', color: '#F57F17'},
-            fat: {value: Math.round(totals.fat), recommended: RECOMMENDED.fat, unit: 'g', label: t('nutrition.fat'), emoji: '🥑', color: '#00897B'},
-            fiber: {value: Math.round(totals.fiber), recommended: RECOMMENDED.fiber, unit: 'g', label: t('nutrition.fiber'), emoji: '🥦', color: '#2E7D32'},
-            iron: {value: Math.round(totals.iron), recommended: RECOMMENDED.iron, unit: 'mg', label: t('nutrition.iron'), emoji: '⚡', color: '#1565C0'},
-          },
-          purchasedItems: Object.values(purchasedItemsMap),
-          healthScore: totalItems === 0 ? 0 : score,
-          tips: totalItems === 0 ? [] : [
-            {emoji: '✅', tip: t('nutrition.tip1')},
-            {emoji: '💡', tip: t('nutrition.tip2')},
-            {emoji: '🌟', tip: t('nutrition.tip3')},
-          ],
-        });
+          setAllOrders(sorted);
+        }
+      } catch (e) {
+        console.log('Error fetching all orders for report:', e);
       }
       setLoading(false);
     };
+    fetchAllOrders();
+  }, [user]);
 
-    fetchOrders();
-  }, [selectedWeek, user]);
+  // Compute report instantaneously when selected tab or loaded orders change
+  React.useEffect(() => {
+    if (allOrders.length === 0) {
+      setReport({
+        weekStr: '',
+        totalSpent: 0,
+        totalItems: 0,
+        nutrition: {
+          calories: {value: 0, recommended: RECOMMENDED.calories, unit: 'kcal', label: t('nutrition.calories'), emoji: '🔥', color: '#FF7043'},
+          protein: {value: 0, recommended: RECOMMENDED.protein, unit: 'g', label: t('nutrition.protein'), emoji: '💪', color: '#7B1FA2'},
+          carbs: {value: 0, recommended: RECOMMENDED.carbs, unit: 'g', label: t('nutrition.carbs'), emoji: '🌾', color: '#F57F17'},
+          fat: {value: 0, recommended: RECOMMENDED.fat, unit: 'g', label: t('nutrition.fat'), emoji: '🥑', color: '#00897B'},
+          fiber: {value: 0, recommended: RECOMMENDED.fiber, unit: 'g', label: t('nutrition.fiber'), emoji: '🥦', color: '#2E7D32'},
+          iron: {value: 0, recommended: RECOMMENDED.iron, unit: 'mg', label: t('nutrition.iron'), emoji: '⚡', color: '#1565C0'},
+        },
+        purchasedItems: [],
+        healthScore: 0,
+        tips: [],
+      });
+      return;
+    }
+
+    let targetOrder = null;
+    let periodDays = 7;
+
+    if (selectedWeek === 0) {
+      targetOrder = allOrders[0];
+      periodDays = 7;
+    } else if (selectedWeek === 1) {
+      // Find the first order that is at least 7 days older than allOrders[0]
+      const firstDate = allOrders[0].createdAt?.toDate?.() || new Date();
+      targetOrder = allOrders.find(o => {
+        const d = o.createdAt?.toDate?.();
+        return d && (firstDate - d) >= 7 * 24 * 60 * 60 * 1000;
+      }) || allOrders[1] || allOrders[0];
+      periodDays = 7;
+    } else {
+      // selectedWeek === 2
+      // Find the first order that is at least 14 days older than allOrders[0]
+      const firstDate = allOrders[0].createdAt?.toDate?.() || new Date();
+      targetOrder = allOrders.find(o => {
+        const d = o.createdAt?.toDate?.();
+        return d && (firstDate - d) >= 14 * 24 * 60 * 60 * 1000;
+      }) || allOrders[2] || allOrders[1] || allOrders[0];
+      periodDays = 14;
+    }
+
+    const orderDate = targetOrder.createdAt?.toDate?.() || new Date();
+
+    // Start date = orderDate + 1 day
+    const start = new Date(orderDate);
+    start.setDate(start.getDate() + 1);
+
+    // End date = start + periodDays
+    const end = new Date(start);
+    end.setDate(end.getDate() + periodDays);
+
+    const formatDate = (d) => `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+    const weekStr = `${formatDate(start)} - ${formatDate(end)}`;
+
+    // Get all orders that belong to this consumption week (between target order date - 12h and end date)
+    const reportOrders = allOrders.filter(o => {
+      const d = o.createdAt?.toDate?.();
+      if (!d) return false;
+      return d >= new Date(orderDate.getTime() - 12 * 60 * 60 * 1000) && d <= end;
+    });
+
+    let totalSpent = 0;
+    let totalItems = 0;
+    let totals = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, iron: 0 };
+    let purchasedItemsMap = {};
+
+    reportOrders.forEach(order => {
+      totalSpent += order.total;
+      (order.items || []).forEach(item => {
+        totalItems += item.quantity;
+
+        let matchedNut = NUTRITION_DB['default'];
+        const nTa = item.nameTa || item.name;
+        for (const key of Object.keys(NUTRITION_DB)) {
+          if (nTa.includes(key) || (item.nameEn && item.nameEn.toLowerCase().includes(key.toLowerCase()))) {
+            matchedNut = NUTRITION_DB[key];
+            break;
+          }
+        }
+
+        const multiplier = item.quantity * 10;
+
+        totals.calories += matchedNut.calories * multiplier;
+        totals.protein += matchedNut.protein * multiplier;
+        totals.carbs += matchedNut.carbs * multiplier;
+        totals.fat += matchedNut.fat * multiplier;
+        totals.fiber += matchedNut.fiber * multiplier;
+        totals.iron += matchedNut.iron * multiplier;
+
+        if (purchasedItemsMap[nTa]) {
+          purchasedItemsMap[nTa].qty += item.quantity;
+        } else {
+          purchasedItemsMap[nTa] = {
+            name: nTa,
+            qty: item.quantity,
+            emoji: matchedNut.emoji,
+            calories: matchedNut.calories * multiplier,
+            protein: matchedNut.protein * multiplier,
+            carbs: matchedNut.carbs * multiplier
+          };
+        }
+      });
+    });
+
+    const score = Math.min(100, Math.round(
+      ((totals.protein / RECOMMENDED.protein) * 30) +
+      ((totals.fiber / RECOMMENDED.fiber) * 40) +
+      (Math.min(1, RECOMMENDED.fat / (totals.fat || 1)) * 30)
+    ));
+
+    setReport({
+      weekStr,
+      totalSpent,
+      totalItems,
+      nutrition: {
+        calories: {value: Math.round(totals.calories), recommended: RECOMMENDED.calories, unit: 'kcal', label: t('nutrition.calories'), emoji: '🔥', color: '#FF7043'},
+        protein: {value: Math.round(totals.protein), recommended: RECOMMENDED.protein, unit: 'g', label: t('nutrition.protein'), emoji: '💪', color: '#7B1FA2'},
+        carbs: {value: Math.round(totals.carbs), recommended: RECOMMENDED.carbs, unit: 'g', label: t('nutrition.carbs'), emoji: '🌾', color: '#F57F17'},
+        fat: {value: Math.round(totals.fat), recommended: RECOMMENDED.fat, unit: 'g', label: t('nutrition.fat'), emoji: '🥑', color: '#00897B'},
+        fiber: {value: Math.round(totals.fiber), recommended: RECOMMENDED.fiber, unit: 'g', label: t('nutrition.fiber'), emoji: '🥦', color: '#2E7D32'},
+        iron: {value: Math.round(totals.iron), recommended: RECOMMENDED.iron, unit: 'mg', label: t('nutrition.iron'), emoji: '⚡', color: '#1565C0'},
+      },
+      purchasedItems: Object.values(purchasedItemsMap),
+      healthScore: totalItems === 0 ? 0 : score,
+      tips: totalItems === 0 ? [] : [
+        {emoji: '✅', tip: t('nutrition.tip1')},
+        {emoji: '💡', tip: t('nutrition.tip2')},
+        {emoji: '🌟', tip: t('nutrition.tip3')},
+      ],
+    });
+  }, [selectedWeek, allOrders]);
 
   const scoreColor = report?.healthScore >= 80 ? COLORS.primaryGreen : report?.healthScore >= 60 ? COLORS.accentGold : COLORS.accentRed;
 
@@ -362,7 +432,7 @@ const styles = StyleSheet.create({
   nutritionItem: {marginBottom: SPACING.lg},
   nutritionHeader: {flexDirection: 'row', alignItems: 'center', marginBottom: 6},
   nutritionEmoji: {fontSize: 22, marginRight: SPACING.sm},
-  nutritionLabel: {flex: 1, fontSize: FONTS.sm, fontWeight: FONTS.semiBold, color: COLORS.textSecondary, lineHeight: 15},
+  nutritionLabel: {flex: 1, fontSize: FONTS.sm, fontWeight: FONTS.semiBold, color: COLORS.textSecondary},
   nutritionValues: {flexDirection: 'row', alignItems: 'baseline'},
   nutritionActual: {fontSize: FONTS.lg, fontWeight: FONTS.bold},
   nutritionSlash: {fontSize: FONTS.sm, color: COLORS.textMuted},
