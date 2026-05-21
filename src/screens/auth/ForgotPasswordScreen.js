@@ -43,11 +43,11 @@ const ForgotPasswordScreen = ({ navigation }) => {
         // Email NOT registered - block reset
         setIsLoading(false);
         Alert.alert(
-          '❌ கணக்கு இல்லை / No Account Found',
-          'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account.',
+          t('authAlerts.resetNoAccountTitle', { defaultValue: '❌ கணக்கு இல்லை / No Account Found' }),
+          t('authAlerts.resetNoAccountMsg', { defaultValue: 'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account.' }),
           [
-            { text: 'சரி / OK', style: 'cancel' },
-            { text: '📝 புதிய கணக்கு', onPress: () => navigation.navigate('Register') }
+            { text: t('common.ok', { defaultValue: 'சரி / OK' }), style: 'cancel' },
+            { text: t('authAlerts.tryAgainBtn', { defaultValue: '📧 மீண்டும் முயற்சிக்கவும் / Try Again' }), style: 'default' }
           ]
         );
         return;

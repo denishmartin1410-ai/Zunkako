@@ -36,6 +36,7 @@ const Field = ({
   error,
   autoCompleteType = 'off',
   textContentType = 'none',
+  importantForAutofill = 'auto',
 }) => (
   <View style={styles.fieldWrap}>
     <Text style={styles.fieldLabel}>{label}</Text>
@@ -53,7 +54,7 @@ const Field = ({
         spellCheck={false}
         autoComplete={autoCompleteType}
         textContentType={textContentType}
-        importantForAutofill='auto'
+        importantForAutofill={importantForAutofill}
       />
       {secure && onTogglePass && (
         <TouchableOpacity onPress={onTogglePass}>
@@ -262,10 +263,11 @@ const RegisterScreen = ({ navigation }) => {
           label={'📱 தொலைபேசி\n    Phone Number'}
           value={phone}
           onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
-          keyboardType="numeric"
+          keyboardType="phone-pad"
           error={errors.phone}
-          autoCompleteType='tel'
-          textContentType='telephoneNumber'
+          autoCompleteType="off"
+          textContentType="none"
+          importantForAutofill="no"
         />
         <Field
           label={'📍 இடம்\n    Location / City'}

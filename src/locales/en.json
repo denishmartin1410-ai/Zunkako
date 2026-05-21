@@ -450,5 +450,16 @@
     "connectionCut": "Farmer connection cut (Item Purchased)",
     "detailsLocked": "Customer details are locked until item is purchased.",
     "phoneHidden": "Farmer Contact Hidden"
+  },
+  "authAlerts": {
+    "noAccountTitle": "❌ No Account Found",
+    "noAccountMsg": "No account exists with this email. Please register first.",
+    "wrongPasswordTitle": "🔑 Incorrect Details",
+    "wrongPasswordMsg": "Incorrect email or password. Please try again or create an account.",
+    "forgotPasswordBtn": "🔑 Forgot Password?",
+    "createAccountBtn": "📝 Create Account",
+    "tryAgainBtn": "📧 Try Again",
+    "resetNoAccountTitle": "❌ No Account Found",
+    "resetNoAccountMsg": "No account found with this email. Please check the spelling or try again."
   }
 }

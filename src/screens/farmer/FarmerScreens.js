@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import Geolocation from '@react-native-community/geolocation';
 import BackButton from '../../utils/BackButton';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
@@ -31,7 +32,7 @@ const FormField = ({ label, value, onChangeText, placeholder, keyboard = 'defaul
 
 // ── FARMER DASHBOARD ──
 export const FarmerDashboardScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [stats, setStats] = useState({ totalSales: 0, thisMonthRevenue: 0, totalOrders: 0, totalProducts: 0 });
   const [myProducts, setMyProducts] = useState([]);
@@ -120,7 +121,7 @@ export const FarmerDashboardScreen = ({ navigation }) => {
             <View key={p.id} style={S.prodRow}>
               <FastImage source={{ uri: p.image }} style={S.prodRowImg} resizeMode={FastImage.resizeMode.cover} />
               <View style={S.prodRowInfo}>
-                <Text style={S.prodRowName}>{p.nameTa || p.name}</Text>
+                <Text style={S.prodRowName} numberOfLines={1} ellipsizeMode="tail">{getLocalProductName(p.name, p.nameTa, i18n.language)}</Text>
                 <Text style={S.prodRowPrice}>₹{p.price}/{p.unit}</Text>
               </View>
               <View style={S.stockBadge}><Text style={S.stockText}>{p.stock} {t('farmer.available', { defaultValue: 'உள்ளது' })}</Text></View>
@@ -135,7 +136,7 @@ export const FarmerDashboardScreen = ({ navigation }) => {
 
 // ── MY PRODUCTS ──
 export const MyProductsScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [myProducts, setMyProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -181,7 +182,7 @@ export const MyProductsScreen = ({ navigation }) => {
             <View style={S.mpCard}>
               <FastImage source={{ uri: item.image }} style={S.mpImg} resizeMode={FastImage.resizeMode.cover} />
               <View style={S.mpInfo}>
-                <Text style={S.mpName}>{item.nameTa || item.name}</Text>
+                <Text style={S.mpName} numberOfLines={1} ellipsizeMode="tail">{getLocalProductName(item.name, item.nameTa, i18n.language)}</Text>
                 <Text style={S.mpPrice}>₹{item.price}/{item.unit}</Text>
                 <Text style={S.mpStock}>{t('farmer.stock', { defaultValue: 'கையிருப்பு' })}: {item.stock}</Text>
               </View>
@@ -360,7 +361,7 @@ export const AddProductScreen = ({ navigation }) => {
 
 // ── EDIT PRODUCT ──
 export const EditProductScreen = ({ route, navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { product } = route.params;
   const [price, setPrice] = useState(`${product.price}`);
   const [stock, setStock] = useState(`${product.stock}`);
@@ -386,7 +387,7 @@ export const EditProductScreen = ({ route, navigation }) => {
       </LinearGradient>
       <ScrollView contentContainerStyle={{ padding: SPACING.lg }} keyboardShouldPersistTaps="handled">
         <FastImage source={{ uri: product.image }} style={S.editImg} resizeMode={FastImage.resizeMode.cover} />
-        <Text style={S.editProdName}>{product.nameTa || product.name}</Text>
+        <Text style={S.editProdName}>{getLocalProductName(product.name, product.nameTa, i18n.language)}</Text>
         <FormField label={`💰 ${t('farmer.price', { defaultValue: 'விலை (₹)' })}`} value={price} onChangeText={setPrice} keyboard="numeric" />
         <FormField label={`📦 ${t('farmer.stock', { defaultValue: 'கையிருப்பு' })}`} value={stock} onChangeText={setStock} keyboard="numeric" />
         <TouchableOpacity style={S.submitBtn} onPress={handleSave} disabled={isSaving}>
@@ -556,7 +557,7 @@ const S = StyleSheet.create({
   prodRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.sm, ...SHADOWS.small },
   prodRowImg: { width: rs(56), height: rs(56), borderRadius: RADIUS.md },
   prodRowInfo: { flex: 1, marginLeft: SPACING.md },
-  prodRowName: { fontSize: rs(FONTS.md), fontWeight: 'bold', color: COLORS.textPrimary },
+  prodRowName: { fontSize: rs(FONTS.md), fontWeight: 'bold', color: COLORS.textPrimary, flexShrink: 1 },
   prodRowPrice: { fontSize: rs(FONTS.sm), color: COLORS.primaryGreen, fontWeight: '600' },
   stockBadge: { backgroundColor: '#E8F5E9', borderRadius: RADIUS.md, paddingHorizontal: 8, paddingVertical: 4 },
   stockText: { fontSize: rs(FONTS.xs), color: COLORS.primaryGreen, fontWeight: 'bold' },
@@ -565,7 +566,7 @@ const S = StyleSheet.create({
   mpCard: { flexDirection: 'row', backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.md, ...SHADOWS.small },
   mpImg: { width: rs(80), height: rs(80), borderRadius: RADIUS.lg },
   mpInfo: { flex: 1, marginLeft: SPACING.md },
-  mpName: { fontSize: rs(FONTS.md), fontWeight: 'bold', color: COLORS.textPrimary },
+  mpName: { fontSize: rs(FONTS.md), fontWeight: 'bold', color: COLORS.textPrimary, flexShrink: 1 },
   mpPrice: { fontSize: rs(FONTS.sm), color: COLORS.primaryGreen, fontWeight: '600' },
   mpStock: { fontSize: rs(FONTS.xs), color: COLORS.textMuted },
   mpActions: { justifyContent: 'space-between', paddingVertical: 4 },

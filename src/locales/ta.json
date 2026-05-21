@@ -474,5 +474,16 @@
     "connectionCut": "விவசாயி தொடர்பு துண்டிக்கப்பட்டது (பொருள் வாங்கப்பட்டது)",
     "detailsLocked": "பொருள் வாங்கும் வரை வாடிக்கையாளர் விவரங்கள் பூட்டப்பட்டிருக்கும்.",
     "phoneHidden": "விவசாயி தொடர்பு மறைக்கப்பட்டது"
+  },
+  "authAlerts": {
+    "noAccountTitle": "❌ கணக்கு இல்லை",
+    "noAccountMsg": "இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nதயவுசெய்து முதலில் புதிய கணக்கு உருவாக்கவும்.\n\nNo account exists with this email. Please register first.",
+    "wrongPasswordTitle": "🔑 தவறான தகவல் / Incorrect Details",
+    "wrongPasswordMsg": "நீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான தகவல்களை உள்ளிடவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nIncorrect email or password. Please try again or create an account.",
+    "forgotPasswordBtn": "🔑 கடவுச்சொல் மறந்தீர்களா?",
+    "createAccountBtn": "📝 புதிய கணக்கு உருவாக்கு",
+    "tryAgainBtn": "📧 மீண்டும் முயற்சிக்கவும்",
+    "resetNoAccountTitle": "❌ கணக்கு இல்லை",
+    "resetNoAccountMsg": "இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account."
   }
 }

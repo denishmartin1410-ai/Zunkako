@@ -41,7 +41,7 @@ const InputField = ({ label, value, onChangeText, placeholder, secureEntry, erro
 );
 
 const LoginScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { login, resendVerificationEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -89,21 +89,22 @@ const LoginScreen = ({ navigation }) => {
         if (errorType === 'user-not-found') {
           // Email doesn't exist - guide to register
           Alert.alert(
-            '❌ கணக்கு இல்லை / No Account Found',
-            'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nNo account exists with this email. Please register first.',
+            t('authAlerts.noAccountTitle', { defaultValue: '❌ கணக்கு இல்லை / No Account Found' }),
+            t('authAlerts.noAccountMsg', { defaultValue: 'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nNo account exists with this email. Please register first.' }),
             [
-              { text: 'சரி / OK', style: 'cancel' },
-              { text: '📝 புதிய கணக்கு உருவாக்கு', onPress: () => navigation.navigate('Register') }
+              { text: t('common.ok', { defaultValue: 'சரி / OK' }), style: 'cancel' },
+              { text: t('authAlerts.createAccountBtn', { defaultValue: '📝 புதிய கணக்கு உருவாக்கு' }), onPress: () => navigation.navigate('Register') }
             ]
           );
         } else if (errorType === 'wrong-password') {
           // Wrong password - guide to forgot password
           Alert.alert(
-            '🔑 தவறான தகவல் / Incorrect Details',
-            'நீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான தகவல்களை உள்ளிடவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nIncorrect email or password. Please try again or create an account.',
+            t('authAlerts.wrongPasswordTitle', { defaultValue: '🔑 தவறான தகவல் / Incorrect Details' }),
+            t('authAlerts.wrongPasswordMsg', { defaultValue: 'நீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான தகவல்களை உள்ளிடவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nIncorrect email or password. Please try again or create an account.' }),
             [
-              { text: 'சரி / OK', style: 'cancel' },
-              { text: '🔑 கடவுச்சொல் மறந்தீர்களா?', onPress: () => navigation.navigate('ForgotPassword') }
+              { text: t('common.ok', { defaultValue: 'சரி / OK' }), style: 'cancel' },
+              { text: t('authAlerts.forgotPasswordBtn', { defaultValue: '🔑 கடவுச்சொல் மறந்தீர்களா?' }), onPress: () => navigation.navigate('ForgotPassword') },
+              { text: t('authAlerts.createAccountBtn', { defaultValue: '📝 புதிய கணக்கு உருவாக்கு' }), onPress: () => navigation.navigate('Register') }
             ]
           );
         } else if (errorType === 'account-disabled') {
