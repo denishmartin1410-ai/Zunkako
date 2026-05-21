@@ -131,11 +131,26 @@ exports.sendWhatsAppUpdate = functions.firestore
 
     if (newData.status === oldData.status) return null;
 
-    // WhatsApp support பண்றவர்கள் மட்டும்
-    if (!newData.consumerWhatsApp) return null;
-
     const client = getTwilioClient();
     const twilioWhatsApp = 'whatsapp:+14155238886'; // Twilio WhatsApp Sandbox
+
+    // ── Refund Request Admin WhatsApp Notification ──
+    if (newData.status === 'Refund Requested') {
+      const adminWhatsAppNumber = 'whatsapp:+919360425423';
+      const orderDisplayId = newData.orderId || orderId;
+      const adminMessage = `*Refund Request*\n\nOrder ID: ${orderDisplayId}\nCustomer: ${newData.consumerName || 'Customer'}\nTotal Amount: ₹${newData.total}\n\nPlease process this refund.`;
+
+      await client.messages.create({
+        body: adminMessage,
+        from: twilioWhatsApp,
+        to: adminWhatsAppNumber,
+      }).catch(err => console.log('Admin Refund WhatsApp error:', err));
+
+      return null;
+    }
+
+    // WhatsApp support பண்றவர்கள் மட்டும்
+    if (!newData.consumerWhatsApp) return null;
 
     const waMessages = {
       Confirmed: `✅ *F2C Order Confirmed!*\n\nOrder ID: #${orderId.slice(-4)}\nமொத்தம்: ₹${newData.total}\n\n📦 உங்கள் order process ஆகிறது...\n🚚 விரைவில் deliver ஆகும்!\n\nTrack: f2capp.com/track/${orderId}`,

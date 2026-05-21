@@ -50,7 +50,7 @@ export const OrdersScreen = ({ navigation }) => {
     load();
   }, [user]);
 
-  const STATUS_COLOR = { Pending: '#FF9800', Confirmed: '#2196F3', Shipped: '#9C27B0', Delivered: '#4CAF50', Cancelled: '#F44336', 'Refund Requested': '#FF5722' };
+  const STATUS_COLOR = { Pending: '#FF9800', Confirmed: '#2196F3', Shipped: '#9C27B0', Delivered: '#4CAF50', Cancelled: '#F44336', 'Refund Requested': '#FF5722', 'Refunded': '#7B1FA2' };
 
   return (
     <View style={S.container}>

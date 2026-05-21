@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import firestore from '@react-native-firebase/firestore';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import { updateOrderStatus, createNotification } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
@@ -27,6 +28,7 @@ const STATUS_COLOR = {
     Delivered: '#4CAF50',
     Cancelled: '#F44336',
     'Refund Requested': '#FF5722',
+    Refunded: '#7B1FA2',
 };
 const STATUS_TA = {
     Pending: 'காத்திருக்கிறது',
@@ -35,11 +37,28 @@ const STATUS_TA = {
     Delivered: 'வழங்கப்பட்டது',
     Cancelled: 'ரத்து செய்யப்பட்டது',
     'Refund Requested': 'பணம் திரும்ப கோரிக்கை',
+    Refunded: 'பணம் திரும்ப செலுத்தப்பட்டது',
 };
 
 const OrderDetailScreen = ({ route, navigation }) => {
     const { t } = useTranslation();
-    const { order } = route.params || {};
+    const { order: initialOrder } = route.params || {};
+    const [order, setOrder] = React.useState(initialOrder);
+
+    React.useEffect(() => {
+        if (!initialOrder?.id) return;
+        const unsubscribe = firestore()
+            .collection('orders')
+            .doc(initialOrder.id)
+            .onSnapshot(doc => {
+                if (doc.exists) {
+                    setOrder({ id: doc.id, ...doc.data() });
+                }
+            }, err => {
+                console.log('Error listening to order:', err);
+            });
+        return () => unsubscribe();
+    }, [initialOrder?.id]);
 
     if (!order) {
         return (
@@ -65,6 +84,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
         if (status === 'Delivered') return 'orders.statusDelivered';
         if (status === 'Cancelled') return 'orders.statusCancelled';
         if (status === 'Refund Requested') return 'orders.status_Refund_Requested';
+        if (status === 'Refunded') return 'orders.statusRefunded';
         return 'orders.status_' + status.replace(' ', '_');
     };
     const statusTa = t(getStatusI18nKey(order.status), { defaultValue: STATUS_TA[order.status] || order.status });
@@ -84,7 +104,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
     let steps = [
         { key: 'Pending', label: t('orders.statusPending', { defaultValue: 'ஆர்டர் பெற்றோம்' }), icon: '📋' },
         { key: 'Confirmed', label: t('orders.statusConfirmed', { defaultValue: 'உறுதி செய்யப்பட்டது' }), icon: '✅' },
-        { key: 'Shipped', label: t('orders.statusShipped', { defaultValue: 'அனுப்பப்பட்டது' }), icon: '🚚' },
+        { key: 'Shipped', label: t('orders.statusShipped', { defaultValue: 'அనుப்பப்பட்டது' }), icon: '🚚' },
         { key: 'Delivered', label: t('orders.statusDelivered', { defaultValue: 'வழங்கப்பட்டது' }), icon: '🎉' },
     ];
     let statusOrder = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
@@ -100,6 +120,22 @@ const OrderDetailScreen = ({ route, navigation }) => {
 
     // ✅ Refund request handler
     const handleRefundRequest = () => {
+        // Check if refund request is within 24 hours of delivery
+        const deliveryTime = order.deliveredAt?.toDate?.() || 
+                            (order.deliveredAt?.seconds ? new Date(order.deliveredAt.seconds * 1000) : null) ||
+                            order.updatedAt?.toDate?.() ||
+                            (order.updatedAt?.seconds ? new Date(order.updatedAt.seconds * 1000) : null);
+        if (deliveryTime) {
+            const hoursSinceDelivery = (Date.now() - deliveryTime.getTime()) / (1000 * 60 * 60);
+            if (hoursSinceDelivery > 24) {
+                Alert.alert(
+                    '⚠️ ' + t('orders.refundExpired', { defaultValue: 'பணம் திரும்ப கோரும் நேரம் முடிந்துவிட்டது' }),
+                    t('orders.refundExpiredMsg', { defaultValue: 'பொருள் வழங்கப்பட்ட 24 மணி நேரத்திற்குள் மட்டுமே பணம் திரும்பக் கோர முடியும்.' }),
+                );
+                return;
+            }
+        }
+
         Alert.alert(
             t('orders.refundConfirmTitle', { defaultValue: 'பணம் திரும்ப கோரிக்கை' }),
             t('orders.refundConfirmMsg', { defaultValue: 'இந்த ஆர்டருக்கு பணம் திரும்ப கோர விரும்புகிறீர்களா?' }),
@@ -112,19 +148,33 @@ const OrderDetailScreen = ({ route, navigation }) => {
                         try {
                             const result = await updateOrderStatus(order.id, 'Refund Requested');
                             if (result.success) {
-                                // Trigger WhatsApp message to Admin for Refund
-                                const adminPhone = "919360425423";
-                                const msg = `*Refund Request*\n\nOrder ID: ${order.orderId || order.id}\nCustomer: ${order.consumerName || 'Customer'}\nTotal Amount: ₹${order.total}\n\nPlease process this refund.`;
-                                const whatsappUrl = `whatsapp://send?phone=${adminPhone}&text=${encodeURIComponent(msg)}`;
-
-                                Linking.openURL(whatsappUrl).catch(() => {
-                                    Alert.alert('WhatsApp Error', 'Could not open WhatsApp. Please contact admin manually.');
-                                });
+                                // Background Cloud Function routes Twilio silent notification.
+                                // In-app notification creation
+                                if (order.farmerId) {
+                                    await createNotification({
+                                        userId: order.farmerId,
+                                        title: t('notification.refundRequested', { defaultValue: 'Refund Requested' }),
+                                        message: `Customer requested a refund for order #${order.orderId || order.id?.slice(-4)}.`,
+                                        emoji: '💸',
+                                        bgColor: '#FFF3E0',
+                                        type: 'refund_requested',
+                                    });
+                                }
+                                if (order.consumerId) {
+                                    await createNotification({
+                                        userId: order.consumerId,
+                                        title: t('notification.refundRequested', { defaultValue: 'Refund Requested' }),
+                                        message: `Your refund request for order #${order.orderId || order.id?.slice(-4)} has been submitted.`,
+                                        emoji: '💸',
+                                        bgColor: '#FFF3E0',
+                                        type: 'refund_requested',
+                                    });
+                                }
 
                                 Alert.alert(
                                     '✅',
                                     t('orders.refundSuccess', { defaultValue: 'பணம் திரும்ப கோரிக்கை சமர்ப்பிக்கப்பட்டது!' }),
-                                    [{ text: t('common.ok', { defaultValue: 'சரி' }), onPress: () => navigation.goBack() }]
+                                    [{ text: t('common.ok', { defaultValue: 'சரி' }) }]
                                 );
                             } else {
                                 Alert.alert(t('common.error', { defaultValue: 'பிழை' }), result.error || 'Failed');
@@ -138,16 +188,16 @@ const OrderDetailScreen = ({ route, navigation }) => {
         );
     };
 
-    // ✅ Cancel order handler - 12 hour window
+    // ✅ Cancel order handler - 3 hour window
     const handleCancelOrderClick = () => {
-        // Check if order is within 12 hours
-        const orderTime = order.createdAt?.toDate?.();
+        // Check if order is within 3 hours
+        const orderTime = order.createdAt?.toDate?.() || (order.createdAt?.seconds ? new Date(order.createdAt.seconds * 1000) : null);
         if (orderTime) {
             const hoursSinceOrder = (Date.now() - orderTime.getTime()) / (1000 * 60 * 60);
-            if (hoursSinceOrder > 12) {
+            if (hoursSinceOrder > 3) {
                 Alert.alert(
-                    '⚠️ ' + t('orders.cancelExpired', { defaultValue: 'Cannot Cancel' }),
-                    t('orders.cancelExpiredMsg', { defaultValue: 'Orders can only be cancelled within 12 hours of placing. This order was placed more than 12 hours ago.' }),
+                    '⚠️ ' + t('orders.cancelExpired', { defaultValue: 'ரத்து செய்யும் நேரம் முடிந்துவிட்டது' }),
+                    t('orders.cancelExpiredMsg', { defaultValue: 'ஆர்டர் செய்த 3 மணி நேரத்திற்குள் மட்டுமே ரத்து செய்ய முடியும்.' }),
                 );
                 return;
             }
@@ -234,8 +284,8 @@ const OrderDetailScreen = ({ route, navigation }) => {
                         <Text style={styles.sectionTitle}>🚀 {t('orders.orderStatus', { defaultValue: 'ஆர்டர் நிலை' })}</Text>
                         <View style={styles.timeline}>
                             {steps.map((step, idx) => {
-                                const done = idx <= currentIdx;
-                                const active = idx === currentIdx;
+                                const done = order.status === 'Refunded' ? false : idx <= currentIdx;
+                                const active = order.status === 'Refunded' ? false : idx === currentIdx;
                                 return (
                                     <View key={step.key} style={styles.timelineStep}>
                                         <View style={styles.timelineLeft}>
@@ -348,11 +398,29 @@ const OrderDetailScreen = ({ route, navigation }) => {
                     </TouchableOpacity>
                 )}
 
-                {/* ✅ Refund Request Button - only for Delivered orders */}
-                {order.status === 'Delivered' && (
-                    <TouchableOpacity style={styles.refundBtn} onPress={handleRefundRequest}>
-                        <Text style={styles.refundBtnTxt}>
-                            💸 {t('orders.requestRefund', { defaultValue: 'Request Refund' })}
+                {/* ✅ Refund Request Button - only for Delivered/Refund Requested/Refunded orders */}
+                {['Delivered', 'Refund Requested', 'Refunded'].includes(order.status) && (
+                    <TouchableOpacity 
+                        style={[
+                            styles.refundBtn, 
+                            order.status === 'Refund Requested' && styles.refundRequestedBtn,
+                            order.status === 'Refunded' && styles.refundedBtn
+                        ]} 
+                        onPress={handleRefundRequest}
+                        disabled={order.status === 'Refund Requested' || order.status === 'Refunded'}
+                    >
+                        <Text style={[
+                            styles.refundBtnTxt,
+                            order.status === 'Refund Requested' && styles.refundRequestedBtnTxt,
+                            order.status === 'Refunded' && styles.refundedBtnTxt
+                        ]}>
+                            {order.status === 'Refund Requested' ? (
+                                '💸 ' + t('orders.refundSubmitted', { defaultValue: 'Refund request submitted' })
+                            ) : order.status === 'Refunded' ? (
+                                '💜 ' + t('orders.statusRefunded', { defaultValue: 'Refunded' })
+                            ) : (
+                                '💸 ' + t('orders.requestRefund', { defaultValue: 'Request Refund' })
+                            )}
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -513,6 +581,22 @@ const styles = StyleSheet.create({
     },
     refundBtnTxt: {
         color: '#FF5722', fontSize: rs(FONTS.md), fontWeight: 'bold',
+    },
+    // ✅ Refund requested button (disabled)
+    refundRequestedBtn: {
+        backgroundColor: '#F5F5F5',
+        borderColor: '#E0E0E0',
+    },
+    refundRequestedBtnTxt: {
+        color: '#9E9E9E',
+    },
+    // ✅ Refunded button (disabled)
+    refundedBtn: {
+        backgroundColor: '#F3E5F5',
+        borderColor: '#7B1FA2',
+    },
+    refundedBtnTxt: {
+        color: '#7B1FA2',
     },
 
     // ✅ Refund requested status card
