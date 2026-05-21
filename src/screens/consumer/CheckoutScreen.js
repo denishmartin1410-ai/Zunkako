@@ -13,7 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { createOrder } from '../../services/firebase';
+import { createOrder, getUserProfile } from '../../services/firebase';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
@@ -29,6 +29,7 @@ const CheckoutScreen = ({ navigation }) => {
     const [customerName, setCustomerName] = useState(user?.name || '');
     const [address, setAddress] = useState(user?.address || user?.location || '');
     const [pincode, setPincode] = useState(user?.pincode || '');
+    const [phone, setPhone] = useState(user?.phone || '');
     const [isLoading, setIsLoading] = useState(false);
 
     const deliveryFee = 0; // Free for first 3 months
@@ -80,6 +81,10 @@ const CheckoutScreen = ({ navigation }) => {
             Alert.alert(t('common.error', { defaultValue: 'பிழை' }), t('checkout.pincodeRequired', { defaultValue: 'சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)' }));
             return;
         }
+        if (!phone.trim() || phone.trim().length < 10) {
+            Alert.alert(t('common.error', { defaultValue: 'பிழை' }), t('checkout.phoneRequired', { defaultValue: 'Please enter a valid phone number (10 digits)' }));
+            return;
+        }
 
         setIsLoading(true);
         try {
@@ -94,13 +99,29 @@ const CheckoutScreen = ({ navigation }) => {
                 farmerGroups[fid].push(item);
             });
 
+            const farmerIds = Object.keys(farmerGroups);
+            const farmerProfiles = {};
+            await Promise.all(farmerIds.map(async (fid) => {
+                if (fid !== 'unknown') {
+                    const res = await getUserProfile(fid);
+                    if (res.success && res.data) {
+                        farmerProfiles[fid] = res.data;
+                    }
+                }
+            }));
+
             const orderPromises = Object.entries(farmerGroups).map(([farmerId, items]) => {
+                const farmerProfile = farmerProfiles[farmerId] || {};
                 const subtotal = items.reduce((s, i) => s + (i.consumerPrice || i.price) * i.quantity, 0);
                 return createOrder({
                     consumerId: user?.id || user?.uid,
                     consumerName: customerName.trim(),
+                    consumerPhone: phone.trim(),
                     farmerId,
-                    farmerName: items[0]?.farmerName || '',
+                    farmerName: items[0]?.farmerName || farmerProfile.name || '',
+                    farmerPhone: farmerProfile.phone || '',
+                    farmerLocation: farmerProfile.address || farmerProfile.location || '',
+                    farmerCoords: farmerProfile.coordinates || farmerProfile.locationCoords || null,
                     items: items.map(i => ({
                         id: i.id,
                         name: i.name,
@@ -187,6 +208,18 @@ const CheckoutScreen = ({ navigation }) => {
                             placeholderTextColor={COLORS.textGray}
                             keyboardType="numeric"
                             maxLength={6}
+                        />
+                    </View>
+                    <View style={styles.formField}>
+                        <Text style={styles.formLabel}>{t('checkout.phone', { defaultValue: 'Phone Number' })} *</Text>
+                        <TextInput
+                            style={styles.formInput}
+                            value={phone}
+                            onChangeText={setPhone}
+                            placeholder={t('checkout.phonePlaceholder', { defaultValue: 'Enter 10-digit Phone Number' })}
+                            placeholderTextColor={COLORS.textGray}
+                            keyboardType="phone-pad"
+                            maxLength={10}
                         />
                     </View>
                 </View>

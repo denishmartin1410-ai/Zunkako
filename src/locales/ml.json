@@ -68,7 +68,7 @@
     "priceSummary": "വില വിശദാംശങ്ങൾ",
     "statusPending": "ഓർഡർ ലഭിച്ചു",
     "statusConfirmed": "സ്ഥിരീകരിച്ചു",
-    "statusShipped": "അയച്ചു",
+    "statusShipped": "സാധനം വാങ്ങി",
     "statusDelivered": "ഡെലിവറി ചെയ്തു",
     "requestRefund": "റീഫണ്ട് അഭ്യർത്ഥിക്കുക",
     "refundConfirmTitle": "റീഫണ്ട് അഭ്യർത്ഥന",
@@ -154,6 +154,9 @@
     "productNameEn": "ഉൽപ്പന്നത്തിന്റെ പേര് (English)",
     "productNameTa": "ഉൽപ്പന്നത്തിന്റെ പേര് (Tamil)",
     "receivedOrders": "ലഭിച്ച ഓർഡറുകൾ",
+    "waitingPickup": "പിക്കപ്പിനായി കാത്തിരിക്കുന്നു",
+    "itemPurchased": "സാധനം വാങ്ങി",
+    "itemDelivered": "സാധനം ഡെലിവറി ചെയ്തു",
     "accept": "അംഗീകരിക്കുക",
     "reject": "നിരസിക്കുക",
     "markShipped": "ഷിപ്പ് ചെയ്‌തതായി അടയാളപ്പെടുത്തുക",
@@ -243,7 +246,10 @@
     "addressRequired": "വിലാസം നൽകുക",
     "pincode": "PIN കോഡ്",
     "pincodePlaceholder": "6 അക്ക PIN കോഡ്",
-    "pincodeRequired": "ശരിയായ PIN കോഡ് നൽകുക (6 അക്കം)"
+    "pincodeRequired": "ശരിയായ PIN കോഡ് നൽകുക (6 അക്കം)",
+    "phone": "ഫോൺ നമ്പർ",
+    "phonePlaceholder": "10 അക്ക ഫോൺ നമ്പർ നൽകുക",
+    "phoneRequired": "ശരിയായ ഫോൺ നമ്പർ നൽകുക (10 അക്കം)"
   },
   "harvestCalendar": {
     "title": "വിളവെടുപ്പ് കലണ്ടർ",
@@ -426,5 +432,22 @@
     "inviteFriends": "കൂട്ടുകാരെ ക്ഷണിക്കുക",
     "inviteMsg": "സുഹൃത്തുക്കളെ ക്ഷണിക്കാൻ Link പങ്കിടുക",
     "groupFull": "ഗ്രൂപ്പ് നിറഞ്ഞു"
+  },
+  "delivery": {
+    "title": "ഡെലിവറി പാർട്ണർ",
+    "active": "സജീവം",
+    "completed": "പൂർത്തിയായി",
+    "total": "ആകെ",
+    "pickupFrom": "പിക്കപ്പ് സ്ഥലം",
+    "navigateFarmer": "🗺️ കർഷകന്റെ അടുത്തേക്ക് പോകുക",
+    "deliverTo": "ഡെലിവറി ചെയ്യേണ്ട സ്ഥലം",
+    "navigateCustomer": "🗺️ ഉപഭോക്താവിന്റെ അടുത്തേക്ക് പോകുക",
+    "items": "ഇനങ്ങൾ",
+    "totalAmount": "ആകെ",
+    "markPurchased": "📦 സാധനം വാങ്ങി",
+    "markDelivered": "🎉 ഡെലിവറി ചെയ്തു",
+    "connectionCut": "കർഷക ബന്ധം വിച്ഛേദിക്കപ്പെട്ടു (സാധനം വാങ്ങി)",
+    "detailsLocked": "സാധനം വാങ്ങുന്നതുവരെ ഉപഭോക്താവിന്റെ വിവരങ്ങൾ ലോക്ക് ആണ്.",
+    "phoneHidden": "കർഷകന്റെ വിവരങ്ങൾ മറച്ചിരിക്കുന്നു"
   }
 }

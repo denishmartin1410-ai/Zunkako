@@ -68,8 +68,8 @@
     "priceSummary": "Price Summary",
     "statusPending": "Order Received",
     "statusConfirmed": "Confirmed",
-    "statusShipped": "Shipped",
-    "statusDelivered": "Delivered",
+    "statusShipped": "Item Purchased",
+    "statusDelivered": "Item Delivered",
     "requestRefund": "Request Refund",
     "refundConfirmTitle": "Refund Request",
     "refundConfirmMsg": "Do you want to request a refund for this order?",
@@ -166,6 +166,9 @@
     "productNameEn": "Product Name (English)",
     "productNameTa": "Product Name (Tamil)",
     "receivedOrders": "Received Orders",
+    "waitingPickup": "Waiting for pickup",
+    "itemPurchased": "Item has been purchased",
+    "itemDelivered": "Item has been delivered",
     "accept": "Accept",
     "reject": "Reject",
     "markShipped": "Mark as Shipped",
@@ -254,7 +257,10 @@
     "addressRequired": "Please enter your address",
     "pincode": "PIN Code",
     "pincodePlaceholder": "6-digit PIN code",
-    "pincodeRequired": "Please enter a valid PIN code (6 digits)"
+    "pincodeRequired": "Please enter a valid PIN code (6 digits)",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Enter 10-digit Phone Number",
+    "phoneRequired": "Please enter a valid phone number (10 digits)"
   },
   "harvestCalendar": {
     "day_sun": "Sunday",
@@ -400,5 +406,22 @@
     "deleteForMe": "Delete for me",
     "deleteForEveryone": "Delete for everyone",
     "cancel": "Cancel"
+  },
+  "delivery": {
+    "title": "Delivery Partner",
+    "active": "Active",
+    "completed": "Completed",
+    "total": "Total",
+    "pickupFrom": "PICKUP FROM",
+    "navigateFarmer": "🗺️ Navigate to Farmer",
+    "deliverTo": "DELIVER TO",
+    "navigateCustomer": "🗺️ Navigate to Customer",
+    "items": "Items",
+    "totalAmount": "Total",
+    "markPurchased": "📦 Mark Purchased",
+    "markDelivered": "🎉 Mark Delivered",
+    "connectionCut": "Farmer connection cut (Item Purchased)",
+    "detailsLocked": "Customer details are locked until item is purchased.",
+    "phoneHidden": "Farmer Contact Hidden"
   }
 }

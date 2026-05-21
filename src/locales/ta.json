@@ -68,7 +68,7 @@
     "priceSummary": "தொகை விவரம்",
     "statusPending": "ஆர்டர் பெற்றோம்",
     "statusConfirmed": "உறுதி செய்யப்பட்டது",
-    "statusShipped": "அனுப்பப்பட்டது",
+    "statusShipped": "வாங்கப்பட்டது",
     "statusDelivered": "வழங்கப்பட்டது",
     "requestRefund": "பணம் திரும்ப கோரு",
     "refundConfirmTitle": "பணம் திரும்ப கோரிக்கை",
@@ -164,6 +164,9 @@
     "productNameEn": "பொருளின் பெயர் (English)",
     "productNameTa": "பொருளின் பெயர் (தமிழ்)",
     "receivedOrders": "வந்த ஆர்டர்கள்",
+    "waitingPickup": "டெலிவரி பார்ட்னருக்காக காத்திருக்கிறது",
+    "itemPurchased": "பொருள் வாங்கப்பட்டது",
+    "itemDelivered": "பொருள் வழங்கப்பட்டது",
     "accept": "ஏற்றுக்கொள்",
     "reject": "நிராகரி",
     "markShipped": "பொருள் அனுப்பப்பட்டது",
@@ -254,7 +257,10 @@
     "addressRequired": "முகவரி நிரப்பவும்",
     "pincode": "PIN கோடு",
     "pincodePlaceholder": "6 இலக்க PIN கோடு",
-    "pincodeRequired": "சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)"
+    "pincodeRequired": "சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)",
+    "phone": "தொலைபேசி எண்",
+    "phonePlaceholder": "10-இலக்க தொலைபேசி எண்ணை உள்ளிடவும்",
+    "phoneRequired": "செல்லுபடியாகும் தொலைபேசி எண்ணை உள்ளிடவும் (10 இலக்கங்கள்)"
   },
   "harvestCalendar": {
     "title": "அறுவடை நாள்காட்டி",
@@ -425,5 +431,22 @@
     "inviteFriends": "நண்பர்களை அழைக்கவும்",
     "inviteMsg": "நண்பர்களை அழைக்க Link-ஐ பகிரவும்",
     "groupFull": "குழு நிரம்பிவிட்டது"
+  },
+  "delivery": {
+    "title": "டெலிவரி பார்ட்னர்",
+    "active": "செயலில்",
+    "completed": "முடிந்தது",
+    "total": "மொத்தம்",
+    "pickupFrom": "இங்கிருந்து எடுக்கவும்",
+    "navigateFarmer": "🗺️ விவசாயிக்கு செல்லவும்",
+    "deliverTo": "இங்கு டெலிவரி செய்யவும்",
+    "navigateCustomer": "🗺️ வாடிக்கையாளருக்கு செல்லவும்",
+    "items": "பொருட்கள்",
+    "totalAmount": "மொத்தம்",
+    "markPurchased": "📦 வாங்கப்பட்டது",
+    "markDelivered": "🎉 வழங்கப்பட்டது",
+    "connectionCut": "விவசாயி தொடர்பு துண்டிக்கப்பட்டது (பொருள் வாங்கப்பட்டது)",
+    "detailsLocked": "பொருள் வாங்கும் வரை வாடிக்கையாளர் விவரங்கள் பூட்டப்பட்டிருக்கும்.",
+    "phoneHidden": "விவசாயி தொடர்பு மறைக்கப்பட்டது"
   }
 }

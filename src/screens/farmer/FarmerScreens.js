@@ -442,17 +442,37 @@ export const FarmerOrdersScreen = ({ navigation }) => {
                 <View style={S.foBottom}>
                   <Text style={S.foTotal}>{t('orders.total', { defaultValue: 'மொத்தம்' })}: ₹{order.total}</Text>
                   <View style={[S.foStatus, { backgroundColor: order.status === 'Delivered' ? '#E8F5E9' : order.status === 'Shipped' ? '#E3F2FD' : '#FFF9C4' }]}>
-                    <Text style={[S.foStatusTxt, { color: order.status === 'Delivered' ? '#2E7D32' : order.status === 'Shipped' ? '#1565C0' : '#F57F17' }]}>{order.status}</Text>
+                    <Text style={[S.foStatusTxt, { color: order.status === 'Delivered' ? '#2E7D32' : order.status === 'Shipped' ? '#1565C0' : '#F57F17' }]}>
+                      {t('orders.status' + order.status, { defaultValue: order.status })}
+                    </Text>
                   </View>
                 </View>
-                {/* Farmer actions: Only up to Shipped. Delivered is Admin-controlled */}
+                {/* Farmer actions & status indicators */}
                 {order.status === 'Pending' && <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
                   <TouchableOpacity style={[S.statusBtn, { backgroundColor: '#E8F5E9' }]} onPress={() => handleUpdateStatus(order.id, 'Confirmed')}><Text style={{ color: '#2E7D32', fontSize: rs(FONTS.xs), fontWeight: 'bold' }}>✅ {t('farmer.accept', { defaultValue: 'Accept' })}</Text></TouchableOpacity>
                   <TouchableOpacity style={[S.statusBtn, { backgroundColor: '#FFEBEE' }]} onPress={() => handleUpdateStatus(order.id, 'Cancelled')}><Text style={{ color: '#C62828', fontSize: rs(FONTS.xs), fontWeight: 'bold' }}>❌ {t('farmer.reject', { defaultValue: 'Reject' })}</Text></TouchableOpacity>
                 </View>}
-                {order.status === 'Confirmed' && <TouchableOpacity style={[S.statusBtn, { backgroundColor: '#E3F2FD', marginTop: 8 }]} onPress={() => handleUpdateStatus(order.id, 'Shipped')}><Text style={{ color: '#1565C0', fontSize: rs(FONTS.xs), fontWeight: 'bold' }}>🚚 {t('farmer.markShipped', { defaultValue: 'Mark as Shipped' })}</Text></TouchableOpacity>}
-                {/* No Delivered button - Admin controls this via WhatsApp */}
-                {order.status === 'Shipped' && <View style={[S.statusBtn, { backgroundColor: '#FFF3E0', marginTop: 8 }]}><Text style={{ color: '#E65100', fontSize: rs(FONTS.xs), fontWeight: '600' }}>⏳ {t('farmer.waitingDelivery', { defaultValue: 'Delivery status update' })}</Text></View>}
+                {order.status === 'Confirmed' && (
+                  <View style={[S.statusBtn, { backgroundColor: '#FFF3E0', marginTop: 8 }]}>
+                    <Text style={{ color: '#E65100', fontSize: rs(FONTS.xs), fontWeight: '600' }}>
+                      ⏳ {t('farmer.waitingPickup', { defaultValue: 'Waiting for pickup' })}
+                    </Text>
+                  </View>
+                )}
+                {order.status === 'Shipped' && (
+                  <View style={[S.statusBtn, { backgroundColor: '#E3F2FD', marginTop: 8 }]}>
+                    <Text style={{ color: '#1565C0', fontSize: rs(FONTS.xs), fontWeight: '600' }}>
+                      📦 {t('farmer.itemPurchased', { defaultValue: 'Item has been purchased' })}
+                    </Text>
+                  </View>
+                )}
+                {order.status === 'Delivered' && (
+                  <View style={[S.statusBtn, { backgroundColor: '#E8F5E9', marginTop: 8 }]}>
+                    <Text style={{ color: '#2E7D32', fontSize: rs(FONTS.xs), fontWeight: '600' }}>
+                      🎉 {t('farmer.itemDelivered', { defaultValue: 'Item has been delivered' })}
+                    </Text>
+                  </View>
+                )}
               </View>
             ))}
           <View style={{ height: 90 }} />

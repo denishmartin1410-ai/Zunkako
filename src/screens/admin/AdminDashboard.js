@@ -8,22 +8,27 @@
 // ============================================================
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Dimensions, ScrollView, Modal } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import { createNotification } from '../../services/firebase';
 import LinearGradient from 'react-native-linear-gradient';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
 
+const getLat = (coords) => coords?.lat ?? coords?.latitude;
+const getLng = (coords) => coords?.lng ?? coords?.longitude;
+
 const STATUS_CONFIG = {
   Pending:            { bg: '#E3F2FD', color: '#1565C0', emoji: '⏳' },
   Confirmed:          { bg: '#E8F5E9', color: '#2E7D32', emoji: '✅' },
-  Shipped:            { bg: '#FFF3E0', color: '#E65100', emoji: '🚚' },
+  Shipped:            { bg: '#FFF3E0', color: '#E65100', emoji: '📦' },
   Delivered:          { bg: '#E8F5E9', color: '#2E7D32', emoji: '🎉' },
   Cancelled:          { bg: '#FFEBEE', color: '#C62828', emoji: '❌' },
   'Refund Requested': { bg: '#FFF3E0', color: '#FF5722', emoji: '💸' },
@@ -37,6 +42,49 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [userStats, setUserStats] = useState({ farmers: 0, consumers: 0, deliveryBoys: 0 });
+
+  // Live tracking modal states
+  const [selectedOrderForTracking, setSelectedOrderForTracking] = useState(null);
+  const [trackingModalVisible, setTrackingModalVisible] = useState(false);
+  const [deliveryBoyLiveLocation, setDeliveryBoyLiveLocation] = useState(null);
+
+  // Listen to live tracking for the selected order
+  useEffect(() => {
+    if (!selectedOrderForTracking) {
+      setDeliveryBoyLiveLocation(null);
+      return;
+    }
+    const orderId = selectedOrderForTracking.id;
+    const ref = database().ref(`deliveries/${orderId}/location`);
+    
+    const handleValueChange = (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        if (val && typeof val.lat === 'number' && typeof val.lng === 'number') {
+          setDeliveryBoyLiveLocation({
+            latitude: val.lat,
+            longitude: val.lng,
+          });
+        }
+      }
+    };
+
+    ref.on('value', handleValueChange);
+
+    return () => {
+      ref.off('value', handleValueChange);
+    };
+  }, [selectedOrderForTracking]);
+
+  const handleTrackLive = (order) => {
+    setSelectedOrderForTracking(order);
+    setTrackingModalVisible(true);
+  };
+
+  const handleCloseTracking = () => {
+    setTrackingModalVisible(false);
+    setSelectedOrderForTracking(null);
+  };
 
   // Fetch total user counts
   useEffect(() => {
@@ -207,6 +255,7 @@ const AdminDashboard = () => {
   const renderOrder = ({ item }) => {
     const cfg = STATUS_CONFIG[item.status] || { bg: '#F5F5F5', color: '#999', emoji: '📦' };
     const orderDate = item.createdAt?.toDate?.()?.toLocaleDateString('en-IN') || '';
+    const displayStatus = item.status === 'Shipped' ? 'Purchased' : item.status;
 
     return (
       <View style={styles.card}>
@@ -217,7 +266,7 @@ const AdminDashboard = () => {
           </View>
           <View style={[styles.statusBadge, { backgroundColor: cfg.bg }]}>
             <Text style={[styles.statusTxt, { color: cfg.color }]}>
-              {cfg.emoji} {item.status}
+              {cfg.emoji} {displayStatus}
             </Text>
           </View>
         </View>
@@ -258,8 +307,8 @@ const AdminDashboard = () => {
           {item.status === 'Confirmed' && (
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: '#FFF3E0', borderColor: '#FF9800' }]}
-              onPress={() => updateStatus(item, 'Shipped', `Mark order #${item.orderId || item.id.slice(-4)} as Shipped?`)}>
-              <Text style={[styles.actionBtnTxt, { color: '#E65100' }]}>🚚 Ship</Text>
+              onPress={() => updateStatus(item, 'Shipped', `Mark order #${item.orderId || item.id.slice(-4)} as Purchased?`)}>
+              <Text style={[styles.actionBtnTxt, { color: '#E65100' }]}>📦 Purchased</Text>
             </TouchableOpacity>
           )}
 
@@ -288,6 +337,15 @@ const AdminDashboard = () => {
               <Text style={[styles.actionBtnTxt, { color: '#1565C0' }]}>🚚 Assign Delivery</Text>
             </TouchableOpacity>
           )}
+
+          {/* ✅ Track Live button - for active orders with assigned delivery boy */}
+          {item.deliveryBoyId && !['Delivered', 'Cancelled', 'Refunded'].includes(item.status) && (
+            <TouchableOpacity
+              style={[styles.actionBtn, { backgroundColor: '#E8EAF6', borderColor: '#3F51B5' }]}
+              onPress={() => handleTrackLive(item)}>
+              <Text style={[styles.actionBtnTxt, { color: '#3F51B5' }]}>🗺️ Track Live</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -296,9 +354,11 @@ const AdminDashboard = () => {
   const filters = [
     { key: 'all', label: `All (${orders.length})` },
     { key: 'Pending', label: 'Pending' },
-    { key: 'Shipped', label: 'Shipped' },
-    { key: 'refund', label: `💸 Refund (${refundCount})` },
+    { key: 'Confirmed', label: 'Confirmed' },
+    { key: 'Shipped', label: 'Purchased' },
     { key: 'Delivered', label: 'Delivered' },
+    { key: 'refund', label: `💸 Refund (${refundCount})` },
+    { key: 'Cancelled', label: 'Cancelled' },
   ];
 
   return (
@@ -329,19 +389,21 @@ const AdminDashboard = () => {
         </View>
       </View>
 
-      {/* Filter tabs */}
-      <View style={styles.filterRow}>
-        {filters.map(f => (
-          <TouchableOpacity
-            key={f.key}
-            style={[styles.filterChip, activeFilter === f.key && styles.filterChipActive]}
-            onPress={() => setActiveFilter(f.key)}>
-            <Text style={[styles.filterTxt, activeFilter === f.key && styles.filterTxtActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* Filter tabs - horizontally scrollable */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+        <View style={styles.filterRow}>
+          {filters.map(f => (
+            <TouchableOpacity
+              key={f.key}
+              style={[styles.filterChip, activeFilter === f.key && styles.filterChipActive]}
+              onPress={() => setActiveFilter(f.key)}>
+              <Text style={[styles.filterTxt, activeFilter === f.key && styles.filterTxtActive]}>
+                {f.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.primaryGreen} style={{ marginTop: 50 }} />
@@ -354,6 +416,158 @@ const AdminDashboard = () => {
           ListEmptyComponent={<Text style={styles.emptyText}>No orders found</Text>}
         />
       )}
+      {/* ✅ Live Tracking Map Modal */}
+      <Modal
+        visible={trackingModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={handleCloseTracking}>
+        <View style={styles.modalContainer}>
+          {/* Modal Header */}
+          <LinearGradient colors={['#1565C0', '#1976D2', '#2196F3']} style={styles.modalHeader}>
+            <TouchableOpacity onPress={handleCloseTracking} style={styles.modalCloseBtn}>
+              <Text style={styles.modalCloseTxt}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>🗺️ Live Tracking</Text>
+            <View style={{ width: 60 }} />
+          </LinearGradient>
+
+          {/* Order Info Banner */}
+          {selectedOrderForTracking && (
+            <View style={styles.trackingInfoBanner}>
+              <Text style={styles.trackingInfoTxt}>
+                📦 #{selectedOrderForTracking.orderId || selectedOrderForTracking.id?.slice(-4)} • {selectedOrderForTracking.consumerName || 'Customer'}
+              </Text>
+              <Text style={styles.trackingInfoSub}>
+                🚚 {selectedOrderForTracking.deliveryBoyName || 'Delivery Partner'}
+              </Text>
+            </View>
+          )}
+
+          {/* Map */}
+          {selectedOrderForTracking ? (() => {
+            const farmerLat = getLat(selectedOrderForTracking.farmerCoords);
+            const farmerLng = getLng(selectedOrderForTracking.farmerCoords);
+            const customerLat = getLat(selectedOrderForTracking.consumerCoords);
+            const customerLng = getLng(selectedOrderForTracking.consumerCoords);
+            const dbLat = deliveryBoyLiveLocation?.latitude;
+            const dbLng = deliveryBoyLiveLocation?.longitude;
+
+            // Calculate initial region to fit all markers
+            const allLats = [farmerLat, customerLat, dbLat].filter(v => typeof v === 'number');
+            const allLngs = [farmerLng, customerLng, dbLng].filter(v => typeof v === 'number');
+
+            let initialRegion = {
+              latitude: 11.0168,
+              longitude: 76.9558,
+              latitudeDelta: 0.5,
+              longitudeDelta: 0.5,
+            };
+
+            if (allLats.length > 0 && allLngs.length > 0) {
+              const minLat = Math.min(...allLats);
+              const maxLat = Math.max(...allLats);
+              const minLng = Math.min(...allLngs);
+              const maxLng = Math.max(...allLngs);
+              initialRegion = {
+                latitude: (minLat + maxLat) / 2,
+                longitude: (minLng + maxLng) / 2,
+                latitudeDelta: Math.max(0.02, (maxLat - minLat) * 1.5),
+                longitudeDelta: Math.max(0.02, (maxLng - minLng) * 1.5),
+              };
+            }
+
+            // Build polyline coordinates
+            const polyCoords = [];
+            if (typeof farmerLat === 'number' && typeof farmerLng === 'number') {
+              polyCoords.push({ latitude: farmerLat, longitude: farmerLng });
+            }
+            if (typeof dbLat === 'number' && typeof dbLng === 'number') {
+              polyCoords.push({ latitude: dbLat, longitude: dbLng });
+            }
+            if (typeof customerLat === 'number' && typeof customerLng === 'number') {
+              polyCoords.push({ latitude: customerLat, longitude: customerLng });
+            }
+
+            return (
+              <MapView
+                style={styles.map}
+                initialRegion={initialRegion}
+                showsUserLocation={false}
+                showsMyLocationButton={false}>
+                {/* Farmer Marker */}
+                {typeof farmerLat === 'number' && typeof farmerLng === 'number' && (
+                  <Marker
+                    coordinate={{ latitude: farmerLat, longitude: farmerLng }}
+                    title="🧑‍🌾 Farmer"
+                    description={selectedOrderForTracking.farmerName || 'Farmer Location'}
+                    pinColor="#4CAF50"
+                  />
+                )}
+
+                {/* Customer Marker */}
+                {typeof customerLat === 'number' && typeof customerLng === 'number' && (
+                  <Marker
+                    coordinate={{ latitude: customerLat, longitude: customerLng }}
+                    title="🏠 Customer"
+                    description={selectedOrderForTracking.consumerName || 'Customer Location'}
+                    pinColor="#F44336"
+                  />
+                )}
+
+                {/* Delivery Boy Live Marker */}
+                {typeof dbLat === 'number' && typeof dbLng === 'number' && (
+                  <Marker
+                    coordinate={{ latitude: dbLat, longitude: dbLng }}
+                    title="🚚 Delivery Partner"
+                    description={selectedOrderForTracking.deliveryBoyName || 'Delivery Partner'}
+                    pinColor="#1565C0"
+                  />
+                )}
+
+                {/* Polyline connecting all points */}
+                {polyCoords.length >= 2 && (
+                  <Polyline
+                    coordinates={polyCoords}
+                    strokeColor="#1565C0"
+                    strokeWidth={3}
+                    lineDashPattern={[6, 3]}
+                  />
+                )}
+              </MapView>
+            );
+          })() : (
+            <View style={styles.mapPlaceholder}>
+              <ActivityIndicator size="large" color="#1565C0" />
+              <Text style={{ marginTop: 12, color: COLORS.textMuted }}>Loading map...</Text>
+            </View>
+          )}
+
+          {/* Legend */}
+          <View style={styles.legendRow}>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
+              <Text style={styles.legendTxt}>🧑‍🌾 Farmer</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: '#1565C0' }]} />
+              <Text style={styles.legendTxt}>🚚 Delivery</Text>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: '#F44336' }]} />
+              <Text style={styles.legendTxt}>🏠 Customer</Text>
+            </View>
+          </View>
+
+          {/* Live Status */}
+          <View style={styles.liveStatusBar}>
+            <View style={styles.liveDot} />
+            <Text style={styles.liveStatusTxt}>
+              {deliveryBoyLiveLocation ? 'Live tracking active' : 'Waiting for delivery partner location...'}
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -442,6 +656,49 @@ const styles = StyleSheet.create({
   statEmoji: { fontSize: 24, marginBottom: 4 },
   statNum: { fontSize: FONTS.lg, fontWeight: 'bold', color: COLORS.primaryGreen },
   statLabel: { fontSize: FONTS.xs, color: COLORS.textSecondary },
+
+  // ✅ Live Tracking Modal Styles
+  modalContainer: { flex: 1, backgroundColor: COLORS.background },
+  modalHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingTop: rs(50), paddingBottom: rs(16), paddingHorizontal: SPACING.lg,
+  },
+  modalCloseBtn: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
+  },
+  modalCloseTxt: { color: COLORS.white, fontWeight: 'bold', fontSize: rs(FONTS.sm) },
+  modalTitle: { fontSize: rs(FONTS.xl), fontWeight: 'bold', color: COLORS.white },
+  trackingInfoBanner: {
+    backgroundColor: COLORS.white, paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md, borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+  },
+  trackingInfoTxt: { fontSize: rs(FONTS.md), fontWeight: 'bold', color: COLORS.textPrimary },
+  trackingInfoSub: { fontSize: rs(FONTS.sm), color: '#1565C0', fontWeight: '600', marginTop: 2 },
+  map: { flex: 1 },
+  mapPlaceholder: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#E8EAF6',
+  },
+  legendRow: {
+    flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center',
+    backgroundColor: COLORS.white, paddingVertical: SPACING.md,
+    borderTopWidth: 1, borderTopColor: COLORS.borderLight,
+  },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendDot: { width: 12, height: 12, borderRadius: 6 },
+  legendTxt: { fontSize: rs(FONTS.xs), color: COLORS.textSecondary, fontWeight: '600' },
+  liveStatusBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#E8F5E9', paddingVertical: SPACING.sm,
+    paddingBottom: rs(30), gap: 8,
+  },
+  liveDot: {
+    width: 10, height: 10, borderRadius: 5,
+    backgroundColor: '#4CAF50',
+  },
+  liveStatusTxt: { fontSize: rs(FONTS.sm), color: '#2E7D32', fontWeight: '600' },
 });
 
 export default AdminDashboard;
