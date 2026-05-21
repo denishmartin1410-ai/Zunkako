@@ -96,7 +96,9 @@
     "submit": "சமர்ப்பி",
     "startShopping": "ஆர்டர் செய்ய தொடங்குங்கள்",
     "statusCancelled": "ரத்து செய்யப்பட்டது",
-    "status_Refund_Requested": "பணம் திரும்புவதற்கான கோரிக்கை"
+    "status_Refund_Requested": "பணம் திரும்புவதற்கான கோரிக்கை",
+    "normalOrdersTab": "சாதாரண ஆர்டர்கள்",
+    "preOrdersTab": "முன் ஆர்டர்கள்"
   },
   "notification": {
     "title": "அறிவிப்புகள்",
@@ -188,12 +190,23 @@
     "locationError": "இருப்பிடத்தை பெற முடியவில்லை. GPS ஆன் செய்யவும்.",
     "customerChats": "நுகர்வோர் அரட்டை",
     "noCustomerChats": "வாடிக்கையாளர் அரட்டை இல்லை",
-    "harvestDate": "அறுவடை தேதி (YYYY-MM-DD)",
+    "harvestDate": "அறுவடை தேதி (DD/MM/YYYY)",
     "qty": "அளவு (Qty)",
     "discountPrice": "குறைந்த விலை (₹)",
     "originalPrice": "சாதாரண விலை (₹)",
     "saveHarvest": "Calendar-ல் சேமி",
-    "f2cFarmer": "F2C விவசாயி"
+    "f2cFarmer": "F2C விவசாயி",
+    "qtyExpl": "அளவு (Qty): நீங்கள் அறுவடை செய்து விற்க திட்டமிட்டுள்ள மொத்த விளைச்சல் (எ.கா. 50).",
+    "unitExpl": "அலகு (Unit): உங்கள் பயிரின் அளவீட்டு அலகு (எ.கா., கிலோ, கட்டு, லிட்டர்).",
+    "discountPriceExpl": "குறைந்த விலை (₹): முன்கூட்டியே ஆர்டர் செய்யும் வாடிக்கையாளர்களுக்கான சிறப்பு குறைந்த விலை.",
+    "regularPriceExpl": "சாதாரண விலை (₹): அறுவடைக்குப் பிறகு சாதாரண விற்பனைக்கான நிலையான சந்தை விலை.",
+    "explanationsTitle": "🌾 F2C அறுவடை வழிகாட்டி",
+    "myAddedHarvests": "நான் சேர்த்த அறுவடைகள்",
+    "noAddedHarvests": "இன்னும் எந்த அறுவடையும் சேர்க்கப்படவில்லை.",
+    "confirmDeleteHarvest": "இந்த அறுவடையை உறுதியாக நீக்க விரும்புகிறீர்களா?",
+    "deleteHarvestSuccess": "அறுவடை வெற்றிகரமாக நீக்கப்பட்டது!",
+    "invalidDateFormat": "தவறான தேதி! தயவுசெய்து DD/MM/YYYY வடிவத்தில் தேதியை உள்ளிடவும் (எ.கா: 24/05/2026).",
+    "deleteBtn": "நீக்கு"
   },
   "language": {
     "select": "மொழி தேர்வு"
@@ -236,7 +249,9 @@
     "ratingSubmitted": "மதிப்பீடு சமர்ப்பிக்கப்பட்டது!",
     "selectRating": "நட்சத்திரம் தேர்வு செய்யவும்",
     "addToCart": "கார்ட்டில் சேர்",
-    "inCart": "கார்ட்டில்"
+    "inCart": "கார்ட்டில்",
+    "farmerLocation": "விவசாயி இருக்கும் இடம்",
+    "getDirections": "நேரடியாக சென்று வாங்க வழிகாட்டு"
   },
   "checkout": {
     "title": "சரிபார்த்தல்",
@@ -323,7 +338,10 @@
     "benefit1": "28% வரை\nதள்ளுபடி",
     "benefit2": "100%\nபுதியது",
     "benefit3": "நேரடி\nடெலிவரி",
-    "benefit4": "உத்தரவாதமான\nதரம்"
+    "benefit4": "உத்தரவாதமான\nதரம்",
+    "inDays": "{{count}} நாட்களில்",
+    "harvestingToday": "அறுவடை இன்று!",
+    "harvestingTomorrow": "அறுவடை நாளை!"
   },
   "nutrition": {
     "title": "ஊட்டச்சத்து அறிக்கை",

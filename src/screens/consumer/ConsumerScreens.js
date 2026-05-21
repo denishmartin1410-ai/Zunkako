@@ -12,8 +12,10 @@ import { CATEGORIES } from '../../utils/dummyData';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { getConsumerOrders, getAllProducts, getAllFarmers } from '../../services/firebase';
+import { getConsumerOrders, getConsumerPreOrders, getAllProducts, getAllFarmers } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import { parseLocalDate, formatToUiDate } from '../../utils/dateHelper';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
@@ -32,23 +34,34 @@ const AvatarView = ({ uri, name, size = 60, style }) => {
 
 // ── ORDERS SCREEN ──
 export const OrdersScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('normal'); // 'normal' or 'pre'
   const [orders, setOrders] = useState([]);
+  const [preOrders, setPreOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       const uid = user?.id || user?.uid;
       if (!uid) { setIsLoading(false); return; }
+      setIsLoading(true);
       try {
-        const r = await getConsumerOrders(uid);
-        setOrders(Array.isArray(r?.data) ? r.data : []);
-      } catch (e) { setOrders([]); }
+        if (activeTab === 'normal') {
+          const r = await getConsumerOrders(uid);
+          setOrders(Array.isArray(r?.data) ? r.data : []);
+        } else {
+          const r = await getConsumerPreOrders(uid);
+          setPreOrders(Array.isArray(r?.data) ? r.data : []);
+        }
+      } catch (e) {
+        if (activeTab === 'normal') setOrders([]);
+        else setPreOrders([]);
+      }
       setIsLoading(false);
     };
     load();
-  }, [user]);
+  }, [user, activeTab]);
 
   const STATUS_COLOR = { Pending: '#FF9800', Confirmed: '#2196F3', Shipped: '#9C27B0', Delivered: '#4CAF50', Cancelled: '#F44336', 'Refund Requested': '#FF5722', 'Refunded': '#7B1FA2' };
 
@@ -62,31 +75,121 @@ export const OrdersScreen = ({ navigation }) => {
         </Text>
         <View style={{ width: 40 }} />
       </LinearGradient>
+
+      {/* Segmented Tab Bar */}
+      <View style={S.tabBar}>
+        <TouchableOpacity
+          style={[S.tabBtn, activeTab === 'normal' && S.tabBtnActive]}
+          onPress={() => setActiveTab('normal')}
+        >
+          <Text style={[S.tabTxt, activeTab === 'normal' && S.tabTxtActive]}>
+            🛍️ {t('orders.normalOrdersTab', { defaultValue: 'சாதாரண ஆர்டர்' })}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[S.tabBtn, activeTab === 'pre' && S.tabBtnActive]}
+          onPress={() => setActiveTab('pre')}
+        >
+          <Text style={[S.tabTxt, activeTab === 'pre' && S.tabTxtActive]}>
+            📅 {t('orders.preOrdersTab', { defaultValue: 'முன் ஆர்டர்கள்' })}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {isLoading ? (
         <ActivityIndicator color={COLORS.primaryGreen} size="large" style={{ marginTop: 40 }} />
       ) : (
         <ScrollView contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 80 }} showsVerticalScrollIndicator={false}>
-          {orders.length === 0 ? (
-            <View style={S.emptyBox}>
-              <Text style={S.emptyEmoji}>📦</Text>
-              <Text style={S.emptyText}>{t('orders.noOrders', { defaultValue: 'இன்னும் ஆர்டர் செய்யவில்லை' })}</Text>
-            </View>
-          ) : orders.map(order => (
-            <TouchableOpacity key={order.id} style={S.orderCard} onPress={() => navigation.navigate('OrderDetail', { order })}>
-              <View style={S.orderTop}>
-                <Text style={S.orderId}>#{order.orderId || order.id?.slice(-4)}</Text>
-                <View style={[S.statusBadge, { backgroundColor: (STATUS_COLOR[order.status] || '#999') + '22' }]}>
-                  <Text style={[S.statusText, { color: STATUS_COLOR[order.status] || '#999' }]}>{order.status}</Text>
+          {activeTab === 'normal' ? (
+            orders.length === 0 ? (
+              <View style={S.emptyBox}>
+                <Text style={S.emptyEmoji}>📦</Text>
+                <Text style={S.emptyText}>{t('orders.noOrders', { defaultValue: 'இன்னும் ஆர்டர் செய்யவில்லை' })}</Text>
+              </View>
+            ) : orders.map(order => (
+              <TouchableOpacity key={order.id} style={S.orderCard} onPress={() => navigation.navigate('OrderDetail', { order })}>
+                <View style={S.orderTop}>
+                  <Text style={S.orderId}>#{order.orderId || order.id?.slice(-4)}</Text>
+                  <View style={[S.statusBadge, { backgroundColor: (STATUS_COLOR[order.status] || '#999') + '22' }]}>
+                    <Text style={[S.statusText, { color: STATUS_COLOR[order.status] || '#999' }]}>{order.status}</Text>
+                  </View>
                 </View>
+                <Text style={S.orderDate}>📅 {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || ''}</Text>
+                <Text style={S.orderItems} numberOfLines={1}>{(order.items || []).map(i => i.nameTa || i.name).join(', ')}</Text>
+                <View style={S.orderBottom}>
+                  <Text style={S.orderTotal}>{t('orders.total', { defaultValue: 'மொத்தம்' })}: ₹{order.total}</Text>
+                  <Text style={S.orderArrow}>{t('orders.details', { defaultValue: 'விவரங்கள்' })} →</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            preOrders.length === 0 ? (
+              <View style={S.emptyBox}>
+                <Text style={S.emptyEmoji}>📅</Text>
+                <Text style={S.emptyText}>{t('preOrder.noPreOrders', { defaultValue: 'முன் ஆர்டர்கள் எதுவும் இல்லை' })}</Text>
               </View>
-              <Text style={S.orderDate}>📅 {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || ''}</Text>
-              <Text style={S.orderItems} numberOfLines={1}>{(order.items || []).map(i => i.nameTa || i.name).join(', ')}</Text>
-              <View style={S.orderBottom}>
-                <Text style={S.orderTotal}>{t('orders.total', { defaultValue: 'மொத்தம்' })}: ₹{order.total}</Text>
-                <Text style={S.orderArrow}>{t('orders.details', { defaultValue: 'விவரங்கள்' })} →</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+            ) : preOrders.map(order => {
+              const localName = getLocalProductName(order.nameEn, order.name, i18n.language);
+              const harvestDate = parseLocalDate(order.harvestDate);
+              const today = new Date();
+              today.setHours(0,0,0,0);
+              const diffDays = Math.ceil((harvestDate - today) / (1000 * 60 * 60 * 24));
+              const fillPercent = (order.totalPreOrders / order.targetPreOrders) * 100;
+              const formattedDate = order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || '';
+
+              return (
+                <View key={order.harvestId} style={S.orderCard}>
+                  <View style={S.orderTop}>
+                    <Text style={S.orderId}>#{order.harvestId?.slice(-4)}</Text>
+                    <View style={[S.statusBadge, { backgroundColor: COLORS.primaryGreen + '22' }]}>
+                      <Text style={[S.statusText, { color: COLORS.primaryGreen }]}>
+                        {t('harvestCalendar.preOrderBtn', { defaultValue: 'முன் Order' })}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={S.orderDate}>📅 {t('orders.preOrderedOn', { defaultValue: 'ஆர்டர் செய்த தேதி' })}: {formattedDate}</Text>
+                  <Text style={[S.orderId, { fontSize: rs(FONTS.md), marginVertical: 4 }]}>{localName}</Text>
+                  <Text style={S.orderItems}>👨‍🌾 {order.farmer} | 📦 {order.qty} {order.unit}</Text>
+
+                  {/* Harvest Countdown */}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+                    <Text style={{ fontSize: rs(FONTS.xs), fontWeight: 'bold', color: COLORS.accentGold }}>
+                      ⏳ {diffDays === 0
+                            ? t('preOrder.harvestingToday', { defaultValue: 'அறுவடை இன்று!' })
+                            : diffDays === 1
+                              ? t('preOrder.harvestingTomorrow', { defaultValue: 'அறுவடை நாளை!' })
+                              : t('preOrder.inDays', { defaultValue: '{{count}} நாட்களில்', count: diffDays })}
+                    </Text>
+                    <Text style={{ fontSize: rs(FONTS.xs), color: COLORS.textMuted, marginLeft: 8 }}>
+                      ({t('product.harvest', { defaultValue: 'அறுவடை' })}: {order.harvestDate})
+                    </Text>
+                  </View>
+
+                  {/* Progress bar */}
+                  <View style={{ marginTop: 8, marginBottom: 4 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: rs(FONTS.xs), color: COLORS.textSecondary }}>
+                        {t('preOrder.peoplePreOrdered', { defaultValue: '{{count}} பேர் முன்கூட்டியே order பண்ணியுள்ளனர்', count: order.totalPreOrders })}
+                      </Text>
+                      <Text style={{ fontSize: rs(FONTS.xs), fontWeight: 'bold', color: COLORS.primaryGreen }}>{Math.round(fillPercent)}%</Text>
+                    </View>
+                    <View style={{ height: 8, backgroundColor: '#E0E0E0', borderRadius: RADIUS.full, overflow: 'hidden' }}>
+                      <LinearGradient colors={COLORS.gradientButton} style={{ height: '100%', borderRadius: RADIUS.full, width: `${Math.min(fillPercent, 100)}%` }} start={{x: 0, y: 0}} end={{x: 1, y: 0}} />
+                    </View>
+                  </View>
+
+                  <View style={[S.orderBottom, { marginTop: SPACING.md, borderTopWidth: 1, borderTopColor: COLORS.borderLight, paddingTop: SPACING.md }]}>
+                    <Text style={S.orderTotal}>{t('orders.total', { defaultValue: 'மொத்தம்' })}: ₹{order.totalPrice}</Text>
+                    <View style={[S.statusBadge, { backgroundColor: '#E8F5E9' }]}>
+                      <Text style={[S.statusText, { color: COLORS.primaryGreen }]}>
+                        {t('harvestCalendar.infoGuarantee', { defaultValue: 'Guaranteed Fresh' })}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })
+          )}
         </ScrollView>
       )}
     </View>

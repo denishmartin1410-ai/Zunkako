@@ -15,6 +15,8 @@ import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
 import { listenToHarvests } from '../../services/firebase';
+import { parseLocalDate } from '../../utils/dateHelper';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 
@@ -32,7 +34,7 @@ const TODAY_INDEX = new Date().getDay(); // 0=Sun, 1=Mon...
 const TODAY_KEY = DAYS.find(d => d.index === TODAY_INDEX).key;
 
 const HarvestCalendarScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedDay, setSelectedDay] = useState(TODAY_KEY);
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ const HarvestCalendarScreen = ({ navigation }) => {
     
     return harvests.filter(h => {
       if (!h.harvestDate) return false;
-      const date = new Date(h.harvestDate);
+      const date = parseLocalDate(h.harvestDate);
       return date.getDay() === selectedDayIndex;
     });
   };
@@ -81,7 +83,7 @@ const HarvestCalendarScreen = ({ navigation }) => {
           {DAYS.map(day => {
             const isToday = day.key === TODAY_KEY;
             const isSelected = day.key === selectedDay;
-            const count = harvests.filter(h => new Date(h.harvestDate).getDay() === day.index).length;
+            const count = harvests.filter(h => parseLocalDate(h.harvestDate).getDay() === day.index).length;
             return (
               <TouchableOpacity
                 key={day.key}
@@ -133,38 +135,41 @@ const HarvestCalendarScreen = ({ navigation }) => {
             <Text style={styles.emptyTxt}>{loading ? t('common.loading', { defaultValue: 'Loading...' }) : t('harvestCalendar.noHarvest', { defaultValue: 'இந்த நாள் harvest இல்லை' })}</Text>
           </View>
         ) : (
-          items.map((item, idx) => (
-            <View key={idx} style={styles.harvestCard}>
-              {/* Fresh indicator bar */}
-              <View style={[styles.freshBar,
-              { backgroundColor: item.fresh ? COLORS.primaryGreen : COLORS.primaryBlue }]} />
+          items.map((item, idx) => {
+            const localName = getLocalProductName(item.nameEn, item.name, i18n.language);
+            return (
+              <View key={idx} style={styles.harvestCard}>
+                {/* Fresh indicator bar */}
+                <View style={[styles.freshBar,
+                { backgroundColor: item.fresh ? COLORS.primaryGreen : COLORS.primaryBlue }]} />
 
-              <View style={styles.cardContent}>
-                <Text style={styles.itemEmoji}>{item.emoji}</Text>
-                <View style={styles.itemInfo}>
-                  <View style={styles.itemNameRow}>
-                    <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-                    {item.fresh && (
-                      <View style={styles.freshTag}>
-                        <Text style={styles.freshTagTxt}>🌿 Fresh</Text>
-                      </View>
-                    )}
+                <View style={styles.cardContent}>
+                  <Text style={styles.itemEmoji}>{item.emoji}</Text>
+                  <View style={styles.itemInfo}>
+                    <View style={styles.itemNameRow}>
+                      <Text style={styles.itemName} numberOfLines={2}>{localName}</Text>
+                      {item.fresh && (
+                        <View style={styles.freshTag}>
+                          <Text style={styles.freshTagTxt}>🌿 Fresh</Text>
+                        </View>
+                      )}
+                    </View>
+                    {localName !== item.nameEn && <Text style={styles.itemNameEn}>{item.nameEn}</Text>}
+                    <View style={styles.itemMetaRow}>
+                      <Text style={styles.itemFarmer}>👨‍🌾 {item.farmer}</Text>
+                      <Text style={styles.itemQty}>📦 {item.qty} {item.unit}</Text>
+                    </View>
                   </View>
-                  <Text style={styles.itemNameEn}>{item.nameEn}</Text>
-                <View style={styles.itemMetaRow}>
-                  <Text style={styles.itemFarmer}>👨‍🌾 {item.farmer}</Text>
-                  <Text style={styles.itemQty}>📦 {item.qty} {item.unit}</Text>
+                  <TouchableOpacity style={styles.preOrderBtn} onPress={() => navigation.navigate('PreOrder', { selectedHarvestId: item.id })}>
+                    <LinearGradient colors={COLORS.gradientButton} style={styles.preOrderGrad}>
+                      <Text style={styles.preOrderTxt}>முன் Order</Text>
+                      <Text style={styles.preOrderTxtEn}>Pre-order</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity style={styles.preOrderBtn} onPress={() => navigation.navigate('PreOrder')}>
-                <LinearGradient colors={COLORS.gradientButton} style={styles.preOrderGrad}>
-                  <Text style={styles.preOrderTxt}>முன் Order</Text>
-                  <Text style={styles.preOrderTxtEn}>Pre-order</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-            </View>
-          ))
+            );
+          })
         )}
 
       </ScrollView>

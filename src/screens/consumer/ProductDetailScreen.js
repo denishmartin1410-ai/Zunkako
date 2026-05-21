@@ -14,6 +14,7 @@ import {useWishlist} from '../../context/WishlistContext';
 import {useAuth} from '../../context/AuthContext';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
+import {getLocalProductName} from '../../utils/translationHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -36,7 +37,7 @@ const StarRating = ({rating, onRate, size = 28, disabled = false}) => {
 };
 
 const ProductDetailScreen = ({route, navigation}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {product} = route.params;
   const {user} = useAuth();
   const {addToCart, isInCart, getItemQuantity, increaseQuantity, decreaseQuantity} = useCart();
@@ -44,6 +45,11 @@ const ProductDetailScreen = ({route, navigation}) => {
   const inCart = isInCart(product.id);
   const qty = getItemQuantity(product.id);
   const wished = isInWishlist(product.id);
+
+  // Localized details
+  const localName = getLocalProductName(product.name, product.nameTa, i18n.language);
+  const localDesc = i18n.language === 'ta' ? (product.descriptionTa || product.description) : (product.description || product.descriptionTa);
+  const localFarmerName = i18n.language === 'ta' ? (product.farmerNameTa || product.farmerName) : (product.farmerName || product.farmerNameTa);
 
   // Consumer price (+₹4)
   const consumerPrice = getConsumerPrice(product.price);
@@ -121,8 +127,8 @@ const ProductDetailScreen = ({route, navigation}) => {
         <View style={styles.content}>
           {/* Basic info */}
           <View style={styles.basicInfo}>
-            <Text style={styles.productName}>{product.nameTa}</Text>
-            <Text style={styles.productNameEn}>{product.name}</Text>
+            <Text style={styles.productName}>{localName}</Text>
+            {localName !== product.name && <Text style={styles.productNameEn}>{product.name}</Text>}
             <View style={styles.priceRatingRow}>
               <View>
                 <Text style={styles.price}>
@@ -146,7 +152,7 @@ const ProductDetailScreen = ({route, navigation}) => {
           <TouchableOpacity style={styles.farmerCard} onPress={() => navigation.navigate('FarmerProfile', {farmer: {id: product.farmerId}})}>
             <Text style={styles.farmerEmoji}>👨‍🌾</Text>
             <View style={styles.farmerInfo}>
-              <Text style={styles.farmerNameTxt}>{product.farmerNameTa}</Text>
+              <Text style={styles.farmerNameTxt}>{localFarmerName}</Text>
               <Text style={styles.farmerLoc}>📍 {product.location}</Text>
             </View>
             <Text style={styles.farmerArrow}>→</Text>
@@ -167,7 +173,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                   }}
                   scrollEnabled={false}
                 >
-                  <Marker coordinate={{ latitude: product.coordinates.lat, longitude: product.coordinates.lng }} title={product.farmerNameTa} description="பண்ணை இருப்பிடம்" />
+                  <Marker coordinate={{ latitude: product.coordinates.lat, longitude: product.coordinates.lng }} title={localFarmerName} description="பண்ணை இருப்பிடம்" />
                 </MapView>
               </View>
               <TouchableOpacity style={styles.directionBtn} onPress={() => {
@@ -184,7 +190,7 @@ const ProductDetailScreen = ({route, navigation}) => {
           {/* Description */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>📄 {t('product.description', {defaultValue: 'விளக்கம்'})}</Text>
-            <Text style={styles.description}>{product.descriptionTa}</Text>
+            <Text style={styles.description}>{localDesc}</Text>
           </View>
 
           {/* Nutrition */}

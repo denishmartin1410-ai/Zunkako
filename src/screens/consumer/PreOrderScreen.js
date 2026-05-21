@@ -19,41 +19,77 @@ import {useAuth} from '../../context/AuthContext';
 
 import { listenToHarvests, createPreOrder } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import { parseLocalDate } from '../../utils/dateHelper';
+import { getLocalProductName, getProductVisualDetails } from '../../utils/translationHelper';
 
 const {width} = Dimensions.get('window');
 
-const PreOrderCard = ({item, onPreOrder}) => {
+const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
+  const { t, i18n } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const fillPercent = (item.totalPreOrders / item.targetPreOrders) * 100;
-  const daysColor = item.daysUntilHarvest <= 30 ? COLORS.accentGold : COLORS.primaryGreen;
+  
+  const localName = getLocalProductName(item.nameEn, item.name, i18n.language);
+  const localDesc = i18n.language === 'ta' ? (item.descriptionTa || item.description) : (item.description || item.descriptionTa);
+  
+  const isDefaultImage = !item.image || item.image.includes('unsplash.com') || item.image.includes('photo-1553279768-865429fa0078');
+  const visual = getProductVisualDetails(item.nameEn, item.name);
 
   return (
-    <View style={styles.card}>
+    <View style={[
+      styles.card,
+      isHighlighted && {
+        borderWidth: 2,
+        borderColor: COLORS.primaryGreen,
+        shadowColor: COLORS.primaryGreen,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 10,
+        elevation: 8,
+      }
+    ]}>
+      {isHighlighted && (
+        <View style={styles.highlightBadge}>
+          <Text style={styles.highlightBadgeTxt}>🎯 {t('preOrder.selectedHarvest', {defaultValue: 'தேர்ந்தெடுக்கப்பட்ட அறுவடை / Selected Harvest'})}</Text>
+        </View>
+      )}
       {/* Image */}
       <View style={styles.imgWrap}>
-        <FastImage
-          source={{uri: item.image, priority: FastImage.priority.normal}}
-          style={styles.cardImg}
-          resizeMode={FastImage.resizeMode.cover}
-        />
+        {isDefaultImage ? (
+          <LinearGradient colors={visual.colors} style={styles.cardImgGrad}>
+            <Text style={styles.cardImgEmoji}>{visual.emoji}</Text>
+          </LinearGradient>
+        ) : (
+          <FastImage
+            source={{uri: item.image, priority: FastImage.priority.normal}}
+            style={styles.cardImg}
+            resizeMode={FastImage.resizeMode.cover}
+          />
+        )}
         {/* Badges */}
         <View style={[styles.topBadge, {backgroundColor: item.badgeColor || COLORS.accentGold}]}>
           <Text style={styles.topBadgeTxt}>{item.badge || '⭐ Hot'}</Text>
         </View>
         <View style={styles.savingsBadge}>
-          <Text style={styles.savingsTxt}>💰 ₹{item.originalPrice - item.price} சேமிப்பு</Text>
+          <Text style={styles.savingsTxt}>💰 ₹{item.originalPrice - item.price} {t('product.savings', {defaultValue: 'சேமிப்பு'})}</Text>
         </View>
         {/* Countdown */}
         <View style={styles.countdownBadge}>
-          <Text style={styles.countdownTxt}>⏳ {item.daysUntilHarvest} நாட்களில்</Text>
+          <Text style={styles.countdownTxt}>
+            ⏳ {item.daysUntilHarvest === 0
+                  ? t('preOrder.harvestingToday', {defaultValue: 'அறுவடை இன்று!'})
+                  : item.daysUntilHarvest === 1
+                    ? t('preOrder.harvestingTomorrow', {defaultValue: 'அறுவடை நாளை!'})
+                    : t('preOrder.inDays', {defaultValue: '{{count}} நாட்களில்', count: item.daysUntilHarvest})}
+          </Text>
           <Text style={styles.countdownSubTxt}>In {item.daysUntilHarvest} days</Text>
         </View>
       </View>
 
       <View style={styles.cardBody}>
         {/* Product info */}
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemNameEn}>{item.nameEn}</Text>
+        <Text style={styles.itemName}>{localName}</Text>
+        {localName !== item.nameEn && <Text style={styles.itemNameEn}>{item.nameEn}</Text>}
 
         {/* Farmer + Harvest date */}
         <View style={styles.metaRow}>
@@ -68,13 +104,13 @@ const PreOrderCard = ({item, onPreOrder}) => {
         </View>
 
         {/* Description */}
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.description}>{localDesc}</Text>
 
         {/* Pre-orders progress */}
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressLabel}>
-              🔥 {item.totalPreOrders} பேர் முன்கூட்டியே order பண்ணியுள்ளனர்
+              🔥 {t('preOrder.peoplePreOrdered', {defaultValue: '{{count}} பேர் முன்கூட்டியே order பண்ணியுள்ளனர்', count: item.totalPreOrders})}
             </Text>
             <Text style={styles.progressCount}>
               {item.totalPreOrders}/{item.targetPreOrders}
@@ -101,7 +137,7 @@ const PreOrderCard = ({item, onPreOrder}) => {
               <Text style={styles.unit}> /{item.unit}</Text>
             </Text>
             <Text style={styles.originalPrice}>
-              வழக்கம்: ₹{item.originalPrice} | சேமிப்பு: {item.savings}
+              {t('product.regularPrice', {defaultValue: 'வழக்கம்'})}: ₹{item.originalPrice} | {t('product.savings', {defaultValue: 'சேமிப்பு'})}: ₹{item.originalPrice - item.price}
             </Text>
           </View>
           {/* Qty selector */}
@@ -122,13 +158,13 @@ const PreOrderCard = ({item, onPreOrder}) => {
 
         {/* Guarantee */}
         <View style={styles.guaranteeBox}>
-          <Text style={styles.guaranteeTxt}>✅ {item.guarantee}</Text>
+          <Text style={styles.guaranteeTxt}>✅ {t('harvestCalendar.infoGuarantee', {defaultValue: 'முன்கூட்டியே Order பண்ணினால் Guaranteed fresh!'})}</Text>
         </View>
 
         {/* Total + Pre-order button */}
         <View style={styles.orderRow}>
           <View>
-            <Text style={styles.totalLabel}>மொத்தம் / Total:</Text>
+            <Text style={styles.totalLabel}>{t('common.total', {defaultValue: 'மொத்தம் / Total'})}:</Text>
             <Text style={styles.totalValue}>₹{item.price * quantity}</Text>
           </View>
           <TouchableOpacity
@@ -136,7 +172,7 @@ const PreOrderCard = ({item, onPreOrder}) => {
             onPress={() => onPreOrder(item, quantity)}>
             <LinearGradient colors={COLORS.gradientButton} style={styles.preOrderGrad}
               start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
-              <Text style={styles.preOrderTxt}>📅 முன்கூட்டியே Order</Text>
+              <Text style={styles.preOrderTxt}>📅 {t('harvestCalendar.preOrderBtn', {defaultValue: 'முன் Order'})}</Text>
               <Text style={styles.preOrderSubTxt}>Pre-Order Now</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -146,20 +182,23 @@ const PreOrderCard = ({item, onPreOrder}) => {
   );
 };
 
-const PreOrderScreen = ({navigation}) => {
+const PreOrderScreen = ({navigation, route}) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const selectedHarvestId = route?.params?.selectedHarvestId;
 
   React.useEffect(() => {
     const unsubscribe = listenToHarvests((res) => {
       if (res.success) {
         // Calculate days until harvest for each item
         const processed = res.data.map(h => {
-          const harvestDate = new Date(h.harvestDate);
+          const harvestDate = parseLocalDate(h.harvestDate);
           const today = new Date();
-          const diffTime = harvestDate - today;
+          today.setHours(0, 0, 0, 0);
+          const dateMidnight = new Date(harvestDate.getFullYear(), harvestDate.getMonth(), harvestDate.getDate());
+          const diffTime = dateMidnight - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           
           return {
@@ -170,13 +209,22 @@ const PreOrderScreen = ({navigation}) => {
             maxOrder: 10,
           };
         }).filter(h => h.daysUntilHarvest >= 0); // Show today and future harvests
+
+        // Sort selectedHarvestId to the top if present
+        if (selectedHarvestId) {
+          processed.sort((a, b) => {
+            if (a.id === selectedHarvestId) return -1;
+            if (b.id === selectedHarvestId) return 1;
+            return 0;
+          });
+        }
         
         setHarvests(processed);
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [selectedHarvestId]);
 
   const handlePreOrder = (item, qty) => {
     if (!user) {
@@ -256,7 +304,7 @@ const PreOrderScreen = ({navigation}) => {
           <Text style={{textAlign: 'center', marginTop: 50, fontSize: 16, color: COLORS.textGray}}>{t('preOrder.noPreOrders', { defaultValue: 'தற்போது எந்த முன் ஆர்டரும் இல்லை.' })}</Text>
         ) : (
           harvests.map(item => (
-            <PreOrderCard key={item.id} item={item} onPreOrder={handlePreOrder} />
+            <PreOrderCard key={item.id} item={item} onPreOrder={handlePreOrder} isHighlighted={item.id === selectedHarvestId} />
           ))
         )}
       </ScrollView>
@@ -340,6 +388,29 @@ const styles = StyleSheet.create({
   preOrderGrad: {paddingVertical: 12, paddingHorizontal: SPACING.xl, alignItems: 'center'},
   preOrderTxt: {color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold},
   preOrderSubTxt: {color: 'rgba(255,255,255,0.8)', fontSize: FONTS.xs},
+  highlightBadge: {
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  highlightBadgeTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.xs,
+    fontWeight: FONTS.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  cardImgGrad: {
+    width: '100%',
+    height: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardImgEmoji: {
+    fontSize: 72,
+  },
 });
 
 export default PreOrderScreen;

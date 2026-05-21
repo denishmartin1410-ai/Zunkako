@@ -1109,6 +1109,45 @@ export const getUserPreOrder = async (harvestId, userId) => {
   }
 };
 
+export const getConsumerPreOrders = async (userId) => {
+  try {
+    const harvestsSnap = await firestore().collection('harvests').get();
+    const preOrders = [];
+    
+    const promises = harvestsSnap.docs.map(async (harvestDoc) => {
+      const harvestId = harvestDoc.id;
+      const harvestData = harvestDoc.data();
+      
+      const preOrderDoc = await harvestDoc.ref
+        .collection('preOrders')
+        .doc(userId)
+        .get();
+        
+      if (preOrderDoc.exists) {
+        preOrders.push({
+          id: preOrderDoc.id,
+          harvestId,
+          ...harvestData,
+          ...preOrderDoc.data(),
+        });
+      }
+    });
+    
+    await Promise.all(promises);
+    
+    const sorted = [...preOrders].sort((a, b) => {
+      const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
+      const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
+      return tB - tA;
+    });
+    
+    return { success: true, data: sorted };
+  } catch (error) {
+    console.log('getConsumerPreOrders error:', error.message);
+    return { success: false, error: error.message, data: [] };
+  }
+};
+
 // ════════════════════════════════════════════════
 // 🥗 NUTRITION REPORT FUNCTIONS
 // Calculate from real delivered orders
