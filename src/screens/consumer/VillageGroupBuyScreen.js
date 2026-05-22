@@ -8,12 +8,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, Alert, Share
+  TouchableOpacity, TextInput, Alert, Share,
+  Modal, ActivityIndicator
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import { useAuth } from '../../context/AuthContext';
-import { listenToGroupBuys, createGroupBuy, joinGroupBuy } from '../../services/firebase';
+import { listenToGroupBuys, createGroupBuy, joinGroupBuy, getAllConsumers } from '../../services/firebase';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
@@ -37,7 +38,7 @@ const STATUS_CONFIG = {
   },
 };
 
-const GroupCard = ({ group, onJoin, user }) => {
+const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
   const { t } = useTranslation();
   
   const fillPercent = Math.min((group.currentMembers / group.targetMembers) * 100, 100);
@@ -64,7 +65,6 @@ const GroupCard = ({ group, onJoin, user }) => {
           <Text style={styles.groupEmoji}>{group.emoji}</Text>
           <View style={{ flex: 1, paddingRight: 8 }}>
             <Text style={styles.groupTitle} numberOfLines={1}>{group.title}</Text>
-            <Text style={styles.groupTitleEn} numberOfLines={1}>{group.titleEn}</Text>
             <Text style={styles.groupLocation}>📍 {group.location}</Text>
           </View>
         </View>
@@ -144,14 +144,29 @@ const GroupCard = ({ group, onJoin, user }) => {
         {/* Join or Invite button */}
         {group.status !== 'full' ? (
           isMember ? (
-            <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
-              <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Text style={styles.joinBtnTxt}>
-                  📢 {t('groupBuy.inviteFriends')}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <View style={{ gap: 8 }}>
+              <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
+                <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <Text style={styles.joinBtnTxt}>
+                    📢 {t('groupBuy.inviteFriends')}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {group.organizerId === (user?.uid || user?.id) && (
+                <TouchableOpacity 
+                  style={styles.joinBtn} 
+                  onPress={() => onDirectAdd(group)}>
+                  <LinearGradient colors={['#1565C0', '#1E88E5']} style={styles.joinBtnGrad}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                    <Text style={styles.joinBtnTxt}>
+                      👥 {t('groupBuy.directAddBtn', { defaultValue: 'உறுப்பினர்களை நேரடியாக சேர் / Add Member' })}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+            </View>
           ) : (
             <TouchableOpacity style={styles.joinBtn} onPress={() => onJoin(group)}>
               <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
@@ -179,6 +194,67 @@ const VillageGroupBuyScreen = ({ navigation }) => {
   const [newGroup, setNewGroup] = useState({ title: '', location: '', targetMembers: '' });
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [showDirectAdd, setShowDirectAdd] = useState(false);
+  const [selectedGroupForAdd, setSelectedGroupForAdd] = useState(null);
+  const [allConsumers, setAllConsumers] = useState([]);
+  const [consumersLoading, setConsumersLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [addingUserId, setAddingUserId] = useState(null);
+
+  const handleOpenDirectAdd = async (group) => {
+    setSelectedGroupForAdd(group);
+    setShowDirectAdd(true);
+    setConsumersLoading(true);
+    setSearchQuery('');
+    
+    const res = await getAllConsumers();
+    if (res.success && res.data) {
+      setAllConsumers(res.data);
+    } else {
+      Alert.alert('Error', res.error || 'Failed to fetch consumers');
+    }
+    setConsumersLoading(false);
+  };
+
+  const handleAddConsumerDirectly = async (consumer) => {
+    if (!selectedGroupForAdd) return;
+    setAddingUserId(consumer.id || consumer.uid);
+    
+    const consumerName = consumer.nameTa || consumer.name || 'User';
+    const res = await joinGroupBuy(selectedGroupForAdd.id, consumer.id || consumer.uid, consumerName);
+    
+    if (res.success) {
+      setSelectedGroupForAdd(prev => ({
+        ...prev,
+        currentMembers: (prev.currentMembers || 0) + 1,
+        members: [...(prev.members || []), (consumer.id || consumer.uid)],
+        memberNames: [...(prev.memberNames || []), consumerName]
+      }));
+      
+      Alert.alert(
+        t('groupBuy.successTitle', { defaultValue: '🎉 வெற்றி!' }),
+        `${consumerName} ${t('groupBuy.addedSuccess', { defaultValue: 'குழுவில் சேர்க்கப்பட்டார்!' })}`
+      );
+    } else {
+      Alert.alert('Error', res.error || 'Failed to add member');
+    }
+    setAddingUserId(null);
+  };
+
+  const filteredConsumers = allConsumers.filter(consumer => {
+    const isAlreadyMember = selectedGroupForAdd?.members?.includes(consumer.id || consumer.uid);
+    if (isAlreadyMember) return false;
+    
+    if (consumer.id === (user?.uid || user?.id)) return false;
+    
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const name = (consumer.name || '').toLowerCase();
+    const nameTa = (consumer.nameTa || '').toLowerCase();
+    const email = (consumer.email || '').toLowerCase();
+    return name.includes(q) || nameTa.includes(q) || email.includes(q);
+  });
 
   React.useEffect(() => {
     const unsubscribe = listenToGroupBuys((res) => {
@@ -343,10 +419,101 @@ const VillageGroupBuyScreen = ({ navigation }) => {
           <Text style={{ textAlign: 'center', marginTop: 20 }}>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
         ) : groups.length === 0 ? null : (
           groups.map(group => (
-            <GroupCard key={group.id} group={group} onJoin={handleJoin} user={user} />
+            <GroupCard key={group.id} group={group} onJoin={handleJoin} onDirectAdd={handleOpenDirectAdd} user={user} />
           ))
         )}
       </ScrollView>
+
+      {/* Direct Add Member Modal */}
+      <Modal
+        visible={showDirectAdd}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDirectAdd(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle} numberOfLines={1}>
+                👥 {t('groupBuy.directAddTitle', { defaultValue: 'உறுப்பினர்களை நேரடியாக சேர்' })}
+              </Text>
+              <TouchableOpacity style={styles.closeBtn} onPress={() => setShowDirectAdd(false)}>
+                <Text style={styles.closeBtnTxt}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Search Bar */}
+            <View style={styles.searchBarContainer}>
+              <Text style={styles.searchIcon}>🔍</Text>
+              <TextInput
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t('groupBuy.searchPlaceholder', { defaultValue: 'பெயர் அல்லது மின்னஞ்சல் மூலம் தேடவும்...' })}
+                placeholderTextColor={COLORS.textGray}
+              />
+            </View>
+
+            {/* Content */}
+            {consumersLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={COLORS.primaryGreen} />
+                <Text style={styles.loadingText}>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
+              </View>
+            ) : filteredConsumers.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  📭 {t('groupBuy.noConsumers', { defaultValue: 'வாடிக்கையாளர்கள் யாரும் இல்லை.' })}
+                </Text>
+              </View>
+            ) : (
+              <ScrollView 
+                showsVerticalScrollIndicator={false}
+                style={styles.consumerList}
+              >
+                {filteredConsumers.map(consumer => {
+                  const cName = consumer.nameTa || consumer.name || 'User';
+                  return (
+                    <View key={consumer.id || consumer.uid} style={styles.consumerItem}>
+                      <View style={styles.consumerInfo}>
+                        <View style={styles.avatarCircle}>
+                          <Text style={styles.avatarLetter}>
+                            {cName.length > 0 ? cName[0].toUpperCase() : 'U'}
+                          </Text>
+                        </View>
+                        <View style={styles.consumerDetails}>
+                          <Text style={styles.consumerName}>{cName}</Text>
+                          <Text style={styles.consumerEmail}>{consumer.email || consumer.phone || ''}</Text>
+                        </View>
+                      </View>
+                      
+                      <TouchableOpacity 
+                        style={styles.addMemberBtn} 
+                        disabled={addingUserId === (consumer.id || consumer.uid)}
+                        onPress={() => handleAddConsumerDirectly(consumer)}
+                      >
+                        <LinearGradient 
+                          colors={COLORS.gradientButton} 
+                          style={styles.addMemberGrad}
+                        >
+                          {addingUserId === (consumer.id || consumer.uid) ? (
+                            <ActivityIndicator size="small" color={COLORS.white} />
+                          ) : (
+                            <Text style={styles.addMemberTxt}>
+                              ➕ {t('groupBuy.addBtn', { defaultValue: 'சேர்' })}
+                            </Text>
+                          )}
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -451,9 +618,142 @@ const styles = StyleSheet.create({
     fontSize: FONTS.md, color: COLORS.textPrimary,
     borderWidth: 1.5, borderColor: COLORS.borderLight,
   },
-  createSubmitBtn: { borderRadius: RADIUS.md, overflow: 'hidden', marginTop: SPACING.md },
-  createSubmitGrad: { paddingVertical: 14, alignItems: 'center' },
   createSubmitTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  modalContainer: {
+    width: '100%',
+    maxHeight: '80%',
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    ...SHADOWS.large,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+    paddingBottom: SPACING.sm,
+  },
+  modalTitle: {
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  closeBtnTxt: {
+    fontSize: 22,
+    color: COLORS.textMuted,
+    fontWeight: 'bold',
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.md,
+    height: 48,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
+  },
+  searchIcon: {
+    marginRight: SPACING.sm,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: FONTS.sm,
+    color: COLORS.textPrimary,
+  },
+  consumerList: {
+    marginBottom: SPACING.md,
+  },
+  consumerItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+  },
+  consumerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: SPACING.sm,
+  },
+  avatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryGreenLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    color: COLORS.white,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+  },
+  consumerDetails: {
+    flex: 1,
+  },
+  consumerName: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.semiBold,
+    color: COLORS.textPrimary,
+  },
+  consumerEmail: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  addMemberBtn: {
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+    minWidth: 70,
+  },
+  addMemberGrad: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    alignItems: 'center',
+  },
+  addMemberTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.xs,
+    fontWeight: FONTS.bold,
+  },
+  loadingContainer: {
+    paddingVertical: SPACING.xl,
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: FONTS.sm,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.sm,
+  },
+  emptyContainer: {
+    paddingVertical: SPACING.xl,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: FONTS.sm,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
 });
 
 export default VillageGroupBuyScreen;

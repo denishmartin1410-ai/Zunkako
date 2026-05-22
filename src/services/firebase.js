@@ -1312,3 +1312,24 @@ export async function saveFCMToken(userId) {
     console.log('FCM token error:', e);
   }
 }
+
+export const getAllConsumers = async () => {
+  try {
+    const snap = await firestore()
+      .collection('users')
+      .where('userType', '==', 'consumer')
+      .get();
+    const consumers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return { success: true, data: consumers };
+  } catch (error) {
+    console.log('getAllConsumers error:', error.message);
+    try {
+      const snap = await firestore().collection('users').get();
+      const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      return { success: true, data: allUsers };
+    } catch (e) {
+      return { success: false, error: error.message, data: [] };
+    }
+  }
+};
+

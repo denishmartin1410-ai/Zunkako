@@ -21,7 +21,7 @@ import BackButton from '../../utils/BackButton';
 // Data loaded from Firestore
 
 const FarmVisitScreen = ({navigation}) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [selectedFarm, setSelectedFarm] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState('');
@@ -30,6 +30,42 @@ const FarmVisitScreen = ({navigation}) => {
   const [showBooking, setShowBooking] = useState(false);
   const [farms, setFarms] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const getFarmLocation = (farm) => {
+    if (i18n.language === 'ta') {
+      return farm.locationTa || farm.location;
+    }
+    if (i18n.language === 'ml') {
+      if (farm.location === 'Tamil Nadu' || farm.location === 'tamilnadu') return 'തമിഴ്‌നാട്';
+      if (farm.location === 'Coimbatore' || farm.location === 'coimbatore') return 'കോയമ്പത്തൂർ';
+      return farm.location;
+    }
+    return farm.location;
+  };
+
+  const getFarmDays = (farm) => {
+    if (i18n.language === 'ta') {
+      return farm.availableDaysTa || ['சனி', 'ஞாயிறு'];
+    }
+    if (i18n.language === 'ml') {
+      return ['ശനി', 'ഞായർ'];
+    }
+    return farm.availableDays || ['Saturday', 'Sunday'];
+  };
+
+  const getFarmActivities = (farm) => {
+    if (i18n.language === 'ta') {
+      return farm.activities || [];
+    }
+    if (i18n.language === 'ml') {
+      return [
+        '✅ നേരിട്ട് വിളവെടുക്കാം', 
+        '✅ കൃഷിയിടം സന്ദർശിക്കാം', 
+        '✅ ജൈവ കൃഷി രീതികൾ പഠിക്കാം'
+      ];
+    }
+    return farm.activitiesEn || farm.activities || [];
+  };
 
   React.useEffect(() => {
     const fetchFarmers = async () => {
@@ -142,7 +178,7 @@ const FarmVisitScreen = ({navigation}) => {
       <View style={styles.farmCardBody}>
         {/* Farm name & location */}
         <Text style={styles.farmName}>{farm.farmName}</Text>
-        <Text style={styles.farmLocation}>📍 {t('language', { defaultValue: '' }).includes('Language') ? farm.location : farm.locationTa}</Text>
+        <Text style={styles.farmLocation}>📍 {getFarmLocation(farm)}</Text>
 
         {/* Rating & visitors */}
         <View style={styles.farmMetaRow}>
@@ -162,7 +198,7 @@ const FarmVisitScreen = ({navigation}) => {
         {/* Available days */}
         <Text style={styles.subTitle}>📅 {t('farmVisit.visitDays', { defaultValue: 'வருகை நாட்கள் / Visit Days' })}:</Text>
         <View style={styles.daysRow}>
-          {(t('language', { defaultValue: '' }).includes('Language') ? farm.availableDays : farm.availableDaysTa).map((day, i) => (
+          {getFarmDays(farm).map((day, i) => (
             <View key={i} style={styles.dayChip}>
               <Text style={styles.dayTxt}>{day}</Text>
             </View>
@@ -171,7 +207,7 @@ const FarmVisitScreen = ({navigation}) => {
 
         {/* Activities */}
         <Text style={styles.subTitle}>🌟 {t('farmVisit.activities', { defaultValue: 'செய்யலாம் / Activities' })}:</Text>
-        {(t('language', { defaultValue: '' }).includes('Language') ? (farm.activitiesEn || farm.activities) : farm.activities).map((act, i) => (
+        {getFarmActivities(farm).map((act, i) => (
           <Text key={i} style={styles.activityTxt}>{act}</Text>
         ))}
 

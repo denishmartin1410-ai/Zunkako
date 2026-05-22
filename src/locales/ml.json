@@ -379,7 +379,9 @@
     "activities": "പ്രവർത്തനങ്ങൾ",
     "freeVisit": "സൗജന്യ സന്ദർശനം!",
     "attendance": "സന്ദർശനം ബുക്ക് ചെയ്യുക",
-    "confirmBtn": "അതെ"
+    "confirmBtn": "അതെ",
+    "member_one": "പേർ",
+    "member_other": "പേർ"
   },
   "notification": {
     "title": "അറിയിപ്പുകൾ",
@@ -457,7 +459,14 @@
     "joinGroup": "ഗ്രൂപ്പിൽ ചേരുക",
     "inviteFriends": "കൂട്ടുകാരെ ക്ഷണിക്കുക",
     "inviteMsg": "സുഹൃത്തുക്കളെ ക്ഷണിക്കാൻ Link പങ്കിടുക",
-    "groupFull": "ഗ്രൂപ്പ് നിറഞ്ഞു"
+    "groupFull": "ഗ്രൂപ്പ് നിറഞ്ഞു",
+    "directAddBtn": "അംഗത്തെ നേരിട്ട് ചേർക്കുക",
+    "directAddTitle": "അംഗങ്ങളെ നേരിട്ട് ചേർക്കുക",
+    "searchPlaceholder": "പേര് അല്ലെങ്കിൽ ഇമെയിൽ വഴി തിരയുക...",
+    "addBtn": "ചേർക്കുക",
+    "noConsumers": "ഉപഭോക്താക്കൾ ആരുമില്ല.",
+    "addedSuccess": "അംഗത്തെ വിജയകരമായി ചേർത്തു!",
+    "successTitle": "🎉 വിജയം!"
   },
   "delivery": {
     "title": "ഡെലിവറി പാർട്ണർ",
@@ -486,9 +495,5 @@
     "tryAgainBtn": "📧 വീണ്ടും ശ്രമിക്കുക",
     "resetNoAccountTitle": "❌ അക്കൗണ്ട് കണ്ടെത്തിയില്ല",
     "resetNoAccountMsg": "ഈ ഇമെയിൽ വിലാസത്തിൽ അക്കൗണ്ട് ഒന്നും കണ്ടെത്തിയില്ല! ദയവായി ഇമെയിൽ വിലാസം പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക."
-  },
-  "farmVisit": {
-    "member_one": "പേർ",
-    "member_other": "പേർ"
   }
 }

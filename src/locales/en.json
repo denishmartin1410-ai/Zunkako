@@ -324,7 +324,14 @@
     "joinGroup": "Join This Group",
     "inviteFriends": "Invite Friends",
     "inviteMsg": "Share link to invite friends",
-    "groupFull": "Group is full"
+    "groupFull": "Group is full",
+    "directAddBtn": "Add Member",
+    "directAddTitle": "Add Members Directly",
+    "searchPlaceholder": "Search by name or email...",
+    "addBtn": "Add",
+    "noConsumers": "No consumers found.",
+    "addedSuccess": "has been added to the group!",
+    "successTitle": "🎉 Success!"
   },
   "freshness": {
     "title": "Freshness Tracker",
@@ -400,7 +407,9 @@
     "activities": "Activities",
     "freeVisit": "FREE Visit!",
     "attendance": "Attendance",
-    "confirmBtn": "Yes"
+    "confirmBtn": "Yes",
+    "member_one": "Member",
+    "member_other": "Members"
   },
   "story": {
     "title": "Share your farm story!",
@@ -465,9 +474,5 @@
     "tryAgainBtn": "📧 Try Again",
     "resetNoAccountTitle": "❌ No Account Found",
     "resetNoAccountMsg": "No account found with this email. Please check the spelling or try again."
-  },
-  "farmVisit": {
-    "member_one": "Member",
-    "member_other": "Members"
   }
 }

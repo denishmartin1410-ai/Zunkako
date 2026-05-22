@@ -323,12 +323,17 @@ const styles = StyleSheet.create({
 
   benefitsBar: {
     backgroundColor: COLORS.white, flexDirection: 'row',
-    justifyContent: 'space-around', paddingVertical: SPACING.md,
+    justifyContent: 'space-between', paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.sm,
     ...SHADOWS.small,
   },
-  benefitItem: {alignItems: 'center'},
+  benefitItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
   benefitEmoji: {fontSize: 24, marginBottom: 2},
-  benefitLabel: {fontSize: FONTS.xs, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 14},
+  benefitLabel: {fontSize: 10.5, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 14},
 
   card: {backgroundColor: COLORS.white, borderRadius: RADIUS.xl, marginBottom: SPACING.lg, overflow: 'hidden', ...SHADOWS.medium},
   imgWrap: {position: 'relative'},

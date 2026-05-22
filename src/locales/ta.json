@@ -390,7 +390,9 @@
     "activities": "செய்யலாம்",
     "freeVisit": "இலவசம் / FREE Visit!",
     "attendance": "வருகை பதிவு",
-    "confirmBtn": "உறுதி செய்"
+    "confirmBtn": "உறுதி செய்",
+    "member_one": "பேர்",
+    "member_other": "பேர்"
   },
   "story": {
     "title": "உங்கள் பண்ணை கதையை பகிருங்கள்!",
@@ -456,7 +458,14 @@
     "joinGroup": "இந்த குழுவில் சேர்",
     "inviteFriends": "நண்பர்களை அழைக்கவும்",
     "inviteMsg": "நண்பர்களை அழைக்க Link-ஐ பகிரவும்",
-    "groupFull": "குழு நிரம்பிவிட்டது"
+    "groupFull": "குழு நிரம்பிவிட்டது",
+    "directAddBtn": "உறுப்பினர்களை நேரடியாக சேர்",
+    "directAddTitle": "உறுப்பினர்களை நேரடியாக சேர்",
+    "searchPlaceholder": "பெயர் அல்லது மின்னஞ்சல் மூலம் தேடவும்...",
+    "addBtn": "சேர்",
+    "noConsumers": "வாடிக்கையாளர்கள் யாரும் இல்லை.",
+    "addedSuccess": "குழுவில் சேர்க்கப்பட்டார்!",
+    "successTitle": "🎉 வெற்றி!"
   },
   "delivery": {
     "title": "டெலிவரி பார்ட்னர்",
@@ -485,9 +494,5 @@
     "tryAgainBtn": "📧 மீண்டும் முயற்சிக்கவும்",
     "resetNoAccountTitle": "❌ கணக்கு இல்லை",
     "resetNoAccountMsg": "இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account."
-  },
-  "farmVisit": {
-    "member_one": "பேர்",
-    "member_other": "பேர்"
   }
 }

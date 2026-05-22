@@ -66,7 +66,8 @@ const FarmerAddHarvestScreen = ({ navigation }) => {
       return;
     }
 
-    const dbDate = convertToDbDate(formData.harvestDate);
+    const sanitizedDate = formData.harvestDate.replace(/-/g, '/');
+    const dbDate = convertToDbDate(sanitizedDate);
     if (!dbDate) {
       Alert.alert('பிழை / Error', t('farmer.invalidDateFormat', { defaultValue: 'Invalid Date! Please enter date in DD/MM/YYYY format.' }));
       return;
@@ -157,20 +158,20 @@ const FarmerAddHarvestScreen = ({ navigation }) => {
             label={t('farmer.productNameTa', { defaultValue: 'பொருளின் பெயர் (தமிழ்)' })} 
             value={formData.name} 
             onChangeText={(t) => setFormData({...formData, name: t})} 
-            placeholder="தக்காளி"
+            placeholder=""
           />
           <FormField 
             label={t('farmer.productNameEn', { defaultValue: 'Product Name (English)' })} 
             value={formData.nameEn} 
             onChangeText={(t) => setFormData({...formData, nameEn: t})} 
-            placeholder="Tomato"
+            placeholder=""
           />
           <FormField 
             label={t('farmer.harvestDate', { defaultValue: 'Harvest Date (DD/MM/YYYY)' })} 
             value={formData.harvestDate} 
             onChangeText={(t) => setFormData({...formData, harvestDate: t})} 
-            keyboard="numeric"
-            placeholder="24/05/2026"
+            keyboard="default"
+            placeholder=""
           />
           
           <View style={{ flexDirection: 'row', gap: SPACING.md }}>
