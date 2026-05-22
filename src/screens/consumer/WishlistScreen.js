@@ -16,6 +16,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
@@ -23,7 +24,7 @@ const rs = size => Math.round(size * scale);
 
 // ✅ Named function + default export at bottom
 const WishlistScreen = ({ navigation }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { wishlistItems, removeFromWishlist } = useWishlist();
     const { addToCart } = useCart();
 
@@ -81,10 +82,10 @@ const WishlistScreen = ({ navigation }) => {
                             {/* Product Info */}
                             <View style={styles.wishInfo}>
                                 <Text style={styles.wishName} numberOfLines={2}>
-                                    {item.nameTa || item.name}
+                                    {getLocalProductName(item.name, item.nameTa, i18n.language)}
                                 </Text>
                                 <Text style={styles.wishFarmer} numberOfLines={1}>
-                                    👨‍🌾 {item.farmerNameTa || item.farmerName || ''}
+                                    👨‍🌾 {i18n.language === 'ta' ? (item.farmerNameTa || item.farmerName) : (item.farmerName || item.farmerNameTa) || ''}
                                 </Text>
                                 <View style={styles.wishPriceRow}>
                                     <Text style={styles.wishPrice}>₹{item.price}/{item.unit}</Text>

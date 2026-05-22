@@ -16,6 +16,7 @@ import firestore from '@react-native-firebase/firestore';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import { updateOrderStatus, createNotification } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
@@ -41,7 +42,7 @@ const STATUS_TA = {
 };
 
 const OrderDetailScreen = ({ route, navigation }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { order: initialOrder } = route.params || {};
     const [order, setOrder] = React.useState(initialOrder);
 
@@ -343,7 +344,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
                             i < (order.items || []).length - 1 && styles.itemBorder,
                         ]}>
                             <View style={styles.itemInfo}>
-                                <Text style={styles.itemName}>{item.nameTa || item.name}</Text>
+                                <Text style={styles.itemName}>{getLocalProductName(item.name, item.nameTa, i18n.language)}</Text>
                                 <Text style={styles.itemQty}>
                                     x{item.quantity} × ₹{item.price}
                                 </Text>
@@ -379,7 +380,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
                     <View style={styles.farmerCard}>
                         <Text style={styles.sectionTitle}>👨‍🌾 {t('farmer.farmer', { defaultValue: 'விவசாயி' })}</Text>
                         <Text style={styles.farmerName}>
-                            {order.farmerNameTa || order.farmerName}
+                            {i18n.language === 'ta' ? (order.farmerNameTa || order.farmerName) : (order.farmerName || order.farmerNameTa)}
                         </Text>
                         {order.farmerPhone && (
                             <Text style={styles.farmerPhone}>📞 {order.farmerPhone}</Text>

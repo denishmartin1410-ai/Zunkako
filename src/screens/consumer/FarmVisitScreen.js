@@ -8,7 +8,7 @@
 import React, {useState} from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Alert, TextInput,
+  TouchableOpacity, Alert, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -49,8 +49,7 @@ const FarmVisitScreen = ({navigation}) => {
           distance: '2-5 km',
           rating: farmer.rating || 0,
           totalVisitors: farmer.visitorsCount || 0,
-          visitSlots: ['09:00 AM', '11:00 AM', '04:00 PM'],
-          visitSlotsEn: ['09:00 AM', '11:00 AM', '04:00 PM'],
+          visitSlots: ['07:00 AM / 08:00 AM', '10:00 AM / 11:00 AM', '04:00 PM / 05:00 PM'],
           maxVisitorsPerSlot: 10,
           highlights: ['Organic', 'Fresh', 'Direct Farm'],
           availableDaysTa: ['சனி', 'ஞாயிறு'],
@@ -96,7 +95,7 @@ const FarmVisitScreen = ({navigation}) => {
       return;
     }
 
-    const formattedMessage = `👋 வணக்கம்! பண்ணை வருகைக்கு (Farm Visit) அனுமதி கேட்கிறேன்.\n📅 தேதி: ${selectedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} பேர்\nநாங்கள் வரலாமா? / Can we visit?`;
+    const formattedMessage = `👋 வணக்கம்! பண்ணை வருகைக்கு (Farm Visit) அனுமதி கேட்கிறேன்.\n📅 தேதி: ${formattedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} ${t('farmVisit.member', { count: parseInt(visitors), defaultValue: 'பேர்' })}\nநாங்கள் வரலாமா? / Can we visit?`;
     
     setShowBooking(false);
     setSelectedFarm(null);
@@ -209,66 +208,73 @@ const FarmVisitScreen = ({navigation}) => {
       {/* Booking Modal */}
       {showBooking && selectedFarm && (
         <View style={styles.bookingOverlay}>
-          <View style={styles.bookingModal}>
-            <Text style={styles.bookingTitle}>
-              📅 {selectedFarm.farmName} - {t('farmVisit.attendance', { defaultValue: 'வருகை பதிவு' })}
-            </Text>
-            <Text style={styles.bookingSubtitle}>Book your farm visit</Text>
-
-            {/* Date input */}
-            <Text style={styles.bookingLabel}>📅 {t('farmVisit.dateLabel', { defaultValue: 'தேதி (DD/MM/YYYY) சனி/ஞாயிறு மட்டும்' })}:</Text>
-            <TextInput
-              style={styles.bookingInput}
-              value={selectedDate}
-              onChangeText={(txt) => setSelectedDate(txt.replace(/-/g, '/'))}
-              placeholder="01/02/2024"
-              placeholderTextColor={COLORS.textGray}
-              keyboardType="numeric"
-            />
-
-            {/* Slot selector */}
-            <Text style={styles.bookingLabel}>⏰ {t('farmVisit.timeLabel', { defaultValue: 'நேரம்' })}:</Text>
-            {(selectedFarm.visitSlots || []).map((slot, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[styles.slotChip, selectedSlot === slot && styles.slotChipActive]}
-                onPress={() => setSelectedSlot(slot)}>
-                <Text style={[styles.slotTxt, selectedSlot === slot && styles.slotTxtActive]}>
-                  {slot} {selectedFarm.visitSlotsEn ? `/ ${selectedFarm.visitSlotsEn[i]}` : ''}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardAvoidingView}
+          >
+            <View style={styles.bookingModal}>
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text style={styles.bookingTitle}>
+                  📅 {selectedFarm.farmName} - {t('farmVisit.attendance', { defaultValue: 'வருகை பதிவு' })}
                 </Text>
-              </TouchableOpacity>
-            ))}
+                <Text style={styles.bookingSubtitle}>Book your farm visit</Text>
 
-            {/* Visitors count */}
-            <Text style={styles.bookingLabel}>👥 {t('farmVisit.visitorsLabel', { defaultValue: 'உறுப்பினர்கள் எண்ணிக்கை' })}:</Text>
-            <View style={styles.visitorsRow}>
-              <TouchableOpacity
-                style={styles.visitorBtn}
-                onPress={() => setVisitors(v => String(Math.max(1, parseInt(v) - 1)))}>
-                <Text style={styles.visitorBtnTxt}>−</Text>
-              </TouchableOpacity>
-              <Text style={styles.visitorsNum}>{visitors} பேர்</Text>
-              <TouchableOpacity
-                style={[styles.visitorBtn, styles.visitorBtnPlus]}
-                onPress={() => setVisitors(v => String(Math.min(selectedFarm.maxVisitorsPerSlot, parseInt(v) + 1)))}>
-                <Text style={[styles.visitorBtnTxt, {color: COLORS.white}]}>+</Text>
-              </TouchableOpacity>
-            </View>
+                {/* Date input */}
+                <Text style={styles.bookingLabel}>📅 {t('farmVisit.dateLabel', { defaultValue: 'தேதி (DD/MM/YYYY) சனி/ஞாயிறு மட்டும்' })}:</Text>
+                <TextInput
+                  style={styles.bookingInput}
+                  value={selectedDate}
+                  onChangeText={setSelectedDate}
+                  placeholder="01/02/2024"
+                  placeholderTextColor={COLORS.textGray}
+                  keyboardType="default"
+                />
 
-            {/* Confirm & Cancel */}
-            <View style={styles.bookingBtnsRow}>
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={() => {setShowBooking(false); setSelectedFarm(null);}}>
-                <Text style={styles.cancelBtnTxt}>{t('common.cancel', { defaultValue: 'No' })}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.confirmBtn} onPress={handleBookVisit}>
-                <LinearGradient colors={COLORS.gradientButton} style={styles.confirmGrad}>
-                  <Text style={styles.confirmTxt}>✅ {t('farmVisit.confirmBtn', { defaultValue: 'Confirm' })}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+                {/* Slot selector */}
+                <Text style={styles.bookingLabel}>⏰ {t('farmVisit.timeLabel', { defaultValue: 'நேரம்' })}:</Text>
+                {(selectedFarm.visitSlots || []).map((slot, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    style={[styles.slotChip, selectedSlot === slot && styles.slotChipActive]}
+                    onPress={() => setSelectedSlot(slot)}>
+                    <Text style={[styles.slotTxt, selectedSlot === slot && styles.slotTxtActive]}>
+                      {slot}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+                {/* Visitors count */}
+                <Text style={styles.bookingLabel}>👥 {t('farmVisit.visitorsLabel', { defaultValue: 'உறுப்பினர்கள் எண்ணிக்கை' })}:</Text>
+                <View style={styles.visitorsRow}>
+                  <TouchableOpacity
+                    style={styles.visitorBtn}
+                    onPress={() => setVisitors(v => String(Math.max(1, parseInt(v) - 1)))}>
+                    <Text style={styles.visitorBtnTxt}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.visitorsNum}>{visitors} {t('farmVisit.member', { count: parseInt(visitors), defaultValue: 'பேர்' })}</Text>
+                  <TouchableOpacity
+                    style={[styles.visitorBtn, styles.visitorBtnPlus]}
+                    onPress={() => setVisitors(v => String(Math.min(selectedFarm.maxVisitorsPerSlot, parseInt(v) + 1)))}>
+                    <Text style={[styles.visitorBtnTxt, {color: COLORS.white}]}>+</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Confirm & Cancel */}
+                <View style={styles.bookingBtnsRow}>
+                  <TouchableOpacity
+                    style={styles.cancelBtn}
+                    onPress={() => {setShowBooking(false); setSelectedFarm(null);}}>
+                    <Text style={styles.cancelBtnTxt}>{t('common.cancel', { defaultValue: 'No' })}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.confirmBtn} onPress={handleBookVisit}>
+                    <LinearGradient colors={COLORS.gradientButton} style={styles.confirmGrad}>
+                      <Text style={styles.confirmTxt}>✅ {t('farmVisit.confirmBtn', { defaultValue: 'Confirm' })}</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </View>
       )}
 
@@ -356,6 +362,11 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 999,
     justifyContent: 'center', alignItems: 'center',
+  },
+  keyboardAvoidingView: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   bookingModal: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.xl,

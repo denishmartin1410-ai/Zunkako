@@ -336,7 +336,11 @@
     "hoursShort": "h ",
     "minsAgo": "m ago",
     "minsShort": "m",
-    "freshFor": "Fresh for:"
+    "freshFor": "Fresh for:",
+    "veryFresh": "Very Fresh (0-40%)",
+    "stillGood": "Still Good (40-70%)",
+    "expiring": "Expiring Soon (70%+)",
+    "expired": "Expired"
   },
   "preOrder": {
     "title": "Pre-Order",
@@ -461,5 +465,9 @@
     "tryAgainBtn": "📧 Try Again",
     "resetNoAccountTitle": "❌ No Account Found",
     "resetNoAccountMsg": "No account found with this email. Please check the spelling or try again."
+  },
+  "farmVisit": {
+    "member_one": "Member",
+    "member_other": "Members"
   }
 }

@@ -17,13 +17,14 @@ import { createOrder, getUserProfile } from '../../services/firebase';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
 
 const CheckoutScreen = ({ navigation }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth();
     const { cartItems, totalAmount, clearCart } = useCart();
     const [customerName, setCustomerName] = useState(user?.name || '');
@@ -230,7 +231,7 @@ const CheckoutScreen = ({ navigation }) => {
                     {cartItems.map((item, i) => (
                         <View key={i} style={[styles.itemRow, i < cartItems.length - 1 && styles.itemBorder]}>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.itemName}>{item.nameTa || item.name}</Text>
+                                <Text style={styles.itemName}>{getLocalProductName(item.name, item.nameTa, i18n.language)}</Text>
                                 <Text style={styles.itemQty}>x{item.quantity} × ₹{item.consumerPrice || item.price}</Text>
                             </View>
                             <Text style={styles.itemTotal}>₹{(item.consumerPrice || item.price) * item.quantity}</Text>

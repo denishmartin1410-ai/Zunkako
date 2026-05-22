@@ -16,6 +16,7 @@ import { getConsumerOrders, getConsumerPreOrders, getAllProducts, getAllFarmers 
 import BackButton from '../../utils/BackButton';
 import { parseLocalDate, formatToUiDate } from '../../utils/dateHelper';
 import { getLocalProductName } from '../../utils/translationHelper';
+import { getCatName } from '../../utils/categoryHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
@@ -115,7 +116,7 @@ export const OrdersScreen = ({ navigation }) => {
                   </View>
                 </View>
                 <Text style={S.orderDate}>📅 {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || ''}</Text>
-                <Text style={S.orderItems} numberOfLines={1}>{(order.items || []).map(i => i.nameTa || i.name).join(', ')}</Text>
+                <Text style={S.orderItems} numberOfLines={1}>{(order.items || []).map(i => getLocalProductName(i.name, i.nameTa, i18n.language)).join(', ')}</Text>
                 <View style={S.orderBottom}>
                   <Text style={S.orderTotal}>{t('orders.total', { defaultValue: 'மொத்தம்' })}: ₹{order.total}</Text>
                   <Text style={S.orderArrow}>{t('orders.details', { defaultValue: 'விவரங்கள்' })} →</Text>
@@ -260,7 +261,7 @@ export const ConsumerProfileScreen = ({ navigation }) => {
 
 // ── FARMER PROFILE (consumer view) ──
 export const FarmerProfileScreen = ({ route, navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { farmer: routeFarmer } = route.params || {};
   const [farmer, setFarmer] = useState(routeFarmer);
   const [farmerProducts, setFarmerProducts] = useState([]);
@@ -301,7 +302,7 @@ export const FarmerProfileScreen = ({ route, navigation }) => {
           <Text style={{ color: COLORS.white, fontSize: rs(22), fontWeight: 'bold' }}>‹</Text>
         </TouchableOpacity>
         <AvatarView uri={farmer.avatar || farmer.photoURL} name={farmer.name || farmer.nameTa} size={rs(80)} style={{ borderWidth: 3, borderColor: COLORS.white, marginBottom: 10 }} />
-        <Text style={S.farmerName}>{farmer.nameTa || farmer.name}</Text>
+        <Text style={S.farmerName}>{i18n.language === 'ta' ? (farmer.nameTa || farmer.name) : (farmer.name || farmer.nameTa)}</Text>
         {farmer.isVerified && <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: rs(FONTS.xs) }}>✅ {t('farmer.verified', { defaultValue: 'சரிபார்க்கப்பட்ட விவசாயி' })}</Text>}
         <Text style={S.farmerLoc}>📍 {farmer.locationTa || farmer.location || ''}</Text>
       </LinearGradient>
@@ -318,7 +319,7 @@ export const FarmerProfileScreen = ({ route, navigation }) => {
         ) : farmerProducts.map(p => (
           <TouchableOpacity key={p.id} style={S.farmerProductCard} onPress={() => navigation.navigate('ProductDetail', { product: p })}>
             <FastImage source={{ uri: p.image }} style={S.farmerProductImg} resizeMode={FastImage.resizeMode.cover} />
-            <View style={{ flex: 1, marginLeft: SPACING.md }}><Text style={S.farmerProductName}>{p.nameTa || p.name}</Text><Text style={S.farmerProductPrice}>₹{p.price}/{p.unit}</Text></View>
+            <View style={{ flex: 1, marginLeft: SPACING.md }}><Text style={S.farmerProductName}>{getLocalProductName(p.name, p.nameTa, i18n.language)}</Text><Text style={S.farmerProductPrice}>₹{p.price}/{p.unit}</Text></View>
             <TouchableOpacity style={S.addCartBtn} onPress={() => addToCart(p)}><Text style={{ color: COLORS.white, fontWeight: 'bold' }}>+</Text></TouchableOpacity>
           </TouchableOpacity>
         ))}
@@ -330,7 +331,7 @@ export const FarmerProfileScreen = ({ route, navigation }) => {
 
 // ── ALL PRODUCTS ──
 export const AllProductsScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [selectedCat, setSelectedCat] = useState('all');
@@ -360,7 +361,7 @@ export const AllProductsScreen = ({ navigation }) => {
         {CATEGORIES.map(cat => (
           <TouchableOpacity key={cat.id} style={[S.catChip, selectedCat === cat.id && S.catChipActive]} onPress={() => setSelectedCat(cat.id)}>
             <Text style={{ fontSize: rs(14) }}>{cat.icon}</Text>
-            <Text style={[S.catText, selectedCat === cat.id && S.catTextActive]}>{cat.nameTa}</Text>
+            <Text style={[S.catText, selectedCat === cat.id && S.catTextActive]}>{getCatName(cat, i18n.language)}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -371,7 +372,7 @@ export const AllProductsScreen = ({ navigation }) => {
               <TouchableOpacity style={S.gridCard} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
                 <FastImage source={{ uri: item.image }} style={S.gridImg} resizeMode={FastImage.resizeMode.cover} />
                 <View style={S.gridInfo}>
-                  <Text style={S.gridName} numberOfLines={2}>{item.nameTa || item.name}</Text>
+                  <Text style={S.gridName} numberOfLines={2}>{getLocalProductName(item.name, item.nameTa, i18n.language)}</Text>
                   <Text style={S.gridPrice}>₹{item.price}/{item.unit}</Text>
                   <TouchableOpacity style={S.gridAddBtn} onPress={() => addToCart(item)}><Text style={{ color: COLORS.white, fontWeight: 'bold', fontSize: rs(12) }}>+ {t('cart.addToCart', { defaultValue: 'கார்ட்' })}</Text></TouchableOpacity>
                 </View>
@@ -385,7 +386,7 @@ export const AllProductsScreen = ({ navigation }) => {
 
 // ── ALL FARMERS ──
 export const AllFarmersScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [farmers, setFarmers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -412,7 +413,7 @@ export const AllFarmersScreen = ({ navigation }) => {
                 <AvatarView uri={item.avatar || item.photoURL} name={item.name || item.nameTa} size={rs(56)} style={{ marginRight: SPACING.md }} />
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={S.farmerListName}>{item.nameTa || item.name}</Text>
+                    <Text style={S.farmerListName}>{i18n.language === 'ta' ? (item.nameTa || item.name) : (item.name || item.nameTa)}</Text>
                     {item.isVerified && <Text style={{ fontSize: rs(12), marginLeft: 4 }}>✅</Text>}
                   </View>
                   <Text style={S.farmerListLoc}>📍 {item.location || ''}</Text>

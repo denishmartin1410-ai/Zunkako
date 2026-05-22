@@ -12,6 +12,7 @@ import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
 import { CATEGORIES } from '../../utils/dummyData';
 import { listenToProducts, getAllFarmers } from '../../services/firebase';
 import { getConsumerPrice, PLATFORM_FEE } from '../../utils/priceHelper';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.44;
@@ -28,6 +29,10 @@ const AvatarView = ({ uri, name, size = 64, style }) => {
 
 const ProductCard = ({ item, onAddToCart, onPress }) => {
   const cp = getConsumerPrice(item.price);
+  const { i18n } = useTranslation();
+  const localName = getLocalProductName(item.name, item.nameTa, i18n.language);
+  const localFarmerName = i18n.language === 'ta' ? (item.farmerNameTa || item.farmerName) : (item.farmerName || item.farmerNameTa);
+
   return (
     <TouchableOpacity style={styles.productCard} onPress={() => onPress(item)} activeOpacity={0.9}>
       <View style={styles.productImgWrap}>
@@ -36,8 +41,8 @@ const ProductCard = ({ item, onAddToCart, onPress }) => {
         {item.originalPrice > item.price && <View style={styles.discountBadge}><Text style={styles.discountText}>{Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF</Text></View>}
       </View>
       <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={1}>{item.nameTa || item.name}</Text>
-        <Text style={styles.farmerName} numberOfLines={1}>👨‍🌾 {item.farmerNameTa || item.farmerName || ''}</Text>
+        <Text style={styles.productName} numberOfLines={1}>{localName}</Text>
+        <Text style={styles.farmerName} numberOfLines={1}>👨‍🌾 {localFarmerName || ''}</Text>
         <View style={styles.priceRow}>
           <View><Text style={styles.price}>₹{cp}</Text>{item.originalPrice > item.price && <Text style={styles.originalPrice}>₹{item.originalPrice + PLATFORM_FEE}</Text>}</View>
           <TouchableOpacity style={styles.addBtn} onPress={() => onAddToCart(item)}>
@@ -49,18 +54,22 @@ const ProductCard = ({ item, onAddToCart, onPress }) => {
   );
 };
 
-const FarmerCard = ({ item, onPress }) => (
-  <TouchableOpacity style={styles.farmerCard} onPress={() => onPress(item)} activeOpacity={0.9}>
-    <AvatarView uri={item.avatar} name={item.name || item.nameTa} size={rs(64)} style={{ marginBottom: SPACING.sm }} />
-    {item.isVerified && <View style={styles.verifiedBadge}><Text style={{ fontSize: rs(10) }}>✅</Text></View>}
-    <Text style={styles.farmerCardName} numberOfLines={1}>{item.nameTa || item.name}</Text>
-    <Text style={styles.farmerCardLoc} numberOfLines={1}>📍 {(item.location || '').split(',')[0]}</Text>
-    <View style={styles.farmerRatingRow}><Text style={styles.farmerStar}>⭐</Text><Text style={styles.farmerRatingNum}>{item.rating || '0'}</Text></View>
-  </TouchableOpacity>
-);
+const FarmerCard = ({ item, onPress }) => {
+  const { i18n } = useTranslation();
+  const localFarmerName = i18n.language === 'ta' ? (item.nameTa || item.name) : (item.name || item.nameTa);
+  return (
+    <TouchableOpacity style={styles.farmerCard} onPress={() => onPress(item)} activeOpacity={0.9}>
+      <AvatarView uri={item.avatar} name={item.name || item.nameTa} size={rs(64)} style={{ marginBottom: SPACING.sm }} />
+      {item.isVerified && <View style={styles.verifiedBadge}><Text style={{ fontSize: rs(10) }}>✅</Text></View>}
+      <Text style={styles.farmerCardName} numberOfLines={1}>{localFarmerName}</Text>
+      <Text style={styles.farmerCardLoc} numberOfLines={1}>📍 {(item.location || '').split(',')[0]}</Text>
+      <View style={styles.farmerRatingRow}><Text style={styles.farmerStar}>⭐</Text><Text style={styles.farmerRatingNum}>{item.rating || '0'}</Text></View>
+    </TouchableOpacity>
+  );
+};
 
 const HomeScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { addToCart, totalItems } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,8 +94,10 @@ const HomeScreen = ({ navigation }) => {
 
   const filteredProducts = realProducts.filter(p => {
     const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
-    const nameTa = p.nameTa || p.name || '';
-    const matchSearch = nameTa.includes(searchQuery) || (p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const localName = getLocalProductName(p.name, p.nameTa, i18n.language) || '';
+    const matchSearch = localName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (p.nameTa || '').includes(searchQuery);
     return matchCat && matchSearch;
   });
 

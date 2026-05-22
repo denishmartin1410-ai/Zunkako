@@ -225,7 +225,7 @@ const FreshnessTrackerScreen = ({ navigation }) => {
       <View style={styles.legend}>
         {[
           { color: COLORS.primaryGreen, label: t('freshness.veryFresh', { defaultValue: 'மிகவும் புதிசு (0-40%)' }) },
-          { color: COLORS.accentGold, label: t('freshness.good', { defaultValue: 'நல்லது (40-70%)' }) },
+          { color: COLORS.accentGold, label: t('freshness.stillGood', { defaultValue: 'நல்லது (40-70%)' }) },
           { color: COLORS.accentRed, label: t('freshness.expiring', { defaultValue: 'விரைவில் பழசாகும் (70%+)' }) },
         ].map((item, i) => (
           <View key={i} style={styles.legendItem}>

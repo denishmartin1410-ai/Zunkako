@@ -183,7 +183,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
 };
 
 const PreOrderScreen = ({navigation, route}) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -234,7 +234,7 @@ const PreOrderScreen = ({navigation, route}) => {
 
     Alert.alert(
       t('preOrder.confirmTitle', { defaultValue: '📅 முன்பணம் உறுதி / Pre-Order Confirm' }),
-      `${item.nameTa || item.name} × ${qty} = ₹${item.price * qty}\n\n` +
+      `${getLocalProductName(item.nameEn, item.name, i18n.language)} × ${qty} = ₹${item.price * qty}\n\n` +
       `அறுவடை தேதி: ${item.harvestDate}\n` +
       `Harvest date: ${item.harvestDate}\n\n` +
       `அறுவடையான 24 மணி நேரத்தில் டெலிவரி!\n` +

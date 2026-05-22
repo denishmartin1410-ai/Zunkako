@@ -41,6 +41,10 @@ const DeliveryDashboard = () => {
 
   const deliveryBoyId = user?.id || user?.uid;
 
+  const activeOrders = orders.filter(o => !['Delivered', 'Cancelled', 'Refund Requested', 'Refunded'].includes(o.status));
+  const completedOrders = orders.filter(o => ['Delivered', 'Cancelled', 'Refund Requested', 'Refunded'].includes(o.status));
+  const displayOrders = activeTab === 'active' ? activeOrders : completedOrders;
+
   // Get current location initially
   useEffect(() => {
     const getLocation = async () => {
@@ -136,10 +140,6 @@ const DeliveryDashboard = () => {
 
     return unsubscribe;
   }, [deliveryBoyId]);
-
-  const activeOrders = orders.filter(o => !['Delivered', 'Cancelled', 'Refund Requested', 'Refunded'].includes(o.status));
-  const completedOrders = orders.filter(o => ['Delivered', 'Cancelled', 'Refund Requested', 'Refunded'].includes(o.status));
-  const displayOrders = activeTab === 'active' ? activeOrders : completedOrders;
 
   // Open Google Maps navigation
   const navigateToLocation = (lat, lng, label = 'Destination') => {

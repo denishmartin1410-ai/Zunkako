@@ -16,6 +16,7 @@ import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
 import {getDeliveredOrdersForPeriod} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const {width} = Dimensions.get('window');
 
@@ -77,7 +78,7 @@ const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
 };
 
 const NutritionReportScreen = ({navigation}) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [allOrders, setAllOrders] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(0);
@@ -213,6 +214,8 @@ const NutritionReportScreen = ({navigation}) => {
         } else {
           purchasedItemsMap[nTa] = {
             name: nTa,
+            nameEn: item.nameEn || item.name || '',
+            nameTa: item.nameTa || item.name || '',
             qty: item.quantity,
             emoji: matchedNut.emoji,
             calories: matchedNut.calories * multiplier,
@@ -347,7 +350,7 @@ const NutritionReportScreen = ({navigation}) => {
             <View key={i} style={styles.purchasedRow}>
               <Text style={styles.purchasedEmoji}>{item.emoji}</Text>
               <View style={styles.purchasedInfo}>
-                <Text style={styles.purchasedName}>{item.name} x{item.qty}</Text>
+                <Text style={styles.purchasedName}>{getLocalProductName(item.nameEn, item.nameTa, i18n.language)} x{item.qty}</Text>
                 <Text style={styles.purchasedNutrition}>
                   🔥{Math.round(item.calories)}kcal • 💪{Math.round(item.protein)}g protein • 🌾{Math.round(item.carbs)}g carbs
                 </Text>

@@ -12,13 +12,14 @@ import FastImage from 'react-native-fast-image';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../../context/CartContext';
 import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
+import { getLocalProductName } from '../../utils/translationHelper';
 
 const { width } = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
 
 const CartScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { cartItems, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
 
   const deliveryFee = 0; // Free for first 3 months
@@ -80,8 +81,8 @@ const CartScreen = ({ navigation }) => {
               resizeMode={FastImage.resizeMode.cover}
             />
             <View style={styles.cartInfo}>
-              <Text style={styles.cartName} numberOfLines={2}>{item.nameTa || item.name}</Text>
-              <Text style={styles.cartFarmer}>👨‍🌾 {item.farmerNameTa || item.farmerName || ''}</Text>
+              <Text style={styles.cartName} numberOfLines={2}>{getLocalProductName(item.name, item.nameTa, i18n.language)}</Text>
+              <Text style={styles.cartFarmer}>👨‍🌾 {i18n.language === 'ta' ? (item.farmerNameTa || item.farmerName) : (item.farmerName || item.farmerNameTa) || ''}</Text>
               <Text style={styles.cartPrice}>₹{item.consumerPrice || item.price}/{item.unit}</Text>
               <View style={styles.qtyRow}>
                 <TouchableOpacity
