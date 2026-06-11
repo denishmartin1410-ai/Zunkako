@@ -23,7 +23,15 @@ import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
+import {useTheme} from '../../context/ThemeContext';
 import {
   sendChatMessage,
   listenToChatMessages,
@@ -81,6 +89,8 @@ const QUICK_REPLIES = [
 // ── Single Message Bubble ──
 const MessageBubble = ({message, isMe, onLongPress}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const isLocation = message.text && message.text.startsWith('📍 Location:');
   const locationUrl = isLocation ? message.text.split('Location: ')[1] : '';
 
@@ -102,28 +112,39 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
         isMe ? styles.bubbleRight : styles.bubbleLeft,
       ]}>
       {!isMe && (
-        <View style={styles.farmerDot}>
+        <View
+          style={[styles.farmerDot, isDark && {backgroundColor: '#1A3028'}]}>
           <Text style={{fontSize: 10}}>👨‍🌾</Text>
         </View>
       )}
       <View
         style={[
           styles.bubble,
-          isMe ? styles.bubbleMe : styles.bubbleFarmer,
+          isMe
+            ? styles.bubbleMe
+            : [styles.bubbleFarmer, {backgroundColor: themeColors.cardBg}],
           isLocation && styles.bubbleLocation,
         ]}>
         {isLocation ? (
-          <TouchableOpacity onPress={handleOpenMap} style={styles.mapCard}>
+          <TouchableOpacity
+            onPress={handleOpenMap}
+            style={[
+              styles.mapCard,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+              },
+            ]}>
             <View style={styles.mapHeaderRow}>
               <Text style={{fontSize: 24}}>🗺️</Text>
               <View style={styles.mapTextCol}>
-                <Text style={[styles.mapTitle, isMe && styles.mapTitleMe]}>
+                <Text style={[styles.mapTitle, {color: themeColors.text}]}>
                   {t('chat.sharedLocation', {
                     defaultValue: '📍 Shared Location',
                   })}
                 </Text>
                 <Text
-                  style={[styles.mapSubtitle, isMe && styles.mapSubtitleMe]}
+                  style={[styles.mapSubtitle, {color: themeColors.textMuted}]}
                   numberOfLines={1}>
                   {locationUrl}
                 </Text>
@@ -133,6 +154,7 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
               style={[
                 styles.mapDivider,
                 isMe ? styles.mapDividerMe : styles.mapDividerOther,
+                {backgroundColor: themeColors.border},
               ]}
             />
             <Text style={[styles.mapBtnTxt, isMe && styles.mapBtnTxtMe]}>
@@ -140,12 +162,20 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
             </Text>
           </TouchableOpacity>
         ) : (
-          <Text style={[styles.bubbleText, isMe && styles.bubbleTextMe]}>
+          <Text
+            style={[
+              styles.bubbleText,
+              isMe ? styles.bubbleTextMe : {color: themeColors.text},
+            ]}>
             {message.text}
           </Text>
         )}
         <View style={styles.bubbleMeta}>
-          <Text style={[styles.bubbleTime, isMe && styles.bubbleTimeMe]}>
+          <Text
+            style={[
+              styles.bubbleTime,
+              isMe ? styles.bubbleTimeMe : {color: themeColors.textMuted},
+            ]}>
             {message.time || ''} {isMe ? '✓✓' : ''}
           </Text>
         </View>
@@ -243,6 +273,8 @@ export const ChatListScreen = ({navigation}) => {
 // ── Chat Room Screen (Individual Conversation) ──
 const FarmerChatRoomScreen = ({route, navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {farmer} = route.params;
   const {user} = useAuth();
   const [messages, setMessages] = useState([]);
@@ -361,7 +393,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, {backgroundColor: themeColors.bg}]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {/* Header */}
       <LinearGradient
@@ -404,24 +436,25 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
         ListEmptyComponent={
           <View style={styles.emptyChat}>
             <Text style={styles.emptyChatEmoji}>💬</Text>
-            <Text style={styles.emptyChatTxt}>
+            <Text style={[styles.emptyChatTxt, {color: themeColors.subText}]}>
               {farmer.nameTa || farmer.name} -{' '}
               {t('chat.startConversation', {
                 defaultValue: 'அரட்டையை தொடங்குங்கள்!',
               })}
-            </Text>
-            <Text style={styles.emptyChatSubTxt}>
-              {t('chat.startConversation', {
-                defaultValue: 'Start chatting with ',
-              })}
-              {farmer.name || farmer.nameTa}!
             </Text>
           </View>
         }
       />
 
       {/* Quick replies */}
-      <View style={styles.quickRepliesWrap}>
+      <View
+        style={[
+          styles.quickRepliesWrap,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderTopColor: themeColors.border,
+          },
+        ]}>
         <FlatList
           data={QUICK_REPLIES}
           keyExtractor={(_, i) => String(i)}
@@ -430,7 +463,10 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
           contentContainerStyle={{paddingHorizontal: SPACING.md}}
           renderItem={({item}) => (
             <TouchableOpacity
-              style={styles.quickReplyChip}
+              style={[
+                styles.quickReplyChip,
+                {backgroundColor: isDark ? '#1A3028' : '#E8F5E9'},
+              ]}
               onPress={() => sendQuickReply({ta: t(item)})}>
               <Text style={styles.quickReplyTxt}>{t(item)}</Text>
             </TouchableOpacity>
@@ -439,20 +475,36 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
       </View>
 
       {/* Input bar */}
-      <View style={styles.inputBar}>
+      <View
+        style={[
+          styles.inputBar,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderTopColor: themeColors.border,
+          },
+        ]}>
         <TouchableOpacity
           style={styles.locationPinBtn}
           onPress={handleShareLocation}>
           <Text style={{fontSize: 22}}>📍</Text>
         </TouchableOpacity>
         <TextInput
-          style={styles.chatInput}
+          style={[
+            styles.chatInput,
+            {
+              backgroundColor: themeColors.inputBg,
+              borderColor: themeColors.border,
+              color: themeColors.text,
+            },
+          ]}
           value={inputText}
           onChangeText={setInputText}
           placeholder={t('chat.placeholder', {
             defaultValue: 'செய்தி அனுப்புங்கள்...',
           })}
-          placeholderTextColor={COLORS.textGray}
+          placeholderTextColor={
+            isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+          }
           multiline
           maxLength={500}
         />
@@ -462,7 +514,11 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
           disabled={!inputText.trim() || isSending}>
           <LinearGradient
             colors={
-              inputText.trim() ? COLORS.gradientButton : ['#E0E0E0', '#BDBDBD']
+              inputText.trim()
+                ? COLORS.gradientButton
+                : isDark
+                ? ['#333333', '#222222']
+                : ['#E0E0E0', '#BDBDBD']
             }
             style={styles.sendBtnGrad}>
             <Text style={styles.sendBtnTxt}>➤</Text>
@@ -480,8 +536,12 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setDeleteModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
+          <View
+            style={[
+              styles.modalContent,
+              {backgroundColor: themeColors.cardBg},
+            ]}>
+            <Text style={[styles.modalTitle, {color: themeColors.text}]}>
               {t('chat.deleteTitle', {defaultValue: 'Delete message?'})}
             </Text>
 
@@ -489,7 +549,10 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
               {/* Delete for everyone - ONLY if current user is the sender */}
               {selectedMessage?.senderId === userId && (
                 <TouchableOpacity
-                  style={styles.modalButton}
+                  style={[
+                    styles.modalButton,
+                    {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
+                  ]}
                   onPress={async () => {
                     setDeleteModalVisible(false);
                     const deletedText = t('chat.messageDeletedEveryone', {
@@ -513,7 +576,10 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
               )}
 
               <TouchableOpacity
-                style={styles.modalButton}
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
+                ]}
                 onPress={async () => {
                   setDeleteModalVisible(false);
                   await deleteChatMessage(
@@ -529,7 +595,14 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, styles.modalCancelButton]}
+                style={[
+                  styles.modalButton,
+                  styles.modalCancelButton,
+                  {
+                    backgroundColor: themeColors.cardBg,
+                    borderColor: themeColors.border,
+                  },
+                ]}
                 onPress={() => {
                   setDeleteModalVisible(false);
                   setSelectedMessage(null);

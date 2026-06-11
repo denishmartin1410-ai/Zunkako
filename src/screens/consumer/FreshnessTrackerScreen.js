@@ -4,20 +4,25 @@
 // Zepto, Blinkit, BigBasket - எந்த app-லயும் இல்லாதது!
 // ============================================================
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Animated, Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
-import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
-import { useTranslation } from 'react-i18next';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {useTranslation} from 'react-i18next';
 import BackButton from '../../utils/BackButton';
-import { useCart } from '../../context/CartContext';
-import { listenToFreshProducts } from '../../services/firebase';
+import {useCart} from '../../context/CartContext';
+import {listenToFreshProducts} from '../../services/firebase';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 // Read from Firestore instead of hardcoded data
 
@@ -45,21 +50,29 @@ const getElapsedAndPercent = (harvestTime, freshHours) => {
 };
 
 // ── Freshness bar color ──
-const getFreshnessColor = (percent) => {
-  if (percent < 40) return ['#27AE60', '#1B8A4E'];
-  if (percent < 70) return ['#F4A61D', '#FF9800'];
+const getFreshnessColor = percent => {
+  if (percent < 40) {
+    return ['#27AE60', '#1B8A4E'];
+  }
+  if (percent < 70) {
+    return ['#F4A61D', '#FF9800'];
+  }
   return ['#E53935', '#C62828'];
 };
 
-const getFreshnessLabel = (percent) => {
-  if (percent < 40) return { ta: '🟢 மிகவும் புதிசு', en: 'Very Fresh' };
-  if (percent < 70) return { ta: '🟡 இன்னும் நல்லது', en: 'Still Good' };
-  return { ta: '🔴 விரைவில் பழசாகும்', en: 'Expiring Soon' };
+const getFreshnessLabel = percent => {
+  if (percent < 40) {
+    return {ta: '🟢 மிகவும் புதிசு', en: 'Very Fresh'};
+  }
+  if (percent < 70) {
+    return {ta: '🟡 இன்னும் நல்லது', en: 'Still Good'};
+  }
+  return {ta: '🔴 விரைவில் பழசாகும்', en: 'Expiring Soon'};
 };
 
 // ── Individual Product Freshness Card ──
-const FreshnessCard = ({ product, onAddToCart }) => {
-  const { t } = useTranslation();
+const FreshnessCard = ({product, onAddToCart}) => {
+  const {t} = useTranslation();
   const [tick, setTick] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -75,34 +88,62 @@ const FreshnessCard = ({ product, onAddToCart }) => {
     if (info.isExpiring) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.05, duration: 600, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+          Animated.timing(pulseAnim, {
+            toValue: 1.05,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
         ]),
       ).start();
     }
   }, []);
 
   const parsedHarvestTime = new Date(product.harvestTime);
-  const info = getElapsedAndPercent(parsedHarvestTime, product.freshHours || 24);
+  const info = getElapsedAndPercent(
+    parsedHarvestTime,
+    product.freshHours || 24,
+  );
   const colors = getFreshnessColor(info.percent);
   const getBadgeTranslation = () => {
-    if (info.percent < 40) return '🟢 ' + t('freshness.veryFreshShort', { defaultValue: 'மிகவும் புதுசு' });
-    if (info.percent < 70) return '🟡 ' + t('freshness.stillGoodShort', { defaultValue: 'நல்லது' });
-    return '🔴 ' + t('freshness.expiringShort', { defaultValue: 'விரைவில் பழசாகும்' });
+    if (info.percent < 40) {
+      return (
+        '🟢 ' + t('freshness.veryFreshShort', {defaultValue: 'மிகவும் புதுசு'})
+      );
+    }
+    if (info.percent < 70) {
+      return '🟡 ' + t('freshness.stillGoodShort', {defaultValue: 'நல்லது'});
+    }
+    return (
+      '🔴 ' + t('freshness.expiringShort', {defaultValue: 'விரைவில் பழசாகும்'})
+    );
   };
 
   return (
-    <Animated.View style={[styles.card, { transform: [{ scale: pulseAnim }] }]}>
+    <Animated.View style={[styles.card, {transform: [{scale: pulseAnim}]}]}>
       {/* Product image */}
       <FastImage
-        source={{ uri: product.image, priority: FastImage.priority.normal }}
+        source={{uri: product.image, priority: FastImage.priority.normal}}
         style={styles.cardImg}
         resizeMode={FastImage.resizeMode.cover}
       />
 
       {/* Freshness overlay badge */}
-      <View style={[styles.freshnessBadge,
-      { backgroundColor: info.isExpiring ? '#FFEBEE' : info.isWarning ? '#FFF9E6' : '#E8F5E9' }]}>
+      <View
+        style={[
+          styles.freshnessBadge,
+          {
+            backgroundColor: info.isExpiring
+              ? '#FFEBEE'
+              : info.isWarning
+              ? '#FFF9E6'
+              : '#E8F5E9',
+          },
+        ]}>
         <Text style={styles.freshnessLabel}>{getBadgeTranslation()}</Text>
       </View>
 
@@ -125,10 +166,16 @@ const FreshnessCard = ({ product, onAddToCart }) => {
         <View style={styles.freshnessSection}>
           <View style={styles.freshnessHeaderRow}>
             <Text style={styles.freshnessTitle}>
-              ⏱ {t('freshness.timeSinceHarvest', { defaultValue: 'அறுவடை ஆன நேரம்' })}
+              ⏱{' '}
+              {t('freshness.timeSinceHarvest', {
+                defaultValue: 'அறுவடை ஆன நேரம்',
+              })}
             </Text>
             <Text style={styles.elapsedTime}>
-              {info.elapsedHrsDisplay}{t('freshness.hoursShort', { defaultValue: 'மணி ' })}{info.elapsedMins}{t('freshness.minsAgo', { defaultValue: 'நிமிடம் முன்பு' })}
+              {info.elapsedHrsDisplay}
+              {t('freshness.hoursShort', {defaultValue: 'மணி '})}
+              {info.elapsedMins}
+              {t('freshness.minsAgo', {defaultValue: 'நிமிடம் முன்பு'})}
             </Text>
           </View>
 
@@ -136,24 +183,32 @@ const FreshnessCard = ({ product, onAddToCart }) => {
           <View style={styles.progressBarBg}>
             <LinearGradient
               colors={colors}
-              style={[styles.progressBarFill, { width: `${info.percent}%` }]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              style={[styles.progressBarFill, {width: `${info.percent}%`}]}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
             />
           </View>
 
           {/* Remaining time */}
           <View style={styles.remainingRow}>
             <Text style={styles.remainingLabel}>
-              {t('freshness.freshFor', { defaultValue: 'இன்னும் எத்தனை நேரம் நல்லது?' })}
+              {t('freshness.freshFor', {
+                defaultValue: 'இன்னும் எத்தனை நேரம் நல்லது?',
+              })}
             </Text>
             {info.remainingHrsDisplay > 0 || info.remainingMinsDisplay > 0 ? (
-              <Text style={[styles.remainingTime, { color: colors[0] }]}>
-                {info.remainingHrsDisplay > 0 ? `${info.remainingHrsDisplay}${t('freshness.hoursShort', { defaultValue: 'மணி ' })}` : ''}
-                {info.remainingMinsDisplay}{t('freshness.minsShort', { defaultValue: 'நிமிடம்' })}
+              <Text style={[styles.remainingTime, {color: colors[0]}]}>
+                {info.remainingHrsDisplay > 0
+                  ? `${info.remainingHrsDisplay}${t('freshness.hoursShort', {
+                      defaultValue: 'மணி ',
+                    })}`
+                  : ''}
+                {info.remainingMinsDisplay}
+                {t('freshness.minsShort', {defaultValue: 'நிமிடம்'})}
               </Text>
             ) : (
-              <Text style={[styles.remainingTime, { color: COLORS.accentRed }]}>
-                {t('freshness.expired', { defaultValue: 'காலாவதியானது' })}
+              <Text style={[styles.remainingTime, {color: COLORS.accentRed}]}>
+                {t('freshness.expired', {defaultValue: 'காலாவதியானது'})}
               </Text>
             )}
           </View>
@@ -172,9 +227,14 @@ const FreshnessCard = ({ product, onAddToCart }) => {
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => onAddToCart(product)}>
-          <LinearGradient colors={colors} style={styles.addBtnGrad}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-            <Text style={styles.addBtnTxt}>🛒 {t('product.addToCart', { defaultValue: 'கார்ட்டில் சேர்' })}</Text>
+          <LinearGradient
+            colors={colors}
+            style={styles.addBtnGrad}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}>
+            <Text style={styles.addBtnTxt}>
+              🛒 {t('product.addToCart', {defaultValue: 'கார்ட்டில் சேர்'})}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -182,14 +242,14 @@ const FreshnessCard = ({ product, onAddToCart }) => {
   );
 };
 
-const FreshnessTrackerScreen = ({ navigation }) => {
-  const { t } = useTranslation();
-  const { addToCart } = useCart();
+const FreshnessTrackerScreen = ({navigation}) => {
+  const {t} = useTranslation();
+  const {addToCart} = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = listenToFreshProducts((res) => {
+    const unsubscribe = listenToFreshProducts(res => {
       if (res.success) {
         setProducts(res.data);
       }
@@ -198,12 +258,13 @@ const FreshnessTrackerScreen = ({ navigation }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = product => {
     addToCart({
       ...product,
       nameTa: product.nameTa || product.name,
       farmerName: product.farmerName || product.farmer,
-      farmerNameTa: product.farmerNameTa || product.farmerName || product.farmer,
+      farmerNameTa:
+        product.farmerNameTa || product.farmerName || product.farmer,
     });
   };
 
@@ -214,9 +275,14 @@ const FreshnessTrackerScreen = ({ navigation }) => {
         <BackButton onPress={() => navigation.goBack()} />
         <View style={styles.headerContent}>
           <Text style={styles.headerEmoji}>⏱</Text>
-          <Text style={styles.headerTitle}>{t('home.freshnessTracker', { defaultValue: 'Freshness Tracker' })}</Text>
+          <Text style={styles.headerTitle}>
+            {t('home.freshnessTracker', {defaultValue: 'Freshness Tracker'})}
+          </Text>
           <Text style={styles.headerDesc}>
-            {t('freshness.desc', { defaultValue: 'அறுவடை ஆன நேரத்திலிருந்து இப்போது எத்தனை நேரம் ஆச்சு என்று live-ஆ தெரியும்!' })}
+            {t('freshness.desc', {
+              defaultValue:
+                'அறுவடை ஆன நேரத்திலிருந்து இப்போது எத்தனை நேரம் ஆச்சு என்று live-ஆ தெரியும்!',
+            })}
           </Text>
         </View>
       </LinearGradient>
@@ -224,24 +290,48 @@ const FreshnessTrackerScreen = ({ navigation }) => {
       {/* Legend */}
       <View style={styles.legend}>
         {[
-          { color: COLORS.primaryGreen, label: t('freshness.veryFresh', { defaultValue: 'மிகவும் புதிசு (0-40%)' }) },
-          { color: COLORS.accentGold, label: t('freshness.stillGood', { defaultValue: 'நல்லது (40-70%)' }) },
-          { color: COLORS.accentRed, label: t('freshness.expiring', { defaultValue: 'விரைவில் பழசாகும் (70%+)' }) },
+          {
+            color: COLORS.primaryGreen,
+            label: t('freshness.veryFresh', {
+              defaultValue: 'மிகவும் புதிசு (0-40%)',
+            }),
+          },
+          {
+            color: COLORS.accentGold,
+            label: t('freshness.stillGood', {defaultValue: 'நல்லது (40-70%)'}),
+          },
+          {
+            color: COLORS.accentRed,
+            label: t('freshness.expiring', {
+              defaultValue: 'விரைவில் பழசாகும் (70%+)',
+            }),
+          },
         ].map((item, i) => (
           <View key={i} style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+            <View style={[styles.legendDot, {backgroundColor: item.color}]} />
             <Text style={styles.legendTxt}>{item.label}</Text>
           </View>
         ))}
       </View>
 
       {/* Products */}
-      <ScrollView showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{padding: SPACING.lg, paddingBottom: 100}}>
         {loading ? (
-          <Text style={{ textAlign: 'center', marginTop: 50 }}>Loading...</Text>
+          <Text style={{textAlign: 'center', marginTop: 50}}>Loading...</Text>
         ) : products.length === 0 ? (
-          <Text style={{ textAlign: 'center', marginTop: 50, fontSize: 16, color: COLORS.textGray }}>{t('freshness.noProducts', { defaultValue: 'தற்போது எந்த fresh products-ம் இல்லை.' })}</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 50,
+              fontSize: 16,
+              color: COLORS.textGray,
+            }}>
+            {t('freshness.noProducts', {
+              defaultValue: 'தற்போது எந்த fresh products-ம் இல்லை.',
+            })}
+          </Text>
         ) : (
           products.map(product => (
             <FreshnessCard
@@ -257,87 +347,149 @@ const FreshnessTrackerScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: {flex: 1, backgroundColor: COLORS.background},
 
   // Header
-  header: { paddingTop: 50, paddingBottom: 24, paddingHorizontal: SPACING.xl },
-  backBtn: { marginBottom: SPACING.md },
-  backTxt: { color: COLORS.white, fontSize: FONTS.xxl, fontWeight: FONTS.bold },
-  headerContent: { alignItems: 'center' },
-  headerEmoji: { fontSize: 44, marginBottom: 6 },
-  headerTitle: { fontSize: FONTS.xl, fontWeight: FONTS.bold, color: COLORS.white },
-  headerTitleTa: { fontSize: FONTS.md, color: 'rgba(255,255,255,0.8)', marginBottom: 8 },
+  header: {paddingTop: 50, paddingBottom: 24, paddingHorizontal: SPACING.xl},
+  backBtn: {marginBottom: SPACING.md},
+  backTxt: {color: COLORS.white, fontSize: FONTS.xxl, fontWeight: FONTS.bold},
+  headerContent: {alignItems: 'center'},
+  headerEmoji: {fontSize: 44, marginBottom: 6},
+  headerTitle: {
+    fontSize: FONTS.xl,
+    fontWeight: FONTS.bold,
+    color: COLORS.white,
+  },
+  headerTitleTa: {
+    fontSize: FONTS.md,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 8,
+  },
   headerDesc: {
-    fontSize: FONTS.sm, color: 'rgba(255,255,255,0.85)',
-    textAlign: 'center', lineHeight: 20,
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.85)',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 
   // Legend
   legend: {
-    backgroundColor: COLORS.white, padding: SPACING.md,
-    paddingHorizontal: SPACING.xl, ...SHADOWS.small,
+    backgroundColor: COLORS.white,
+    padding: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    ...SHADOWS.small,
   },
-  legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: SPACING.sm },
-  legendTxt: { fontSize: FONTS.xs, color: COLORS.textSecondary },
+  legendItem: {flexDirection: 'row', alignItems: 'center', marginBottom: 4},
+  legendDot: {width: 10, height: 10, borderRadius: 5, marginRight: SPACING.sm},
+  legendTxt: {fontSize: FONTS.xs, color: COLORS.textSecondary},
 
   // Card
   card: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.xl,
-    marginBottom: SPACING.lg, overflow: 'hidden', ...SHADOWS.medium,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.lg,
+    overflow: 'hidden',
+    ...SHADOWS.medium,
   },
-  cardImg: { width: '100%', height: 160 },
+  cardImg: {width: '100%', height: 160},
   freshnessBadge: {
-    position: 'absolute', top: 12, right: 12,
-    borderRadius: RADIUS.lg, paddingHorizontal: 12, paddingVertical: 6,
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
-  freshnessLabel: { fontSize: FONTS.sm, fontWeight: FONTS.bold, color: COLORS.textPrimary },
-  freshnessLabelEn: { fontSize: FONTS.xs, color: COLORS.textSecondary },
-  cardBody: { padding: SPACING.lg },
+  freshnessLabel: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+  },
+  freshnessLabelEn: {fontSize: FONTS.xs, color: COLORS.textSecondary},
+  cardBody: {padding: SPACING.lg},
 
   // Product row
-  productRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.lg },
-  productEmoji: { fontSize: 36, marginRight: SPACING.md },
-  productInfo: { flex: 1 },
-  productName: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary },
-  productNameEn: { fontSize: FONTS.sm, color: COLORS.textMuted },
-  farmerName: { fontSize: FONTS.sm, color: COLORS.textSecondary },
-  priceBox: { alignItems: 'flex-end' },
-  price: { fontSize: FONTS.xl, fontWeight: FONTS.extraBold, color: COLORS.primaryGreen },
-  unit: { fontSize: FONTS.xs, color: COLORS.textMuted },
+  productRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  productEmoji: {fontSize: 36, marginRight: SPACING.md},
+  productInfo: {flex: 1},
+  productName: {
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+  },
+  productNameEn: {fontSize: FONTS.sm, color: COLORS.textMuted},
+  farmerName: {fontSize: FONTS.sm, color: COLORS.textSecondary},
+  priceBox: {alignItems: 'flex-end'},
+  price: {
+    fontSize: FONTS.xl,
+    fontWeight: FONTS.extraBold,
+    color: COLORS.primaryGreen,
+  },
+  unit: {fontSize: FONTS.xs, color: COLORS.textMuted},
 
   // Freshness section
   freshnessSection: {
-    backgroundColor: COLORS.background, borderRadius: RADIUS.lg,
-    padding: SPACING.md, marginBottom: SPACING.md,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
   },
   freshnessHeaderRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: SPACING.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
   },
-  freshnessTitle: { fontSize: FONTS.xs, color: COLORS.textSecondary, fontWeight: FONTS.semiBold, flex: 1 },
-  elapsedTime: { fontSize: FONTS.xs, color: COLORS.primaryGreen, fontWeight: FONTS.bold },
+  freshnessTitle: {
+    fontSize: FONTS.xs,
+    color: COLORS.textSecondary,
+    fontWeight: FONTS.semiBold,
+    flex: 1,
+  },
+  elapsedTime: {
+    fontSize: FONTS.xs,
+    color: COLORS.primaryGreen,
+    fontWeight: FONTS.bold,
+  },
   progressBarBg: {
-    height: 12, backgroundColor: '#E0E0E0',
-    borderRadius: RADIUS.full, overflow: 'hidden', marginBottom: SPACING.sm,
+    height: 12,
+    backgroundColor: '#E0E0E0',
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
+    marginBottom: SPACING.sm,
   },
-  progressBarFill: { height: '100%', borderRadius: RADIUS.full },
-  remainingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  remainingLabel: { fontSize: FONTS.xs, color: COLORS.textMuted, flex: 1 },
-  remainingTime: { fontSize: FONTS.sm, fontWeight: FONTS.bold },
+  progressBarFill: {height: '100%', borderRadius: RADIUS.full},
+  remainingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  remainingLabel: {fontSize: FONTS.xs, color: COLORS.textMuted, flex: 1},
+  remainingTime: {fontSize: FONTS.sm, fontWeight: FONTS.bold},
 
   // Stock warning
   stockWarning: {
-    backgroundColor: '#FFF9E6', borderRadius: RADIUS.md,
-    padding: SPACING.sm, marginBottom: SPACING.md,
-    borderLeftWidth: 3, borderLeftColor: COLORS.accentGold,
+    backgroundColor: '#FFF9E6',
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    marginBottom: SPACING.md,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.accentGold,
   },
-  stockWarningTxt: { fontSize: FONTS.sm, color: COLORS.warning, fontWeight: FONTS.semiBold },
+  stockWarningTxt: {
+    fontSize: FONTS.sm,
+    color: COLORS.warning,
+    fontWeight: FONTS.semiBold,
+  },
 
   // Add button
-  addBtn: { borderRadius: RADIUS.lg, overflow: 'hidden' },
-  addBtnGrad: { paddingVertical: 14, alignItems: 'center' },
-  addBtnTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
+  addBtn: {borderRadius: RADIUS.lg, overflow: 'hidden'},
+  addBtnGrad: {paddingVertical: 14, alignItems: 'center'},
+  addBtnTxt: {color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold},
 });
 
 export default FreshnessTrackerScreen;

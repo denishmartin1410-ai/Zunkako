@@ -4,13 +4,18 @@
 // WhatsApp Community join + Firebase user count
 // ============================================================
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  Linking, Alert, Animated,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+  Alert,
+  Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 
 // WhatsApp Community Links (உன்னுடைய real links இங்கே போடு)
 const COMMUNITY_LINKS = {
@@ -18,15 +23,23 @@ const COMMUNITY_LINKS = {
   consumer: 'https://chat.whatsapp.com/YOUR_CONSUMER_GROUP_INVITE_CODE',
 };
 
-const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
+const CommunityJoinScreen = ({userType, userName, onContinue}) => {
   const [joining, setJoining] = useState(false);
   const fadeAnim = new Animated.Value(0);
   const scaleAnim = new Animated.Value(0.8);
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.spring(scaleAnim, { toValue: 1, friction: 6, useNativeDriver: true }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 6,
+        useNativeDriver: true,
+      }),
     ]).start();
   }, []);
 
@@ -42,7 +55,7 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
         Alert.alert(
           'WhatsApp இல்லை',
           'WhatsApp பதிவிறக்கம் செய்த பிறகு சேரலாம்!\nWhatsApp not installed.',
-          [{ text: 'சரி / OK' }],
+          [{text: 'சரி / OK'}],
         );
       }
     } catch (error) {
@@ -58,18 +71,17 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
         style={styles.bg}>
-
         <Animated.View
-          style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-
+          style={[
+            styles.content,
+            {opacity: fadeAnim, transform: [{scale: scaleAnim}]},
+          ]}>
           {/* Success check */}
           <View style={styles.successIcon}>
             <Text style={styles.successEmoji}>🎉</Text>
           </View>
 
-          <Text style={styles.title}>
-            வரவேற்கிறோம், {userName}!
-          </Text>
+          <Text style={styles.title}>வரவேற்கிறோம், {userName}!</Text>
           <Text style={styles.titleEn}>Welcome to F2C!</Text>
 
           <Text style={styles.subtitle}>
@@ -79,9 +91,7 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
 
           {/* Community join card */}
           <View style={styles.communityCard}>
-            <Text style={styles.communityEmoji}>
-              {isFarmer ? '👨‍🌾' : '🛒'}
-            </Text>
+            <Text style={styles.communityEmoji}>{isFarmer ? '👨‍🌾' : '🛒'}</Text>
             <Text style={styles.communityTitle}>
               {isFarmer
                 ? 'F2C விவசாயிகள் குழுவில் சேரவும்!'
@@ -97,17 +107,17 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
             <View style={styles.benefitsList}>
               {(isFarmer
                 ? [
-                  '📢 New feature updates',
-                  '💡 Farming tips share',
-                  '🤝 Other farmers nearby connect',
-                  '⚡ Priority support available',
-                ]
+                    '📢 New feature updates',
+                    '💡 Farming tips share',
+                    '🤝 Other farmers nearby connect',
+                    '⚡ Priority support available',
+                  ]
                 : [
-                  '🌿 Fresh product alerts',
-                  '💰 Special offers & discounts',
-                  '👨‍🌾 Farmer stories',
-                  '🎁 Exclusive member benefits',
-                ]
+                    '🌿 Fresh product alerts',
+                    '💰 Special offers & discounts',
+                    '👨‍🌾 Farmer stories',
+                    '🎁 Exclusive member benefits',
+                  ]
               ).map((benefit, i) => (
                 <Text key={i} style={styles.benefitItem}>
                   {benefit}
@@ -123,8 +133,8 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
               <LinearGradient
                 colors={['#25D366', '#128C7E']}
                 style={styles.whatsappBtnGrad}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}>
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}>
                 <Text style={styles.whatsappEmoji}>💬</Text>
                 <Text style={styles.whatsappBtnTxt}>
                   {joining
@@ -136,9 +146,7 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
           </View>
 
           {/* Continue button */}
-          <TouchableOpacity
-            style={styles.continueBtn}
-            onPress={onContinue}>
+          <TouchableOpacity style={styles.continueBtn} onPress={onContinue}>
             <Text style={styles.continueBtnTxt}>
               App-ஐ தொடங்கு → / Start Using App →
             </Text>
@@ -155,60 +163,106 @@ const CommunityJoinScreen = ({ userType, userName, onContinue }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  bg: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
-  content: { alignItems: 'center', width: '100%' },
-  successIcon: {
-    width: 90, height: 90, borderRadius: 45,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: SPACING.lg,
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)',
+  container: {flex: 1},
+  bg: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
   },
-  successEmoji: { fontSize: 48 },
-  title: { fontSize: FONTS.xxl, fontWeight: FONTS.bold, color: COLORS.white, textAlign: 'center' },
-  titleEn: { fontSize: FONTS.md, color: 'rgba(255,255,255,0.7)', marginBottom: SPACING.sm },
+  content: {alignItems: 'center', width: '100%'},
+  successIcon: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  successEmoji: {fontSize: 48},
+  title: {
+    fontSize: FONTS.xxl,
+    fontWeight: FONTS.bold,
+    color: COLORS.white,
+    textAlign: 'center',
+  },
+  titleEn: {
+    fontSize: FONTS.md,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: SPACING.sm,
+  },
   subtitle: {
-    fontSize: FONTS.sm, color: 'rgba(255,255,255,0.85)',
-    textAlign: 'center', lineHeight: 20, marginBottom: SPACING.xl,
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.85)',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: SPACING.xl,
   },
   communityCard: {
     backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: RADIUS.xl, padding: SPACING.xl,
-    width: '100%', alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
     marginBottom: SPACING.lg,
   },
-  communityEmoji: { fontSize: 44, marginBottom: SPACING.sm },
+  communityEmoji: {fontSize: 44, marginBottom: SPACING.sm},
   communityTitle: {
-    fontSize: FONTS.lg, fontWeight: FONTS.bold,
-    color: COLORS.white, textAlign: 'center', marginBottom: 4,
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.white,
+    textAlign: 'center',
+    marginBottom: 4,
   },
   communitySubtitle: {
-    fontSize: FONTS.sm, color: 'rgba(255,255,255,0.75)',
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.75)',
     marginBottom: SPACING.md,
   },
-  benefitsList: { width: '100%', marginBottom: SPACING.lg },
+  benefitsList: {width: '100%', marginBottom: SPACING.lg},
   benefitItem: {
-    fontSize: FONTS.sm, color: 'rgba(255,255,255,0.9)',
-    paddingVertical: 3, lineHeight: 20,
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.9)',
+    paddingVertical: 3,
+    lineHeight: 20,
   },
-  whatsappBtn: { width: '100%', borderRadius: RADIUS.lg, overflow: 'hidden' },
+  whatsappBtn: {width: '100%', borderRadius: RADIUS.lg, overflow: 'hidden'},
   whatsappBtnGrad: {
-    paddingVertical: 14, flexDirection: 'row',
-    alignItems: 'center', justifyContent: 'center', gap: SPACING.sm,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
   },
-  whatsappEmoji: { fontSize: 22 },
-  whatsappBtnTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
+  whatsappEmoji: {fontSize: 22},
+  whatsappBtnTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+  },
   continueBtn: {
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)',
-    borderRadius: RADIUS.lg, paddingVertical: 12,
-    paddingHorizontal: SPACING.xxl, marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+    borderRadius: RADIUS.lg,
+    paddingVertical: 12,
+    paddingHorizontal: SPACING.xxl,
+    marginBottom: SPACING.md,
   },
-  continueBtnTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.semiBold },
+  continueBtnTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.semiBold,
+  },
   skipTxt: {
-    fontSize: FONTS.xs, color: 'rgba(255,255,255,0.55)',
-    textAlign: 'center', lineHeight: 16,
+    fontSize: FONTS.xs,
+    color: 'rgba(255,255,255,0.55)',
+    textAlign: 'center',
+    lineHeight: 16,
   },
 });
 

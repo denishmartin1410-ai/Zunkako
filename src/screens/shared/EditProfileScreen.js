@@ -20,7 +20,15 @@ import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {useTheme} from '../../context/ThemeContext';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
 const {width} = Dimensions.get('window');
@@ -35,26 +43,47 @@ const Field = ({
   placeholder,
   keyboard = 'default',
   editable = true,
-}) => (
-  <View style={styles.fieldWrap}>
-    <Text style={styles.fieldLabel}>{label}</Text>
-    <TextInput
-      style={[styles.fieldInput, !editable && styles.fieldDisabled]}
-      value={value}
-      onChangeText={onChangeText}
-      placeholder={placeholder}
-      placeholderTextColor={COLORS.textGray}
-      keyboardType={keyboard}
-      autoCorrect={false}
-      autoCapitalize="none"
-      editable={editable}
-    />
-  </View>
-);
+}) => {
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
+  return (
+    <View style={styles.fieldWrap}>
+      <Text style={[styles.fieldLabel, {color: themeColors.text}]}>
+        {label}
+      </Text>
+      <TextInput
+        style={[
+          styles.fieldInput,
+          {
+            backgroundColor: themeColors.inputBg,
+            borderColor: themeColors.border,
+            color: themeColors.text,
+          },
+          !editable && {
+            backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
+            color: themeColors.textMuted,
+          },
+        ]}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={
+          isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+        }
+        keyboardType={keyboard}
+        autoCorrect={false}
+        autoCapitalize="none"
+        editable={editable}
+      />
+    </View>
+  );
+};
 
 const EditProfileScreen = ({navigation}) => {
   const {t} = useTranslation();
   const {user, updateUser} = useAuth();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
 
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -199,7 +228,7 @@ const EditProfileScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1565C0']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <View style={{flex: 1, alignItems: 'center'}}>
@@ -236,7 +265,7 @@ const EditProfileScreen = ({navigation}) => {
               )}
             </View>
           </TouchableOpacity>
-          <Text style={styles.avatarHint}>
+          <Text style={[styles.avatarHint, {color: themeColors.textMuted}]}>
             {t('profile.tapToChange', {
               defaultValue:
                 'புகைப்படம் மாற்ற கிளிக் செய்யவும் / Tap to change photo',
@@ -245,8 +274,16 @@ const EditProfileScreen = ({navigation}) => {
         </View>
 
         {/* Form */}
-        <View style={styles.formCard}>
-          <Text style={styles.sectionTitle}>
+        <View
+          style={[
+            styles.formCard,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              borderWidth: 1,
+            },
+          ]}>
+          <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
             👤 {t('profile.basicInfo', {defaultValue: 'அடிப்படை தகவல்'})}
           </Text>
           <Field

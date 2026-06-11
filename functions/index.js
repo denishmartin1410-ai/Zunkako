@@ -42,47 +42,71 @@ exports.sendOrderStatusSMS = functions.firestore
     // ── Status-க்கு ஏற்ற Tamil message ──
     const statusMessages = {
       Confirmed: {
-        consumer: `✅ F2C Order Confirmed!\nஉங்கள் Order #${orderId.slice(-4)} உறுதி செய்யப்பட்டது.\nமொத்தம்: ₹${newData.total}\nவிரைவில் டெலிவரி வரும்!`,
-        farmer: `🛒 புதிய Order!\nOrder #${orderId.slice(-4)} confirm ஆச்சு.\nமொத்தம்: ₹${newData.total}\nF2C App-ல் பார்க்கவும்.`,
+        consumer: `✅ F2C Order Confirmed!\nஉங்கள் Order #${orderId.slice(
+          -4,
+        )} உறுதி செய்யப்பட்டது.\nமொத்தம்: ₹${
+          newData.total
+        }\nவிரைவில் டெலிவரி வரும்!`,
+        farmer: `🛒 புதிய Order!\nOrder #${orderId.slice(
+          -4,
+        )} confirm ஆச்சு.\nமொத்தம்: ₹${newData.total}\nF2C App-ல் பார்க்கவும்.`,
       },
       Shipped: {
-        consumer: `🚚 F2C Delivery On the Way!\nஉங்கள் Order #${orderId.slice(-4)} அனுப்பப்பட்டது.\n30-60 நிமிடத்தில் வரும்!\nTrack: f2capp.com/track/${orderId}`,
-        farmer: `📦 Order அனுப்பப்பட்டது!\nOrder #${orderId.slice(-4)} delivery boy-கிட்ட கொடுக்கப்பட்டது.`,
+        consumer: `🚚 F2C Delivery On the Way!\nஉங்கள் Order #${orderId.slice(
+          -4,
+        )} அனுப்பப்பட்டது.\n30-60 நிமிடத்தில் வரும்!\nTrack: f2capp.com/track/${orderId}`,
+        farmer: `📦 Order அனுப்பப்பட்டது!\nOrder #${orderId.slice(
+          -4,
+        )} delivery boy-கிட்ட கொடுக்கப்பட்டது.`,
       },
       Delivered: {
-        consumer: `🎉 F2C Delivered!\nஉங்கள் Order #${orderId.slice(-4)} கிடைத்தது!\nF2C-ல் shop பண்ணியதற்கு நன்றி 🌿\nReview தரவும்: f2capp.com/review`,
-        farmer: `💰 Order Delivered!\nOrder #${orderId.slice(-4)} successfully delivered!\nPayment 2 நாட்களில் வரும்.`,
+        consumer: `🎉 F2C Delivered!\nஉங்கள் Order #${orderId.slice(
+          -4,
+        )} கிடைத்தது!\nF2C-ல் shop பண்ணியதற்கு நன்றி 🌿\nReview தரவும்: f2capp.com/review`,
+        farmer: `💰 Order Delivered!\nOrder #${orderId.slice(
+          -4,
+        )} successfully delivered!\nPayment 2 நாட்களில் வரும்.`,
       },
       Cancelled: {
-        consumer: `❌ F2C Order Cancelled\nOrder #${orderId.slice(-4)} cancel ஆச்சு.\nRefund: 3-5 business days.\nSupport: 9876543210`,
-        farmer: `⚠️ Order Cancel!\nOrder #${orderId.slice(-4)} consumer cancel பண்ணினார்.`,
+        consumer: `❌ F2C Order Cancelled\nOrder #${orderId.slice(
+          -4,
+        )} cancel ஆச்சு.\nRefund: 3-5 business days.\nSupport: 9876543210`,
+        farmer: `⚠️ Order Cancel!\nOrder #${orderId.slice(
+          -4,
+        )} consumer cancel பண்ணினார்.`,
       },
     };
 
     const messages = statusMessages[newData.status];
-    if (!messages) return null;
+    if (!messages) {
+      return null;
+    }
 
     const smsPromises = [];
 
     // Consumer-க்கு SMS
     if (newData.consumerPhone) {
       smsPromises.push(
-        client.messages.create({
-          body: messages.consumer,
-          from: twilioPhone,
-          to: '+91' + newData.consumerPhone,
-        }).catch(err => console.log('Consumer SMS error:', err))
+        client.messages
+          .create({
+            body: messages.consumer,
+            from: twilioPhone,
+            to: '+91' + newData.consumerPhone,
+          })
+          .catch(err => console.log('Consumer SMS error:', err)),
       );
     }
 
     // Farmer-க்கு SMS
     if (newData.farmerPhone) {
       smsPromises.push(
-        client.messages.create({
-          body: messages.farmer,
-          from: twilioPhone,
-          to: '+91' + newData.farmerPhone,
-        }).catch(err => console.log('Farmer SMS error:', err))
+        client.messages
+          .create({
+            body: messages.farmer,
+            from: twilioPhone,
+            to: '+91' + newData.farmerPhone,
+          })
+          .catch(err => console.log('Farmer SMS error:', err)),
       );
     }
 
@@ -106,13 +130,19 @@ exports.sendNewOrderSMS = functions.firestore
 
     // Farmer-க்கு new order SMS
     if (orderData.farmerPhone) {
-      const message = `🌾 F2C - புதிய Order!\nOrder #${orderId.slice(-4)}\nConsumer: ${orderData.consumerName}\nமொத்தம்: ₹${orderData.total}\nஉடனே App-ல் accept பண்ணவும்!`;
+      const message = `🌾 F2C - புதிய Order!\nOrder #${orderId.slice(
+        -4,
+      )}\nConsumer: ${orderData.consumerName}\nமொத்தம்: ₹${
+        orderData.total
+      }\nஉடனே App-ல் accept பண்ணவும்!`;
 
-      await client.messages.create({
-        body: message,
-        from: twilioPhone,
-        to: '+91' + orderData.farmerPhone,
-      }).catch(err => console.log('New order SMS error:', err));
+      await client.messages
+        .create({
+          body: message,
+          from: twilioPhone,
+          to: '+91' + orderData.farmerPhone,
+        })
+        .catch(err => console.log('New order SMS error:', err));
     }
 
     return null;
@@ -129,7 +159,9 @@ exports.sendWhatsAppUpdate = functions.firestore
     const oldData = change.before.data();
     const orderId = context.params.orderId;
 
-    if (newData.status === oldData.status) return null;
+    if (newData.status === oldData.status) {
+      return null;
+    }
 
     const client = getTwilioClient();
     const twilioWhatsApp = 'whatsapp:+14155238886'; // Twilio WhatsApp Sandbox
@@ -138,34 +170,52 @@ exports.sendWhatsAppUpdate = functions.firestore
     if (newData.status === 'Refund Requested') {
       const adminWhatsAppNumber = 'whatsapp:+919360425423';
       const orderDisplayId = newData.orderId || orderId;
-      const adminMessage = `*Refund Request*\n\nOrder ID: ${orderDisplayId}\nCustomer: ${newData.consumerName || 'Customer'}\nTotal Amount: ₹${newData.total}\n\nPlease process this refund.`;
+      const adminMessage = `*Refund Request*\n\nOrder ID: ${orderDisplayId}\nCustomer: ${
+        newData.consumerName || 'Customer'
+      }\nTotal Amount: ₹${newData.total}\n\nPlease process this refund.`;
 
-      await client.messages.create({
-        body: adminMessage,
-        from: twilioWhatsApp,
-        to: adminWhatsAppNumber,
-      }).catch(err => console.log('Admin Refund WhatsApp error:', err));
+      await client.messages
+        .create({
+          body: adminMessage,
+          from: twilioWhatsApp,
+          to: adminWhatsAppNumber,
+        })
+        .catch(err => console.log('Admin Refund WhatsApp error:', err));
 
       return null;
     }
 
     // WhatsApp support பண்றவர்கள் மட்டும்
-    if (!newData.consumerWhatsApp) return null;
+    if (!newData.consumerWhatsApp) {
+      return null;
+    }
 
     const waMessages = {
-      Confirmed: `✅ *F2C Order Confirmed!*\n\nOrder ID: #${orderId.slice(-4)}\nமொத்தம்: ₹${newData.total}\n\n📦 உங்கள் order process ஆகிறது...\n🚚 விரைவில் deliver ஆகும்!\n\nTrack: f2capp.com/track/${orderId}`,
-      Shipped: `🚚 *உங்கள் Order வருகிறது!*\n\nOrder #${orderId.slice(-4)} on the way!\n⏱ 30-60 நிமிடத்தில் கிடைக்கும்\n\n📍 Live Track: f2capp.com/track/${orderId}`,
-      Delivered: `🎉 *Delivered Successfully!*\n\nOrder #${orderId.slice(-4)} கிடைத்தது!\n\n⭐ Review தரவும் - உங்கள் feedback எங்களுக்கு முக்கியம்!\nf2capp.com/review/${orderId}\n\n🌿 F2C-ல் shop பண்ணியதற்கு நன்றி!`,
+      Confirmed: `✅ *F2C Order Confirmed!*\n\nOrder ID: #${orderId.slice(
+        -4,
+      )}\nமொத்தம்: ₹${
+        newData.total
+      }\n\n📦 உங்கள் order process ஆகிறது...\n🚚 விரைவில் deliver ஆகும்!\n\nTrack: f2capp.com/track/${orderId}`,
+      Shipped: `🚚 *உங்கள் Order வருகிறது!*\n\nOrder #${orderId.slice(
+        -4,
+      )} on the way!\n⏱ 30-60 நிமிடத்தில் கிடைக்கும்\n\n📍 Live Track: f2capp.com/track/${orderId}`,
+      Delivered: `🎉 *Delivered Successfully!*\n\nOrder #${orderId.slice(
+        -4,
+      )} கிடைத்தது!\n\n⭐ Review தரவும் - உங்கள் feedback எங்களுக்கு முக்கியம்!\nf2capp.com/review/${orderId}\n\n🌿 F2C-ல் shop பண்ணியதற்கு நன்றி!`,
     };
 
     const waMessage = waMessages[newData.status];
-    if (!waMessage) return null;
+    if (!waMessage) {
+      return null;
+    }
 
-    await client.messages.create({
-      body: waMessage,
-      from: twilioWhatsApp,
-      to: 'whatsapp:+91' + newData.consumerWhatsApp,
-    }).catch(err => console.log('WhatsApp error:', err));
+    await client.messages
+      .create({
+        body: waMessage,
+        from: twilioWhatsApp,
+        to: 'whatsapp:+91' + newData.consumerWhatsApp,
+      })
+      .catch(err => console.log('WhatsApp error:', err));
 
     return null;
   });
@@ -179,20 +229,27 @@ exports.sendCustomOTP = functions.https.onCall(async (data, context) => {
   const {phone} = data;
 
   if (!phone) {
-    throw new functions.https.HttpsError('invalid-argument', 'Phone number required');
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Phone number required',
+    );
   }
 
   // Random 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   // Firestore-ல் OTP save (5 minutes valid)
-  await admin.firestore().collection('otps').doc(phone).set({
-    otp,
-    expiresAt: admin.firestore.Timestamp.fromDate(
-      new Date(Date.now() + 5 * 60 * 1000)
-    ),
-    verified: false,
-  });
+  await admin
+    .firestore()
+    .collection('otps')
+    .doc(phone)
+    .set({
+      otp,
+      expiresAt: admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() + 5 * 60 * 1000),
+      ),
+      verified: false,
+    });
 
   // SMS அனுப்பு
   const client = getTwilioClient();

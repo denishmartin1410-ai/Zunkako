@@ -22,8 +22,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useCart} from '../../context/CartContext';
 import {useAuth} from '../../context/AuthContext';
 import {useTranslation} from 'react-i18next';
+import {useTheme} from '../../context/ThemeContext';
 import {createOrder, getUserProfile} from '../../services/firebase';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
 import {getLocalProductName} from '../../utils/translationHelper';
@@ -36,6 +44,8 @@ const CheckoutScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const {user} = useAuth();
   const {cartItems, totalAmount, clearCart} = useCart();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const [customerName, setCustomerName] = useState(user?.name || '');
   const [address, setAddress] = useState(user?.address || user?.location || '');
   const [pincode, setPincode] = useState(user?.pincode || '');
@@ -256,7 +266,7 @@ const CheckoutScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>
@@ -270,27 +280,44 @@ const CheckoutScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
         {/* ✅ Delivery Details - Name, Address, Pincode */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              borderWidth: isDark ? 1 : 0,
+            },
+          ]}>
+          <Text style={[styles.cardTitle, {color: themeColors.text}]}>
             📋{' '}
             {t('checkout.deliveryDetails', {defaultValue: 'டெலிவரி விவரங்கள்'})}
           </Text>
           <View style={styles.formField}>
-            <Text style={styles.formLabel}>
+            <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.name', {defaultValue: 'பெயர்'})} *
             </Text>
             <TextInput
-              style={styles.formInput}
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: themeColors.inputBg,
+                  borderColor: themeColors.border,
+                  color: themeColors.text,
+                },
+              ]}
               value={customerName}
               onChangeText={setCustomerName}
               placeholder={t('checkout.namePlaceholder', {
                 defaultValue: 'உங்கள் பெயர்',
               })}
-              placeholderTextColor={COLORS.textGray}
+              placeholderTextColor={
+                isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+              }
             />
           </View>
           <View style={styles.formField}>
-            <Text style={styles.formLabel}>
+            <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.address', {defaultValue: 'முகவரி'})} *
             </Text>
             <TextInput
@@ -300,6 +327,9 @@ const CheckoutScreen = ({navigation}) => {
                   height: rs(80),
                   textAlignVertical: 'top',
                   paddingTop: SPACING.md,
+                  backgroundColor: themeColors.inputBg,
+                  borderColor: themeColors.border,
+                  color: themeColors.text,
                 },
               ]}
               value={address}
@@ -307,29 +337,40 @@ const CheckoutScreen = ({navigation}) => {
               placeholder={t('checkout.addressPlaceholder', {
                 defaultValue: 'முழு முகவரி நிரப்பவும்',
               })}
-              placeholderTextColor={COLORS.textGray}
+              placeholderTextColor={
+                isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+              }
               multiline
             />
           </View>
           <View style={styles.formField}>
-            <Text style={styles.formLabel}>
+            <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.pincode', {defaultValue: 'PIN கோடு'})} *
             </Text>
             <TextInput
-              style={styles.formInput}
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: themeColors.inputBg,
+                  borderColor: themeColors.border,
+                  color: themeColors.text,
+                },
+              ]}
               value={pincode}
               onChangeText={setPincode}
               placeholder={t('checkout.pincodePlaceholder', {
                 defaultValue: '6 இலக்க PIN கோடு',
               })}
-              placeholderTextColor={COLORS.textGray}
+              placeholderTextColor={
+                isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+              }
               keyboardType="numeric"
               maxLength={6}
             />
           </View>
           {/* GPS Location details selector */}
           <View style={styles.formField}>
-            <Text style={styles.formLabel}>
+            <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.gpsLocation', {
                 defaultValue: 'GPS இருப்பிடம் / GPS Location',
               })}{' '}
@@ -342,9 +383,11 @@ const CheckoutScreen = ({navigation}) => {
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  backgroundColor: '#F5F5F5',
+                  backgroundColor: themeColors.inputBg,
                   borderColor: consumerLocation
-                    ? COLORS.primaryGreen
+                    ? isDark
+                      ? '#4CAF50'
+                      : COLORS.primaryGreen
                     : COLORS.accentRed,
                   borderWidth: 1.5,
                 },
@@ -354,7 +397,9 @@ const CheckoutScreen = ({navigation}) => {
               <Text
                 style={{
                   color: consumerLocation
-                    ? COLORS.primaryGreen
+                    ? isDark
+                      ? '#4CAF50'
+                      : COLORS.primaryGreen
                     : COLORS.accentRed,
                   fontWeight: 'bold',
                   fontSize: rs(FONTS.sm),
@@ -378,17 +423,26 @@ const CheckoutScreen = ({navigation}) => {
             </TouchableOpacity>
           </View>
           <View style={styles.formField}>
-            <Text style={styles.formLabel}>
+            <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.phone', {defaultValue: 'Phone Number'})} *
             </Text>
             <TextInput
-              style={styles.formInput}
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: themeColors.inputBg,
+                  borderColor: themeColors.border,
+                  color: themeColors.text,
+                },
+              ]}
               value={phone}
               onChangeText={setPhone}
               placeholder={t('checkout.phonePlaceholder', {
                 defaultValue: 'Enter 10-digit Phone Number',
               })}
-              placeholderTextColor={COLORS.textGray}
+              placeholderTextColor={
+                isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+              }
               keyboardType="phone-pad"
               maxLength={10}
             />
@@ -396,8 +450,16 @@ const CheckoutScreen = ({navigation}) => {
         </View>
 
         {/* Order Items */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              borderWidth: isDark ? 1 : 0,
+            },
+          ]}>
+          <Text style={[styles.cardTitle, {color: themeColors.text}]}>
             🛒 {t('checkout.yourOrder', {defaultValue: 'உங்கள் ஆர்டர்'})}
           </Text>
           {cartItems.map((item, i) => (
@@ -405,17 +467,24 @@ const CheckoutScreen = ({navigation}) => {
               key={i}
               style={[
                 styles.itemRow,
-                i < cartItems.length - 1 && styles.itemBorder,
+                i < cartItems.length - 1 && {
+                  borderBottomWidth: 1,
+                  borderBottomColor: themeColors.border,
+                },
               ]}>
               <View style={{flex: 1}}>
-                <Text style={styles.itemName}>
+                <Text style={[styles.itemName, {color: themeColors.text}]}>
                   {getLocalProductName(item.name, item.nameTa, i18n.language)}
                 </Text>
-                <Text style={styles.itemQty}>
+                <Text style={[styles.itemQty, {color: themeColors.textMuted}]}>
                   x{item.quantity} × ₹{item.consumerPrice || item.price}
                 </Text>
               </View>
-              <Text style={styles.itemTotal}>
+              <Text
+                style={[
+                  styles.itemTotal,
+                  {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+                ]}>
                 ₹{(item.consumerPrice || item.price) * item.quantity}
               </Text>
             </View>
@@ -423,46 +492,80 @@ const CheckoutScreen = ({navigation}) => {
         </View>
 
         {/* Price */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              borderWidth: isDark ? 1 : 0,
+            },
+          ]}>
+          <Text style={[styles.cardTitle, {color: themeColors.text}]}>
             💰 {t('checkout.priceDetails', {defaultValue: 'தொகை விவரம்'})}
           </Text>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>
+            <Text style={[styles.priceLabel, {color: themeColors.subText}]}>
               {t('checkout.subtotal', {defaultValue: 'தொகை'})}
             </Text>
-            <Text style={styles.priceVal}>₹{totalAmount}</Text>
+            <Text style={[styles.priceVal, {color: themeColors.text}]}>
+              ₹{totalAmount}
+            </Text>
           </View>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>
+            <Text style={[styles.priceLabel, {color: themeColors.subText}]}>
               {t('checkout.delivery', {defaultValue: 'டெலிவரி'})}
             </Text>
             <Text
               style={[
                 styles.priceVal,
-                deliveryFee === 0 && {color: COLORS.primaryGreen},
+                deliveryFee === 0
+                  ? {color: isDark ? '#4CAF50' : COLORS.primaryGreen}
+                  : {color: themeColors.text},
               ]}>
               {deliveryFee === 0
                 ? t('checkout.free', {defaultValue: 'இலவசம்!'})
                 : `₹${deliveryFee}`}
             </Text>
           </View>
-          <View style={[styles.priceRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>
+          <View
+            style={[
+              styles.priceRow,
+              styles.totalRow,
+              {borderTopColor: themeColors.border},
+            ]}>
+            <Text style={[styles.totalLabel, {color: themeColors.text}]}>
               {t('checkout.total', {defaultValue: 'மொத்தம்'})}
             </Text>
-            <Text style={styles.totalVal}>₹{finalAmount}</Text>
+            <Text
+              style={[
+                styles.totalVal,
+                {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+              ]}>
+              ₹{finalAmount}
+            </Text>
           </View>
         </View>
 
         {/* COD Note */}
-        <View style={styles.codCard}>
+        <View
+          style={[
+            styles.codCard,
+            {
+              backgroundColor: isDark ? '#14251B' : '#E8F5E9',
+              borderLeftColor: isDark ? '#4CAF50' : COLORS.primaryGreen,
+            },
+          ]}>
           <Text style={styles.codIcon}>💵</Text>
           <View style={{flex: 1}}>
-            <Text style={styles.codTitle}>
+            <Text
+              style={[
+                styles.codTitle,
+                {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+              ]}>
               {t('checkout.cod', {defaultValue: 'Cash on Delivery'})}
             </Text>
-            <Text style={styles.codSub}>
+            <Text style={[styles.codSub, {color: themeColors.subText}]}>
               {t('checkout.codSub', {
                 defaultValue: 'பொருள் வந்ததும் பணம் கொடுக்கலாம்',
               })}
@@ -472,12 +575,25 @@ const CheckoutScreen = ({navigation}) => {
       </ScrollView>
 
       {/* Place Order Button */}
-      <View style={styles.bottomBar}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderTopColor: themeColors.border,
+          },
+        ]}>
         <View>
-          <Text style={styles.totalSmall}>
+          <Text style={[styles.totalSmall, {color: themeColors.textMuted}]}>
             {t('checkout.total', {defaultValue: 'மொத்தம்'})}
           </Text>
-          <Text style={styles.totalBig}>₹{finalAmount}</Text>
+          <Text
+            style={[
+              styles.totalBig,
+              {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+            ]}>
+            ₹{finalAmount}
+          </Text>
         </View>
         <TouchableOpacity
           style={styles.orderBtn}

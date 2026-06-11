@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTranslation } from 'react-i18next';
-import { COLORS, FONTS } from '../utils/theme';
+import {View, Text, StyleSheet, Platform} from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useTranslation} from 'react-i18next';
+import {COLORS, FONTS} from '../utils/theme';
 
 // Farmer Screens
 import FarmerDashboardScreen from '../screens/farmer/FarmerDashboardScreen';
@@ -19,71 +19,98 @@ import NotificationScreen from '../screens/shared/NotificationScreen';
 import EditProfileScreen from '../screens/shared/EditProfileScreen';
 import HelpAboutScreen from '../screens/shared/HelpAboutScreen';
 import FarmerQRScreen from '../screens/farmer/FarmerQRScreen';
-import { FarmerChatListScreen, FarmerCustomerChatRoomScreen } from '../screens/farmer/FarmerCustomerChatScreen';
+import {
+  FarmerChatListScreen,
+  FarmerCustomerChatRoomScreen,
+} from '../screens/farmer/FarmerCustomerChatScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TabIcon = ({ label, emoji, focused }) => (
+const TabIcon = ({label, emoji, focused}) => (
   <View style={styles.tabIconContainer}>
-    <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>{emoji}</Text>
-    <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
+    <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>
+      {emoji}
+    </Text>
+    <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
+      {label}
+    </Text>
   </View>
 );
 
 const FarmerTabs = () => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   return (
-  <Tab.Navigator
-    screenOptions={{
-      headerShown: false,
-      tabBarStyle: styles.tabBar,
-      tabBarShowLabel: false,
-    }}>
-    <Tab.Screen
-      name="Dashboard"
-      component={FarmerDashboardScreen}
-      options={{
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={t('nav.dashboard', {defaultValue: 'டாஷ்போர்டு'})} emoji="📊" focused={focused} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="MyProducts"
-      component={MyProductsScreen}
-      options={{
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={t('nav.products', {defaultValue: 'தயாரிப்புகள்'})} emoji="🥬" focused={focused} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="FarmerOrders"
-      component={FarmerOrdersScreen}
-      options={{
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={t('nav.orders', {defaultValue: 'ஆர்டர்கள்'})} emoji="📦" focused={focused} />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="FarmerProfile"
-      component={FarmerProfileScreen}
-      options={{
-        tabBarIcon: ({ focused }) => (
-          <TabIcon label={t('nav.profile', {defaultValue: 'சுயவிவரம்'})} emoji="👨‍🌾" focused={focused} />
-        ),
-      }}
-    />
-  </Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarShowLabel: false,
+      }}>
+      <Tab.Screen
+        name="Dashboard"
+        component={FarmerDashboardScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={t('nav.dashboard', {defaultValue: 'டாஷ்போர்டு'})}
+              emoji="📊"
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="MyProducts"
+        component={MyProductsScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={t('nav.products', {defaultValue: 'தயாரிப்புகள்'})}
+              emoji="🥬"
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="FarmerOrders"
+        component={FarmerOrdersScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={t('nav.orders', {defaultValue: 'ஆர்டர்கள்'})}
+              emoji="📦"
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="FarmerProfile"
+        component={FarmerProfileScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={t('nav.profile', {defaultValue: 'சுயவிவரம்'})}
+              emoji="👨‍🌾"
+              focused={focused}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 
 const FarmerNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
+  <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen name="FarmerTabs" component={FarmerTabs} />
-    <Stack.Screen name="AddProduct" component={AddProductScreen} options={{ animation: 'slide_from_bottom' }} />
+    <Stack.Screen
+      name="AddProduct"
+      component={AddProductScreen}
+      options={{animation: 'slide_from_bottom'}}
+    />
     <Stack.Screen name="EditProduct" component={EditProductScreen} />
     <Stack.Screen name="StoryVideo" component={StoryVideoScreen} />
     <Stack.Screen name="Settings" component={SettingsScreen} />
@@ -92,8 +119,15 @@ const FarmerNavigator = () => (
     <Stack.Screen name="HelpAbout" component={HelpAboutScreen} />
     <Stack.Screen name="FarmerQR" component={FarmerQRScreen} />
     <Stack.Screen name="FarmerCustomerChats" component={FarmerChatListScreen} />
-    <Stack.Screen name="FarmerCustomerChatRoom" component={FarmerCustomerChatRoomScreen} />
-    <Stack.Screen name="FarmerAddHarvest" component={FarmerAddHarvestScreen} options={{ animation: 'slide_from_bottom' }} />
+    <Stack.Screen
+      name="FarmerCustomerChatRoom"
+      component={FarmerCustomerChatRoomScreen}
+    />
+    <Stack.Screen
+      name="FarmerAddHarvest"
+      component={FarmerAddHarvestScreen}
+      options={{animation: 'slide_from_bottom'}}
+    />
   </Stack.Navigator>
 );
 
@@ -109,17 +143,21 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: COLORS.primaryGreen,
-    shadowOffset: { width: 0, height: -4 },
+    shadowOffset: {width: 0, height: -4},
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 12,
     paddingBottom: Platform.OS === 'ios' ? 16 : 8,
   },
-  tabIconContainer: { alignItems: 'center', justifyContent: 'center', paddingTop: 8 },
-  tabEmoji: { fontSize: 22, opacity: 0.5 },
-  tabEmojiActive: { opacity: 1 },
-  tabLabel: { fontSize: FONTS.xs, color: COLORS.textMuted, marginTop: 2 },
-  tabLabelActive: { color: COLORS.primaryGreen, fontWeight: FONTS.bold },
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 8,
+  },
+  tabEmoji: {fontSize: 22, opacity: 0.5},
+  tabEmojiActive: {opacity: 1},
+  tabLabel: {fontSize: FONTS.xs, color: COLORS.textMuted, marginTop: 2},
+  tabLabelActive: {color: COLORS.primaryGreen, fontWeight: FONTS.bold},
 });
 
 export default FarmerNavigator;

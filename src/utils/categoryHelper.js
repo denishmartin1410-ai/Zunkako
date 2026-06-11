@@ -7,7 +7,11 @@
 // <Text>{getCatName(cat, i18n.language)}</Text>
 
 export const getCatName = (cat, lang) => {
-  if (lang === 'en') return cat.nameEn || cat.nameTa;
-  if (lang === 'ml') return cat.nameMl || cat.nameTa;
+  if (lang === 'en') {
+    return cat.nameEn || cat.nameTa;
+  }
+  if (lang === 'ml') {
+    return cat.nameMl || cat.nameTa;
+  }
   return cat.nameTa; // default Tamil
 };

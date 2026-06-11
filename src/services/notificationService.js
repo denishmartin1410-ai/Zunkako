@@ -6,7 +6,7 @@
 import messaging from '@react-native-firebase/messaging';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert, Platform } from 'react-native';
+import {Alert, Platform} from 'react-native';
 
 // ════════════════════════════════════════
 // STEP 1: App திறக்கும்போது Permission கேளு
@@ -39,19 +39,18 @@ export const requestNotificationPermission = async () => {
 export const saveFCMToken = async () => {
   try {
     const userId = await AsyncStorage.getItem('@F2C_userId');
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
 
     const token = await messaging().getToken();
 
     // Firestore-ல் user-ன் FCM token save
-    await firestore()
-      .collection('users')
-      .doc(userId)
-      .update({
-        fcmToken: token,
-        tokenUpdatedAt: firestore.FieldValue.serverTimestamp(),
-        platform: Platform.OS,
-      });
+    await firestore().collection('users').doc(userId).update({
+      fcmToken: token,
+      tokenUpdatedAt: firestore.FieldValue.serverTimestamp(),
+      platform: Platform.OS,
+    });
 
     await AsyncStorage.setItem('@F2C_fcmToken', token);
     console.log('FCM Token saved:', token);
@@ -67,14 +66,12 @@ export const setupForegroundNotifications = () => {
   const unsubscribe = messaging().onMessage(async remoteMessage => {
     console.log('Foreground notification:', remoteMessage);
 
-    const { title, body } = remoteMessage.notification || {};
+    const {title, body} = remoteMessage.notification || {};
 
     // Alert-ஆக காட்டு (Toast message பயன்படுத்தலாம்)
-    Alert.alert(
-      title || 'F2C அறிவிப்பு',
-      body || 'புதிய செய்தி வந்தது!',
-      [{ text: 'சரி' }],
-    );
+    Alert.alert(title || 'F2C அறிவிப்பு', body || 'புதிய செய்தி வந்தது!', [
+      {text: 'சரி'},
+    ]);
   });
 
   return unsubscribe;
@@ -107,18 +104,20 @@ export const setupBackgroundNotifications = navigation => {
 const handleNotificationNavigation = (remoteMessage, navigation) => {
   const data = remoteMessage?.data;
 
-  if (!data || !navigation) return;
+  if (!data || !navigation) {
+    return;
+  }
 
   switch (data.type) {
     case 'order_update':
-      navigation.navigate('OrderDetail', { orderId: data.orderId });
+      navigation.navigate('OrderDetail', {orderId: data.orderId});
       break;
     case 'new_order':
       navigation.navigate('FarmerOrders');
       break;
     case 'new_message':
       navigation.navigate('FarmerChatRoom', {
-        farmer: { id: data.farmerId },
+        farmer: {id: data.farmerId},
       });
       break;
     case 'pre_order_ready':
@@ -135,10 +134,7 @@ const handleNotificationNavigation = (remoteMessage, navigation) => {
 // ════════════════════════════════════════
 export const sendTestNotification = async userId => {
   try {
-    const userDoc = await firestore()
-      .collection('users')
-      .doc(userId)
-      .get();
+    const userDoc = await firestore().collection('users').doc(userId).get();
 
     const fcmToken = userDoc.data()?.fcmToken;
     if (!fcmToken) {

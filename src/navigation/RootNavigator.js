@@ -6,11 +6,11 @@
 // ============================================================
 
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../context/AuthContext';
-import { COLORS } from '../utils/theme';
+import {View, ActivityIndicator, StyleSheet} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useAuth} from '../context/AuthContext';
+import {COLORS} from '../utils/theme';
 
 import AuthNavigator from './AuthNavigator';
 import ConsumerNavigator from './ConsumerNavigator';
@@ -21,53 +21,50 @@ import DeliveryNavigator from './DeliveryNavigator';
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-  const { isAuthenticated, isLoading, userType } = useAuth();
+  const {isAuthenticated, isLoading, userType} = useAuth();
 
   // ✅ App loading-ல் இருக்கும்போது spinner காட்டு
   // Firebase auth state check ஆகும்வரை
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primaryGreen}
-        />
+        <ActivityIndicator size="large" color={COLORS.primaryGreen} />
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{headerShown: false}}>
         {!isAuthenticated ? (
           <Stack.Screen
             name="Auth"
             component={AuthNavigator}
-            options={{ animationTypeForReplace: 'pop' }}
+            options={{animationTypeForReplace: 'pop'}}
           />
         ) : userType === 'admin' ? (
           <Stack.Screen
             name="Admin"
             component={AdminNavigator}
-            options={{ animationTypeForReplace: 'push' }}
+            options={{animationTypeForReplace: 'push'}}
           />
         ) : userType === 'delivery' ? (
           <Stack.Screen
             name="Delivery"
             component={DeliveryNavigator}
-            options={{ animationTypeForReplace: 'push' }}
+            options={{animationTypeForReplace: 'push'}}
           />
         ) : userType === 'farmer' ? (
           <Stack.Screen
             name="Farmer"
             component={FarmerNavigator}
-            options={{ animationTypeForReplace: 'push' }}
+            options={{animationTypeForReplace: 'push'}}
           />
         ) : (
           <Stack.Screen
             name="Consumer"
             component={ConsumerNavigator}
-            options={{ animationTypeForReplace: 'push' }}
+            options={{animationTypeForReplace: 'push'}}
           />
         )}
       </Stack.Navigator>

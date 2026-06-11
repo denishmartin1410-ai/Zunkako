@@ -79,15 +79,15 @@ export const FONTS = {
   // Font Sizes - பெரியவர்கள் முதல் சிறியவர்கள்
   // வரை அனைவரும் தெளிவாக படிக்க வேண்டும்
   // ─────────────────────────────────────────
-  xs: 13,       // முன்பு: 10  → இப்போ: 13  (tags, badges)
-  sm: 15,       // முன்பு: 12  → இப்போ: 15  (sub labels, hints)
-  md: 17,       // முன்பு: 14  → இப்போ: 17  (body text, inputs)
-  lg: 19,       // முன்பு: 16  → இப்போ: 19  (section titles)
-  xl: 22,       // முன்பு: 18  → இப்போ: 22  (card titles)
-  xxl: 26,      // முன்பு: 22  → இப்போ: 26  (screen titles)
-  xxxl: 32,     // முன்பு: 28  → இப்போ: 32  (hero text)
-  display: 42,  // முன்பு: 36  → இப்போ: 42  (big numbers)
-  hero: 52,     // முன்பு: 44  → இப்போ: 52  (splash/welcome)
+  xs: 13, // முன்பு: 10  → இப்போ: 13  (tags, badges)
+  sm: 15, // முன்பு: 12  → இப்போ: 15  (sub labels, hints)
+  md: 17, // முன்பு: 14  → இப்போ: 17  (body text, inputs)
+  lg: 19, // முன்பு: 16  → இப்போ: 19  (section titles)
+  xl: 22, // முன்பு: 18  → இப்போ: 22  (card titles)
+  xxl: 26, // முன்பு: 22  → இப்போ: 26  (screen titles)
+  xxxl: 32, // முன்பு: 28  → இப்போ: 32  (hero text)
+  display: 42, // முன்பு: 36  → இப்போ: 42  (big numbers)
+  hero: 52, // முன்பு: 44  → இப்போ: 52  (splash/welcome)
 
   // Font Weights (use as strings for RN)
   thin: '100',
@@ -100,10 +100,10 @@ export const FONTS = {
   black: '900',
 
   // Line Heights - reading comfort-க்காக
-  lineHeightSm: 22,   // முன்பு: 18
-  lineHeightMd: 26,   // முன்பு: 22
-  lineHeightLg: 30,   // முன்பு: 26
-  lineHeightXl: 38,   // முன்பு: 32
+  lineHeightSm: 22, // முன்பு: 18
+  lineHeightMd: 26, // முன்பு: 22
+  lineHeightLg: 30, // முன்பு: 26
+  lineHeightXl: 38, // முன்பு: 32
 };
 
 export const SPACING = {
@@ -131,28 +131,28 @@ export const RADIUS = {
 export const SHADOWS = {
   small: {
     shadowColor: '#1B8A4E',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 3,
   },
   medium: {
     shadowColor: '#1B8A4E',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 6,
   },
   large: {
     shadowColor: '#1565C0',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 10,
   },
   card: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
@@ -164,3 +164,17 @@ export const SCREEN = {
   tabBarHeight: 65,
   bottomInset: 20,
 };
+
+export const getThemeColors = isDark => ({
+  bg: isDark ? '#121212' : COLORS.background,
+  cardBg: isDark ? '#1E1E1E' : COLORS.white,
+  text: isDark ? '#FFFFFF' : COLORS.textPrimary,
+  subText: isDark ? '#AAAAAA' : COLORS.textSecondary,
+  border: isDark ? '#333333' : COLORS.border,
+  borderLight: isDark ? '#222222' : COLORS.borderLight,
+  textMuted: isDark ? '#777777' : COLORS.textMuted,
+  surface: isDark ? '#1E1E1E' : COLORS.surface,
+  divider: isDark ? '#2A2A2A' : COLORS.divider,
+  inputBg: isDark ? '#252525' : COLORS.white,
+  placeholder: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+});

@@ -17,7 +17,15 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
+import {useTheme} from '../../context/ThemeContext';
 import {CATEGORIES} from '../../utils/dummyData';
 import {useAuth} from '../../context/AuthContext';
 import {useCart} from '../../context/CartContext';
@@ -80,6 +88,8 @@ const AvatarView = ({uri, name, size = 60, style}) => {
 // ── ORDERS SCREEN ──
 export const OrdersScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [activeTab, setActiveTab] = useState('normal'); // 'normal' or 'pre'
   const [orders, setOrders] = useState([]);
@@ -125,7 +135,7 @@ export const OrdersScreen = ({navigation}) => {
   };
 
   return (
-    <View style={S.container}>
+    <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       {/* ✅ FIXED: header not blank */}
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <BackButton onPress={() => navigation.goBack()} />
@@ -136,18 +146,36 @@ export const OrdersScreen = ({navigation}) => {
       </LinearGradient>
 
       {/* Segmented Tab Bar */}
-      <View style={S.tabBar}>
+      <View
+        style={[
+          S.tabBar,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderColor: themeColors.border,
+            borderWidth: 1,
+          },
+        ]}>
         <TouchableOpacity
           style={[S.tabBtn, activeTab === 'normal' && S.tabBtnActive]}
           onPress={() => setActiveTab('normal')}>
-          <Text style={[S.tabTxt, activeTab === 'normal' && S.tabTxtActive]}>
+          <Text
+            style={[
+              S.tabTxt,
+              activeTab === 'normal' && S.tabTxtActive,
+              activeTab !== 'normal' && {color: themeColors.subText},
+            ]}>
             📦 {t('orders.normalOrdersTab', {defaultValue: 'ஆர்டர்கள்'})}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[S.tabBtn, activeTab === 'pre' && S.tabBtnActive]}
           onPress={() => setActiveTab('pre')}>
-          <Text style={[S.tabTxt, activeTab === 'pre' && S.tabTxtActive]}>
+          <Text
+            style={[
+              S.tabTxt,
+              activeTab === 'pre' && S.tabTxtActive,
+              activeTab !== 'pre' && {color: themeColors.subText},
+            ]}>
             📅 {t('orders.preOrdersTab', {defaultValue: 'முன் ஆர்டர்கள்'})}
           </Text>
         </TouchableOpacity>
@@ -167,7 +195,7 @@ export const OrdersScreen = ({navigation}) => {
             orders.length === 0 ? (
               <View style={S.emptyBox}>
                 <Text style={S.emptyEmoji}>📦</Text>
-                <Text style={S.emptyText}>
+                <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                   {t('orders.noOrders', {
                     defaultValue: 'இன்னும் ஆர்டர் செய்யவில்லை',
                   })}
@@ -177,10 +205,17 @@ export const OrdersScreen = ({navigation}) => {
               orders.map(order => (
                 <TouchableOpacity
                   key={order.id}
-                  style={S.orderCard}
+                  style={[
+                    S.orderCard,
+                    {
+                      backgroundColor: themeColors.cardBg,
+                      borderColor: themeColors.border,
+                      borderWidth: 1,
+                    },
+                  ]}
                   onPress={() => navigation.navigate('OrderDetail', {order})}>
                   <View style={S.orderTop}>
-                    <Text style={S.orderId}>
+                    <Text style={[S.orderId, {color: themeColors.text}]}>
                       #{order.orderId || order.id?.slice(-4)}
                     </Text>
                     <View
@@ -200,12 +235,14 @@ export const OrdersScreen = ({navigation}) => {
                       </Text>
                     </View>
                   </View>
-                  <Text style={S.orderDate}>
+                  <Text style={[S.orderDate, {color: themeColors.textMuted}]}>
                     📅{' '}
                     {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') ||
                       ''}
                   </Text>
-                  <Text style={S.orderItems} numberOfLines={1}>
+                  <Text
+                    style={[S.orderItems, {color: themeColors.subText}]}
+                    numberOfLines={1}>
                     {(order.items || [])
                       .map(i =>
                         getLocalProductName(i.name, i.nameTa, i18n.language),
@@ -227,7 +264,7 @@ export const OrdersScreen = ({navigation}) => {
           ) : preOrders.length === 0 ? (
             <View style={S.emptyBox}>
               <Text style={S.emptyEmoji}>📅</Text>
-              <Text style={S.emptyText}>
+              <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                 {t('preOrder.noPreOrders', {
                   defaultValue: 'முன் ஆர்டர்கள் எதுவும் இல்லை',
                 })}
@@ -252,9 +289,20 @@ export const OrdersScreen = ({navigation}) => {
                 order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || '';
 
               return (
-                <View key={order.harvestId} style={S.orderCard}>
+                <View
+                  key={order.harvestId}
+                  style={[
+                    S.orderCard,
+                    {
+                      backgroundColor: themeColors.cardBg,
+                      borderColor: themeColors.border,
+                      borderWidth: 1,
+                    },
+                  ]}>
                   <View style={S.orderTop}>
-                    <Text style={S.orderId}>#{order.harvestId?.slice(-4)}</Text>
+                    <Text style={[S.orderId, {color: themeColors.text}]}>
+                      #{order.harvestId?.slice(-4)}
+                    </Text>
                     <View
                       style={[
                         S.statusBadge,
@@ -268,7 +316,7 @@ export const OrdersScreen = ({navigation}) => {
                       </Text>
                     </View>
                   </View>
-                  <Text style={S.orderDate}>
+                  <Text style={[S.orderDate, {color: themeColors.textMuted}]}>
                     📅{' '}
                     {t('orders.preOrderedOn', {
                       defaultValue: 'ஆர்டர் செய்த தேதி',
@@ -278,11 +326,15 @@ export const OrdersScreen = ({navigation}) => {
                   <Text
                     style={[
                       S.orderId,
-                      {fontSize: rs(FONTS.md), marginVertical: 4},
+                      {
+                        fontSize: rs(FONTS.md),
+                        marginVertical: 4,
+                        color: themeColors.text,
+                      },
                     ]}>
                     {localName}
                   </Text>
-                  <Text style={S.orderItems}>
+                  <Text style={[S.orderItems, {color: themeColors.subText}]}>
                     👨‍🌾 {order.farmer} | 📦 {order.qty} {order.unit}
                   </Text>
 
@@ -316,7 +368,7 @@ export const OrdersScreen = ({navigation}) => {
                     <Text
                       style={{
                         fontSize: rs(FONTS.xs),
-                        color: COLORS.textMuted,
+                        color: themeColors.textMuted,
                         marginLeft: 8,
                       }}>
                       ({t('product.harvest', {defaultValue: 'அறுவடை'})}:{' '}
@@ -335,7 +387,7 @@ export const OrdersScreen = ({navigation}) => {
                       <Text
                         style={{
                           fontSize: rs(FONTS.xs),
-                          color: COLORS.textSecondary,
+                          color: themeColors.subText,
                         }}>
                         {t('preOrder.peoplePreOrdered', {
                           defaultValue:
@@ -355,7 +407,7 @@ export const OrdersScreen = ({navigation}) => {
                     <View
                       style={{
                         height: 8,
-                        backgroundColor: '#E0E0E0',
+                        backgroundColor: isDark ? '#333333' : '#E0E0E0',
                         borderRadius: RADIUS.full,
                         overflow: 'hidden',
                       }}>
@@ -378,7 +430,7 @@ export const OrdersScreen = ({navigation}) => {
                       {
                         marginTop: SPACING.md,
                         borderTopWidth: 1,
-                        borderTopColor: COLORS.borderLight,
+                        borderTopColor: themeColors.border,
                         paddingTop: SPACING.md,
                       },
                     ]}>
@@ -408,6 +460,8 @@ export const OrdersScreen = ({navigation}) => {
 // ── CONSUMER PROFILE ──
 export const ConsumerProfileScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user, logout} = useAuth();
   const {totalItems} = useCart();
   const {wishlistCount} = useWishlist();
@@ -428,7 +482,7 @@ export const ConsumerProfileScreen = ({navigation}) => {
   }, [user]);
 
   return (
-    <View style={S.container}>
+    <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
         style={S.profileHeader}>
@@ -465,7 +519,15 @@ export const ConsumerProfileScreen = ({navigation}) => {
       <ScrollView
         contentContainerStyle={{padding: SPACING.lg}}
         showsVerticalScrollIndicator={false}>
-        <View style={S.menuCard}>
+        <View
+          style={[
+            S.menuCard,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              borderWidth: 1,
+            },
+          ]}>
           {[
             {
               icon: '❤️',
@@ -492,16 +554,27 @@ export const ConsumerProfileScreen = ({navigation}) => {
           ].map((item, idx, arr) => (
             <TouchableOpacity
               key={idx}
-              style={[S.menuItem, idx < arr.length - 1 && S.menuBorder]}
+              style={[
+                S.menuItem,
+                idx < arr.length - 1 && [
+                  S.menuBorder,
+                  {borderBottomColor: themeColors.border},
+                ],
+              ]}
               onPress={() => navigation.navigate(item.screen)}>
               <Text style={S.menuIcon}>{item.icon}</Text>
-              <Text style={S.menuLabel}>{item.label}</Text>
-              <Text style={S.menuArrow}>›</Text>
+              <Text style={[S.menuLabel, {color: themeColors.text}]}>
+                {item.label}
+              </Text>
+              <Text style={[S.menuArrow, {color: themeColors.subText}]}>›</Text>
             </TouchableOpacity>
           ))}
         </View>
         <TouchableOpacity
-          style={S.logoutBtn}
+          style={[
+            S.logoutBtn,
+            isDark && {backgroundColor: '#2D1F21', borderColor: '#D32F2F'},
+          ]}
           onPress={() =>
             Alert.alert(t('settings.logout', {defaultValue: 'வெளியேறு'}), '', [
               {
@@ -515,7 +588,7 @@ export const ConsumerProfileScreen = ({navigation}) => {
               },
             ])
           }>
-          <Text style={S.logoutText}>
+          <Text style={[S.logoutText, isDark && {color: '#FF8A80'}]}>
             🚪 {t('settings.logout', {defaultValue: 'வெளியேறு'})}
           </Text>
         </TouchableOpacity>
@@ -528,6 +601,8 @@ export const ConsumerProfileScreen = ({navigation}) => {
 // ── FARMER PROFILE (consumer view) ──
 export const FarmerProfileScreen = ({route, navigation}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {farmer: routeFarmer} = route.params || {};
   const [farmer, setFarmer] = useState(routeFarmer);
   const [farmerProducts, setFarmerProducts] = useState([]);
@@ -591,7 +666,7 @@ export const FarmerProfileScreen = ({route, navigation}) => {
   }
 
   return (
-    <View style={S.container}>
+    <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
         style={S.farmerProfileHdr}>
@@ -642,16 +717,29 @@ export const FarmerProfileScreen = ({route, navigation}) => {
             val: farmer.location || '-',
           },
         ].map((s, i) => (
-          <View key={i} style={S.farmerStatRow}>
-            <Text style={S.farmerStatLabel}>{s.label}</Text>
-            <Text style={S.farmerStatVal}>{s.val}</Text>
+          <View
+            key={i}
+            style={[
+              S.farmerStatRow,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+                borderWidth: 1,
+              },
+            ]}>
+            <Text style={[S.farmerStatLabel, {color: themeColors.subText}]}>
+              {s.label}
+            </Text>
+            <Text style={[S.farmerStatVal, {color: themeColors.text}]}>
+              {s.val}
+            </Text>
           </View>
         ))}
         <Text
           style={{
             fontSize: rs(FONTS.md),
             fontWeight: 'bold',
-            color: COLORS.textPrimary,
+            color: themeColors.text,
             marginVertical: SPACING.md,
           }}>
           🥬 {t('farmer.products', {defaultValue: 'தயாரிப்புகள்'})}
@@ -659,7 +747,7 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         {farmerProducts.length === 0 ? (
           <View style={S.emptyBox}>
             <Text style={S.emptyEmoji}>🌱</Text>
-            <Text style={S.emptyText}>
+            <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
               {t('farmer.noProducts', {
                 defaultValue: 'இன்னும் தயாரிப்புகள் இல்லை',
               })}
@@ -669,7 +757,14 @@ export const FarmerProfileScreen = ({route, navigation}) => {
           farmerProducts.map(p => (
             <TouchableOpacity
               key={p.id}
-              style={S.farmerProductCard}
+              style={[
+                S.farmerProductCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: 1,
+                },
+              ]}
               onPress={() =>
                 navigation.navigate('ProductDetail', {product: p})
               }>
@@ -679,7 +774,7 @@ export const FarmerProfileScreen = ({route, navigation}) => {
                 resizeMode={FastImage.resizeMode.cover}
               />
               <View style={{flex: 1, marginLeft: SPACING.md}}>
-                <Text style={S.farmerProductName}>
+                <Text style={[S.farmerProductName, {color: themeColors.text}]}>
                   {getLocalProductName(p.name, p.nameTa, i18n.language)}
                 </Text>
                 <Text style={S.farmerProductPrice}>
@@ -820,6 +915,8 @@ export const AllProductsScreen = ({navigation}) => {
 // ── ALL FARMERS ──
 export const AllFarmersScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const [farmers, setFarmers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -836,7 +933,7 @@ export const AllFarmersScreen = ({navigation}) => {
   }, []);
 
   return (
-    <View style={S.container}>
+    <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={S.headerTitle}>
@@ -861,7 +958,14 @@ export const AllFarmersScreen = ({navigation}) => {
           contentContainerStyle={{padding: SPACING.lg}}
           renderItem={({item}) => (
             <TouchableOpacity
-              style={S.farmerListCard}
+              style={[
+                S.farmerListCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: 1,
+                },
+              ]}
               onPress={() =>
                 navigation.navigate('FarmerProfile', {farmer: item})
               }>
@@ -873,7 +977,7 @@ export const AllFarmersScreen = ({navigation}) => {
               />
               <View style={{flex: 1}}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text style={S.farmerListName}>
+                  <Text style={[S.farmerListName, {color: themeColors.text}]}>
                     {i18n.language === 'ta'
                       ? item.nameTa || item.name
                       : item.name || item.nameTa}
@@ -882,10 +986,17 @@ export const AllFarmersScreen = ({navigation}) => {
                     <Text style={{fontSize: rs(12), marginLeft: 4}}>✅</Text>
                   )}
                 </View>
-                <Text style={S.farmerListLoc}>📍 {item.location || ''}</Text>
-                <Text style={S.farmerListRating}>⭐ {item.rating || '0'}</Text>
+                <Text style={[S.farmerListLoc, {color: themeColors.subText}]}>
+                  📍 {item.location || ''}
+                </Text>
+                <Text
+                  style={[S.farmerListRating, {color: themeColors.subText}]}>
+                  ⭐ {item.rating || '0'}
+                </Text>
               </View>
-              <Text style={{fontSize: rs(22), color: COLORS.textMuted}}>›</Text>
+              <Text style={{fontSize: rs(22), color: themeColors.textMuted}}>
+                ›
+              </Text>
             </TouchableOpacity>
           )}
         />

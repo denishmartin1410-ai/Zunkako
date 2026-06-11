@@ -4,7 +4,7 @@
 
 export const PLATFORM_FEE = 4;
 
-export const getConsumerPrice = (basePrice) => {
+export const getConsumerPrice = basePrice => {
   const price = parseFloat(basePrice) || 0;
   return price + PLATFORM_FEE;
 };

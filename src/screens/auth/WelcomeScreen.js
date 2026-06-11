@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, {useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,11 @@ import {
   StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { COLORS, FONTS, SPACING, RADIUS } from '../../utils/theme';
+import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-const WelcomeScreen = ({ navigation }) => {
+const WelcomeScreen = ({navigation}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(60)).current;
   const card1Anim = useRef(new Animated.Value(width)).current;
@@ -48,9 +48,9 @@ const WelcomeScreen = ({ navigation }) => {
     ]).start();
   }, [fadeAnim, slideAnim, card1Anim, card2Anim]);
 
-  const FloatingCard = ({ emoji, label, sublabel, style, anim }) => (
+  const FloatingCard = ({emoji, label, sublabel, style, anim}) => (
     <Animated.View
-      style={[styles.floatingCard, style, { transform: [{ translateX: anim }] }]}>
+      style={[styles.floatingCard, style, {transform: [{translateX: anim}]}]}>
       <Text style={styles.cardEmoji}>{emoji}</Text>
       <Text style={styles.cardLabel}>{label}</Text>
       <Text style={styles.cardSub}>{sublabel}</Text>
@@ -76,7 +76,7 @@ const WelcomeScreen = ({ navigation }) => {
         <Animated.View
           style={[
             styles.heroContent,
-            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+            {opacity: fadeAnim, transform: [{translateY: slideAnim}]},
           ]}>
           <Text style={styles.heroEmoji}>🌿</Text>
           <Text style={styles.heroTitle}>F2C</Text>
@@ -120,9 +120,9 @@ const WelcomeScreen = ({ navigation }) => {
         {/* Stats row */}
         <View style={styles.statsRow}>
           {[
-            { num: '200+', label: 'விவசாயிகள்' },
-            { num: '500+', label: 'தயாரிப்புகள்' },
-            { num: '10K+', label: 'நுகர்வோர்' },
+            {num: '200+', label: 'விவசாயிகள்'},
+            {num: '500+', label: 'தயாரிப்புகள்'},
+            {num: '10K+', label: 'நுகர்வோர்'},
           ].map((stat, i) => (
             <View key={i} style={styles.statItem}>
               <Text style={styles.statNum}>{stat.num}</Text>
@@ -139,8 +139,8 @@ const WelcomeScreen = ({ navigation }) => {
           <LinearGradient
             colors={COLORS.gradientButton}
             style={styles.loginBtnGrad}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}>
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}>
             <Text style={styles.loginBtnText}>உள்நுழைக ➡️</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -157,7 +157,7 @@ const WelcomeScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.white },
+  container: {flex: 1, backgroundColor: COLORS.white},
   heroSection: {
     height: height * 0.58,
     alignItems: 'center',
@@ -183,8 +183,8 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  heroContent: { alignItems: 'center', zIndex: 2 },
-  heroEmoji: { fontSize: 54, marginBottom: 4 },
+  heroContent: {alignItems: 'center', zIndex: 2},
+  heroEmoji: {fontSize: 54, marginBottom: 4},
   heroTitle: {
     fontSize: 58,
     fontWeight: '900',
@@ -230,16 +230,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minWidth: 110,
   },
-  card1: { bottom: 15, left: 16 },
-  card2: { bottom: 15, right: 16 },
-  cardEmoji: { fontSize: 28 },
+  card1: {bottom: 15, left: 16},
+  card2: {bottom: 15, right: 16},
+  cardEmoji: {fontSize: 28},
   cardLabel: {
     color: COLORS.white,
     fontSize: FONTS.xs,
     fontWeight: FONTS.semiBold,
     marginTop: 4,
   },
-  cardSub: { color: 'rgba(255,255,255,0.7)', fontSize: 9 },
+  cardSub: {color: 'rgba(255,255,255,0.7)', fontSize: 9},
   bottomSection: {
     flex: 1,
     backgroundColor: COLORS.white,
@@ -270,13 +270,13 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
   },
-  statItem: { alignItems: 'center' },
+  statItem: {alignItems: 'center'},
   statNum: {
     fontSize: FONTS.xxl,
     fontWeight: FONTS.extraBold,
     color: COLORS.primaryGreen,
   },
-  statLabel: { fontSize: FONTS.xs, color: COLORS.textSecondary, marginTop: 2 },
+  statLabel: {fontSize: FONTS.xs, color: COLORS.textSecondary, marginTop: 2},
   loginBtn: {
     width: '100%',
     borderRadius: RADIUS.lg,
