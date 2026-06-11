@@ -124,7 +124,20 @@
     "qrScan": "QR Scan",
     "settings": "Settings",
     "logoutConfirm": "Are you sure you want to logout?",
-    "logoutYes": "Yes"
+    "logoutYes": "Yes",
+    "basicInfo": "Basic Info",
+    "fullName": "Name",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email (read-only)",
+    "locationLabel": "Location / City",
+    "tapToChange": "Tap to change photo",
+    "changePhoto": "Change Photo",
+    "chooseSource": "Choose from Camera or Gallery",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "deletePhoto": "Delete Photo",
+    "nameRequired": "Name is required",
+    "profileUpdated": "Profile updated!"
   },
   "wishlist": {
     "empty": "Wishlist is empty",
@@ -237,7 +250,8 @@
     "success": "Success",
     "guest": "Friend",
     "ok": "OK",
-    "back": "Back"
+    "back": "Back",
+    "close": "Close"
   },
   "product": {
     "organic": "Organic",
@@ -287,7 +301,11 @@
     "pincodeRequired": "Please enter a valid PIN code (6 digits)",
     "phone": "Phone Number",
     "phonePlaceholder": "Enter 10-digit Phone Number",
-    "phoneRequired": "Please enter a valid phone number (10 digits)"
+    "phoneRequired": "Please enter a valid phone number (10 digits)",
+    "getLocationBtn": "📍 Link GPS Location",
+    "locationAdded": "✅ GPS Location Linked",
+    "locationMissing": "❌ GPS Location Missing (Important)",
+    "locationCoordsRequired": "Please link your GPS Location for delivery!"
   },
   "harvestCalendar": {
     "day_sun": "Sunday",
@@ -333,11 +351,16 @@
     "groupFull": "Group is full",
     "directAddBtn": "Add Member",
     "directAddTitle": "Add Members Directly",
-    "searchPlaceholder": "Search by name or email...",
+    "searchPlaceholder": "Search by Email ✉️",
     "addBtn": "Add",
     "noConsumers": "No consumers found.",
     "addedSuccess": "has been added to the group!",
-    "successTitle": "🎉 Success!"
+    "successTitle": "🎉 Success!",
+    "mustInclude5": "Must include 5 people",
+    "inviteBtn": "Invite & Add directly",
+    "inviteSuccessTitle": "📧 Invitation Sent!",
+    "inviteSuccessMsg": "Invitation email successfully sent to {{email}}! They have been added to the group and notified that {{organizer}} added them.",
+    "invalidEmail": "Invalid email format"
   },
   "freshness": {
     "title": "Freshness Tracker",
@@ -476,8 +499,8 @@
     "navigateCustomer": "🗺️ Navigate to Customer",
     "items": "Items",
     "totalAmount": "Total",
-    "markPurchased": "📦 Mark Purchased",
-    "markDelivered": "🎉 Mark Delivered",
+    "markPurchased": "📦 Item Purchased",
+    "markDelivered": "🎉 Item Delivered",
     "connectionCut": "Farmer connection cut (Item Purchased)",
     "detailsLocked": "Customer details are locked until item is purchased.",
     "phoneHidden": "Farmer Contact Hidden"

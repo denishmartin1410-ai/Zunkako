@@ -112,7 +112,20 @@
     "qrScan": "ക്യു ആർ സ്കാൻ",
     "settings": "ക്രമീകരണങ്ങൾ",
     "logoutConfirm": "ഉറപ്പായും ലോഗ് ഔട്ട് ചെയ്യണോ?",
-    "logoutYes": "അതെ"
+    "logoutYes": "അതെ",
+    "basicInfo": "അടിസ്ഥാന വിവരങ്ങൾ",
+    "fullName": "പേര്",
+    "phoneLabel": "ഫോൺ",
+    "emailLabel": "ഇമെയിൽ (വായിക്കാൻ മാത്രം)",
+    "locationLabel": "സ്ഥലം / നഗരം",
+    "tapToChange": "ഫോട്ടോ മാറ്റാൻ ക്ലിക്ക് ചെയ്യുക",
+    "changePhoto": "ഫോട്ടോ മാറ്റുക",
+    "chooseSource": "ക്യാമറയിൽ നിന്നോ ഗാലറിയിൽ നിന്നോ തിരഞ്ഞെടുക്കുക",
+    "camera": "ക്യാമറ",
+    "gallery": "ഗാലറി",
+    "deletePhoto": "ഫോട്ടോ ഇല്ലാതാക്കുക",
+    "nameRequired": "പേര് നൽകേണ്ടതുണ്ട്",
+    "profileUpdated": "പ്രൊഫൈൽ അപ്ഡേറ്റ് ചെയ്തു!"
   },
   "wishlist": {
     "empty": "ആഗ്രഹ പട്ടിക ശൂന്യമാണ്",
@@ -225,7 +238,8 @@
     "success": "വിജയം",
     "guest": "സുഹൃത്ത്",
     "ok": "ശരി",
-    "back": "തിരികെ"
+    "back": "തിരികെ",
+    "close": "അടയ്ക്കുക"
   },
   "product": {
     "organic": "ഓർഗാനിക്",
@@ -275,7 +289,11 @@
     "pincodeRequired": "ശരിയായ PIN കോഡ് നൽകുക (6 അക്കം)",
     "phone": "ഫോൺ നമ്പർ",
     "phonePlaceholder": "10 അക്ക ഫോൺ നമ്പർ നൽകുക",
-    "phoneRequired": "ശരിയായ ഫോൺ നമ്പർ നൽകുക (10 അക്കം)"
+    "phoneRequired": "ശരിയായ ഫോൺ നമ്പർ നൽകുക (10 അക്കം)",
+    "getLocationBtn": "📍 GPS ലൊക്കേഷൻ ലിങ്ക് ചെയ്യുക",
+    "locationAdded": "✅ GPS ലൊക്കേഷൻ ലിങ്ക് ചെയ്തു",
+    "locationMissing": "❌ GPS ലൊക്കേഷൻ ഇല്ല (ബിൽഡിന് വളരെ പ്രധാനം)",
+    "locationCoordsRequired": "ഡെലിവറി സുഗമമാക്കാൻ ദയവായി നിങ്ങളുടെ ജിപിഎസ് ലൊക്കേഷൻ ലിങ്ക് ചെയ്യുക!"
   },
   "harvestCalendar": {
     "title": "വിളവെടുപ്പ് കലണ്ടർ",
@@ -480,11 +498,16 @@
     "groupFull": "ഗ്രൂപ്പ് നിറഞ്ഞു",
     "directAddBtn": "അംഗത്തെ നേരിട്ട് ചേർക്കുക",
     "directAddTitle": "അംഗങ്ങളെ നേരിട്ട് ചേർക്കുക",
-    "searchPlaceholder": "പേര് അല്ലെങ്കിൽ ഇമെയിൽ വഴി തിരയുക...",
+    "searchPlaceholder": "ഇമെയിൽ വഴി തിരയുക ✉️",
     "addBtn": "ചേർക്കുക",
     "noConsumers": "ഉപഭോക്താക്കൾ ആരുമില്ല.",
     "addedSuccess": "അംഗത്തെ വിജയകരമായി ചേർത്തു!",
-    "successTitle": "🎉 വിജയം!"
+    "successTitle": "🎉 വിജയം!",
+    "mustInclude5": "5 ആളുകൾ ഉണ്ടായിരിക്കണം",
+    "inviteBtn": "നേരിട്ട് ചേർത്ത് ക്ഷണം അയക്കുക",
+    "inviteSuccessTitle": "📧 ക്ഷണം അയച്ചു!",
+    "inviteSuccessMsg": "{{email}} എന്ന വിലാസത്തിലേക്ക് വിജയകരമായി ക്ഷണം അയച്ചു. നിങ്ങൾ ({{organizer}}) അവരെ ഗ്രൂപ്പിൽ ചേർത്തതായി അവരെ അറിയിച്ചു!",
+    "invalidEmail": "ഇമെയിൽ വിലാസം തെറ്റാണ്"
   },
   "delivery": {
     "title": "ഡെലിവറി പാർട്ണർ",
@@ -498,7 +521,7 @@
     "items": "ഇനങ്ങൾ",
     "totalAmount": "ആകെ",
     "markPurchased": "📦 സാധനം വാങ്ങി",
-    "markDelivered": "🎉 ഡെലിവറി ചെയ്തു",
+    "markDelivered": "🎉 സാധനം നൽകി",
     "connectionCut": "കർഷക ബന്ധം വിച്ഛേദിക്കപ്പെട്ടു (സാധനം വാങ്ങി)",
     "detailsLocked": "സാധനം വാങ്ങുന്നതുവരെ ഉപഭോക്താവിന്റെ വിവരങ്ങൾ ലോക്ക് ആണ്.",
     "phoneHidden": "കർഷകന്റെ വിവരങ്ങൾ മറച്ചിരിക്കുന്നു"

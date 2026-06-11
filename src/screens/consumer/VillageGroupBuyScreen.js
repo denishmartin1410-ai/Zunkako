@@ -5,17 +5,29 @@
 // எந்த Grocery App-லயும் இல்லாத UNIQUE Feature!
 // ============================================================
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, TextInput, Alert, Share,
-  Modal, ActivityIndicator
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  Share,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
-import { useAuth } from '../../context/AuthContext';
-import { listenToGroupBuys, createGroupBuy, joinGroupBuy, getAllConsumers } from '../../services/firebase';
-import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../../utils/theme';
+import {useAuth} from '../../context/AuthContext';
+import {
+  listenToGroupBuys,
+  createGroupBuy,
+  joinGroupBuy,
+  getAllConsumers,
+} from '../../services/firebase';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
 // Read from Firestore instead of hardcoded data
@@ -38,20 +50,26 @@ const STATUS_CONFIG = {
   },
 };
 
-const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
-  const { t } = useTranslation();
-  
-  const fillPercent = Math.min((group.currentMembers / group.targetMembers) * 100, 100);
-  const statusKey = group.currentMembers >= group.targetMembers ? 'full' 
-    : (group.targetMembers - group.currentMembers <= 2 ? 'almostFull' : 'open');
+const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
+  const {t} = useTranslation();
+
+  const creatorCount = 1;
+  const invitedCount = Math.max(0, group.currentMembers - 1);
+  const targetInvited = 5;
+  const neededCount = Math.max(0, targetInvited - invitedCount);
+
+  const fillPercent = Math.min((invitedCount / targetInvited) * 100, 100);
+  const statusKey =
+    neededCount === 0 ? 'full' : neededCount <= 2 ? 'almostFull' : 'open';
   const status = STATUS_CONFIG[statusKey];
-  
-  const isMember = group.members && group.members.includes(user?.uid || user?.id);
+
+  const isMember =
+    group.members && group.members.includes(user?.uid || user?.id);
 
   const handleInvite = async () => {
     const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: f2capp://groupbuy/${group.id}`;
     try {
-      await Share.share({ message: shareMsg });
+      await Share.share({message: shareMsg});
     } catch (e) {}
   };
 
@@ -59,12 +77,16 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
     <View style={styles.groupCard}>
       {/* Card Header */}
       <LinearGradient
-        colors={group.status === 'full' ? ['#E0E0E0', '#BDBDBD'] : COLORS.gradientSoft}
+        colors={
+          group.status === 'full' ? ['#E0E0E0', '#BDBDBD'] : COLORS.gradientSoft
+        }
         style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
           <Text style={styles.groupEmoji}>{group.emoji}</Text>
-          <View style={{ flex: 1, paddingRight: 8 }}>
-            <Text style={styles.groupTitle} numberOfLines={1}>{group.title}</Text>
+          <View style={{flex: 1, paddingRight: 8}}>
+            <Text style={styles.groupTitle} numberOfLines={1}>
+              {group.title}
+            </Text>
             <Text style={styles.groupLocation}>📍 {group.location}</Text>
           </View>
         </View>
@@ -74,45 +96,58 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
         {/* Members progress */}
         <View style={styles.membersSection}>
           <View style={styles.membersHeader}>
-            <Text style={styles.membersLabel}>
-              👥 {t('groupBuy.members')}:
-            </Text>
-            <Text style={styles.membersCount}>
-              {group.currentMembers} / {group.targetMembers}
-            </Text>
+            <Text style={styles.membersLabel}>👥 {t('groupBuy.members')}:</Text>
+            <Text style={styles.membersCount}>1 / {invitedCount}</Text>
           </View>
           <View style={styles.progressBg}>
             <LinearGradient
-              colors={group.status === 'full'
-                ? [COLORS.accentRed, '#E53935']
-                : COLORS.gradientButton}
-              style={[styles.progressFill, { width: `${fillPercent}%` }]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+              colors={
+                group.status === 'full'
+                  ? [COLORS.accentRed, '#E53935']
+                  : COLORS.gradientButton
+              }
+              style={[styles.progressFill, {width: `${fillPercent}%`}]}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
             />
           </View>
           {/* Member avatars */}
           <View style={styles.avatarsRow}>
             {(group.memberNames || []).slice(0, 5).map((m, i) => (
-              <View key={i} style={[styles.memberAvatar, { marginLeft: i > 0 ? -8 : 0 }]}>
-                <Text style={styles.memberAvatarTxt}>{typeof m === 'string' && m.length > 0 ? m[0] : 'U'}</Text>
+              <View
+                key={i}
+                style={[styles.memberAvatar, {marginLeft: i > 0 ? -8 : 0}]}>
+                <Text style={styles.memberAvatarTxt}>
+                  {typeof m === 'string' && m.length > 0 ? m[0] : 'U'}
+                </Text>
               </View>
             ))}
             {group.currentMembers > 5 && (
-              <View style={[styles.memberAvatar, { marginLeft: -8, backgroundColor: COLORS.primaryBlue }]}>
-                <Text style={styles.memberAvatarTxt}>+{group.currentMembers - 5}</Text>
+              <View
+                style={[
+                  styles.memberAvatar,
+                  {marginLeft: -8, backgroundColor: COLORS.primaryBlue},
+                ]}>
+                <Text style={styles.memberAvatarTxt}>
+                  +{group.currentMembers - 5}
+                </Text>
               </View>
             )}
             <Text style={styles.membersNeeded}>
-              {group.targetMembers - group.currentMembers > 0
-                ? `${group.targetMembers - group.currentMembers} ${t('groupBuy.needed')}`
-                : t('groupBuy.full')}
+              {neededCount > 0
+                ? `${neededCount} ${t('groupBuy.needed', {
+                    defaultValue: 'more needed',
+                  })}`
+                : t('groupBuy.full', {defaultValue: 'Full'})}
             </Text>
           </View>
         </View>
 
         {/* Products */}
         <View style={styles.productsSection}>
-          <Text style={styles.productsSectionTitle}>🛒 {t('groupBuy.products')}:</Text>
+          <Text style={styles.productsSectionTitle}>
+            🛒 {t('groupBuy.products')}:
+          </Text>
           {(group.products || []).map((p, i) => (
             <View key={i} style={styles.productRow}>
               <Text style={styles.productName}>{p.name}</Text>
@@ -126,8 +161,12 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
         <View style={styles.benefitsRow}>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>🎁</Text>
-            <Text style={styles.benefitLabel}>{group.discount} {t('groupBuy.discount')}</Text>
-            <Text style={styles.benefitValue}>₹{group.discountAmount} {t('groupBuy.savings')}</Text>
+            <Text style={styles.benefitLabel}>
+              {group.discount} {t('groupBuy.discount')}
+            </Text>
+            <Text style={styles.benefitValue}>
+              ₹{group.discountAmount} {t('groupBuy.savings')}
+            </Text>
           </View>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>🚚</Text>
@@ -144,10 +183,13 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
         {/* Join or Invite button */}
         {group.status !== 'full' ? (
           isMember ? (
-            <View style={{ gap: 8 }}>
+            <View style={{gap: 8}}>
               <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
-                <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <LinearGradient
+                  colors={COLORS.gradientButton}
+                  style={styles.joinBtnGrad}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 0}}>
                   <Text style={styles.joinBtnTxt}>
                     📢 {t('groupBuy.inviteFriends')}
                   </Text>
@@ -155,22 +197,34 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
               </TouchableOpacity>
 
               {group.organizerId === (user?.uid || user?.id) && (
-                <TouchableOpacity 
-                  style={styles.joinBtn} 
+                <TouchableOpacity
+                  style={styles.joinBtn}
                   onPress={() => onDirectAdd(group)}>
-                  <LinearGradient colors={['#1565C0', '#1E88E5']} style={styles.joinBtnGrad}
-                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                  <LinearGradient
+                    colors={['#1565C0', '#1E88E5']}
+                    style={styles.joinBtnGrad}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}>
                     <Text style={styles.joinBtnTxt}>
-                      👥 {t('groupBuy.directAddBtn', { defaultValue: 'உறுப்பினர்களை நேரடியாக சேர் / Add Member' })}
+                      👥{' '}
+                      {t('groupBuy.directAddBtn', {
+                        defaultValue:
+                          'உறுப்பினர்களை நேரடியாக சேர் / Add Member',
+                      })}
                     </Text>
                   </LinearGradient>
                 </TouchableOpacity>
               )}
             </View>
           ) : (
-            <TouchableOpacity style={styles.joinBtn} onPress={() => onJoin(group)}>
-              <LinearGradient colors={COLORS.gradientButton} style={styles.joinBtnGrad}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+            <TouchableOpacity
+              style={styles.joinBtn}
+              onPress={() => onJoin(group)}>
+              <LinearGradient
+                colors={COLORS.gradientButton}
+                style={styles.joinBtnGrad}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}>
                 <Text style={styles.joinBtnTxt}>
                   ✅ {t('groupBuy.joinGroup')}
                 </Text>
@@ -187,11 +241,15 @@ const GroupCard = ({ group, onJoin, onDirectAdd, user }) => {
   );
 };
 
-const VillageGroupBuyScreen = ({ navigation }) => {
-  const { t } = useTranslation();
-  const { user } = useAuth();
+const VillageGroupBuyScreen = ({navigation}) => {
+  const {t} = useTranslation();
+  const {user} = useAuth();
   const [showCreate, setShowCreate] = useState(false);
-  const [newGroup, setNewGroup] = useState({ title: '', location: '', targetMembers: '' });
+  const [newGroup, setNewGroup] = useState({
+    title: '',
+    location: '',
+    targetMembers: '5',
+  });
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -202,12 +260,12 @@ const VillageGroupBuyScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [addingUserId, setAddingUserId] = useState(null);
 
-  const handleOpenDirectAdd = async (group) => {
+  const handleOpenDirectAdd = async group => {
     setSelectedGroupForAdd(group);
     setShowDirectAdd(true);
     setConsumersLoading(true);
     setSearchQuery('');
-    
+
     const res = await getAllConsumers();
     if (res.success && res.data) {
       setAllConsumers(res.data);
@@ -217,24 +275,32 @@ const VillageGroupBuyScreen = ({ navigation }) => {
     setConsumersLoading(false);
   };
 
-  const handleAddConsumerDirectly = async (consumer) => {
-    if (!selectedGroupForAdd) return;
+  const handleAddConsumerDirectly = async consumer => {
+    if (!selectedGroupForAdd) {
+      return;
+    }
     setAddingUserId(consumer.id || consumer.uid);
-    
+
     const consumerName = consumer.nameTa || consumer.name || 'User';
-    const res = await joinGroupBuy(selectedGroupForAdd.id, consumer.id || consumer.uid, consumerName);
-    
+    const res = await joinGroupBuy(
+      selectedGroupForAdd.id,
+      consumer.id || consumer.uid,
+      consumerName,
+    );
+
     if (res.success) {
       setSelectedGroupForAdd(prev => ({
         ...prev,
         currentMembers: (prev.currentMembers || 0) + 1,
-        members: [...(prev.members || []), (consumer.id || consumer.uid)],
-        memberNames: [...(prev.memberNames || []), consumerName]
+        members: [...(prev.members || []), consumer.id || consumer.uid],
+        memberNames: [...(prev.memberNames || []), consumerName],
       }));
-      
+
       Alert.alert(
-        t('groupBuy.successTitle', { defaultValue: '🎉 வெற்றி!' }),
-        `${consumerName} ${t('groupBuy.addedSuccess', { defaultValue: 'குழுவில் சேர்க்கப்பட்டார்!' })}`
+        t('groupBuy.successTitle', {defaultValue: '🎉 வெற்றி!'}),
+        `${consumerName} ${t('groupBuy.addedSuccess', {
+          defaultValue: 'குழுவில் சேர்க்கப்பட்டார்!',
+        })}`,
       );
     } else {
       Alert.alert('Error', res.error || 'Failed to add member');
@@ -242,29 +308,77 @@ const VillageGroupBuyScreen = ({ navigation }) => {
     setAddingUserId(null);
   };
 
+  const handleAddUnregisteredEmail = async email => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('groupBuy.invalidEmail', {defaultValue: 'மின்னஞ்சல் முகவரி தவறானது'}),
+      );
+      return;
+    }
+
+    setAddingUserId(email);
+    const emailPrefix = email.split('@')[0];
+    const organizerName = user.nameTa || user.name || 'User';
+
+    const res = await joinGroupBuy(selectedGroupForAdd.id, email, emailPrefix);
+    if (res.success) {
+      setSelectedGroupForAdd(prev => ({
+        ...prev,
+        currentMembers: (prev.currentMembers || 0) + 1,
+        members: [...(prev.members || []), email],
+        memberNames: [...(prev.memberNames || []), emailPrefix],
+      }));
+
+      Alert.alert(
+        t('groupBuy.inviteSuccessTitle', {
+          defaultValue: '📧 அழைப்பு அனுப்பப்பட்டது!',
+        }),
+        t('groupBuy.inviteSuccessMsg', {
+          defaultValue: `${email} முகவரிக்கு வெற்றிகரமாக அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது. நீங்கள் (${organizerName}) அவர்களை இந்த குழுவில் சேர்த்துள்ளீர்கள் என்பது அவர்களுக்குத் தெரிவிக்கப்பட்டது!`,
+          email: email,
+          organizer: organizerName,
+        }),
+      );
+      setSearchQuery('');
+    } else {
+      Alert.alert('Error', res.error || 'Failed to add email');
+    }
+    setAddingUserId(null);
+  };
+
   const filteredConsumers = allConsumers.filter(consumer => {
-    const isAlreadyMember = selectedGroupForAdd?.members?.includes(consumer.id || consumer.uid);
-    if (isAlreadyMember) return false;
-    
-    if (consumer.id === (user?.uid || user?.id)) return false;
-    
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    const name = (consumer.name || '').toLowerCase();
-    const nameTa = (consumer.nameTa || '').toLowerCase();
+    const isAlreadyMember = selectedGroupForAdd?.members?.includes(
+      consumer.id || consumer.uid,
+    );
+    if (isAlreadyMember) {
+      return false;
+    }
+
+    if (consumer.id === (user?.uid || user?.id)) {
+      return false;
+    }
+
+    if (!searchQuery.trim()) {
+      return false;
+    }
+    const q = searchQuery.trim().toLowerCase();
     const email = (consumer.email || '').toLowerCase();
-    return name.includes(q) || nameTa.includes(q) || email.includes(q);
+    return email.includes(q);
   });
 
   React.useEffect(() => {
-    const unsubscribe = listenToGroupBuys((res) => {
-      if (res.success) setGroups(res.data);
+    const unsubscribe = listenToGroupBuys(res => {
+      if (res.success) {
+        setGroups(res.data);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  const handleJoin = (group) => {
+  const handleJoin = group => {
     if (!user) {
       Alert.alert('Login Required', 'Please login to join a group.');
       return;
@@ -273,13 +387,20 @@ const VillageGroupBuyScreen = ({ navigation }) => {
       '✅ குழுவில் சேர்',
       `"${group.title}" குழுவில் சேர வேண்டுமா?\n\nநீங்கள் ${group.discount} தள்ளுபடி மற்றும் இலவச டெலிவரி பெறுவீர்கள்!\n\nJoin "${group.title}"?\nYou'll get ${group.discount} discount + free delivery!`,
       [
-        { text: 'இல்லை / No', style: 'cancel' },
+        {text: 'இல்லை / No', style: 'cancel'},
         {
           text: 'ஆமா சேர் / Yes Join!',
           onPress: async () => {
-            const res = await joinGroupBuy(group.id, user.uid || user.id, user.name || 'User');
+            const res = await joinGroupBuy(
+              group.id,
+              user.uid || user.id,
+              user.name || 'User',
+            );
             if (res.success) {
-              Alert.alert('🎉 சேர்ந்தீர்கள்!', 'வெற்றிகரமாக குழுவில் சேர்ந்தீர்கள்!\nSuccessfully joined the group!');
+              Alert.alert(
+                '🎉 சேர்ந்தீர்கள்!',
+                'வெற்றிகரமாக குழுவில் சேர்ந்தீர்கள்!\nSuccessfully joined the group!',
+              );
             } else {
               Alert.alert('Error', res.error);
             }
@@ -294,14 +415,16 @@ const VillageGroupBuyScreen = ({ navigation }) => {
       Alert.alert('Login Required', 'Please login to create a group.');
       return;
     }
-    if (!newGroup.title || !newGroup.location || !newGroup.targetMembers) {
-      Alert.alert('பிழை / Error', 'அனைத்து fields நிரப்பவும் / Fill all fields');
+    if (!newGroup.title || !newGroup.location) {
+      Alert.alert(
+        'பிழை / Error',
+        'அனைத்து fields நிரப்பவும் / Fill all fields',
+      );
       return;
     }
-    
-    // Auto calculate discount based on target members
-    const target = parseInt(newGroup.targetMembers, 10);
-    const discount = target >= 10 ? '25%' : target >= 8 ? '20%' : '15%';
+
+    const target = 6; // Fixed: 1 creator + 5 friends = 6 members total
+    const discount = '15%';
 
     const res = await createGroupBuy({
       title: newGroup.title,
@@ -313,7 +436,9 @@ const VillageGroupBuyScreen = ({ navigation }) => {
       discount: discount,
       discountAmount: 100, // Hardcoded for now
       deliveryFee: 0,
-      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0], // 7 days from now
       emoji: '🏘️',
       products: [], // Empty initially
     });
@@ -322,10 +447,15 @@ const VillageGroupBuyScreen = ({ navigation }) => {
       Alert.alert(
         '✅ குழு உருவாக்கப்பட்டது!',
         'உங்கள் Group Buy குழு வெற்றிகரமாக உருவாக்கப்பட்டது!\nYour group has been created!',
-        [{ text: 'சரி / OK', onPress: () => {
-          setShowCreate(false);
-          setNewGroup({ title: '', location: '', targetMembers: '' });
-        }}]
+        [
+          {
+            text: 'சரி / OK',
+            onPress: () => {
+              setShowCreate(false);
+              setNewGroup({title: '', location: '', targetMembers: '5'});
+            },
+          },
+        ],
       );
     } else {
       Alert.alert('Error', res.error);
@@ -335,49 +465,69 @@ const VillageGroupBuyScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <LinearGradient colors={['#0D5C32', '#1B8A4E', '#1565C0']} style={styles.headerRow}>
+      <LinearGradient
+        colors={['#0D5C32', '#1B8A4E', '#1565C0']}
+        style={styles.headerRow}>
         <View style={styles.headerTop}>
           <BackButton onPress={() => navigation.goBack()} />
         </View>
         <View style={styles.headerContent}>
           <Text style={styles.headerEmoji}>👨‍👩‍👧</Text>
-          <Text style={styles.headerTitle}>{t('groupBuy.title', { defaultValue: 'கூட்டு வாங்கல்' })}</Text>
+          <Text style={styles.headerTitle}>
+            {t('groupBuy.title', {defaultValue: 'கூட்டு வாங்கல்'})}
+          </Text>
           <Text style={styles.headerDesc}>
-            {t('groupBuy.desc', { defaultValue: '5 பேர் சேர்ந்து order பண்ணினால்\n15-25% தள்ளுபடி + இலவச டெலிவரி!' })}
+            {t('groupBuy.desc', {
+              defaultValue:
+                '5 பேர் சேர்ந்து order பண்ணினால்\n15-25% தள்ளுபடி + இலவச டெலிவரி!',
+            })}
           </Text>
         </View>
       </LinearGradient>
 
       {/* How it works */}
       <View style={styles.howItWorks}>
-        <Text style={styles.howTitle}>⚡ {t('groupBuy.howItWorks', { defaultValue: 'எப்படி வேலை செய்யும்?' })}</Text>
+        <Text style={styles.howTitle}>
+          ⚡ {t('groupBuy.howItWorks', {defaultValue: 'எப்படி வேலை செய்யும்?'})}
+        </Text>
         <View style={styles.stepsRow}>
           {[
-            { step: '1', emoji: '👥', label: t('groupBuy.step1') },
-            { step: '2', emoji: '📢', label: t('groupBuy.step2') },
-            { step: '3', emoji: '🛒', label: t('groupBuy.step3') },
-            { step: '4', emoji: '🎁', label: t('groupBuy.step4') },
+            {step: '1', emoji: '👥', label: t('groupBuy.step1')},
+            {step: '2', emoji: '📢', label: t('groupBuy.step2')},
+            {step: '3', emoji: '🛒', label: t('groupBuy.step3')},
+            {step: '4', emoji: '🎁', label: t('groupBuy.step4')},
           ].map((s, i) => (
             <View key={i} style={styles.stepItem}>
               <View style={styles.stepNum}>
                 <Text style={styles.stepNumTxt}>{s.step}</Text>
               </View>
               <Text style={styles.stepEmoji}>{s.emoji}</Text>
-              <Text style={styles.stepLabel} numberOfLines={2}>{s.label}</Text>
+              <Text style={styles.stepLabel} numberOfLines={2}>
+                {s.label}
+              </Text>
             </View>
           ))}
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}>
-
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{padding: SPACING.lg, paddingBottom: 100}}>
         {/* Create group button */}
-        <TouchableOpacity style={styles.createBtn} onPress={() => setShowCreate(!showCreate)}>
-          <LinearGradient colors={COLORS.gradientButton} style={styles.createBtnGrad}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+        <TouchableOpacity
+          style={styles.createBtn}
+          onPress={() => setShowCreate(!showCreate)}>
+          <LinearGradient
+            colors={COLORS.gradientButton}
+            style={styles.createBtnGrad}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}>
             <Text style={styles.createBtnTxt}>
-              {showCreate ? `✕ ${t('common.close', { defaultValue: 'மூடு' })}` : `➕ ${t('groupBuy.createBtn', { defaultValue: 'புதிய குழு உருவாக்கு' })}`}
+              {showCreate
+                ? `✕ ${t('common.close', {defaultValue: 'மூடு'})}`
+                : `➕ ${t('groupBuy.createBtn', {
+                    defaultValue: 'புதிய குழு உருவாக்கு',
+                  })}`}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -385,27 +535,59 @@ const VillageGroupBuyScreen = ({ navigation }) => {
         {/* Create form */}
         {showCreate && (
           <View style={styles.createForm}>
-            <Text style={styles.createFormTitle}>🆕 {t('groupBuy.createTitle')}</Text>
+            <Text style={styles.createFormTitle}>
+              🆕 {t('groupBuy.createTitle')}
+            </Text>
             {[
-              { key: 'title', label: t('groupBuy.formName'), placeholder: 'எ.கா: அண்ணா நகர் காய்கறி குழு' },
-              { key: 'location', label: t('groupBuy.formLocation'), placeholder: 'எ.கா: அண்ணா நகர், சென்னை' },
-              { key: 'targetMembers', label: t('groupBuy.formTarget'), placeholder: 'எ.கா: 5', keyboard: 'numeric' },
-            ].map(field => (
-              <View key={field.key} style={styles.formField}>
-                <Text style={styles.formLabel}>{field.label}</Text>
-                <TextInput
-                  style={styles.formInput}
-                  value={newGroup[field.key]}
-                  onChangeText={v => setNewGroup(prev => ({ ...prev, [field.key]: v }))}
-                  placeholder={field.placeholder}
-                  placeholderTextColor={COLORS.textGray}
-                  keyboardType={field.keyboard || 'default'}
-                />
-              </View>
-            ))}
-            <TouchableOpacity style={styles.createSubmitBtn} onPress={handleCreate}>
-              <LinearGradient colors={COLORS.gradientButton} style={styles.createSubmitGrad}>
-                <Text style={styles.createSubmitTxt}>✅ {t('groupBuy.createBtnSubmit')}</Text>
+              {key: 'title', label: t('groupBuy.formName'), placeholder: ''},
+              {
+                key: 'location',
+                label: t('groupBuy.formLocation'),
+                placeholder: '',
+              },
+              {key: 'targetMembers', label: t('groupBuy.formTarget')},
+            ].map(field => {
+              const isTargetMembers = field.key === 'targetMembers';
+              return (
+                <View key={field.key} style={styles.formField}>
+                  <Text style={styles.formLabel}>{field.label}</Text>
+                  <TextInput
+                    style={[
+                      styles.formInput,
+                      isTargetMembers && {
+                        backgroundColor: '#F5F5F5',
+                        color: COLORS.textSecondary,
+                      },
+                    ]}
+                    value={
+                      isTargetMembers
+                        ? t('groupBuy.mustInclude5', {
+                            defaultValue: 'Must include 5 people',
+                          })
+                        : newGroup[field.key]
+                    }
+                    onChangeText={v => {
+                      if (!isTargetMembers) {
+                        setNewGroup(prev => ({...prev, [field.key]: v}));
+                      }
+                    }}
+                    placeholder={field.placeholder}
+                    placeholderTextColor={COLORS.textGray}
+                    keyboardType={field.keyboard || 'default'}
+                    editable={!isTargetMembers}
+                  />
+                </View>
+              );
+            })}
+            <TouchableOpacity
+              style={styles.createSubmitBtn}
+              onPress={handleCreate}>
+              <LinearGradient
+                colors={COLORS.gradientButton}
+                style={styles.createSubmitGrad}>
+                <Text style={styles.createSubmitTxt}>
+                  ✅ {t('groupBuy.createBtnSubmit')}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -413,13 +595,23 @@ const VillageGroupBuyScreen = ({ navigation }) => {
 
         {/* Active groups */}
         <Text style={styles.activeGroupsTitle}>
-          🏘️ {t('groupBuy.activeGroups', { defaultValue: 'இப்போ உள்ள குழுக்கள்' })} ({groups.length})
+          🏘️{' '}
+          {t('groupBuy.activeGroups', {defaultValue: 'இப்போ உள்ள குழுக்கள்'})} (
+          {groups.length})
         </Text>
         {loading ? (
-          <Text style={{ textAlign: 'center', marginTop: 20 }}>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
+          <Text style={{textAlign: 'center', marginTop: 20}}>
+            {t('common.loading', {defaultValue: 'Loading...'})}
+          </Text>
         ) : groups.length === 0 ? null : (
           groups.map(group => (
-            <GroupCard key={group.id} group={group} onJoin={handleJoin} onDirectAdd={handleOpenDirectAdd} user={user} />
+            <GroupCard
+              key={group.id}
+              group={group}
+              onJoin={handleJoin}
+              onDirectAdd={handleOpenDirectAdd}
+              user={user}
+            />
           ))
         )}
       </ScrollView>
@@ -429,16 +621,20 @@ const VillageGroupBuyScreen = ({ navigation }) => {
         visible={showDirectAdd}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setShowDirectAdd(false)}
-      >
+        onRequestClose={() => setShowDirectAdd(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             {/* Header */}
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle} numberOfLines={1}>
-                👥 {t('groupBuy.directAddTitle', { defaultValue: 'உறுப்பினர்களை நேரடியாக சேர்' })}
+                👥{' '}
+                {t('groupBuy.directAddTitle', {
+                  defaultValue: 'உறுப்பினர்களை நேரடியாக சேர்',
+                })}
               </Text>
-              <TouchableOpacity style={styles.closeBtn} onPress={() => setShowDirectAdd(false)}>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => setShowDirectAdd(false)}>
                 <Text style={styles.closeBtnTxt}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -450,7 +646,9 @@ const VillageGroupBuyScreen = ({ navigation }) => {
                 style={styles.searchInput}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                placeholder={t('groupBuy.searchPlaceholder', { defaultValue: 'பெயர் அல்லது மின்னஞ்சல் மூலம் தேடவும்...' })}
+                placeholder={t('groupBuy.searchPlaceholder', {
+                  defaultValue: 'பெயர் அல்லது மின்னஞ்சல் மூலம் தேடவும்...',
+                })}
                 placeholderTextColor={COLORS.textGray}
               />
             </View>
@@ -459,23 +657,56 @@ const VillageGroupBuyScreen = ({ navigation }) => {
             {consumersLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.primaryGreen} />
-                <Text style={styles.loadingText}>{t('common.loading', { defaultValue: 'Loading...' })}</Text>
+                <Text style={styles.loadingText}>
+                  {t('common.loading', {defaultValue: 'Loading...'})}
+                </Text>
               </View>
             ) : filteredConsumers.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>
-                  📭 {t('groupBuy.noConsumers', { defaultValue: 'வாடிக்கையாளர்கள் யாரும் இல்லை.' })}
+                  📭{' '}
+                  {t('groupBuy.noConsumers', {
+                    defaultValue: 'வாடிக்கையாளர்கள் யாரும் இல்லை.',
+                  })}
                 </Text>
+                {searchQuery.trim().includes('@') && (
+                  <TouchableOpacity
+                    style={[
+                      styles.createSubmitBtn,
+                      {marginTop: SPACING.md, width: '100%'},
+                    ]}
+                    disabled={addingUserId === searchQuery.trim()}
+                    onPress={() =>
+                      handleAddUnregisteredEmail(searchQuery.trim())
+                    }>
+                    <LinearGradient
+                      colors={COLORS.gradientButton}
+                      style={styles.createSubmitGrad}>
+                      {addingUserId === searchQuery.trim() ? (
+                        <ActivityIndicator color={COLORS.white} size="small" />
+                      ) : (
+                        <Text style={styles.createSubmitTxt}>
+                          ✉️{' '}
+                          {t('groupBuy.inviteBtn', {
+                            defaultValue:
+                              'நேரடியாகச் சேர் மற்றும் அழைப்பு அனுப்பு',
+                          })}
+                        </Text>
+                      )}
+                    </LinearGradient>
+                  </TouchableOpacity>
+                )}
               </View>
             ) : (
-              <ScrollView 
+              <ScrollView
                 showsVerticalScrollIndicator={false}
-                style={styles.consumerList}
-              >
+                style={styles.consumerList}>
                 {filteredConsumers.map(consumer => {
                   const cName = consumer.nameTa || consumer.name || 'User';
                   return (
-                    <View key={consumer.id || consumer.uid} style={styles.consumerItem}>
+                    <View
+                      key={consumer.id || consumer.uid}
+                      style={styles.consumerItem}>
                       <View style={styles.consumerInfo}>
                         <View style={styles.avatarCircle}>
                           <Text style={styles.avatarLetter}>
@@ -484,24 +715,29 @@ const VillageGroupBuyScreen = ({ navigation }) => {
                         </View>
                         <View style={styles.consumerDetails}>
                           <Text style={styles.consumerName}>{cName}</Text>
-                          <Text style={styles.consumerEmail}>{consumer.email || consumer.phone || ''}</Text>
+                          <Text style={styles.consumerEmail}>
+                            {consumer.email || consumer.phone || ''}
+                          </Text>
                         </View>
                       </View>
-                      
-                      <TouchableOpacity 
-                        style={styles.addMemberBtn} 
-                        disabled={addingUserId === (consumer.id || consumer.uid)}
-                        onPress={() => handleAddConsumerDirectly(consumer)}
-                      >
-                        <LinearGradient 
-                          colors={COLORS.gradientButton} 
-                          style={styles.addMemberGrad}
-                        >
+
+                      <TouchableOpacity
+                        style={styles.addMemberBtn}
+                        disabled={
+                          addingUserId === (consumer.id || consumer.uid)
+                        }
+                        onPress={() => handleAddConsumerDirectly(consumer)}>
+                        <LinearGradient
+                          colors={COLORS.gradientButton}
+                          style={styles.addMemberGrad}>
                           {addingUserId === (consumer.id || consumer.uid) ? (
-                            <ActivityIndicator size="small" color={COLORS.white} />
+                            <ActivityIndicator
+                              size="small"
+                              color={COLORS.white}
+                            />
                           ) : (
                             <Text style={styles.addMemberTxt}>
-                              ➕ {t('groupBuy.addBtn', { defaultValue: 'சேர்' })}
+                              ➕ {t('groupBuy.addBtn', {defaultValue: 'சேர்'})}
                             </Text>
                           )}
                         </LinearGradient>
@@ -519,106 +755,272 @@ const VillageGroupBuyScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: {flex: 1, backgroundColor: COLORS.background},
 
   // Header
-  headerRow: { paddingTop: 50, paddingBottom: 24, paddingHorizontal: SPACING.xl },
-  headerTop: { marginBottom: SPACING.md, alignSelf: 'flex-start' },
-  headerContent: { alignItems: 'center' },
-  headerEmoji: { fontSize: 44, marginBottom: 6 },
-  headerTitle: { fontSize: FONTS.xxl, fontWeight: FONTS.bold, color: COLORS.white, marginBottom: SPACING.sm },
-  headerDesc: { fontSize: FONTS.sm, color: 'rgba(255,255,255,0.9)', textAlign: 'center', lineHeight: 22, paddingHorizontal: SPACING.md },
+  headerRow: {paddingTop: 50, paddingBottom: 24, paddingHorizontal: SPACING.xl},
+  headerTop: {marginBottom: SPACING.md, alignSelf: 'flex-start'},
+  headerContent: {alignItems: 'center'},
+  headerEmoji: {fontSize: 44, marginBottom: 6},
+  headerTitle: {
+    fontSize: FONTS.xxl,
+    fontWeight: FONTS.bold,
+    color: COLORS.white,
+    marginBottom: SPACING.sm,
+  },
+  headerDesc: {
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.9)',
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: SPACING.md,
+  },
 
   // How it works
-  howItWorks: { backgroundColor: COLORS.white, padding: SPACING.lg, ...SHADOWS.small },
-  howTitle: { fontSize: FONTS.md, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.md },
-  stepsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  stepItem: { alignItems: 'center', flex: 1 },
+  howItWorks: {
+    backgroundColor: COLORS.white,
+    padding: SPACING.lg,
+    ...SHADOWS.small,
+  },
+  howTitle: {
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.md,
+  },
+  stepsRow: {flexDirection: 'row', justifyContent: 'space-between'},
+  stepItem: {alignItems: 'center', flex: 1},
   stepNum: {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: COLORS.primaryGreen, alignItems: 'center', justifyContent: 'center',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primaryGreen,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 4,
   },
-  stepNumTxt: { color: COLORS.white, fontSize: FONTS.sm, fontWeight: FONTS.bold },
-  stepEmoji: { fontSize: 26, marginBottom: 6 },
-  stepLabel: { fontSize: 12, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 16, paddingHorizontal: 4, fontWeight: '600' },
+  stepNumTxt: {color: COLORS.white, fontSize: FONTS.sm, fontWeight: FONTS.bold},
+  stepEmoji: {fontSize: 26, marginBottom: 6},
+  stepLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 16,
+    paddingHorizontal: 4,
+    fontWeight: '600',
+  },
 
   // Group card
-  groupCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, marginBottom: SPACING.lg, overflow: 'hidden', ...SHADOWS.medium },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: SPACING.md },
-  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: SPACING.sm },
-  groupEmoji: { fontSize: 32 },
-  groupTitle: { fontSize: FONTS.md, fontWeight: FONTS.bold, color: COLORS.textPrimary },
-  groupTitleEn: { fontSize: FONTS.xs, color: COLORS.textMuted },
-  groupLocation: { fontSize: FONTS.xs, color: COLORS.textSecondary },
-  statusBadge: { borderRadius: RADIUS.md, padding: SPACING.sm, alignItems: 'center', minWidth: 90 },
-  statusLabel: { fontSize: FONTS.xs, fontWeight: FONTS.bold, textAlign: 'center' },
-  statusLabelEn: { fontSize: 9, textAlign: 'center' },
-  cardBody: { padding: SPACING.lg },
+  groupCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    marginBottom: SPACING.lg,
+    overflow: 'hidden',
+    ...SHADOWS.medium,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: SPACING.md,
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: SPACING.sm,
+  },
+  groupEmoji: {fontSize: 32},
+  groupTitle: {
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+  },
+  groupTitleEn: {fontSize: FONTS.xs, color: COLORS.textMuted},
+  groupLocation: {fontSize: FONTS.xs, color: COLORS.textSecondary},
+  statusBadge: {
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    alignItems: 'center',
+    minWidth: 90,
+  },
+  statusLabel: {
+    fontSize: FONTS.xs,
+    fontWeight: FONTS.bold,
+    textAlign: 'center',
+  },
+  statusLabelEn: {fontSize: 9, textAlign: 'center'},
+  cardBody: {padding: SPACING.lg},
 
   // Members
-  membersSection: { marginBottom: SPACING.md },
-  membersHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: SPACING.sm },
-  membersLabel: { fontSize: FONTS.sm, color: COLORS.textSecondary },
-  membersCount: { fontSize: FONTS.md, fontWeight: FONTS.bold, color: COLORS.primaryGreen },
-  progressBg: { height: 10, backgroundColor: '#E0E0E0', borderRadius: RADIUS.full, overflow: 'hidden', marginBottom: SPACING.sm },
-  progressFill: { height: '100%', borderRadius: RADIUS.full },
-  avatarsRow: { flexDirection: 'row', alignItems: 'center' },
-  memberAvatar: {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: COLORS.primaryGreen, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: COLORS.white,
+  membersSection: {marginBottom: SPACING.md},
+  membersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
   },
-  memberAvatarTxt: { color: COLORS.white, fontSize: FONTS.xs, fontWeight: FONTS.bold },
-  membersNeeded: { fontSize: FONTS.xs, color: COLORS.textMuted, marginLeft: SPACING.sm },
+  membersLabel: {fontSize: FONTS.sm, color: COLORS.textSecondary},
+  membersCount: {
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+    color: COLORS.primaryGreen,
+  },
+  progressBg: {
+    height: 10,
+    backgroundColor: '#E0E0E0',
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
+    marginBottom: SPACING.sm,
+  },
+  progressFill: {height: '100%', borderRadius: RADIUS.full},
+  avatarsRow: {flexDirection: 'row', alignItems: 'center'},
+  memberAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primaryGreen,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
+  memberAvatarTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.xs,
+    fontWeight: FONTS.bold,
+  },
+  membersNeeded: {
+    fontSize: FONTS.xs,
+    color: COLORS.textMuted,
+    marginLeft: SPACING.sm,
+  },
 
   // Products
-  productsSection: { backgroundColor: COLORS.background, borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.md },
-  productsSectionTitle: { fontSize: FONTS.sm, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.sm },
-  productRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  productName: { flex: 1, fontSize: FONTS.sm, color: COLORS.textSecondary },
-  productQty: { fontSize: FONTS.sm, color: COLORS.textMuted, marginHorizontal: SPACING.sm },
-  productPrice: { fontSize: FONTS.sm, fontWeight: FONTS.bold, color: COLORS.primaryGreen },
+  productsSection: {
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  productsSectionTitle: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.sm,
+  },
+  productRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  productName: {flex: 1, fontSize: FONTS.sm, color: COLORS.textSecondary},
+  productQty: {
+    fontSize: FONTS.sm,
+    color: COLORS.textMuted,
+    marginHorizontal: SPACING.sm,
+  },
+  productPrice: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.bold,
+    color: COLORS.primaryGreen,
+  },
 
   // Benefits
-  benefitsRow: { flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.md },
-  benefitChip: {
-    flex: 1, backgroundColor: '#E8F5E9', borderRadius: RADIUS.md,
-    padding: SPACING.sm, alignItems: 'center',
+  benefitsRow: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
   },
-  benefitEmoji: { fontSize: 20, marginBottom: 2 },
-  benefitLabel: { fontSize: FONTS.xs, color: COLORS.textMuted, textAlign: 'center' },
-  benefitValue: { fontSize: FONTS.xs, fontWeight: FONTS.bold, color: COLORS.primaryGreen, textAlign: 'center' },
+  benefitChip: {
+    flex: 1,
+    backgroundColor: '#E8F5E9',
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    alignItems: 'center',
+  },
+  benefitEmoji: {fontSize: 20, marginBottom: 2},
+  benefitLabel: {
+    fontSize: FONTS.xs,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  benefitValue: {
+    fontSize: FONTS.xs,
+    fontWeight: FONTS.bold,
+    color: COLORS.primaryGreen,
+    textAlign: 'center',
+  },
 
   // Buttons
-  joinBtn: { borderRadius: RADIUS.lg, overflow: 'hidden' },
-  joinBtnGrad: { paddingVertical: 14, alignItems: 'center' },
-  joinBtnTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
+  joinBtn: {borderRadius: RADIUS.lg, overflow: 'hidden'},
+  joinBtnGrad: {paddingVertical: 14, alignItems: 'center'},
+  joinBtnTxt: {color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold},
   fullBtn: {
-    backgroundColor: '#F5F5F5', borderRadius: RADIUS.lg,
-    paddingVertical: 14, alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: RADIUS.lg,
+    paddingVertical: 14,
+    alignItems: 'center',
   },
-  fullBtnTxt: { color: COLORS.textMuted, fontSize: FONTS.md, fontWeight: FONTS.semiBold },
+  fullBtnTxt: {
+    color: COLORS.textMuted,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.semiBold,
+  },
 
   // Create form
-  createBtn: { borderRadius: RADIUS.lg, overflow: 'hidden', marginBottom: SPACING.lg },
-  createBtnGrad: { paddingVertical: 14, alignItems: 'center' },
-  createBtnTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
-  activeGroupsTitle: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.md },
+  createBtn: {
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    marginBottom: SPACING.lg,
+  },
+  createBtnGrad: {paddingVertical: 14, alignItems: 'center'},
+  createBtnTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+  },
+  activeGroupsTitle: {
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.md,
+  },
   createForm: {
-    backgroundColor: COLORS.white, borderRadius: RADIUS.xl,
-    padding: SPACING.xl, marginBottom: SPACING.lg, ...SHADOWS.card,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    marginBottom: SPACING.lg,
+    ...SHADOWS.card,
   },
-  createFormTitle: { fontSize: FONTS.lg, fontWeight: FONTS.bold, color: COLORS.textPrimary, marginBottom: SPACING.lg },
-  formField: { marginBottom: SPACING.md },
-  formLabel: { fontSize: FONTS.sm, fontWeight: FONTS.semiBold, color: COLORS.textSecondary, marginBottom: 6, lineHeight: 18 },
+  createFormTitle: {
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.lg,
+  },
+  formField: {marginBottom: SPACING.md},
+  formLabel: {
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.semiBold,
+    color: COLORS.textSecondary,
+    marginBottom: 6,
+    lineHeight: 18,
+  },
   formInput: {
-    backgroundColor: COLORS.background, borderRadius: RADIUS.md,
-    paddingHorizontal: SPACING.lg, height: 50,
-    fontSize: FONTS.md, color: COLORS.textPrimary,
-    borderWidth: 1.5, borderColor: COLORS.borderLight,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.lg,
+    height: 50,
+    fontSize: FONTS.md,
+    color: COLORS.textPrimary,
+    borderWidth: 1.5,
+    borderColor: COLORS.borderLight,
   },
-  createSubmitTxt: { color: COLORS.white, fontSize: FONTS.md, fontWeight: FONTS.bold },
+  createSubmitTxt: {
+    color: COLORS.white,
+    fontSize: FONTS.md,
+    fontWeight: FONTS.bold,
+  },
 
   // Modal styles
   modalOverlay: {

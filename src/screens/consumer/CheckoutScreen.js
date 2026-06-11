@@ -4,7 +4,7 @@
 // ✅ Form validation: name, address, pincode required
 // ============================================================
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -41,6 +41,20 @@ const CheckoutScreen = ({navigation}) => {
   const [pincode, setPincode] = useState(user?.pincode || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [isLoading, setIsLoading] = useState(false);
+  const [consumerLocation, setConsumerLocation] = useState(null);
+  const [fetchingLocation, setFetchingLocation] = useState(false);
+
+  const fetchGPSLocation = async () => {
+    setFetchingLocation(true);
+    const loc = await getConsumerLocation();
+    setConsumerLocation(loc);
+    setFetchingLocation(false);
+  };
+
+  useEffect(() => {
+    fetchGPSLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const deliveryFee = 0; // Free for first 3 months
   const finalAmount = totalAmount + deliveryFee;
@@ -133,11 +147,19 @@ const CheckoutScreen = ({navigation}) => {
       return;
     }
 
+    if (!consumerLocation) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('checkout.locationCoordsRequired', {
+          defaultValue:
+            'விநியோகஸ்தருக்கு உதவ, தயவுசெய்து உங்கள் ஜி.பி.எஸ் இருப்பிடத்தை இணைக்கவும்!',
+        }),
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // ✅ Get location ONCE before creating orders
-      const consumerLocation = await getConsumerLocation();
-
       // Group by farmer
       const farmerGroups = {};
       cartItems.forEach(item => {
@@ -178,7 +200,11 @@ const CheckoutScreen = ({navigation}) => {
             farmerLocation:
               farmerProfile.address || farmerProfile.location || '',
             farmerCoords:
-              farmerProfile.coordinates || farmerProfile.locationCoords || null,
+              items[0]?.coordinates ||
+              items[0]?.locationCoords ||
+              farmerProfile.coordinates ||
+              farmerProfile.locationCoords ||
+              null,
             items: items.map(i => ({
               id: i.id,
               name: i.name,
@@ -300,6 +326,56 @@ const CheckoutScreen = ({navigation}) => {
               keyboardType="numeric"
               maxLength={6}
             />
+          </View>
+          {/* GPS Location details selector */}
+          <View style={styles.formField}>
+            <Text style={styles.formLabel}>
+              {t('checkout.gpsLocation', {
+                defaultValue: 'GPS இருப்பிடம் / GPS Location',
+              })}{' '}
+              *
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.formInput,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#F5F5F5',
+                  borderColor: consumerLocation
+                    ? COLORS.primaryGreen
+                    : COLORS.accentRed,
+                  borderWidth: 1.5,
+                },
+              ]}
+              onPress={fetchGPSLocation}
+              disabled={fetchingLocation}>
+              <Text
+                style={{
+                  color: consumerLocation
+                    ? COLORS.primaryGreen
+                    : COLORS.accentRed,
+                  fontWeight: 'bold',
+                  fontSize: rs(FONTS.sm),
+                }}>
+                {consumerLocation
+                  ? `${t('checkout.locationAdded', {
+                      defaultValue: '✅ GPS இருப்பிடம் இணைக்கப்பட்டது',
+                    })} (${consumerLocation.lat.toFixed(
+                      4,
+                    )}, ${consumerLocation.lng.toFixed(4)})`
+                  : t('checkout.locationMissing', {
+                      defaultValue:
+                        '❌ GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)',
+                    })}
+              </Text>
+              {fetchingLocation ? (
+                <ActivityIndicator color={COLORS.primaryGreen} size="small" />
+              ) : (
+                <Text style={{fontSize: rs(16)}}>📍</Text>
+              )}
+            </TouchableOpacity>
           </View>
           <View style={styles.formField}>
             <Text style={styles.formLabel}>
