@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "முகப்பு",
+    "reels": "ரீல்ஸ்",
     "cart": "கார்ட்",
     "orders": "ஆர்டர்",
     "profile": "சுயவிவரம்",
@@ -464,7 +465,11 @@
     "deletePrompt": "இந்த செய்தியை உறுதியாக நீக்க வேண்டுமா?",
     "deleteForMe": "எனக்கு மட்டும் நீக்கு",
     "deleteForEveryone": "அனைவருக்கும் நீக்கு",
-    "cancel": "ரத்து செய்"
+    "cancel": "ரத்து செய்",
+    "sharedLocation": "📍 பகிர்ந்த இருப்பிடம்",
+    "viewOnMap": "வரைபடத்தில் காண்க",
+    "locationPermissionErr": "ஜிபிஎஸ் அனுமதி மறுக்கப்பட்டது",
+    "messageDeletedEveryone": "🚫 இந்தச் செய்தி நீக்கப்பட்டது"
   },
   "groupBuy": {
     "title": "கூட்டு வாங்கல்",
@@ -535,5 +540,10 @@
     "tryAgainBtn": "📧 மீண்டும் முயற்சிக்கவும்",
     "resetNoAccountTitle": "❌ கணக்கு இல்லை",
     "resetNoAccountMsg": "இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account."
+  },
+  "reels": {
+    "views": "பார்வைகள்",
+    "soundOn": "சத்தம் ஆன்",
+    "soundOff": "சத்தம் ஆஃப்"
   }
 }

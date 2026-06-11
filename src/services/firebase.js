@@ -16,118 +16,146 @@ import messaging from '@react-native-firebase/messaging';
 export const firebaseEmailLogin = async (email, password) => {
   try {
     const result = await auth().signInWithEmailAndPassword(email, password);
-    return { success: true, user: result.user };
+    return {success: true, user: result.user};
   } catch (error) {
     let message = 'உள்நுழைவு பிழை ஏற்பட்டது / Login error occurred';
     let errorType = 'generic';
     if (error.code === 'auth/user-not-found') {
-      message = 'இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email.\nPlease register first.';
+      message =
+        'இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email.\nPlease register first.';
       errorType = 'user-not-found';
     }
     if (error.code === 'auth/wrong-password') {
-      message = '🔑 தவறான கடவுச்சொல்!\n\nஇந்த மின்னஞ்சலுக்கான கடவுச்சொல் தவறாக உள்ளது.\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nWrong password! Please enter the correct password or try "Forgot Password".';
+      message =
+        '🔑 தவறான கடவுச்சொல்!\n\nஇந்த மின்னஞ்சலுக்கான கடவுச்சொல் தவறாக உள்ளது.\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nWrong password! Please enter the correct password or try "Forgot Password".';
       errorType = 'wrong-password';
     }
     if (error.code === 'auth/invalid-email') {
-      message = '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format! Please enter a valid email address.';
+      message =
+        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format! Please enter a valid email address.';
       errorType = 'invalid-email';
     }
     if (error.code === 'auth/too-many-requests') {
-      message = '⏳ பல முறை தவறான கடவுச்சொல்!\n\nஉங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது. சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nToo many failed attempts. Please wait or reset your password.';
+      message =
+        '⏳ பல முறை தவறான கடவுச்சொல்!\n\nஉங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது. சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nToo many failed attempts. Please wait or reset your password.';
       errorType = 'too-many-requests';
     }
     if (error.code === 'auth/invalid-credential') {
-      message = '🔑 தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்!\n\nநீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது.\nசரியான தகவல்களை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nIncorrect email or password. Please try again or use "Forgot Password".';
+      message =
+        '🔑 தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்!\n\nநீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது.\nசரியான தகவல்களை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nIncorrect email or password. Please try again or use "Forgot Password".';
       errorType = 'wrong-password';
     }
     if (error.code === 'auth/user-disabled') {
-      message = '🚫 உங்கள் கணக்கு முடக்கப்பட்டுள்ளது!\n\nநிர்வாகி உங்கள் கணக்கை முடக்கியுள்ளார்.\nதயவுசெய்து நிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled by the administrator. Please contact admin.';
+      message =
+        '🚫 உங்கள் கணக்கு முடக்கப்பட்டுள்ளது!\n\nநிர்வாகி உங்கள் கணக்கை முடக்கியுள்ளார்.\nதயவுசெய்து நிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled by the administrator. Please contact admin.';
       errorType = 'account-disabled';
     }
     if (error.code === 'auth/network-request-failed') {
-      message = '📶 இணைய இணைப்பு இல்லை!\n\nதயவுசெய்து உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nNo internet connection. Please check your network and try again.';
+      message =
+        '📶 இணைய இணைப்பு இல்லை!\n\nதயவுசெய்து உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nNo internet connection. Please check your network and try again.';
       errorType = 'network';
     }
-    return { success: false, error: message, errorType };
+    return {success: false, error: message, errorType};
   }
 };
 
 export const firebaseEmailRegister = async (email, password) => {
   try {
     const result = await auth().createUserWithEmailAndPassword(email, password);
-    return { success: true, user: result.user };
+    return {success: true, user: result.user};
   } catch (error) {
     let message = 'பதிவு பிழை / Registration error';
     let errorType = 'generic';
     if (error.code === 'auth/email-already-in-use') {
-      message = '⚠️ இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\n\nஇந்த Email Address ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது. வேறு Email பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered with another account. Please use a different email or login.';
+      message =
+        '⚠️ இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\n\nஇந்த Email Address ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது. வேறு Email பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered with another account. Please use a different email or login.';
       errorType = 'email-exists';
     }
     if (error.code === 'auth/weak-password') {
-      message = '🔒 கடவுச்சொல் பலவீனமாக உள்ளது!\n\nகுறைந்தது 6 எழுத்துக்கள் வேண்டும்.\nஒரு வலுவான கடவுச்சொல் உருவாக்கவும்.\n\nPassword is too weak. Must be at least 6 characters.';
+      message =
+        '🔒 கடவுச்சொல் பலவீனமாக உள்ளது!\n\nகுறைந்தது 6 எழுத்துக்கள் வேண்டும்.\nஒரு வலுவான கடவுச்சொல் உருவாக்கவும்.\n\nPassword is too weak. Must be at least 6 characters.';
       errorType = 'weak-password';
     }
     if (error.code === 'auth/invalid-email') {
-      message = '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
+      message =
+        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
       errorType = 'invalid-email';
     }
     if (error.code === 'auth/network-request-failed') {
-      message = '📶 இணைய இணைப்பு இல்லை!\n\nNo internet connection. Please check your network.';
+      message =
+        '📶 இணைய இணைப்பு இல்லை!\n\nNo internet connection. Please check your network.';
       errorType = 'network';
     }
-    return { success: false, error: message, errorType };
+    return {success: false, error: message, errorType};
   }
 };
 
 export const sendPhoneOTP = async phoneNumber => {
   try {
-    const confirmation = await auth().signInWithPhoneNumber('+91' + phoneNumber);
-    return { success: true, confirmation };
+    const confirmation = await auth().signInWithPhoneNumber(
+      '+91' + phoneNumber,
+    );
+    return {success: true, confirmation};
   } catch (error) {
     let message = 'OTP அனுப்ப முடியவில்லை';
-    if (error.code === 'auth/invalid-phone-number') message = 'தவறான தொலைபேசி எண்';
-    if (error.code === 'auth/too-many-requests') message = 'சற்று நேரம் காத்திருங்கள்';
-    return { success: false, error: `${message}\n\n[Debug: ${error.code}] ${error.message}` };
+    if (error.code === 'auth/invalid-phone-number') {
+      message = 'தவறான தொலைபேசி எண்';
+    }
+    if (error.code === 'auth/too-many-requests') {
+      message = 'சற்று நேரம் காத்திருங்கள்';
+    }
+    return {
+      success: false,
+      error: `${message}\n\n[Debug: ${error.code}] ${error.message}`,
+    };
   }
 };
 
 export const verifyPhoneOTP = async (confirmation, otp) => {
   try {
     const result = await confirmation.confirm(otp);
-    return { success: true, user: result.user };
+    return {success: true, user: result.user};
   } catch (error) {
     let message = 'OTP தவறானது';
-    if (error.code === 'auth/invalid-verification-code') message = 'தவறான OTP குறியீடு';
-    if (error.code === 'auth/code-expired') message = 'OTP காலாவதியாகிவிட்டது';
-    return { success: false, error: message };
+    if (error.code === 'auth/invalid-verification-code') {
+      message = 'தவறான OTP குறியீடு';
+    }
+    if (error.code === 'auth/code-expired') {
+      message = 'OTP காலாவதியாகிவிட்டது';
+    }
+    return {success: false, error: message};
   }
 };
 
 export const firebaseLogout = async () => {
   try {
     await auth().signOut();
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const sendPasswordResetEmail = async email => {
   try {
     await auth().sendPasswordResetEmail(email);
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    let message = 'மீட்டமை லிங்க் அனுப்ப முடியவில்லை / Could not send reset link';
+    let message =
+      'மீட்டமை லிங்க் அனுப்ப முடியவில்லை / Could not send reset link';
     if (error.code === 'auth/user-not-found') {
-      message = '❌ இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email. Please check your email address or register a new account.\n\nஇந்த Email-ல் எந்த கணக்கும் பதிவு செய்யப்படவில்லை. மின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.';
+      message =
+        '❌ இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email. Please check your email address or register a new account.\n\nஇந்த Email-ல் எந்த கணக்கும் பதிவு செய்யப்படவில்லை. மின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.';
     }
     if (error.code === 'auth/invalid-email') {
-      message = '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
+      message =
+        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
     }
     if (error.code === 'auth/too-many-requests') {
-      message = '⏳ அதிக கோரிக்கைகள்!\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.\n\nToo many requests. Please wait and try again.';
+      message =
+        '⏳ அதிக கோரிக்கைகள்!\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.\n\nToo many requests. Please wait and try again.';
     }
-    return { success: false, error: message };
+    return {success: false, error: message};
   }
 };
 
@@ -142,20 +170,25 @@ export const saveUserProfile = async (uid, userData) => {
     await firestore()
       .collection('users')
       .doc(uid)
-      .set({ ...userData, updatedAt: firestore.FieldValue.serverTimestamp() }, { merge: true });
-    return { success: true };
+      .set(
+        {...userData, updatedAt: firestore.FieldValue.serverTimestamp()},
+        {merge: true},
+      );
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const getUserProfile = async uid => {
   try {
     const doc = await firestore().collection('users').doc(uid).get();
-    if (doc.exists) return { success: true, data: { id: doc.id, ...doc.data() } };
-    return { success: false, error: 'User not found' };
+    if (doc.exists) {
+      return {success: true, data: {id: doc.id, ...doc.data()}};
+    }
+    return {success: false, error: 'User not found'};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -176,12 +209,12 @@ export const getAllProducts = async () => {
   try {
     const snap = await firestore().collection('products').get();
     const products = sortByCreatedAt(
-      snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
     );
-    return { success: true, data: products };
+    return {success: true, data: products};
   } catch (error) {
     console.log('getAllProducts error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -192,13 +225,13 @@ export const listenToProducts = callback => {
     .onSnapshot(
       snap => {
         const products = sortByCreatedAt(
-          snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+          snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
         );
-        callback({ success: true, data: products });
+        callback({success: true, data: products});
       },
       error => {
         console.log('listenToProducts error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -206,44 +239,51 @@ export const listenToProducts = callback => {
 export const getProductById = async productId => {
   try {
     const doc = await firestore().collection('products').doc(productId).get();
-    if (doc.exists) return { success: true, data: { id: doc.id, ...doc.data() } };
-    return { success: false, error: 'Product not found' };
+    if (doc.exists) {
+      return {success: true, data: {id: doc.id, ...doc.data()}};
+    }
+    return {success: false, error: 'Product not found'};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const addProduct = async productData => {
   try {
-    const ref = await firestore().collection('products').add({
-      ...productData,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true, id: ref.id };
+    const ref = await firestore()
+      .collection('products')
+      .add({
+        ...productData,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true, id: ref.id};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const updateProduct = async (productId, updateData) => {
   try {
-    await firestore().collection('products').doc(productId).update({
-      ...updateData,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true };
+    await firestore()
+      .collection('products')
+      .doc(productId)
+      .update({
+        ...updateData,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const deleteProduct = async productId => {
   try {
     await firestore().collection('products').doc(productId).delete();
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -255,12 +295,12 @@ export const getFarmerProducts = async farmerId => {
       .where('farmerId', '==', farmerId)
       .get();
     const products = sortByCreatedAt(
-      snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
     );
-    return { success: true, data: products };
+    return {success: true, data: products};
   } catch (error) {
     console.log('getFarmerProducts error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -272,12 +312,12 @@ export const getProductsByCategory = async category => {
       .where('category', '==', category)
       .get();
     const products = sortByCreatedAt(
-      snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
     );
-    return { success: true, data: products };
+    return {success: true, data: products};
   } catch (error) {
     console.log('getProductsByCategory error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -291,31 +331,34 @@ export const getAllFarmers = async () => {
       .collection('farmers')
       .where('isActive', '==', true)
       .get();
-    
-    let farmersList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
+
+    let farmersList = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
     // Fallback: If farmers collection is empty, check users collection for userType == 'farmer'
     if (farmersList.length === 0) {
       const usersSnap = await firestore()
         .collection('users')
         .where('userType', '==', 'farmer')
         .get();
-      farmersList = usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      farmersList = usersSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
     }
 
-    return { success: true, data: farmersList };
+    return {success: true, data: farmersList};
   } catch (error) {
     console.log('getAllFarmers error:', error.message);
-    
+
     // Fallback if permission error on farmers collection
     try {
       const usersSnap = await firestore()
         .collection('users')
         .where('userType', '==', 'farmer')
         .get();
-      return { success: true, data: usersSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
+      return {
+        success: true,
+        data: usersSnap.docs.map(doc => ({id: doc.id, ...doc.data()})),
+      };
     } catch (fallbackError) {
-      return { success: false, error: error.message, data: [] };
+      return {success: false, error: error.message, data: []};
     }
   }
 };
@@ -325,10 +368,17 @@ export const saveFarmerProfile = async (farmerId, farmerData) => {
     await firestore()
       .collection('farmers')
       .doc(farmerId)
-      .set({ ...farmerData, isActive: true, updatedAt: firestore.FieldValue.serverTimestamp() }, { merge: true });
-    return { success: true };
+      .set(
+        {
+          ...farmerData,
+          isActive: true,
+          updatedAt: firestore.FieldValue.serverTimestamp(),
+        },
+        {merge: true},
+      );
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -337,23 +387,37 @@ export const getFarmerStats = async farmerId => {
     // ✅ NO orderBy - simple where queries
     const [ordersSnap, deliveredSnap, productsSnap] = await Promise.all([
       firestore().collection('orders').where('farmerId', '==', farmerId).get(),
-      firestore().collection('orders').where('farmerId', '==', farmerId).where('status', '==', 'Delivered').get(),
-      firestore().collection('products').where('farmerId', '==', farmerId).get(),
+      firestore()
+        .collection('orders')
+        .where('farmerId', '==', farmerId)
+        .where('status', '==', 'Delivered')
+        .get(),
+      firestore()
+        .collection('products')
+        .where('farmerId', '==', farmerId)
+        .get(),
     ]);
 
     const totalSales = deliveredSnap.docs.reduce(
-      (sum, doc) => sum + (doc.data().farmerAmount || doc.data().total || 0), 0
+      (sum, doc) => sum + (doc.data().farmerAmount || doc.data().total || 0),
+      0,
     );
 
     // This month - client side filter
     const now = new Date();
     const thisMonthDocs = ordersSnap.docs.filter(doc => {
       const created = doc.data().createdAt?.toDate?.();
-      if (!created) return false;
-      return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+      if (!created) {
+        return false;
+      }
+      return (
+        created.getMonth() === now.getMonth() &&
+        created.getFullYear() === now.getFullYear()
+      );
     });
     const thisMonthRevenue = thisMonthDocs.reduce(
-      (sum, doc) => sum + (doc.data().farmerAmount || 0), 0
+      (sum, doc) => sum + (doc.data().farmerAmount || 0),
+      0,
     );
 
     return {
@@ -370,7 +434,12 @@ export const getFarmerStats = async farmerId => {
     return {
       success: false,
       error: error.message,
-      data: { totalSales: 0, thisMonthRevenue: 0, totalOrders: 0, totalProducts: 0 },
+      data: {
+        totalSales: 0,
+        thisMonthRevenue: 0,
+        totalOrders: 0,
+        totalProducts: 0,
+      },
     };
   }
 };
@@ -383,16 +452,18 @@ export const getFarmerStats = async farmerId => {
 export const createOrder = async orderData => {
   try {
     const orderId = 'F2C' + Date.now().toString().slice(-6);
-    const ref = await firestore().collection('orders').add({
-      ...orderData,
-      orderId,
-      status: 'Pending',
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true, id: ref.id, orderId };
+    const ref = await firestore()
+      .collection('orders')
+      .add({
+        ...orderData,
+        orderId,
+        status: 'Pending',
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true, id: ref.id, orderId};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -405,12 +476,12 @@ export const getConsumerOrders = async consumerId => {
       .get();
 
     const orders = sortByCreatedAt(
-      snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
     );
-    return { success: true, data: orders };
+    return {success: true, data: orders};
   } catch (error) {
     console.log('getConsumerOrders error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -423,12 +494,12 @@ export const getFarmerOrders = async farmerId => {
       .get();
 
     const orders = sortByCreatedAt(
-      snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      snap.docs.map(doc => ({id: doc.id, ...doc.data()})),
     );
-    return { success: true, data: orders };
+    return {success: true, data: orders};
   } catch (error) {
     console.log('getFarmerOrders error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -438,9 +509,11 @@ export const listenToOrderStatus = (orderId, callback) => {
     .doc(orderId)
     .onSnapshot(
       doc => {
-        if (doc.exists) callback({ success: true, data: { id: doc.id, ...doc.data() } });
+        if (doc.exists) {
+          callback({success: true, data: {id: doc.id, ...doc.data()}});
+        }
       },
-      error => callback({ success: false, error: error.message }),
+      error => callback({success: false, error: error.message}),
     );
 };
 
@@ -458,26 +531,34 @@ export const createOrGetChatRoom = async (farmerId, consumerId) => {
 
     // Use set with merge — creates if missing, no-ops if exists
     // This only needs create/update permission, NOT read permission
-    await chatRef.set({
-      participants: [farmerId, consumerId],
-      farmerId,
-      consumerId,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      lastMessage: '',
-      lastMessageTime: firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await chatRef.set(
+      {
+        participants: [farmerId, consumerId],
+        farmerId,
+        consumerId,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        lastMessage: '',
+        lastMessageTime: firestore.FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
 
-    return { success: true, roomId };
+    return {success: true, roomId};
   } catch (e) {
     console.log('createOrGetChatRoom error:', e.message);
-    return { success: false, error: e.message };
+    return {success: false, error: e.message};
   }
 };
 
 // Internal: get consistent room ID
 const getChatRoomId = (farmerId, consumerId) => `${farmerId}_${consumerId}`;
 
-export const sendChatMessage = async (senderId, receiverId, messageText, senderRole = 'consumer') => {
+export const sendChatMessage = async (
+  senderId,
+  receiverId,
+  messageText,
+  senderRole = 'consumer',
+) => {
   try {
     // Determine farmerId and consumerId based on role
     const farmerId = senderRole === 'farmer' ? senderId : receiverId;
@@ -486,14 +567,17 @@ export const sendChatMessage = async (senderId, receiverId, messageText, senderR
 
     // Ensure room exists with participants (set+merge avoids read permission issues)
     const chatRef = firestore().collection('chats').doc(chatRoomId);
-    await chatRef.set({
-      participants: [farmerId, consumerId],
-      farmerId,
-      consumerId,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      lastMessage: '',
-      lastMessageTime: firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    await chatRef.set(
+      {
+        participants: [farmerId, consumerId],
+        farmerId,
+        consumerId,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        lastMessage: '',
+        lastMessageTime: firestore.FieldValue.serverTimestamp(),
+      },
+      {merge: true},
+    );
 
     // Add message
     await chatRef.collection('messages').add({
@@ -506,18 +590,21 @@ export const sendChatMessage = async (senderId, receiverId, messageText, senderR
     });
 
     // Update room metadata
-    await chatRef.set({
-      participants: [farmerId, consumerId],
-      farmerId,
-      consumerId,
-      lastMessage: messageText,
-      lastMessageTime: firestore.FieldValue.serverTimestamp(),
-      lastSenderId: senderId,
-    }, { merge: true });
+    await chatRef.set(
+      {
+        participants: [farmerId, consumerId],
+        farmerId,
+        consumerId,
+        lastMessage: messageText,
+        lastMessageTime: firestore.FieldValue.serverTimestamp(),
+        lastSenderId: senderId,
+      },
+      {merge: true},
+    );
 
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -530,14 +617,43 @@ export const deleteChatMessage = async (farmerId, consumerId, messageId) => {
       .collection('messages')
       .doc(messageId)
       .delete();
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('deleteChatMessage error:', error);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const listenToChatMessages = (userId1, userId2, callback, callerRole = 'consumer') => {
+export const deleteChatMessageForEveryone = async (
+  farmerId,
+  consumerId,
+  messageId,
+  deletedText = '🚫 This message was deleted',
+) => {
+  try {
+    const chatRoomId = getChatRoomId(farmerId, consumerId);
+    await firestore()
+      .collection('chats')
+      .doc(chatRoomId)
+      .collection('messages')
+      .doc(messageId)
+      .update({
+        text: deletedText,
+        isDeleted: true,
+      });
+    return {success: true};
+  } catch (error) {
+    console.log('deleteChatMessageForEveryone error:', error);
+    return {success: false, error: error.message};
+  }
+};
+
+export const listenToChatMessages = (
+  userId1,
+  userId2,
+  callback,
+  callerRole = 'consumer',
+) => {
   // Determine farmerId/consumerId based on caller role
   const farmerId = callerRole === 'farmer' ? userId1 : userId2;
   const consumerId = callerRole === 'farmer' ? userId2 : userId1;
@@ -553,20 +669,22 @@ export const listenToChatMessages = (userId1, userId2, callback, callerRole = 'c
           .map(doc => ({
             id: doc.id,
             ...doc.data(),
-            time: doc.data().createdAt?.toDate?.()?.toLocaleTimeString('en-IN', {
-              hour: '2-digit', minute: '2-digit',
-            }) || 'now',
+            time:
+              doc.data().createdAt?.toDate?.()?.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+              }) || 'now',
           }))
           .sort((a, b) => {
             const tA = a.createdAt?.toMillis?.() || 0;
             const tB = b.createdAt?.toMillis?.() || 0;
             return tA - tB; // ascending for chat
           });
-        callback({ success: true, data: messages });
+        callback({success: true, data: messages});
       },
       error => {
         console.log('Chat listen error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -579,17 +697,17 @@ export const listenToFarmerChats = (farmerId, callback) => {
     .onSnapshot(
       snap => {
         const chats = snap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .map(doc => ({id: doc.id, ...doc.data()}))
           .sort((a, b) => {
             const tA = a.lastMessageTime?.toMillis?.() || 0;
             const tB = b.lastMessageTime?.toMillis?.() || 0;
             return tB - tA; // newest first
           });
-        callback({ success: true, data: chats });
+        callback({success: true, data: chats});
       },
       error => {
         console.log('listenToFarmerChats error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -598,7 +716,13 @@ export const listenToFarmerChats = (farmerId, callback) => {
 // ⭐ RATING & REVIEW FUNCTIONS
 // ════════════════════════════════════════════════
 
-export const submitProductRating = async (productId, userId, ratingNum, reviewStr, userName) => {
+export const submitProductRating = async (
+  productId,
+  userId,
+  ratingNum,
+  reviewStr,
+  userName,
+) => {
   try {
     const productRef = firestore().collection('products').doc(productId);
     const ratingRef = productRef.collection('ratings').doc(userId);
@@ -616,9 +740,11 @@ export const submitProductRating = async (productId, userId, ratingNum, reviewSt
     let farmerId = null;
 
     // Use a transaction to safely update average and count
-    await firestore().runTransaction(async (transaction) => {
+    await firestore().runTransaction(async transaction => {
       const prodDoc = await transaction.get(productRef);
-      if (!prodDoc.exists) throw new Error('Product not found');
+      if (!prodDoc.exists) {
+        throw new Error('Product not found');
+      }
 
       const existingRatingDoc = await transaction.get(ratingRef);
       const prodData = prodDoc.data();
@@ -630,11 +756,14 @@ export const submitProductRating = async (productId, userId, ratingNum, reviewSt
         // Update existing rating
         const oldRating = existingRatingDoc.data().rating;
         newCount = currentCount;
-        newAvg = currentCount > 0 ? ((currentAvg * currentCount) - oldRating + ratingNum) / currentCount : ratingNum;
+        newAvg =
+          currentCount > 0
+            ? (currentAvg * currentCount - oldRating + ratingNum) / currentCount
+            : ratingNum;
       } else {
         // New rating
         newCount = currentCount + 1;
-        newAvg = ((currentAvg * currentCount) + ratingNum) / newCount;
+        newAvg = (currentAvg * currentCount + ratingNum) / newCount;
       }
 
       newAvg = Math.round(newAvg * 10) / 10; // 1 decimal place
@@ -667,27 +796,37 @@ export const submitProductRating = async (productId, userId, ratingNum, reviewSt
           }
         });
 
-        const farmerAvg = ratedCount > 0 ? Math.round((totalRating / ratedCount) * 10) / 10 : 0;
+        const farmerAvg =
+          ratedCount > 0 ? Math.round((totalRating / ratedCount) * 10) / 10 : 0;
 
-        await firestore().collection('farmers').doc(farmerId).set({
-          rating: farmerAvg,
-          totalReviews: ratedCount,
-          updatedAt: firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+        await firestore().collection('farmers').doc(farmerId).set(
+          {
+            rating: farmerAvg,
+            totalReviews: ratedCount,
+            updatedAt: firestore.FieldValue.serverTimestamp(),
+          },
+          {merge: true},
+        );
 
         // Also update in users collection if farmer profile exists there
-        await firestore().collection('users').doc(farmerId).set({
-          rating: farmerAvg,
-          totalReviews: ratedCount,
-        }, { merge: true });
+        await firestore().collection('users').doc(farmerId).set(
+          {
+            rating: farmerAvg,
+            totalReviews: ratedCount,
+          },
+          {merge: true},
+        );
       } catch (farmerErr) {
-        console.log('Farmer rating update error (non-critical):', farmerErr.message);
+        console.log(
+          'Farmer rating update error (non-critical):',
+          farmerErr.message,
+        );
       }
     }
 
-    return { success: true, newAvgRating: newAvg, newReviewCount: newCount };
+    return {success: true, newAvgRating: newAvg, newReviewCount: newCount};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -699,10 +838,12 @@ export const getUserProductRating = async (productId, userId) => {
       .collection('ratings')
       .doc(userId)
       .get();
-    if (doc.exists) return { success: true, data: doc.data() };
-    return { success: true, data: null };
+    if (doc.exists) {
+      return {success: true, data: doc.data()};
+    }
+    return {success: true, data: null};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -712,15 +853,19 @@ export const getUserProductRating = async (productId, userId) => {
 
 export const updateOrderStatus = async (orderId, newStatus) => {
   try {
-    await firestore().collection('orders').doc(orderId).update({
-      status: newStatus,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-      [`${newStatus.toLowerCase().replace(/ /g, '')}At`]: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true };
+    await firestore()
+      .collection('orders')
+      .doc(orderId)
+      .update({
+        status: newStatus,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+        [`${newStatus.toLowerCase().replace(/ /g, '')}At`]:
+          firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true};
   } catch (error) {
     console.log('updateOrderStatus error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -729,9 +874,9 @@ export const updateOrderStatus = async (orderId, newStatus) => {
 // ✅ Real Firestore notifications - no fake data!
 // ════════════════════════════════════════════════
 
-export const createNotification = async (notifData) => {
+export const createNotification = async notifData => {
   try {
-    const { userId, ...data } = notifData;
+    const {userId, ...data} = notifData;
     await firestore()
       .collection('notifications')
       .doc(userId)
@@ -743,10 +888,10 @@ export const createNotification = async (notifData) => {
         pushSent: false, // Added for Node.js backend to process
         createdAt: firestore.FieldValue.serverTimestamp(),
       });
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('createNotification error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -758,17 +903,17 @@ export const listenToNotifications = (userId, callback) => {
     .onSnapshot(
       snap => {
         const notifs = snap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .map(doc => ({id: doc.id, ...doc.data()}))
           .sort((a, b) => {
             const tA = a.createdAt?.toMillis?.() || 0;
             const tB = b.createdAt?.toMillis?.() || 0;
             return tB - tA; // newest first
           });
-        callback({ success: true, data: notifs });
+        callback({success: true, data: notifs});
       },
       error => {
         console.log('listenToNotifications error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -783,9 +928,9 @@ export const markNotificationRead = async (userId, notifId) => {
       .update({
         isRead: true,
       });
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -794,58 +939,59 @@ export const markNotificationRead = async (userId, notifId) => {
 // Phase 1 implementation for F2C App Real Build
 // ════════════════════════════════════════════════
 
-export const addHarvest = async (harvestData) => {
+export const addHarvest = async harvestData => {
   try {
-    const docRef = await firestore().collection('harvests').add({
-      ...harvestData,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true, id: docRef.id };
+    const docRef = await firestore()
+      .collection('harvests')
+      .add({
+        ...harvestData,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true, id: docRef.id};
   } catch (error) {
     console.log('addHarvest error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const updateHarvest = async (harvestId, updates) => {
   try {
     await firestore().collection('harvests').doc(harvestId).update(updates);
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('updateHarvest error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const deleteHarvest = async (harvestId) => {
+export const deleteHarvest = async harvestId => {
   try {
     await firestore().collection('harvests').doc(harvestId).delete();
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('deleteHarvest error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const listenToHarvests = (callback) => {
+export const listenToHarvests = callback => {
   // Query all harvests for now. In future, we can filter by date >= today
   return firestore()
     .collection('harvests')
     .orderBy('harvestDate', 'asc')
     .onSnapshot(
       snap => {
-        const harvests = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        callback({ success: true, data: harvests });
+        const harvests = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        callback({success: true, data: harvests});
       },
       error => {
         console.log('listenToHarvests error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
-      }
+        callback({success: false, error: error.message, data: []});
+      },
     );
 };
 
-
-export const markAllNotificationsRead = async (userId) => {
+export const markAllNotificationsRead = async userId => {
   try {
     const snap = await firestore()
       .collection('notifications')
@@ -854,15 +1000,15 @@ export const markAllNotificationsRead = async (userId) => {
       .where('isRead', '==', false)
       .get();
     const batch = firestore().batch();
-    snap.docs.forEach(doc => batch.update(doc.ref, { isRead: true }));
+    snap.docs.forEach(doc => batch.update(doc.ref, {isRead: true}));
     await batch.commit();
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const clearAllNotifications = async (userId) => {
+export const clearAllNotifications = async userId => {
   try {
     const snap = await firestore()
       .collection('notifications')
@@ -872,9 +1018,9 @@ export const clearAllNotifications = async (userId) => {
     const batch = firestore().batch();
     snap.docs.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -884,60 +1030,91 @@ export const createOrderNotification = async (type, orderData) => {
     const notifs = [];
     if (type === 'order_placed') {
       // Notify farmer
-      notifs.push(createNotification({
-        userId: orderData.farmerId,
-        title: '🛒 புதிய ஆர்டர் வந்தது!',
-        titleEn: 'New Order Received!',
-        message: `${orderData.consumerName || 'Customer'} ஆர்டர் பண்ணியுள்ளார். Total: ₹${orderData.total}`,
-        messageEn: `${orderData.consumerName || 'Customer'} placed an order. Total: ₹${orderData.total}`,
-        type: 'new_order',
-        orderId: orderData.orderId,
-        emoji: '📦',
-        color: '#4CAF50',
-        bgColor: '#E8F5E9',
-      }));
+      notifs.push(
+        createNotification({
+          userId: orderData.farmerId,
+          title: '🛒 புதிய ஆர்டர் வந்தது!',
+          titleEn: 'New Order Received!',
+          message: `${
+            orderData.consumerName || 'Customer'
+          } ஆர்டர் பண்ணியுள்ளார். Total: ₹${orderData.total}`,
+          messageEn: `${
+            orderData.consumerName || 'Customer'
+          } placed an order. Total: ₹${orderData.total}`,
+          type: 'new_order',
+          orderId: orderData.orderId,
+          emoji: '📦',
+          color: '#4CAF50',
+          bgColor: '#E8F5E9',
+        }),
+      );
     } else if (type === 'status_update') {
       // Notify consumer
       const statusMessages = {
-        Confirmed: { ta: '✅ ஆர்டர் உறுதிசெய்யப்பட்டது!', en: 'Order Confirmed!' },
-        Shipped: { ta: '🚚 ஆர்டர் அனுப்பப்பட்டது!', en: 'Order Shipped!' },
-        Delivered: { ta: '🎉 ஆர்டர் வழங்கப்பட்டது!', en: 'Order Delivered!' },
-        Cancelled: { ta: '❌ ஆர்டர் ரத்து செய்யப்பட்டது', en: 'Order Cancelled' },
-        'Refund Requested': { ta: '💸 பணம் திரும்ப கோரிக்கை பெற்றது', en: 'Refund Request Received' },
-        'Refund Success': { ta: '✅ பணம் திரும்ப வெற்றி!', en: 'Refund Successful!' },
+        Confirmed: {
+          ta: '✅ ஆர்டர் உறுதிசெய்யப்பட்டது!',
+          en: 'Order Confirmed!',
+        },
+        Shipped: {ta: '🚚 ஆர்டர் அனுப்பப்பட்டது!', en: 'Order Shipped!'},
+        Delivered: {ta: '🎉 ஆர்டர் வழங்கப்பட்டது!', en: 'Order Delivered!'},
+        Cancelled: {ta: '❌ ஆர்டர் ரத்து செய்யப்பட்டது', en: 'Order Cancelled'},
+        'Refund Requested': {
+          ta: '💸 பணம் திரும்ப கோரிக்கை பெற்றது',
+          en: 'Refund Request Received',
+        },
+        'Refund Success': {
+          ta: '✅ பணம் திரும்ப வெற்றி!',
+          en: 'Refund Successful!',
+        },
       };
-      const msg = statusMessages[orderData.newStatus] || { ta: orderData.newStatus, en: orderData.newStatus };
-      notifs.push(createNotification({
-        userId: orderData.consumerId,
-        title: msg.ta,
-        titleEn: msg.en,
-        message: `Order #${orderData.orderId || ''} - ${msg.ta}`,
-        messageEn: `Order #${orderData.orderId || ''} - ${msg.en}`,
-        type: 'order_status',
-        orderId: orderData.orderId,
-        emoji: orderData.newStatus === 'Delivered' ? '🎉' : orderData.newStatus === 'Shipped' ? '🚚' : '📦',
-        color: orderData.newStatus === 'Cancelled' ? '#F44336' : '#4CAF50',
-        bgColor: orderData.newStatus === 'Cancelled' ? '#FFEBEE' : '#E8F5E9',
-      }));
+      const msg = statusMessages[orderData.newStatus] || {
+        ta: orderData.newStatus,
+        en: orderData.newStatus,
+      };
+      notifs.push(
+        createNotification({
+          userId: orderData.consumerId,
+          title: msg.ta,
+          titleEn: msg.en,
+          message: `Order #${orderData.orderId || ''} - ${msg.ta}`,
+          messageEn: `Order #${orderData.orderId || ''} - ${msg.en}`,
+          type: 'order_status',
+          orderId: orderData.orderId,
+          emoji:
+            orderData.newStatus === 'Delivered'
+              ? '🎉'
+              : orderData.newStatus === 'Shipped'
+              ? '🚚'
+              : '📦',
+          color: orderData.newStatus === 'Cancelled' ? '#F44336' : '#4CAF50',
+          bgColor: orderData.newStatus === 'Cancelled' ? '#FFEBEE' : '#E8F5E9',
+        }),
+      );
     } else if (type === 'product_added') {
       // Notify all consumers - we skip batch since we don't have consumer list
       // This is created per-consumer from the calling code
-      notifs.push(createNotification({
-        userId: orderData.userId,
-        title: '🆕 புதிய தயாரிப்பு!',
-        titleEn: 'New Product Added!',
-        message: `${orderData.farmerName || 'Farmer'} புதிதாக ${orderData.productName || ''} சேர்த்துள்ளார்!`,
-        messageEn: `${orderData.farmerName || 'Farmer'} added ${orderData.productNameEn || orderData.productName || ''}!`,
-        type: 'new_product',
-        emoji: '🌱',
-        color: '#4CAF50',
-        bgColor: '#E8F5E9',
-      }));
+      notifs.push(
+        createNotification({
+          userId: orderData.userId,
+          title: '🆕 புதிய தயாரிப்பு!',
+          titleEn: 'New Product Added!',
+          message: `${orderData.farmerName || 'Farmer'} புதிதாக ${
+            orderData.productName || ''
+          } சேர்த்துள்ளார்!`,
+          messageEn: `${orderData.farmerName || 'Farmer'} added ${
+            orderData.productNameEn || orderData.productName || ''
+          }!`,
+          type: 'new_product',
+          emoji: '🌱',
+          color: '#4CAF50',
+          bgColor: '#E8F5E9',
+        }),
+      );
     }
     await Promise.all(notifs);
-    return { success: true };
+    return {success: true};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -946,19 +1123,19 @@ export const createOrderNotification = async (type, orderData) => {
 // Real products with harvestTime field
 // ════════════════════════════════════════════════
 
-export const listenToFreshProducts = (callback) => {
+export const listenToFreshProducts = callback => {
   return firestore()
     .collection('products')
     .onSnapshot(
       snap => {
         const products = snap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .map(doc => ({id: doc.id, ...doc.data()}))
           .filter(p => p.harvestTime != null); // Only products with harvestTime
-        callback({ success: true, data: products });
+        callback({success: true, data: products});
       },
       error => {
         console.log('listenToFreshProducts error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -968,21 +1145,23 @@ export const listenToFreshProducts = (callback) => {
 // Real Firestore CRUD for கூட்டு வாங்கல்
 // ════════════════════════════════════════════════
 
-export const createGroupBuy = async (groupData) => {
+export const createGroupBuy = async groupData => {
   try {
-    const ref = await firestore().collection('groupBuys').add({
-      ...groupData,
-      currentMembers: 1,
-      members: [groupData.organizerId],
-      memberNames: [groupData.organizerName],
-      status: 'open',
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true, id: ref.id };
+    const ref = await firestore()
+      .collection('groupBuys')
+      .add({
+        ...groupData,
+        currentMembers: 1,
+        members: [groupData.organizerId],
+        memberNames: [groupData.organizerName],
+        status: 'open',
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true, id: ref.id};
   } catch (error) {
     console.log('createGroupBuy error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -990,14 +1169,25 @@ export const joinGroupBuy = async (groupId, userId, userName) => {
   try {
     const ref = firestore().collection('groupBuys').doc(groupId);
     const doc = await ref.get();
-    if (!doc.exists) return { success: false, error: 'Group not found' };
+    if (!doc.exists) {
+      return {success: false, error: 'Group not found'};
+    }
 
     const data = doc.data();
-    if (data.members?.includes(userId)) return { success: false, error: 'Already a member' };
-    if (data.currentMembers >= data.targetMembers) return { success: false, error: 'Group is full' };
+    if (data.members?.includes(userId)) {
+      return {success: false, error: 'Already a member'};
+    }
+    if (data.currentMembers >= data.targetMembers) {
+      return {success: false, error: 'Group is full'};
+    }
 
     const newCount = (data.currentMembers || 0) + 1;
-    const newStatus = newCount >= data.targetMembers ? 'full' : newCount >= data.targetMembers - 2 ? 'almostFull' : 'open';
+    const newStatus =
+      newCount >= data.targetMembers
+        ? 'full'
+        : newCount >= data.targetMembers - 2
+        ? 'almostFull'
+        : 'open';
 
     await ref.update({
       members: firestore.FieldValue.arrayUnion(userId),
@@ -1006,10 +1196,10 @@ export const joinGroupBuy = async (groupId, userId, userName) => {
       status: newStatus,
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('joinGroupBuy error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -1017,7 +1207,9 @@ export const leaveGroupBuy = async (groupId, userId, userName) => {
   try {
     const ref = firestore().collection('groupBuys').doc(groupId);
     const doc = await ref.get();
-    if (!doc.exists) return { success: false, error: 'Group not found' };
+    if (!doc.exists) {
+      return {success: false, error: 'Group not found'};
+    }
 
     const data = doc.data();
     const newCount = Math.max(0, (data.currentMembers || 1) - 1);
@@ -1029,30 +1221,30 @@ export const leaveGroupBuy = async (groupId, userId, userName) => {
       status: 'open',
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('leaveGroupBuy error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const listenToGroupBuys = (callback) => {
+export const listenToGroupBuys = callback => {
   return firestore()
     .collection('groupBuys')
     .onSnapshot(
       snap => {
         const groups = snap.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .map(doc => ({id: doc.id, ...doc.data()}))
           .sort((a, b) => {
             const tA = a.createdAt?.toMillis?.() || 0;
             const tB = b.createdAt?.toMillis?.() || 0;
             return tB - tA;
           });
-        callback({ success: true, data: groups });
+        callback({success: true, data: groups});
       },
       error => {
         console.log('listenToGroupBuys error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
@@ -1062,7 +1254,13 @@ export const listenToGroupBuys = (callback) => {
 // Real pre-order tracking per harvest
 // ════════════════════════════════════════════════
 
-export const createPreOrder = async (harvestId, userId, userName, quantity, totalAmount) => {
+export const createPreOrder = async (
+  harvestId,
+  userId,
+  userName,
+  quantity,
+  totalAmount,
+) => {
   try {
     // Add pre-order doc
     await firestore()
@@ -1087,10 +1285,10 @@ export const createPreOrder = async (harvestId, userId, userName, quantity, tota
         totalPreOrders: firestore.FieldValue.increment(1),
       });
 
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('createPreOrder error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -1102,27 +1300,29 @@ export const getUserPreOrder = async (harvestId, userId) => {
       .collection('preOrders')
       .doc(userId)
       .get();
-    if (doc.exists) return { success: true, data: doc.data() };
-    return { success: true, data: null };
+    if (doc.exists) {
+      return {success: true, data: doc.data()};
+    }
+    return {success: true, data: null};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const getConsumerPreOrders = async (userId) => {
+export const getConsumerPreOrders = async userId => {
   try {
     const harvestsSnap = await firestore().collection('harvests').get();
     const preOrders = [];
-    
-    const promises = harvestsSnap.docs.map(async (harvestDoc) => {
+
+    const promises = harvestsSnap.docs.map(async harvestDoc => {
       const harvestId = harvestDoc.id;
       const harvestData = harvestDoc.data();
-      
+
       const preOrderDoc = await harvestDoc.ref
         .collection('preOrders')
         .doc(userId)
         .get();
-        
+
       if (preOrderDoc.exists) {
         preOrders.push({
           id: preOrderDoc.id,
@@ -1132,19 +1332,19 @@ export const getConsumerPreOrders = async (userId) => {
         });
       }
     });
-    
+
     await Promise.all(promises);
-    
+
     const sorted = [...preOrders].sort((a, b) => {
       const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
       const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
       return tB - tA;
     });
-    
-    return { success: true, data: sorted };
+
+    return {success: true, data: sorted};
   } catch (error) {
     console.log('getConsumerPreOrders error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -1153,7 +1353,11 @@ export const getConsumerPreOrders = async (userId) => {
 // Calculate from real delivered orders
 // ════════════════════════════════════════════════
 
-export const getDeliveredOrdersForPeriod = async (userId, startDate, endDate) => {
+export const getDeliveredOrdersForPeriod = async (
+  userId,
+  startDate,
+  endDate,
+) => {
   try {
     const snap = await firestore()
       .collection('orders')
@@ -1163,17 +1367,20 @@ export const getDeliveredOrdersForPeriod = async (userId, startDate, endDate) =>
 
     // Client-side date filter
     const orders = snap.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .map(doc => ({id: doc.id, ...doc.data()}))
       .filter(order => {
-        const created = order.createdAt?.toDate?.() || order.deliveredAt?.toDate?.();
-        if (!created) return false;
+        const created =
+          order.createdAt?.toDate?.() || order.deliveredAt?.toDate?.();
+        if (!created) {
+          return false;
+        }
         return created >= startDate && created <= endDate;
       });
 
-    return { success: true, data: orders };
+    return {success: true, data: orders};
   } catch (error) {
     console.log('getDeliveredOrdersForPeriod error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
 
@@ -1182,63 +1389,70 @@ export const getDeliveredOrdersForPeriod = async (userId, startDate, endDate) =>
 // Farmer creates visit slots, consumer books
 // ════════════════════════════════════════════════
 
-export const createFarmVisit = async (visitData) => {
+export const createFarmVisit = async visitData => {
   try {
-    const ref = await firestore().collection('farmVisits').add({
-      ...visitData,
-      isActive: true,
-      totalVisitors: 0,
-      rating: 0,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true, id: ref.id };
+    const ref = await firestore()
+      .collection('farmVisits')
+      .add({
+        ...visitData,
+        isActive: true,
+        totalVisitors: 0,
+        rating: 0,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true, id: ref.id};
   } catch (error) {
     console.log('createFarmVisit error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
 export const updateFarmVisit = async (visitId, updates) => {
   try {
-    await firestore().collection('farmVisits').doc(visitId).update({
-      ...updates,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-    });
-    return { success: true };
+    await firestore()
+      .collection('farmVisits')
+      .doc(visitId)
+      .update({
+        ...updates,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      });
+    return {success: true};
   } catch (error) {
     console.log('updateFarmVisit error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const listenToFarmVisits = (callback) => {
+export const listenToFarmVisits = callback => {
   return firestore()
     .collection('farmVisits')
     .where('isActive', '==', true)
     .onSnapshot(
       snap => {
-        const visits = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        callback({ success: true, data: visits });
+        const visits = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        callback({success: true, data: visits});
       },
       error => {
         console.log('listenToFarmVisits error:', error.message);
-        callback({ success: false, error: error.message, data: [] });
+        callback({success: false, error: error.message, data: []});
       },
     );
 };
 
-export const getFarmerFarmVisit = async (farmerId) => {
+export const getFarmerFarmVisit = async farmerId => {
   try {
     const snap = await firestore()
       .collection('farmVisits')
       .where('farmerId', '==', farmerId)
       .get();
-    if (snap.empty) return { success: true, data: null };
+    if (snap.empty) {
+      return {success: true, data: null};
+    }
     const doc = snap.docs[0];
-    return { success: true, data: { id: doc.id, ...doc.data() } };
+    return {success: true, data: {id: doc.id, ...doc.data()}};
   } catch (error) {
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
@@ -1257,14 +1471,14 @@ export const bookFarmVisit = async (visitId, bookingData) => {
       totalVisitors: firestore.FieldValue.increment(bookingData.visitors || 1),
     });
 
-    return { success: true };
+    return {success: true};
   } catch (error) {
     console.log('bookFarmVisit error:', error.message);
-    return { success: false, error: error.message };
+    return {success: false, error: error.message};
   }
 };
 
-export const getUserFarmVisitBookings = async (userId) => {
+export const getUserFarmVisitBookings = async userId => {
   try {
     // Query all farmVisits, then check bookings subcollection
     const snap = await firestore().collection('farmVisits').get();
@@ -1283,13 +1497,12 @@ export const getUserFarmVisitBookings = async (userId) => {
         });
       });
     }
-    return { success: true, data: bookings };
+    return {success: true, data: bookings};
   } catch (error) {
     console.log('getUserFarmVisitBookings error:', error.message);
-    return { success: false, error: error.message, data: [] };
+    return {success: false, error: error.message, data: []};
   }
 };
-
 
 export async function saveFCMToken(userId) {
   try {
@@ -1298,14 +1511,13 @@ export async function saveFCMToken(userId) {
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     const token = await messaging().getToken();
 
-    await firestore()
-      .collection('users')
-      .doc(userId)
-      .update({ fcmToken: token });
+    await firestore().collection('users').doc(userId).update({fcmToken: token});
 
     console.log('FCM token saved!');
   } catch (e) {
@@ -1319,17 +1531,16 @@ export const getAllConsumers = async () => {
       .collection('users')
       .where('userType', '==', 'consumer')
       .get();
-    const consumers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return { success: true, data: consumers };
+    const consumers = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    return {success: true, data: consumers};
   } catch (error) {
     console.log('getAllConsumers error:', error.message);
     try {
       const snap = await firestore().collection('users').get();
-      const allUsers = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      return { success: true, data: allUsers };
+      const allUsers = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      return {success: true, data: allUsers};
     } catch (e) {
-      return { success: false, error: error.message, data: [] };
+      return {success: false, error: error.message, data: []};
     }
   }
 };
-

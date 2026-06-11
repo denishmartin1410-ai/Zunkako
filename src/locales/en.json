@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Home",
+    "reels": "Reels",
     "cart": "Cart",
     "orders": "Orders",
     "profile": "Profile",
@@ -486,7 +487,11 @@
     "deletePrompt": "Are you sure you want to delete this message?",
     "deleteForMe": "Delete for me",
     "deleteForEveryone": "Delete for everyone",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "sharedLocation": "📍 Shared Location",
+    "viewOnMap": "View on Map",
+    "locationPermissionErr": "GPS permission denied",
+    "messageDeletedEveryone": "🚫 This message was deleted"
   },
   "delivery": {
     "title": "Delivery Partner",
@@ -515,5 +520,10 @@
     "tryAgainBtn": "📧 Try Again",
     "resetNoAccountTitle": "❌ No Account Found",
     "resetNoAccountMsg": "No account found with this email. Please check the spelling or try again."
+  },
+  "reels": {
+    "views": "views",
+    "soundOn": "Sound On",
+    "soundOff": "Sound Off"
   }
 }

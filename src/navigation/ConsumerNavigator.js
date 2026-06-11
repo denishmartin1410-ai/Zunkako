@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTranslation } from 'react-i18next';
-import { COLORS, FONTS } from '../utils/theme';
+import {View, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useTranslation} from 'react-i18next';
+import {COLORS, FONTS} from '../utils/theme';
 
 // ── Existing Screens (already in your project ✅) ──
 import HomeScreen from '../screens/consumer/HomeScreen';
@@ -19,7 +19,7 @@ import OrderDetailScreen from '../screens/consumer/OrderDetailScreen';
 import QRScanScreen from '../screens/consumer/QRScanScreen';
 import CheckoutScreen from '../screens/consumer/CheckoutScreen';
 import SettingsScreen from '../screens/shared/SettingsScreen';
-import { useCart } from '../context/CartContext';
+import {useCart} from '../context/CartContext';
 
 // ── Unique Feature Screens ──
 import HarvestCalendarScreen from '../screens/consumer/HarvestCalendarScreen';
@@ -28,6 +28,7 @@ import VillageGroupBuyScreen from '../screens/consumer/VillageGroupBuyScreen';
 import PreOrderScreen from '../screens/consumer/PreOrderScreen';
 import NutritionReportScreen from '../screens/consumer/NutritionReportScreen';
 import FarmVisitScreen from '../screens/consumer/FarmVisitScreen';
+import ReelsScreen from '../screens/consumer/ReelsScreen';
 
 // ── Batch 3 Screens ──
 import ChatListScreen from '../screens/consumer/ChatListScreen';
@@ -41,7 +42,7 @@ import HelpAboutScreen from '../screens/shared/HelpAboutScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TabIcon = ({ label, emoji, focused }) => (
+const TabIcon = ({label, emoji, focused}) => (
   <View style={styles.tabIconContainer}>
     <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>
       {emoji}
@@ -53,14 +54,18 @@ const TabIcon = ({ label, emoji, focused }) => (
 );
 
 const ConsumerTabs = () => {
-  const { totalItems } = useCart();
-  const { t } = useTranslation(); // ✅ Proper hook call (not require)
+  const {totalItems} = useCart();
+  const {t} = useTranslation(); // ✅ Proper hook call (not require)
 
   const tabs = {
-    home: { label: t('nav.home', { defaultValue: 'முகப்பு' }), emoji: '🏠' },
-    cart: { label: t('nav.cart', { defaultValue: 'கார்ட்' }), emoji: '🛒' },
-    orders: { label: t('nav.orders', { defaultValue: 'ஆர்டர்' }), emoji: '📦' },
-    profile: { label: t('nav.profile', { defaultValue: 'சுயவிவரம்' }), emoji: '👤' },
+    home: {label: t('nav.home', {defaultValue: 'முகப்பு'}), emoji: '🏠'},
+    reels: {label: t('nav.reels', {defaultValue: 'ரீல்ஸ்'}), emoji: '🎬'},
+    cart: {label: t('nav.cart', {defaultValue: 'கார்ட்'}), emoji: '🛒'},
+    orders: {label: t('nav.orders', {defaultValue: 'ஆர்டர்'}), emoji: '📦'},
+    profile: {
+      label: t('nav.profile', {defaultValue: 'சுயவிவரம்'}),
+      emoji: '👤',
+    },
   };
 
   return (
@@ -74,8 +79,25 @@ const ConsumerTabs = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label={tabs.home.label} emoji={tabs.home.emoji} focused={focused} />
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={tabs.home.label}
+              emoji={tabs.home.emoji}
+              focused={focused}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Reels"
+        component={ReelsScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={tabs.reels.label}
+              emoji={tabs.reels.emoji}
+              focused={focused}
+            />
           ),
         }}
       />
@@ -83,9 +105,13 @@ const ConsumerTabs = () => {
         name="Cart"
         component={CartScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <View>
-              <TabIcon label={tabs.cart.label} emoji={tabs.cart.emoji} focused={focused} />
+              <TabIcon
+                label={tabs.cart.label}
+                emoji={tabs.cart.emoji}
+                focused={focused}
+              />
               {totalItems > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>
@@ -101,8 +127,12 @@ const ConsumerTabs = () => {
         name="Orders"
         component={OrdersScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label={tabs.orders.label} emoji={tabs.orders.emoji} focused={focused} />
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={tabs.orders.label}
+              emoji={tabs.orders.emoji}
+              focused={focused}
+            />
           ),
         }}
       />
@@ -110,8 +140,12 @@ const ConsumerTabs = () => {
         name="Profile"
         component={ConsumerProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label={tabs.profile.label} emoji={tabs.profile.emoji} focused={focused} />
+          tabBarIcon: ({focused}) => (
+            <TabIcon
+              label={tabs.profile.label}
+              emoji={tabs.profile.emoji}
+              focused={focused}
+            />
           ),
         }}
       />
@@ -121,12 +155,12 @@ const ConsumerTabs = () => {
 
 const ConsumerNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="ConsumerTabs" component={ConsumerTabs} />
       <Stack.Screen
         name="ProductDetail"
         component={ProductDetailScreen}
-        options={{ animation: 'slide_from_bottom' }}
+        options={{animation: 'slide_from_bottom'}}
       />
       <Stack.Screen name="FarmerProfile" component={FarmerProfileScreen} />
       <Stack.Screen name="Wishlist" component={WishlistScreen} />
@@ -137,11 +171,14 @@ const ConsumerNavigator = () => {
       <Stack.Screen
         name="Checkout"
         component={CheckoutScreen}
-        options={{ animation: 'slide_from_bottom' }}
+        options={{animation: 'slide_from_bottom'}}
       />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="HarvestCalendar" component={HarvestCalendarScreen} />
-      <Stack.Screen name="FreshnessTracker" component={FreshnessTrackerScreen} />
+      <Stack.Screen
+        name="FreshnessTracker"
+        component={FreshnessTrackerScreen}
+      />
       <Stack.Screen name="VillageGroupBuy" component={VillageGroupBuyScreen} />
       <Stack.Screen name="PreOrder" component={PreOrderScreen} />
       <Stack.Screen name="NutritionReport" component={NutritionReportScreen} />
@@ -167,7 +204,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: COLORS.primaryGreen,
-    shadowOffset: { width: 0, height: -4 },
+    shadowOffset: {width: 0, height: -4},
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 12,
@@ -178,8 +215,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 8,
   },
-  tabEmoji: { fontSize: 22, opacity: 0.5 },
-  tabEmojiActive: { opacity: 1, transform: [{ scale: 1.1 }] },
+  tabEmoji: {fontSize: 22, opacity: 0.5},
+  tabEmojiActive: {opacity: 1, transform: [{scale: 1.1}]},
   tabLabel: {
     fontSize: FONTS.xs,
     color: COLORS.textMuted,
