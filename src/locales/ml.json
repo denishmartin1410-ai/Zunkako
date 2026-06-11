@@ -330,7 +330,19 @@
     "benefit4": "ഉറപ്പായ\nഗുണനിലവാരം",
     "inDays": "{{count}} ദിവസങ്ങൾക്കുള്ളിൽ",
     "harvestingToday": "ഇന്ന് വിളവെടുപ്പ്!",
-    "harvestingTomorrow": "നാളെ വിളവെടുപ്പ്!"
+    "harvestingTomorrow": "നാളെ വിളവെടുപ്പ്!",
+    "selectedHarvest": "തിരഞ്ഞെടുത്ത വിളവെടുപ്പ്",
+    "peoplePreOrdered_one": "{{count}} പേർ മുൻകൂട്ടി ഓർഡർ ചെയ്തു",
+    "peoplePreOrdered_other": "{{count}} പേർ മുൻകൂട്ടി ഓർഡർ ചെയ്തു",
+    "regular": "സാധാരണ",
+    "savings": "ലാഭം",
+    "guaranteeFresh": "മുൻകൂട്ടി ഓർഡർ ചെയ്താൽ പുതിയ ഉൽപ്പന്നം ഉറപ്പ്!",
+    "preOrderBtnText": "മുൻകൂട്ടി ഓർഡർ ചെയ്യുക",
+    "preOrderSubText": "ഇപ്പോൾ മുൻകൂട്ടി ഓർഡർ ചെയ്യുക",
+    "confirmTitle": "📅 മുൻകൂട്ടി ഓർഡർ സ്ഥിരീകരിക്കുക",
+    "confirmDetails": "വിളവെടുപ്പ് തീയതി: {{date}}\nവിളവെടുത്ത് 24 മണിക്കൂറിനുള്ളിൽ ഡെലിവറി ചെയ്യും!",
+    "confirmBtn": "സ്ഥിരീകരിക്കുക",
+    "cancelBtn": "അല്ല"
   },
   "nutrition": {
     "title": "പോഷകാഹാര റിപ്പോർട്ട്",

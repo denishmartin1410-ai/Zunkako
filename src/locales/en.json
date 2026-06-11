@@ -358,7 +358,19 @@
     "benefit4": "Guaranteed\nQuality",
     "inDays": "In {{count}} days",
     "harvestingToday": "Harvesting Today!",
-    "harvestingTomorrow": "Harvesting Tomorrow!"
+    "harvestingTomorrow": "Harvesting Tomorrow!",
+    "selectedHarvest": "Selected Harvest",
+    "peoplePreOrdered_one": "{{count}} person pre-ordered",
+    "peoplePreOrdered_other": "{{count}} people pre-ordered",
+    "regular": "Regular",
+    "savings": "Savings",
+    "guaranteeFresh": "Pre-order for guaranteed freshness!",
+    "preOrderBtnText": "Pre-Order",
+    "preOrderSubText": "Pre-Order Now",
+    "confirmTitle": "📅 Pre-Order Confirmation",
+    "confirmDetails": "Harvest Date: {{date}}\nDelivered within 24 hours of harvest!",
+    "confirmBtn": "Confirm",
+    "cancelBtn": "No"
   },
   "nutrition": {
     "title": "Nutrition Report",

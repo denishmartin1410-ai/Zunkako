@@ -75,7 +75,15 @@ service cloud.firestore {
       // ✅ Allow everyone to read harvests
       allow read: if true;
       allow create: if isFarmer() && request.resource.data.farmerId == request.auth.uid;
-      allow update, delete: if isOwner(resource.data.farmerId) || isAdmin();
+      // Allow owner/admin update, but also allow logged in users to update ONLY the totalPreOrders counter field
+      allow update: if isOwner(resource.data.farmerId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['totalPreOrders']));
+      allow delete: if isOwner(resource.data.farmerId) || isAdmin();
+
+      // Pre-orders Subcollection Rules
+      match /preOrders/{preOrderId} {
+        allow read: if isLoggedIn() && (request.auth.uid == preOrderId || isOwner(get(/databases/$(database)/documents/harvests/$(harvestId)).data.farmerId) || isAdmin());
+        allow write: if isLoggedIn() && (request.auth.uid == preOrderId || isOwner(get(/databases/$(database)/documents/harvests/$(harvestId)).data.farmerId) || isAdmin());
+      }
     }
 
     match /orders/{orderId} {

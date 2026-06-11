@@ -67,6 +67,16 @@ const FarmVisitScreen = ({navigation}) => {
     return farm.activitiesEn || farm.activities || [];
   };
 
+  const getVisitorsLabel = (count) => {
+    if (i18n.language === 'ta') {
+      return 'பேர்';
+    }
+    if (i18n.language === 'ml') {
+      return 'പേർ';
+    }
+    return count === 1 ? 'Member' : 'Members';
+  };
+
   React.useEffect(() => {
     const fetchFarmers = async () => {
       const res = await getAllFarmers();
@@ -131,7 +141,14 @@ const FarmVisitScreen = ({navigation}) => {
       return;
     }
 
-    const formattedMessage = `👋 வணக்கம்! பண்ணை வருகைக்கு (Farm Visit) அனுமதி கேட்கிறேன்.\n📅 தேதி: ${formattedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} ${t('farmVisit.member', { count: parseInt(visitors), defaultValue: 'பேர்' })}\nநாங்கள் வரலாமா? / Can we visit?`;
+    let formattedMessage = '';
+    if (i18n.language === 'ta') {
+      formattedMessage = `👋 வணக்கம்! தங்கள் பண்ணைக்கு நேரில் வர அனுமதி கேட்கிறேன்.\n📅 தேதி: ${formattedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} பேர்\nநாங்கள் வரலாமா?`;
+    } else if (i18n.language === 'ml') {
+      formattedMessage = `👋 നമസ്കാരം! നിങ്ങളുടെ ഫാം സന്ദർശിക്കാൻ ഞാൻ അനുവാദം ചോദിക്കുന്നു.\n📅 തിയ്യതി: ${formattedDate}\n⏰ സമയം: ${selectedSlot}\n👥 സന്ദർശകർ: ${visitors} പേർ\nഞങ്ങൾ വന്നോട്ടെ?`;
+    } else {
+      formattedMessage = `👋 Hello! I would like to request permission to visit your farm.\n📅 Date: ${formattedDate}\n⏰ Time: ${selectedSlot}\n👥 Visitors: ${visitors} ${getVisitorsLabel(parseInt(visitors))}\nCan we visit?`;
+    }
     
     setShowBooking(false);
     setSelectedFarm(null);
@@ -287,7 +304,7 @@ const FarmVisitScreen = ({navigation}) => {
                     onPress={() => setVisitors(v => String(Math.max(1, parseInt(v) - 1)))}>
                     <Text style={styles.visitorBtnTxt}>−</Text>
                   </TouchableOpacity>
-                  <Text style={styles.visitorsNum}>{visitors} {t('farmVisit.member', { count: parseInt(visitors), defaultValue: 'பேர்' })}</Text>
+                  <Text style={styles.visitorsNum}>{visitors} {getVisitorsLabel(parseInt(visitors))}</Text>
                   <TouchableOpacity
                     style={[styles.visitorBtn, styles.visitorBtnPlus]}
                     onPress={() => setVisitors(v => String(Math.min(selectedFarm.maxVisitorsPerSlot, parseInt(v) + 1)))}>

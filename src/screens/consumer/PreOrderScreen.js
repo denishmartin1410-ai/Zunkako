@@ -50,7 +50,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
     ]}>
       {isHighlighted && (
         <View style={styles.highlightBadge}>
-          <Text style={styles.highlightBadgeTxt}>🎯 {t('preOrder.selectedHarvest', {defaultValue: 'தேர்ந்தெடுக்கப்பட்ட அறுவடை / Selected Harvest'})}</Text>
+          <Text style={styles.highlightBadgeTxt}>🎯 {t('preOrder.selectedHarvest')}</Text>
         </View>
       )}
       {/* Image */}
@@ -110,7 +110,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={styles.progressLabel}>
-              🔥 {t('preOrder.peoplePreOrdered', {defaultValue: '{{count}} பேர் முன்கூட்டியே order பண்ணியுள்ளனர்', count: item.totalPreOrders})}
+              🔥 {t('preOrder.peoplePreOrdered', { count: item.totalPreOrders })}
             </Text>
             <Text style={styles.progressCount}>
               {item.totalPreOrders}/{item.targetPreOrders}
@@ -137,7 +137,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
               <Text style={styles.unit}> /{item.unit}</Text>
             </Text>
             <Text style={styles.originalPrice}>
-              {t('product.regularPrice', {defaultValue: 'வழக்கம்'})}: ₹{item.originalPrice} | {t('product.savings', {defaultValue: 'சேமிப்பு'})}: ₹{item.originalPrice - item.price}
+              {t('preOrder.regular')}: ₹{item.originalPrice} | {t('preOrder.savings')}: ₹{item.originalPrice - item.price}
             </Text>
           </View>
           {/* Qty selector */}
@@ -158,13 +158,13 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
 
         {/* Guarantee */}
         <View style={styles.guaranteeBox}>
-          <Text style={styles.guaranteeTxt}>✅ {t('harvestCalendar.infoGuarantee', {defaultValue: 'முன்கூட்டியே Order பண்ணினால் Guaranteed fresh!'})}</Text>
+          <Text style={styles.guaranteeTxt}>✅ {t('preOrder.guaranteeFresh')}</Text>
         </View>
 
         {/* Total + Pre-order button */}
         <View style={styles.orderRow}>
           <View>
-            <Text style={styles.totalLabel}>{t('common.total', {defaultValue: 'மொத்தம் / Total'})}:</Text>
+            <Text style={styles.totalLabel}>{t('common.total')}:</Text>
             <Text style={styles.totalValue}>₹{item.price * quantity}</Text>
           </View>
           <TouchableOpacity
@@ -172,8 +172,8 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
             onPress={() => onPreOrder(item, quantity)}>
             <LinearGradient colors={COLORS.gradientButton} style={styles.preOrderGrad}
               start={{x: 0, y: 0}} end={{x: 1, y: 0}}>
-              <Text style={styles.preOrderTxt}>📅 {t('harvestCalendar.preOrderBtn', {defaultValue: 'முன் Order'})}</Text>
-              <Text style={styles.preOrderSubTxt}>Pre-Order Now</Text>
+              <Text style={styles.preOrderTxt}>📅 {t('preOrder.preOrderBtnText')}</Text>
+              <Text style={styles.preOrderSubTxt}>{t('preOrder.preOrderSubText')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -233,16 +233,13 @@ const PreOrderScreen = ({navigation, route}) => {
     }
 
     Alert.alert(
-      t('preOrder.confirmTitle', { defaultValue: '📅 முன்பணம் உறுதி / Pre-Order Confirm' }),
+      t('preOrder.confirmTitle'),
       `${getLocalProductName(item.nameEn, item.name, i18n.language)} × ${qty} = ₹${item.price * qty}\n\n` +
-      `அறுவடை தேதி: ${item.harvestDate}\n` +
-      `Harvest date: ${item.harvestDate}\n\n` +
-      `அறுவடையான 24 மணி நேரத்தில் டெலிவரி!\n` +
-      `Delivered within 24hrs of harvest!`,
+      t('preOrder.confirmDetails', { date: item.harvestDate }),
       [
-        {text: t('common.cancel', { defaultValue: 'இல்லை / No' }), style: 'cancel'},
+        {text: t('preOrder.cancelBtn'), style: 'cancel'},
         {
-          text: t('preOrder.confirmBtn', { defaultValue: '✅ உறுதி செய் (Confirm)' }),
+          text: t('preOrder.confirmBtn'),
           onPress: async () => {
             const res = await createPreOrder(
               item.id,
