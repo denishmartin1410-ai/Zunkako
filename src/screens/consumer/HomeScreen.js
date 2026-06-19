@@ -75,7 +75,7 @@ const AvatarView = ({uri, name, size = 64, style}) => {
 
 const ProductCard = ({item, onAddToCart, onPress}) => {
   const cp = getConsumerPrice(item.price);
-  const {i18n} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const localName = getLocalProductName(item.name, item.nameTa, i18n.language);
@@ -84,67 +84,141 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
       ? item.farmerNameTa || item.farmerName
       : item.farmerName || item.farmerNameTa;
 
+  const originalPrice = item.originalPrice || item.price;
+  const hasDiscount = originalPrice > item.price;
+  const discountPercent = hasDiscount
+    ? Math.round(((originalPrice - item.price) / originalPrice) * 100)
+    : 0;
+
+  const rating = item.rating || 4.2;
+  const unit = item.unit || 'kg';
+  const isSoldOut =
+    item.stock !== undefined && item.stock !== null && item.stock <= 0;
+  const isGram =
+    unit.toLowerCase().includes('g') && !unit.toLowerCase().includes('k');
+
   return (
     <TouchableOpacity
       style={[
         styles.productCard,
         {backgroundColor: themeColors.cardBg, borderColor: themeColors.border},
+        isSoldOut && {opacity: 0.75},
       ]}
-      onPress={() => onPress(item)}
-      activeOpacity={0.9}>
+      onPress={() => !isSoldOut && onPress(item)}
+      activeOpacity={isSoldOut ? 1 : 0.9}
+      disabled={isSoldOut}>
       <View style={styles.productImgWrap}>
         <FastImage
           source={{uri: item.image, priority: FastImage.priority.normal}}
           style={styles.productImg}
           resizeMode={FastImage.resizeMode.cover}
         />
+
+        {/* Organic Badge */}
         {item.isOrganic && (
           <View style={styles.organicBadge}>
             <Text style={styles.organicText}>🌿</Text>
           </View>
         )}
-        {item.originalPrice > item.price && (
+
+        {/* Discount Badge */}
+        {hasDiscount && !isSoldOut && (
           <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>
-              {Math.round(
-                ((item.originalPrice - item.price) / item.originalPrice) * 100,
-              )}
-              % OFF
+            <Text style={styles.discountText}>{discountPercent}% OFF</Text>
+          </View>
+        )}
+
+        {/* Floating Rating Badge */}
+        {!isSoldOut && (
+          <View
+            style={[
+              styles.ratingBadge,
+              {
+                backgroundColor: isDark
+                  ? 'rgba(40,40,40,0.85)'
+                  : 'rgba(255,255,255,0.85)',
+              },
+            ]}>
+            <Text style={[styles.ratingText, {color: themeColors.text}]}>
+              {rating} ★
             </Text>
           </View>
         )}
+
+        {/* Sold Out Overlay */}
+        {isSoldOut && (
+          <View style={styles.soldOutOverlay}>
+            <View style={styles.soldOutBadge}>
+              <Text style={styles.soldOutText}>
+                {t('product.soldOut', {defaultValue: 'SOLD OUT'})}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Floating Add to Cart Button */}
+        {!isSoldOut && (
+          <TouchableOpacity
+            style={styles.floatingAddBtn}
+            onPress={() => onAddToCart(item)}>
+            <LinearGradient
+              colors={COLORS.gradientButton}
+              style={styles.floatingAddBtnGrad}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}>
+              <Text style={styles.floatingAddBtnText}>+</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
       </View>
+
       <View style={styles.productInfo}>
+        {/* Product Name */}
         <Text
           style={[styles.productName, {color: themeColors.text}]}
           numberOfLines={1}>
           {localName}
         </Text>
+
+        {/* Quantity/Unit badge */}
+        <View
+          style={[
+            styles.unitBadge,
+            {backgroundColor: isDark ? '#1C3A27' : '#E8F5E9'},
+          ]}>
+          <Text
+            style={[
+              styles.unitText,
+              {color: isDark ? '#81C784' : COLORS.primaryGreen},
+            ]}>
+            {unit}
+          </Text>
+        </View>
+
+        {/* Farmer Name */}
         <Text
           style={[styles.farmerName, {color: themeColors.subText}]}
           numberOfLines={1}>
           👨‍🌾 {localFarmerName || ''}
         </Text>
+
+        {/* Price Row */}
         <View style={styles.priceRow}>
           <View>
-            <Text style={styles.price}>₹{cp}</Text>
-            {item.originalPrice > item.price && (
-              <Text style={styles.originalPrice}>
-                ₹{item.originalPrice + PLATFORM_FEE}
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
+              <Text style={styles.price}>₹{cp}</Text>
+              {hasDiscount && (
+                <Text style={styles.originalPrice}>
+                  ₹{originalPrice + PLATFORM_FEE}
+                </Text>
+              )}
+            </View>
+            {isGram && (
+              <Text style={[styles.pricePerUnit, {color: themeColors.subText}]}>
+                ₹{cp}/{unit}
               </Text>
             )}
           </View>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => onAddToCart(item)}>
-            <LinearGradient
-              colors={COLORS.gradientButton}
-              style={styles.addBtnGrad}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}>
-              <Text style={styles.addBtnText}>+</Text>
-            </LinearGradient>
-          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
@@ -775,6 +849,61 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: rs(20),
   },
+  ratingBadge: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  ratingText: {fontSize: rs(9), fontWeight: 'bold'},
+  soldOutOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  soldOutBadge: {
+    backgroundColor: 'rgba(211, 47, 47, 0.95)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.sm,
+    transform: [{rotate: '-12deg'}],
+  },
+  soldOutText: {color: COLORS.white, fontSize: rs(10), fontWeight: 'bold'},
+  floatingAddBtn: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    borderRadius: RADIUS.round,
+    overflow: 'hidden',
+    shadowColor: COLORS.primaryGreen,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  floatingAddBtnGrad: {
+    width: rs(28),
+    height: rs(28),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingAddBtnText: {
+    color: COLORS.white,
+    fontSize: rs(18),
+    fontWeight: 'bold',
+  },
+  unitBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    marginBottom: 4,
+  },
+  unitText: {fontSize: rs(9), fontWeight: 'bold'},
+  pricePerUnit: {fontSize: rs(9), marginTop: 2},
 });
 
 export default HomeScreen;

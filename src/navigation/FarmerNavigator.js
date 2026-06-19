@@ -18,6 +18,7 @@ import SettingsScreen from '../screens/shared/SettingsScreen';
 import NotificationScreen from '../screens/shared/NotificationScreen';
 import EditProfileScreen from '../screens/shared/EditProfileScreen';
 import HelpAboutScreen from '../screens/shared/HelpAboutScreen';
+import FeedbackScreen from '../screens/shared/FeedbackScreen';
 import FarmerQRScreen from '../screens/farmer/FarmerQRScreen';
 import {
   FarmerChatListScreen,
@@ -117,6 +118,7 @@ const FarmerNavigator = () => (
     <Stack.Screen name="Notifications" component={NotificationScreen} />
     <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     <Stack.Screen name="HelpAbout" component={HelpAboutScreen} />
+    <Stack.Screen name="Feedback" component={FeedbackScreen} />
     <Stack.Screen name="FarmerQR" component={FarmerQRScreen} />
     <Stack.Screen name="FarmerCustomerChats" component={FarmerChatListScreen} />
     <Stack.Screen

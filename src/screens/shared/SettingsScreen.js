@@ -169,6 +169,11 @@ const SettingsScreen = ({navigation}) => {
                 screen: 'EditProfile',
               },
               {
+                icon: '💬',
+                label: t('feedback.title', {defaultValue: 'Give Feedback'}),
+                screen: 'Feedback',
+              },
+              {
                 icon: '?',
                 label: t('settings.help', {defaultValue: 'Help & FAQ'}),
                 screen: 'HelpAbout',

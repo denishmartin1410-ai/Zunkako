@@ -38,6 +38,7 @@ import {
 } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 import {parseLocalDate, formatToUiDate} from '../../utils/dateHelper';
+import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {getCatName} from '../../utils/categoryHelper';
 
@@ -547,6 +548,11 @@ export const ConsumerProfileScreen = ({navigation}) => {
               screen: 'QRScan',
             },
             {
+              icon: '💬',
+              label: t('feedback.title', {defaultValue: 'Give Feedback'}),
+              screen: 'Feedback',
+            },
+            {
               icon: '⚙️',
               label: t('profile.settings', {defaultValue: 'அமைப்புகள்'}),
               screen: 'Settings',
@@ -754,40 +760,133 @@ export const FarmerProfileScreen = ({route, navigation}) => {
             </Text>
           </View>
         ) : (
-          farmerProducts.map(p => (
-            <TouchableOpacity
-              key={p.id}
-              style={[
-                S.farmerProductCard,
-                {
-                  backgroundColor: themeColors.cardBg,
-                  borderColor: themeColors.border,
-                  borderWidth: 1,
-                },
-              ]}
-              onPress={() =>
-                navigation.navigate('ProductDetail', {product: p})
-              }>
-              <FastImage
-                source={{uri: p.image}}
-                style={S.farmerProductImg}
-                resizeMode={FastImage.resizeMode.cover}
-              />
-              <View style={{flex: 1, marginLeft: SPACING.md}}>
-                <Text style={[S.farmerProductName, {color: themeColors.text}]}>
-                  {getLocalProductName(p.name, p.nameTa, i18n.language)}
-                </Text>
-                <Text style={S.farmerProductPrice}>
-                  ₹{p.price}/{p.unit}
-                </Text>
-              </View>
+          farmerProducts.map(p => {
+            const cp = getConsumerPrice(p.price);
+            const originalPrice = p.originalPrice || p.price;
+            const hasDiscount = originalPrice > p.price;
+            const discountPercent = hasDiscount
+              ? Math.round(((originalPrice - p.price) / originalPrice) * 100)
+              : 0;
+
+            const rating = p.rating || 4.2;
+            const unit = p.unit || 'kg';
+            const isSoldOut =
+              p.stock !== undefined && p.stock !== null && p.stock <= 0;
+            const isGram =
+              unit.toLowerCase().includes('g') &&
+              !unit.toLowerCase().includes('k');
+
+            return (
               <TouchableOpacity
-                style={S.addCartBtn}
-                onPress={() => addToCart(p)}>
-                <Text style={{color: COLORS.white, fontWeight: 'bold'}}>+</Text>
+                key={p.id}
+                style={[
+                  S.farmerProductCard,
+                  {
+                    backgroundColor: themeColors.cardBg,
+                    borderColor: themeColors.border,
+                    borderWidth: 1,
+                  },
+                  isSoldOut && {opacity: 0.75},
+                ]}
+                onPress={() =>
+                  !isSoldOut &&
+                  navigation.navigate('ProductDetail', {product: p})
+                }
+                activeOpacity={isSoldOut ? 1 : 0.9}
+                disabled={isSoldOut}>
+                <View style={{position: 'relative'}}>
+                  <FastImage
+                    source={{uri: p.image}}
+                    style={S.farmerProductImg}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                  {hasDiscount && !isSoldOut && (
+                    <View style={S.discountBadgeCompact}>
+                      <Text style={S.discountTextCompact}>
+                        {discountPercent}% OFF
+                      </Text>
+                    </View>
+                  )}
+                  {isSoldOut && (
+                    <View style={S.soldOutOverlayCompact}>
+                      <Text style={S.soldOutTextCompact}>
+                        {t('product.soldOut', {defaultValue: 'SOLD OUT'})}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <View style={{flex: 1, marginLeft: SPACING.md}}>
+                  <Text
+                    style={[S.farmerProductName, {color: themeColors.text}]}>
+                    {getLocalProductName(p.name, p.nameTa, i18n.language)}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      marginVertical: 2,
+                    }}>
+                    <View
+                      style={[
+                        S.unitBadgeCompact,
+                        {backgroundColor: isDark ? '#1C3A27' : '#E8F5E9'},
+                      ]}>
+                      <Text
+                        style={[
+                          S.unitTextCompact,
+                          {color: isDark ? '#81C784' : COLORS.primaryGreen},
+                        ]}>
+                        {unit}
+                      </Text>
+                    </View>
+                    <Text
+                      style={{fontSize: rs(10), color: themeColors.subText}}>
+                      ⭐ {rating}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}>
+                    <Text
+                      style={[
+                        S.farmerProductPrice,
+                        {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+                      ]}>
+                      ₹{cp}
+                    </Text>
+                    {hasDiscount && (
+                      <Text style={S.originalPriceCompact}>
+                        ₹{originalPrice + PLATFORM_FEE}
+                      </Text>
+                    )}
+                  </View>
+                  {isGram && (
+                    <Text
+                      style={{
+                        fontSize: rs(9),
+                        color: themeColors.subText,
+                        marginTop: 1,
+                      }}>
+                      ₹{cp}/{unit}
+                    </Text>
+                  )}
+                </View>
+                {!isSoldOut && (
+                  <TouchableOpacity
+                    style={S.addCartBtn}
+                    onPress={() => addToCart(p)}>
+                    <Text style={{color: COLORS.white, fontWeight: 'bold'}}>
+                      +
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))
+            );
+          })
         )}
         <View style={{height: 80}} />
       </ScrollView>
@@ -1294,5 +1393,51 @@ const S = StyleSheet.create({
   tabTxtActive: {
     color: COLORS.white,
     fontWeight: 'bold',
+  },
+  discountBadgeCompact: {
+    position: 'absolute',
+    top: 2,
+    left: 2,
+    backgroundColor: COLORS.accentRed,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+  },
+  discountTextCompact: {
+    color: COLORS.white,
+    fontSize: rs(7),
+    fontWeight: 'bold',
+  },
+  soldOutOverlayCompact: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: RADIUS.md,
+  },
+  soldOutTextCompact: {
+    color: COLORS.white,
+    fontSize: rs(7),
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(211, 47, 47, 0.95)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 2,
+    transform: [{rotate: '-8deg'}],
+  },
+  unitBadgeCompact: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: RADIUS.sm,
+  },
+  unitTextCompact: {
+    fontSize: rs(8),
+    fontWeight: 'bold',
+  },
+  originalPriceCompact: {
+    fontSize: rs(FONTS.xs),
+    color: COLORS.textGray || '#888',
+    textDecorationLine: 'line-through',
   },
 });

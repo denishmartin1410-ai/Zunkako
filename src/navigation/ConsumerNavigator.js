@@ -38,6 +38,7 @@ import NotificationScreen from '../screens/shared/NotificationScreen';
 // ── Batch 4 Screens ──
 import EditProfileScreen from '../screens/shared/EditProfileScreen';
 import HelpAboutScreen from '../screens/shared/HelpAboutScreen';
+import FeedbackScreen from '../screens/shared/FeedbackScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -188,6 +189,7 @@ const ConsumerNavigator = () => {
       <Stack.Screen name="Notifications" component={NotificationScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="HelpAbout" component={HelpAboutScreen} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} />
     </Stack.Navigator>
   );
 };

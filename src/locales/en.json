@@ -268,6 +268,7 @@
     "alreadyRated": "You have already rated this product.",
     "reviewPlaceholder": "Write your review (optional)...",
     "submitReview": "Submit Review",
+    "soldOut": "SOLD OUT",
     "ratingSubmitted": "Rating submitted successfully!",
     "selectRating": "Please select a star rating",
     "addToCart": "Add to Cart",
@@ -598,5 +599,16 @@
     "passwordSpecial": "Need at least 1 special character (!@#$%^&*)",
     "confirmPasswordRequired": "Please enter confirm password",
     "passwordsMatch": "Passwords do not match! Both must be the same."
+  },
+  "feedback": {
+    "title": "Give Feedback",
+    "subtitle": "Tell us more by recording or writing your feedback",
+    "record": "Record Your Feedback",
+    "write": "Write Your Feedback",
+    "recording": "Recording...",
+    "placeholder": "Write your feedback here...",
+    "attach": "Attach Screenshot / Document (Optional)",
+    "submit": "Submit Feedback",
+    "success": "Thank you for your feedback!"
   }
 }

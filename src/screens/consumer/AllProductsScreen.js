@@ -25,6 +25,7 @@ import {useCart} from '../../context/CartContext';
 import {useTheme} from '../../context/ThemeContext';
 import {getAllProducts, getAllFarmers} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {getCatName} from '../../utils/categoryHelper';
 
@@ -277,13 +278,22 @@ const AllProductsScreen = ({navigation}) => {
                       p.nameTa,
                       i18n.language,
                     );
+                    const cp = getConsumerPrice(p.price);
                     const originalPrice = p.originalPrice || p.price;
-                    const discount =
-                      originalPrice > p.price
-                        ? Math.round(
-                            ((originalPrice - p.price) / originalPrice) * 100,
-                          )
-                        : 0;
+                    const hasDiscount = originalPrice > p.price;
+                    const discountPercent = hasDiscount
+                      ? Math.round(
+                          ((originalPrice - p.price) / originalPrice) * 100,
+                        )
+                      : 0;
+
+                    const rating = p.rating || 4.2;
+                    const unit = p.unit || 'kg';
+                    const isSoldOut =
+                      p.stock !== undefined && p.stock !== null && p.stock <= 0;
+                    const isGram =
+                      unit.toLowerCase().includes('g') &&
+                      !unit.toLowerCase().includes('k');
 
                     return (
                       <TouchableOpacity
@@ -293,9 +303,11 @@ const AllProductsScreen = ({navigation}) => {
                             backgroundColor: themeColors.cardBg,
                             borderColor: themeColors.border,
                           },
+                          isSoldOut && {opacity: 0.75},
                         ]}
-                        onPress={() => handleProductPress(p)}
-                        activeOpacity={0.9}>
+                        onPress={() => !isSoldOut && handleProductPress(p)}
+                        activeOpacity={isSoldOut ? 1 : 0.9}
+                        disabled={isSoldOut}>
                         <View style={styles.imageWrapper}>
                           <FastImage
                             source={{
@@ -310,12 +322,58 @@ const AllProductsScreen = ({navigation}) => {
                               <Text style={styles.organicTxt}>🌿</Text>
                             </View>
                           )}
-                          {discount > 0 && (
+                          {hasDiscount && !isSoldOut && (
                             <View style={styles.discountBadge}>
                               <Text style={styles.discountTxt}>
-                                {discount}% OFF
+                                {discountPercent}% OFF
                               </Text>
                             </View>
+                          )}
+                          {/* Floating Rating Badge */}
+                          {!isSoldOut && (
+                            <View
+                              style={[
+                                styles.ratingBadge,
+                                {
+                                  backgroundColor: isDark
+                                    ? 'rgba(40,40,40,0.85)'
+                                    : 'rgba(255,255,255,0.85)',
+                                },
+                              ]}>
+                              <Text
+                                style={[
+                                  styles.ratingText,
+                                  {color: themeColors.text},
+                                ]}>
+                                {rating} ★
+                              </Text>
+                            </View>
+                          )}
+                          {/* Sold Out Overlay */}
+                          {isSoldOut && (
+                            <View style={styles.soldOutOverlay}>
+                              <View style={styles.soldOutBadge}>
+                                <Text style={styles.soldOutText}>
+                                  {t('product.soldOut', {
+                                    defaultValue: 'SOLD OUT',
+                                  })}
+                                </Text>
+                              </View>
+                            </View>
+                          )}
+                          {/* Floating Add to Cart Button */}
+                          {!isSoldOut && (
+                            <TouchableOpacity
+                              style={styles.floatingAddBtn}
+                              onPress={() => addToCart(p)}>
+                              <LinearGradient
+                                colors={COLORS.gradientButton}
+                                style={styles.floatingAddBtnGrad}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 0}}>
+                                <Text style={styles.floatingAddBtnText}>+</Text>
+                              </LinearGradient>
+                            </TouchableOpacity>
                           )}
                         </View>
                         <View style={styles.productInfo}>
@@ -327,20 +385,53 @@ const AllProductsScreen = ({navigation}) => {
                             numberOfLines={1}>
                             {localProdName}
                           </Text>
-                          <Text
+                          {/* Quantity/Unit badge */}
+                          <View
                             style={[
-                              styles.productPrice,
-                              {color: COLORS.primaryGreen},
+                              styles.unitBadge,
+                              {backgroundColor: isDark ? '#1C3A27' : '#E8F5E9'},
                             ]}>
-                            ₹{p.price}/{p.unit}
-                          </Text>
-                          <TouchableOpacity
-                            style={styles.addBtn}
-                            onPress={() => addToCart(p)}>
-                            <Text style={styles.addBtnTxt}>
-                              + {t('cart.addToCart', {defaultValue: 'கார்ட்'})}
+                            <Text
+                              style={[
+                                styles.unitText,
+                                {
+                                  color: isDark
+                                    ? '#81C784'
+                                    : COLORS.primaryGreen,
+                                },
+                              ]}>
+                              {unit}
                             </Text>
-                          </TouchableOpacity>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: 4,
+                              marginTop: 4,
+                            }}>
+                            <Text
+                              style={[
+                                styles.productPrice,
+                                {color: COLORS.primaryGreen},
+                              ]}>
+                              ₹{cp}
+                            </Text>
+                            {hasDiscount && (
+                              <Text style={styles.originalPrice}>
+                                ₹{originalPrice + PLATFORM_FEE}
+                              </Text>
+                            )}
+                          </View>
+                          {isGram && (
+                            <Text
+                              style={[
+                                styles.pricePerUnit,
+                                {color: themeColors.subText || '#888'},
+                              ]}>
+                              ₹{cp}/{unit}
+                            </Text>
+                          )}
                         </View>
                       </TouchableOpacity>
                     );
@@ -535,16 +626,78 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: SPACING.xs,
   },
-  addBtn: {
-    backgroundColor: COLORS.primaryGreen,
-    borderRadius: RADIUS.md,
-    paddingVertical: 6,
+  originalPrice: {
+    fontSize: rs(FONTS.xs),
+    color: COLORS.textGray || '#888',
+    textDecorationLine: 'line-through',
+  },
+  ratingBadge: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+  },
+  ratingText: {
+    fontSize: rs(8),
+    fontWeight: 'bold',
+  },
+  soldOutOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  addBtnTxt: {
+  soldOutBadge: {
+    backgroundColor: 'rgba(211, 47, 47, 0.95)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    transform: [{rotate: '-12deg'}],
+  },
+  soldOutText: {
     color: COLORS.white,
-    fontSize: rs(11),
+    fontSize: rs(8),
     fontWeight: 'bold',
+  },
+  floatingAddBtn: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    borderRadius: RADIUS.round,
+    overflow: 'hidden',
+    shadowColor: COLORS.primaryGreen,
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  floatingAddBtnGrad: {
+    width: rs(24),
+    height: rs(24),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingAddBtnText: {
+    color: COLORS.white,
+    fontSize: rs(14),
+    fontWeight: 'bold',
+  },
+  unitBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: RADIUS.sm,
+    marginBottom: 2,
+  },
+  unitText: {
+    fontSize: rs(8),
+    fontWeight: 'bold',
+  },
+  pricePerUnit: {
+    fontSize: rs(8),
+    marginTop: 1,
   },
 });
 
