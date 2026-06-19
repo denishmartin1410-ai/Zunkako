@@ -30,6 +30,8 @@ import {useTheme} from '../../context/ThemeContext';
 import Geolocation from '@react-native-community/geolocation';
 import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
+import {CATEGORIES} from '../../utils/dummyData';
+import {getCatName} from '../../utils/categoryHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -537,7 +539,7 @@ export const MyProductsScreen = ({navigation}) => {
 
 // ── ADD PRODUCT ──
 export const AddProductScreen = ({navigation}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
@@ -548,6 +550,9 @@ export const AddProductScreen = ({navigation}) => {
   const [unit, setUnit] = useState('kg');
   const [category, setCategory] = useState('vegetables');
   const [freshHours, setFreshHours] = useState('24'); // Default 24 hours
+  const [shelfLife, setShelfLife] = useState('6'); // Default 6 months
+  const [material, setMaterial] = useState('');
+  const [craftingTime, setCraftingTime] = useState('1'); // Default 1 day
   const [descriptionTa, setDescriptionTa] = useState('');
   const [imageUri, setImageUri] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -611,6 +616,7 @@ export const AddProductScreen = ({navigation}) => {
     'herbs',
     'organic',
     'nuts',
+    'handicrafts',
   ];
 
   const handleImagePick = async () => {
@@ -666,6 +672,59 @@ export const AddProductScreen = ({navigation}) => {
       );
       return;
     }
+
+    const isPerishable = [
+      'vegetables',
+      'fruits',
+      'greens',
+      'dairy',
+      'herbs',
+      'organic',
+    ].includes(category);
+    const isNonPerishable = ['grains', 'millets', 'nuts'].includes(category);
+    const isHandicraft = category === 'handicrafts';
+
+    if (isPerishable && !freshHours.trim()) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('farmer.fillFreshHours', {
+          defaultValue: 'புத்துணர்வு நேரத்தை உள்ளிடவும்',
+        }),
+      );
+      return;
+    }
+
+    if (isNonPerishable && !shelfLife.trim()) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('farmer.fillShelfLife', {
+          defaultValue: 'பாதுகாப்பு காலத்தை உள்ளிடவும்',
+        }),
+      );
+      return;
+    }
+
+    if (isHandicraft) {
+      if (!material.trim()) {
+        Alert.alert(
+          t('common.error', {defaultValue: 'பிழை'}),
+          t('farmer.fillMaterial', {
+            defaultValue: 'பயன்படுத்தப்பட்ட பொருளின் பெயரை உள்ளிடவும்!',
+          }),
+        );
+        return;
+      }
+      if (!craftingTime.trim()) {
+        Alert.alert(
+          t('common.error', {defaultValue: 'பிழை'}),
+          t('farmer.fillCraftingTime', {
+            defaultValue: 'தயாரிப்பு காலத்தை உள்ளிடவும்',
+          }),
+        );
+        return;
+      }
+    }
+
     if (!imageUrlRef.current) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
@@ -678,7 +737,8 @@ export const AddProductScreen = ({navigation}) => {
     setIsSaving(true);
     try {
       const {addProduct} = require('../../services/firebase');
-      const r = await addProduct({
+
+      const productPayload = {
         name: name.trim(),
         nameTa: nameTa.trim() || name.trim(),
         price: parseFloat(price),
@@ -700,9 +760,21 @@ export const AddProductScreen = ({navigation}) => {
         rating: 0,
         reviews: 0,
         originalPrice: parseFloat(price),
-        freshHours: parseInt(freshHours, 10) || 24,
-        harvestTime: new Date().toISOString(), // Add these for Freshness Tracker
-      });
+      };
+
+      if (isPerishable) {
+        productPayload.freshHours = parseInt(freshHours, 10) || 24;
+        productPayload.harvestTime = new Date().toISOString();
+      } else if (isNonPerishable) {
+        productPayload.shelfLife = parseInt(shelfLife, 10) || 6;
+        productPayload.harvestTime = null;
+      } else if (isHandicraft) {
+        productPayload.material = material.trim();
+        productPayload.craftingTime = parseInt(craftingTime, 10) || 1;
+        productPayload.harvestTime = null;
+      }
+
+      const r = await addProduct(productPayload);
       setIsSaving(false);
       if (r.success) {
         Alert.alert(
@@ -826,14 +898,66 @@ export const AddProductScreen = ({navigation}) => {
           onChangeText={setStock}
           keyboard="numeric"
         />
-        <FormField
-          label={`⏱️ ${t('farmer.freshHours', {
-            defaultValue: 'Freshness Time (Hours)',
-          })}`}
-          value={freshHours}
-          onChangeText={setFreshHours}
-          keyboard="numeric"
-        />
+        {[
+          'vegetables',
+          'fruits',
+          'greens',
+          'dairy',
+          'herbs',
+          'organic',
+        ].includes(category) && (
+          <FormField
+            label={`⏱️ ${t('farmer.freshHours', {
+              defaultValue: 'Freshness Time (Hours)',
+            })}`}
+            value={freshHours}
+            onChangeText={setFreshHours}
+            keyboard="numeric"
+            placeholder={t('farmer.freshHoursPlaceholder', {
+              defaultValue: 'Enter freshness time in hours',
+            })}
+          />
+        )}
+
+        {['grains', 'millets', 'nuts'].includes(category) && (
+          <FormField
+            label={`📦 ${t('farmer.shelfLife', {
+              defaultValue: 'Shelf Life (Months)',
+            })}`}
+            value={shelfLife}
+            onChangeText={setShelfLife}
+            keyboard="numeric"
+            placeholder={t('farmer.shelfLifePlaceholder', {
+              defaultValue: 'Enter shelf life in months (e.g. 6)',
+            })}
+          />
+        )}
+
+        {category === 'handicrafts' && (
+          <>
+            <FormField
+              label={`🧶 ${t('farmer.material', {
+                defaultValue: 'Material Used',
+              })}`}
+              value={material}
+              onChangeText={setMaterial}
+              placeholder={t('farmer.materialPlaceholder', {
+                defaultValue: 'Enter material (e.g. Clay, Wood)',
+              })}
+            />
+            <FormField
+              label={`⏳ ${t('farmer.craftingTime', {
+                defaultValue: 'Crafting Time (Days)',
+              })}`}
+              value={craftingTime}
+              onChangeText={setCraftingTime}
+              keyboard="numeric"
+              placeholder={t('farmer.craftingTimePlaceholder', {
+                defaultValue: 'Enter crafting time in days (e.g. 3)',
+              })}
+            />
+          </>
+        )}
 
         <Text style={[S.fieldLabel, {color: themeColors.text}]}>
           ⚖️ {t('farmer.unit', {defaultValue: 'அளவு வகை'})}
@@ -873,28 +997,32 @@ export const AddProductScreen = ({navigation}) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           style={{marginBottom: SPACING.xl}}>
-          {categories.map(c => (
-            <TouchableOpacity
-              key={c}
-              style={[
-                S.chip,
-                {
-                  backgroundColor: themeColors.cardBg,
-                  borderColor: themeColors.border,
-                },
-                category === c && S.chipActive,
-              ]}
-              onPress={() => setCategory(c)}>
-              <Text
+          {categories.map(c => {
+            const catObj = CATEGORIES.find(cat => cat.id === c);
+            const displayName = catObj ? getCatName(catObj, i18n.language) : c;
+            return (
+              <TouchableOpacity
+                key={c}
                 style={[
-                  S.chipTxt,
-                  {color: themeColors.text},
-                  category === c && S.chipTxtActive,
-                ]}>
-                {c}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                  S.chip,
+                  {
+                    backgroundColor: themeColors.cardBg,
+                    borderColor: themeColors.border,
+                  },
+                  category === c && S.chipActive,
+                ]}
+                onPress={() => setCategory(c)}>
+                <Text
+                  style={[
+                    S.chipTxt,
+                    {color: themeColors.text},
+                    category === c && S.chipTxtActive,
+                  ]}>
+                  {displayName}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
         <View
