@@ -54,7 +54,12 @@ const SettingsScreen = ({navigation}) => {
     {
       icon: '?',
       label: t('settings.help', {defaultValue: 'Help & FAQ'}),
-      onPress: () => navigation.navigate('HelpAbout'),
+      onPress: () => navigation.navigate('HelpAbout', {mode: 'help'}),
+    },
+    {
+      icon: 'i',
+      label: t('settings.about', {defaultValue: 'About App'}),
+      onPress: () => navigation.navigate('HelpAbout', {mode: 'about'}),
     },
     {
       icon: '📜',

@@ -17,6 +17,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../context/AuthContext';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import BackButton from '../../utils/BackButton';
 
 const OTPScreen = ({navigation, route}) => {
   const {phone, userType, name} = route.params;
@@ -171,11 +172,10 @@ const OTPScreen = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#0D5C32', '#1565C0']} style={styles.header}>
-        <TouchableOpacity
+        <BackButton
+          onPress={() => navigation.goBack()}
           style={styles.backBtn}
-          onPress={() => navigation.goBack()}>
-          <Text style={styles.backTxt}>←</Text>
-        </TouchableOpacity>
+        />
         <Text style={styles.headerEmoji}>📱</Text>
         <Text style={styles.title}>OTP சரிபார்ப்பு</Text>
         <Text style={styles.titleEn}>OTP Verification</Text>

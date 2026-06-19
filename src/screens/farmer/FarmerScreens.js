@@ -1128,9 +1128,7 @@ export const EditProductScreen = ({route, navigation}) => {
   return (
     <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={S.backTxt}>←</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => navigation.goBack()} />
         <Text style={S.headerTitle}>
           ✏️ {t('farmer.editProduct', {defaultValue: 'தயாரிப்பு திருத்து'})}
         </Text>
