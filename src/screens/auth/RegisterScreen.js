@@ -82,6 +82,7 @@ const RegisterScreen = ({navigation}) => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   const togglePass = useCallback(() => setShowPass(p => !p), []);
 
@@ -145,6 +146,16 @@ const RegisterScreen = ({navigation}) => {
 
   const handleRegister = async () => {
     if (!validate()) {
+      return;
+    }
+    if (!agree) {
+      Alert.alert(
+        t('common.error'),
+        t('legal.mustAgree', {
+          defaultValue:
+            'விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கையை ஒப்புக்கொள்ள வேண்டும்!',
+        }),
+      );
       return;
     }
     setIsLoading(true);
@@ -347,6 +358,35 @@ const RegisterScreen = ({navigation}) => {
           textContentType="newPassword"
         />
 
+        {/* Consent Checkbox */}
+        <View style={styles.agreeRow}>
+          <TouchableOpacity
+            style={[styles.checkbox, agree && styles.checkboxActive]}
+            onPress={() => setAgree(!agree)}>
+            {agree && <Text style={styles.checkboxTick}>✓</Text>}
+          </TouchableOpacity>
+          <View style={styles.agreeTextContainer}>
+            <Text style={styles.agreeText}>
+              {t('legal.agreePrompt1', {defaultValue: 'I agree to the '})}
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Legal', {type: 'terms'})}>
+              <Text style={styles.agreeLink}>
+                {t('legal.terms', {defaultValue: 'Terms & Conditions'})}
+              </Text>
+            </TouchableOpacity>
+            <Text style={styles.agreeText}>
+              {t('legal.agreePrompt2', {defaultValue: ' and '})}
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Legal', {type: 'privacy'})}>
+              <Text style={styles.agreeLink}>
+                {t('legal.privacy', {defaultValue: 'Privacy Policy'})}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Register Button */}
         <TouchableOpacity
           style={styles.regBtn}
@@ -492,6 +532,47 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sm,
     color: COLORS.primaryGreen,
     fontWeight: FONTS.bold,
+  },
+  agreeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: SPACING.md,
+    marginBottom: SPACING.md,
+    paddingHorizontal: 2,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  checkboxActive: {
+    borderColor: COLORS.primaryGreen,
+    backgroundColor: COLORS.primaryGreen,
+  },
+  checkboxTick: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: FONTS.bold,
+  },
+  agreeTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  agreeText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+  agreeLink: {
+    fontSize: 12,
+    color: COLORS.primaryGreen,
+    fontWeight: FONTS.semiBold,
   },
 });
 

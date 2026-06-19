@@ -403,6 +403,30 @@ const LoginScreen = ({navigation}) => {
           </Text>
         </TouchableOpacity>
 
+        {/* Footnote Agreement */}
+        <View style={styles.footnoteRow}>
+          <Text style={styles.footnoteText}>
+            {t('legal.footnote1', {
+              defaultValue: 'By continuing, you agree to our ',
+            })}
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Legal', {type: 'terms'})}>
+            <Text style={styles.footnoteLink}>
+              {t('legal.terms', {defaultValue: 'Terms & Conditions'})}
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.footnoteText}>
+            {t('legal.footnote2', {defaultValue: ' & '})}
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Legal', {type: 'privacy'})}>
+            <Text style={styles.footnoteLink}>
+              {t('legal.privacy', {defaultValue: 'Privacy Policy'})}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Register link */}
         <View style={styles.registerRow}>
           <Text style={styles.registerPrompt}>
@@ -545,6 +569,24 @@ const styles = StyleSheet.create({
   registerPrompt: {fontSize: FONTS.sm, color: COLORS.textSecondary},
   registerLink: {
     fontSize: FONTS.sm,
+    color: COLORS.primaryGreen,
+    fontWeight: FONTS.bold,
+  },
+  footnoteRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+  },
+  footnoteText: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  footnoteLink: {
+    fontSize: 11,
     color: COLORS.primaryGreen,
     fontWeight: FONTS.bold,
   },

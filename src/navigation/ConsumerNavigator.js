@@ -190,6 +190,7 @@ const ConsumerNavigator = () => {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="HelpAbout" component={HelpAboutScreen} />
       <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen name="Legal" component={require('../screens/shared/LegalScreen').default} />
     </Stack.Navigator>
   );
 };

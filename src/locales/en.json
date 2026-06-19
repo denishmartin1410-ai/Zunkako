@@ -617,5 +617,17 @@
     "attach": "Attach Screenshot / Document (Optional)",
     "submit": "Submit Feedback",
     "success": "Thank you for your feedback!"
+  },
+  "legal": {
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "licenses": "Open Source Licenses",
+    "refund": "Refund & Cancellation Policy",
+    "agreement": "Seller Agreement",
+    "mustAgree": "Please agree to the Terms & Conditions and Privacy Policy!",
+    "agreePrompt1": "I agree to the ",
+    "agreePrompt2": " and ",
+    "footnote1": "By continuing, you agree to our ",
+    "footnote2": " & "
   }
 }

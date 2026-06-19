@@ -168,19 +168,26 @@ exports.sendWhatsAppUpdate = functions.firestore
 
     // ── Refund Request Admin WhatsApp Notification ──
     if (newData.status === 'Refund Requested') {
-      const adminWhatsAppNumber = 'whatsapp:+919360425423';
+      const adminWhatsAppNumbers = [
+        'whatsapp:+919360425423',
+        'whatsapp:+919585475247',
+      ];
       const orderDisplayId = newData.orderId || orderId;
       const adminMessage = `*Refund Request*\n\nOrder ID: ${orderDisplayId}\nCustomer: ${
         newData.consumerName || 'Customer'
       }\nTotal Amount: ₹${newData.total}\n\nPlease process this refund.`;
 
-      await client.messages
-        .create({
-          body: adminMessage,
-          from: twilioWhatsApp,
-          to: adminWhatsAppNumber,
-        })
-        .catch(err => console.log('Admin Refund WhatsApp error:', err));
+      for (const num of adminWhatsAppNumbers) {
+        await client.messages
+          .create({
+            body: adminMessage,
+            from: twilioWhatsApp,
+            to: num,
+          })
+          .catch(err =>
+            console.log(`Admin Refund WhatsApp error for ${num}:`, err),
+          );
+      }
 
       return null;
     }

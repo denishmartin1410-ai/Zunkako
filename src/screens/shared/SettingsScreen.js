@@ -36,9 +36,55 @@ const LANGUAGES = [
 
 const SettingsScreen = ({navigation}) => {
   const {t} = useTranslation();
-  const {logout} = useAuth();
+  const {logout, userType} = useAuth();
   const {isDark, toggleTheme} = useTheme();
   const currentLang = i18n.language || 'ta';
+
+  const menuItems = [
+    {
+      icon: '✏',
+      label: t('settings.editProfile', {defaultValue: 'Edit Profile'}),
+      onPress: () => navigation.navigate('EditProfile'),
+    },
+    {
+      icon: '💬',
+      label: t('feedback.title', {defaultValue: 'Give Feedback'}),
+      onPress: () => navigation.navigate('Feedback'),
+    },
+    {
+      icon: '?',
+      label: t('settings.help', {defaultValue: 'Help & FAQ'}),
+      onPress: () => navigation.navigate('HelpAbout'),
+    },
+    {
+      icon: '📜',
+      label: t('legal.terms', {defaultValue: 'Terms & Conditions'}),
+      onPress: () => navigation.navigate('Legal', {type: 'terms'}),
+    },
+    {
+      icon: '🛡️',
+      label: t('legal.privacy', {defaultValue: 'Privacy Policy'}),
+      onPress: () => navigation.navigate('Legal', {type: 'privacy'}),
+    },
+    {
+      icon: '🪙',
+      label: t('legal.refund', {defaultValue: 'Refund Policy'}),
+      onPress: () => navigation.navigate('Legal', {type: 'refund'}),
+    },
+    {
+      icon: '📦',
+      label: t('legal.licenses', {defaultValue: 'Open Source Licenses'}),
+      onPress: () => navigation.navigate('Legal', {type: 'licenses'}),
+    },
+  ];
+
+  if (userType === 'farmer') {
+    menuItems.push({
+      icon: '🤝',
+      label: t('legal.agreement', {defaultValue: 'Seller Agreement'}),
+      onPress: () => navigation.navigate('Legal', {type: 'agreement'}),
+    });
+  }
 
   const handleLanguageChange = async langCode => {
     try {
@@ -160,37 +206,14 @@ const SettingsScreen = ({navigation}) => {
             {t('settings.infoSection', {defaultValue: 'பயன்பாடு பற்றி'})}
           </Text>
           <View style={[styles.card, {backgroundColor: cardBg, borderColor}]}>
-            {[
-              {
-                icon: '✏',
-                label: t('settings.editProfile', {
-                  defaultValue: 'Edit Profile',
-                }),
-                screen: 'EditProfile',
-              },
-              {
-                icon: '💬',
-                label: t('feedback.title', {defaultValue: 'Give Feedback'}),
-                screen: 'Feedback',
-              },
-              {
-                icon: '?',
-                label: t('settings.help', {defaultValue: 'Help & FAQ'}),
-                screen: 'HelpAbout',
-              },
-              {
-                icon: 'i',
-                label: t('settings.about', {defaultValue: 'About App'}),
-                screen: 'HelpAbout',
-              },
-            ].map((item, idx) => (
+            {menuItems.map((item, idx) => (
               <TouchableOpacity
                 key={idx}
                 style={[
                   styles.menuRow,
                   {borderBottomWidth: 1, borderBottomColor: borderColor},
                 ]}
-                onPress={() => navigation.navigate(item.screen)}>
+                onPress={item.onPress}>
                 <Text style={[styles.menuIcon, {color: subColor}]}>
                   {item.icon}
                 </Text>

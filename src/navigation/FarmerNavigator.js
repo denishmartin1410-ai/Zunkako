@@ -130,6 +130,7 @@ const FarmerNavigator = () => (
       component={FarmerAddHarvestScreen}
       options={{animation: 'slide_from_bottom'}}
     />
+    <Stack.Screen name="Legal" component={require('../screens/shared/LegalScreen').default} />
   </Stack.Navigator>
 );
 
