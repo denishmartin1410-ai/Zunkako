@@ -41,7 +41,7 @@ const AvatarView = ({uri, name, size = 60, style}) => {
   const bg = ['#1B8A4E', '#1565C0', '#E65100', '#6A1B9A'][
     letter.charCodeAt(0) % 4
   ];
-  if (!uri || err)
+  if (!uri || err) {
     return (
       <View
         style={[
@@ -60,6 +60,7 @@ const AvatarView = ({uri, name, size = 60, style}) => {
         </Text>
       </View>
     );
+  }
   return (
     <FastImage
       source={{uri, priority: FastImage.priority.normal}}
@@ -144,8 +145,12 @@ export const FarmerDashboardScreen = ({navigation}) => {
           getFarmerStats(farmerId),
           getFarmerProducts(farmerId),
         ]);
-        if (sr.success) {setStats(sr.data);}
-        if (pr.success) {setMyProducts(pr.data);}
+        if (sr.success) {
+          setStats(sr.data);
+        }
+        if (pr.success) {
+          setMyProducts(pr.data);
+        }
       } catch (e) {
         console.log('dashboard error:', e);
       }
@@ -418,9 +423,11 @@ export const MyProductsScreen = ({navigation}) => {
         onPress: async () => {
           const {deleteProduct} = require('../../services/firebase');
           const r = await deleteProduct(id);
-          if (r.success) {setMyProducts(prev => prev.filter(p => p.id !== id));}
+          if (r.success) {
+            setMyProducts(prev => prev.filter(p => p.id !== id));
+          }
         },
-      }]
+      },
     ]);
   };
 
@@ -618,7 +625,9 @@ export const AddProductScreen = ({navigation}) => {
         maxWidth: 800,
         maxHeight: 800,
       });
-      if (result.didCancel || !result.assets?.[0]) {return;}
+      if (result.didCancel || !result.assets?.[0]) {
+        return;
+      }
       const uri = result.assets[0].uri;
       setImageUri(uri);
       imageUrlRef.current = '';
@@ -695,7 +704,7 @@ export const AddProductScreen = ({navigation}) => {
         harvestTime: new Date().toISOString(), // Add these for Freshness Tracker
       });
       setIsSaving(false);
-      if (r.success)
+      if (r.success) {
         Alert.alert(
           '✅',
           t('farmer.productAdded', {
@@ -708,11 +717,12 @@ export const AddProductScreen = ({navigation}) => {
             },
           ],
         );
-      else
+      } else {
         Alert.alert(
           t('common.error', {defaultValue: 'பிழை'}),
           r.error || 'Save failed',
         );
+      }
     } catch (e) {
       setIsSaving(false);
       Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);
@@ -962,7 +972,7 @@ export const EditProductScreen = ({route, navigation}) => {
         stock: parseInt(stock, 10),
       });
       setIsSaving(false);
-      if (r.success)
+      if (r.success) {
         Alert.alert(
           '✅',
           t('farmer.changesSaved', {
@@ -975,11 +985,12 @@ export const EditProductScreen = ({route, navigation}) => {
             },
           ],
         );
-      else
+      } else {
         Alert.alert(
           t('common.error', {defaultValue: 'பிழை'}),
           r.error || 'Update failed',
         );
+      }
     } catch (e) {
       setIsSaving(false);
       Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);

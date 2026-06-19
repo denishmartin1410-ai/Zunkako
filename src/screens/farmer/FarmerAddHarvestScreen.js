@@ -112,22 +112,14 @@ const FarmerAddHarvestScreen = ({navigation}) => {
       !formData.qty ||
       !formData.price
     ) {
-      Alert.alert(
-        'பிழை / Error',
-        'தயவுசெய்து அனைத்து முக்கிய விவரங்களையும் நிரப்பவும்!',
-      );
+      Alert.alert(t('common.error'), t('farmer.fillAllHarvestDetails'));
       return;
     }
 
     const sanitizedDate = formData.harvestDate.replace(/-/g, '/');
     const dbDate = convertToDbDate(sanitizedDate);
     if (!dbDate) {
-      Alert.alert(
-        'பிழை / Error',
-        t('farmer.invalidDateFormat', {
-          defaultValue: 'Invalid Date! Please enter date in DD/MM/YYYY format.',
-        }),
-      );
+      Alert.alert(t('common.error'), t('farmer.invalidDateFormat'));
       return;
     }
 
@@ -176,10 +168,10 @@ const FarmerAddHarvestScreen = ({navigation}) => {
           description: '',
         });
       } else {
-        Alert.alert('Error', res.error);
+        Alert.alert(t('common.error'), res.error);
       }
     } catch (e) {
-      Alert.alert('Error', e.message);
+      Alert.alert(t('common.error'), e.message);
     }
     setLoading(false);
   };
@@ -201,13 +193,11 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             setLoading(false);
             if (res.success) {
               Alert.alert(
-                'Success',
-                t('farmer.deleteHarvestSuccess', {
-                  defaultValue: 'Harvest deleted successfully!',
-                }),
+                t('common.success'),
+                t('farmer.deleteHarvestSuccess'),
               );
             } else {
-              Alert.alert('Error', res.error);
+              Alert.alert(t('common.error'), res.error);
             }
           },
         },

@@ -29,19 +29,13 @@ const ForgotPasswordScreen = ({navigation}) => {
 
   const handleSendLink = async () => {
     if (!email.trim()) {
-      Alert.alert(
-        '⚠ பிழை / Error',
-        '📧 மின்னஞ்சல் முகவரியை உள்ளிடவும்.\n\nPlease enter your email address.',
-      );
+      Alert.alert(t('common.error'), t('validation.emailRequired'));
       return;
     }
     if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())
     ) {
-      Alert.alert(
-        '⚠ பிழை / Error',
-        '❌ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nPlease enter a valid email address.',
-      );
+      Alert.alert(t('common.error'), t('validation.emailInvalid'));
       return;
     }
 
@@ -59,19 +53,12 @@ const ForgotPasswordScreen = ({navigation}) => {
         // Email NOT registered - block reset
         setIsLoading(false);
         Alert.alert(
-          t('authAlerts.resetNoAccountTitle', {
-            defaultValue: '❌ கணக்கு இல்லை / No Account Found',
-          }),
-          t('authAlerts.resetNoAccountMsg', {
-            defaultValue:
-              'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nமின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nNo account found with this email. Please check or register a new account.',
-          }),
+          t('authAlerts.resetNoAccountTitle'),
+          t('authAlerts.resetNoAccountMsg'),
           [
-            {text: t('common.ok', {defaultValue: 'சரி / OK'}), style: 'cancel'},
+            {text: t('common.ok'), style: 'cancel'},
             {
-              text: t('authAlerts.tryAgainBtn', {
-                defaultValue: '📧 மீண்டும் முயற்சிக்கவும் / Try Again',
-              }),
+              text: t('authAlerts.tryAgainBtn'),
               style: 'default',
             },
           ],
@@ -86,13 +73,13 @@ const ForgotPasswordScreen = ({navigation}) => {
       if (result.success) {
         setEmailSent(true);
       } else {
-        Alert.alert('பிழை / Error', result.error);
+        Alert.alert(t('common.error'), result.error);
       }
     } catch (e) {
       setIsLoading(false);
       // Handle Firebase email enumeration protection (newer Firebase versions)
       if (e.code === 'auth/invalid-email') {
-        Alert.alert('⚠ பிழை / Error', 'தவறான மின்னஞ்சல் / Invalid email');
+        Alert.alert(t('common.error'), t('forgot.invalidEmailError'));
       } else {
         // If fetchSignInMethods fails (e.g., email enumeration protection enabled),
         // fallback: just try sending the reset email directly
@@ -104,10 +91,10 @@ const ForgotPasswordScreen = ({navigation}) => {
           if (result.success) {
             setEmailSent(true);
           } else {
-            Alert.alert('பிழை / Error', result.error);
+            Alert.alert(t('common.error'), result.error);
           }
         } catch (e2) {
-          Alert.alert('பிழை / Error', e2.message);
+          Alert.alert(t('common.error'), e2.message);
         }
       }
     }
@@ -151,10 +138,8 @@ const ForgotPasswordScreen = ({navigation}) => {
             </Text>
             <Text style={styles.successMsg}>
               <Text style={styles.boldEmail}>{email}</Text>
-              {'\n\n'}என்ற மின்னஞ்சலுக்கு கடவுச்சொல் மீட்டமை லிங்க்
-              அனுப்பப்பட்டது.{'\n\n'}
-              Password reset link has been sent to your email.{'\n\n'}
-              📌 Please check your spam folder as well!{'\n'}
+              {'\n\n'}
+              {t('forgot.successMsgBody')}
             </Text>
             <TouchableOpacity
               style={styles.backToLoginBtn}

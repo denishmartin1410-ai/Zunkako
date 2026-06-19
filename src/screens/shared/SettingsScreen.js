@@ -49,10 +49,20 @@ const SettingsScreen = ({navigation}) => {
   };
 
   const handleLogout = () => {
-    Alert.alert('வெளியேறு / Logout', 'உறுதியாக வெளியேற வேண்டுமா?', [
-      {text: 'இல்லை / No', style: 'cancel'},
-      {text: 'ஆமா / Yes', onPress: logout, style: 'destructive'},
-    ]);
+    Alert.alert(
+      t('settings.logout', {defaultValue: 'Logout'}),
+      t('profile.logoutConfirm', {
+        defaultValue: 'Are you sure you want to logout?',
+      }),
+      [
+        {text: t('common.cancel', {defaultValue: 'No'}), style: 'cancel'},
+        {
+          text: t('common.yes', {defaultValue: 'Yes'}),
+          onPress: logout,
+          style: 'destructive',
+        },
+      ],
+    );
   };
 
   const bg = isDark ? '#121212' : COLORS.background;

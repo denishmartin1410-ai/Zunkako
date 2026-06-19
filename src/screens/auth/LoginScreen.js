@@ -95,17 +95,16 @@ const LoginScreen = ({navigation}) => {
   const validate = () => {
     const e = {};
     if (!email.trim()) {
-      e.email = '⚠ மின்னஞ்சல் உள்ளிடவும் / Enter email';
+      e.email = t('validation.emailRequired');
     } else if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())
     ) {
-      e.email =
-        '⚠ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்\n  எ.கா: example@gmail.com';
+      e.email = t('validation.emailInvalid');
     }
     if (!password) {
-      e.password = '⚠ கடவுச்சொல் உள்ளிடவும் / Enter password';
+      e.password = t('validation.passwordRequired');
     } else if (password.length < 6) {
-      e.password = '⚠ குறைந்தது 6 எழுத்துக்கள் வேண்டும் / Min 6 characters';
+      e.password = t('validation.passwordMin');
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -126,22 +125,15 @@ const LoginScreen = ({navigation}) => {
         if (errorType === 'user-not-found') {
           // Email doesn't exist - guide to register
           Alert.alert(
-            t('authAlerts.noAccountTitle', {
-              defaultValue: '❌ கணக்கு இல்லை / No Account Found',
-            }),
-            t('authAlerts.noAccountMsg', {
-              defaultValue:
-                'இந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை!\n\nNo account exists with this email. Please register first.',
-            }),
+            t('authAlerts.noAccountTitle'),
+            t('authAlerts.noAccountMsg'),
             [
               {
-                text: t('common.ok', {defaultValue: 'சரி / OK'}),
+                text: t('common.ok'),
                 style: 'cancel',
               },
               {
-                text: t('authAlerts.createAccountBtn', {
-                  defaultValue: '📝 புதிய கணக்கு உருவாக்கு',
-                }),
+                text: t('authAlerts.createAccountBtn'),
                 onPress: () => navigation.navigate('Register'),
               },
             ],
@@ -149,28 +141,19 @@ const LoginScreen = ({navigation}) => {
         } else if (errorType === 'wrong-password') {
           // Wrong password - guide to forgot password
           Alert.alert(
-            t('authAlerts.wrongPasswordTitle', {
-              defaultValue: '🔑 தவறான தகவல் / Incorrect Details',
-            }),
-            t('authAlerts.wrongPasswordMsg', {
-              defaultValue:
-                'நீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது!\n\nசரியான தகவல்களை உள்ளிடவும் அல்லது புதிய கணக்கு உருவாக்கவும்.\n\nIncorrect email or password. Please try again or create an account.',
-            }),
+            t('authAlerts.wrongPasswordTitle'),
+            t('authAlerts.wrongPasswordMsg'),
             [
               {
-                text: t('common.ok', {defaultValue: 'சரி / OK'}),
+                text: t('common.ok'),
                 style: 'cancel',
               },
               {
-                text: t('authAlerts.forgotPasswordBtn', {
-                  defaultValue: '🔑 கடவுச்சொல் மறந்தீர்களா?',
-                }),
+                text: t('authAlerts.forgotPasswordBtn'),
                 onPress: () => navigation.navigate('ForgotPassword'),
               },
               {
-                text: t('authAlerts.createAccountBtn', {
-                  defaultValue: '📝 புதிய கணக்கு உருவாக்கு',
-                }),
+                text: t('authAlerts.createAccountBtn'),
                 onPress: () => navigation.navigate('Register'),
               },
             ],
@@ -178,19 +161,19 @@ const LoginScreen = ({navigation}) => {
         } else if (errorType === 'account-disabled') {
           // Account disabled by admin
           Alert.alert(
-            '🚫 கணக்கு முடக்கப்பட்டது / Account Disabled',
-            'உங்கள் கணக்கு முடக்கப்பட்டுள்ளது.\nநிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled. Please contact the administrator.',
-            [{text: 'சரி / OK'}],
+            t('authAlerts.accountDisabledTitle'),
+            t('authAlerts.accountDisabledMsg'),
+            [{text: t('common.ok')}],
           );
         } else if (errorType === 'too-many-requests') {
           // Too many failed attempts
           Alert.alert(
-            '⏳ அதிக முயற்சிகள் / Too Many Attempts',
-            'பல முறை தவறான கடவுச்சொல் உள்ளிட்டதால் உங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது.\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nAccount temporarily locked due to too many failed attempts.',
+            t('authAlerts.tooManyRequestsTitle'),
+            t('authAlerts.tooManyRequestsMsg'),
             [
-              {text: 'சரி / OK', style: 'cancel'},
+              {text: t('common.ok'), style: 'cancel'},
               {
-                text: '🔑 கடவுச்சொல் மீட்டமை',
+                text: t('authAlerts.resetPasswordBtn'),
                 onPress: () => navigation.navigate('ForgotPassword'),
               },
             ],
@@ -198,23 +181,23 @@ const LoginScreen = ({navigation}) => {
         } else if (errorType === 'email-not-verified') {
           // Email not verified - offer to resend
           Alert.alert(
-            '📧 மின்னஞ்சல் சரிபார்க்கப்படவில்லை / Email Not Verified',
-            'உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nபதிவு செய்யும்போது அனுப்பிய Verification Link-ஐ உங்கள் Email Inbox-ல் பாருங்கள். அதை Click செய்து Verify செய்த பிறகு மீண்டும் Login செய்யுங்கள்.\n\nPlease verify your email first. Check your inbox for the verification link.',
+            t('authAlerts.emailNotVerifiedTitle'),
+            t('authAlerts.emailNotVerifiedMsg'),
             [
-              {text: 'சரி / OK', style: 'cancel'},
+              {text: t('common.ok'), style: 'cancel'},
               {
-                text: '📩 மீண்டும் Verification Link அனுப்பு',
+                text: t('authAlerts.resendLinkBtn'),
                 onPress: async () => {
                   const res = await resendVerificationEmail();
                   if (res.success) {
                     Alert.alert(
-                      '✅ அனுப்பப்பட்டது / Sent!',
-                      'புதிய Verification Link உங்கள் Email-க்கு அனுப்பப்பட்டது!\n\nEmail Inbox-ல் பாருங்கள், Spam/Junk folder-ஐயும் சரிபார்க்கவும்.\n\nNew verification link sent! Check your inbox and spam folder.',
+                      t('authAlerts.linkSentTitle'),
+                      t('authAlerts.linkSentMsg'),
                     );
                   } else {
                     Alert.alert(
-                      'பிழை / Error',
-                      'மீண்டும் முயற்சிக்கவும் / Please try again later.',
+                      t('common.error'),
+                      t('authAlerts.resendErrorMsg'),
                     );
                   }
                 },
@@ -223,28 +206,27 @@ const LoginScreen = ({navigation}) => {
           );
         } else if (errorType === 'network') {
           Alert.alert(
-            '📶 இணைய இணைப்பு இல்லை / No Internet',
-            'உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nPlease check your internet connection and try again.',
-            [{text: 'சரி / OK'}],
+            t('authAlerts.networkTitle'),
+            t('authAlerts.networkMsg'),
+            [{text: t('common.ok')}],
           );
         } else if (errorType === 'wrong-dashboard') {
-          Alert.alert('🚫 தவறான பக்கம் / Wrong Dashboard', result.error, [
-            {text: 'சரி / OK', style: 'default'},
+          Alert.alert(t('authAlerts.wrongDashboardTitle'), result.error, [
+            {text: t('common.ok'), style: 'default'},
           ]);
         } else {
           // Generic error with both options
           Alert.alert(
-            '⚠️ பிழை / Login Error',
-            result.error ||
-              'தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்.\n\nIncorrect email or password.',
+            t('authAlerts.loginErrorTitle'),
+            result.error || t('authAlerts.loginErrorMsg'),
             [
-              {text: 'சரி / OK', style: 'cancel'},
+              {text: t('common.ok'), style: 'cancel'},
               {
-                text: '🔑 கடவுச்சொல் மறந்தீர்களா?',
+                text: t('authAlerts.forgotPasswordBtn'),
                 onPress: () => navigation.navigate('ForgotPassword'),
               },
               {
-                text: '📝 புதிய கணக்கு',
+                text: t('authAlerts.createAccountBtn'),
                 onPress: () => navigation.navigate('Register'),
               },
             ],
@@ -254,14 +236,14 @@ const LoginScreen = ({navigation}) => {
       // ✅ Success: AuthContext onAuthStateChanged → RootNavigator auto-navigate
     } catch (e) {
       shake();
-      Alert.alert('பிழை / Error', e.message);
+      Alert.alert(t('common.error'), e.message);
     }
     setIsLoading(false);
   };
 
   const handleOTPLogin = () => {
     if (!phone || phone.length < 10) {
-      Alert.alert('பிழை', 'சரியான 10 இலக்க கைபேசி எண்ணை உள்ளிடவும்');
+      Alert.alert(t('common.error'), t('validation.phoneLength'));
       return;
     }
     navigation.navigate('OTP', {phone, userType});

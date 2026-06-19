@@ -6,6 +6,7 @@ import React, {createContext, useContext, useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import i18n from '../locales/i18n';
 import {
   firebaseEmailLogin,
   firebaseEmailRegister,
@@ -86,8 +87,7 @@ export const AuthProvider = ({children}) => {
         await authModule().signOut(); // Don't keep unverified user logged in
         return {
           success: false,
-          error:
-            '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nபதிவு செய்யும்போது உங்கள் மின்னஞ்சலுக்கு ஒரு சரிபார்ப்பு லிங்க் அனுப்பப்பட்டது. அதை க்ளிக் செய்து சரிபார்த்த பிறகு மீண்டும் Login செய்யவும்.\n\nYour email is not verified yet. Please check your inbox and click the verification link first.',
+          error: i18n.t('authAlerts.emailNotVerifiedMsg'),
           errorType: 'email-not-verified',
           fbUser: fbUser,
         };
@@ -107,19 +107,15 @@ export const AuthProvider = ({children}) => {
           // ❌ User tried to login to the WRONG dashboard!
           await authModule().signOut(); // Immediately sign them out
 
-          const typeLabels = {
-            consumer: 'நுகர்வோர் / Customer',
-            farmer: 'விவசாயி / Farmer',
-            delivery: 'டெலிவரி / Delivery',
-          };
+          const typeLabel = i18n.t(`login.${storedType}`, {
+            defaultValue: storedType,
+          });
           return {
             success: false,
             errorType: 'wrong-dashboard',
-            error: `🚫 தவறான கணக்கு வகை! / Wrong Account Type!\n\nஇந்த மின்னஞ்சல் "${
-              typeLabels[storedType] || storedType
-            }" கணக்கிற்காக பதிவு செய்யப்பட்டுள்ளது.\n\nதயவுசெய்து சரியான "${
-              typeLabels[storedType] || storedType
-            }" பக்கத்தில் Login செய்யவும்.\n\nThis email is registered as a "${storedType}". Please login through the correct dashboard.`,
+            error: i18n.t('authAlerts.wrongDashboardDetails', {
+              type: typeLabel,
+            }),
           };
         }
       }
@@ -246,18 +242,16 @@ export const AuthProvider = ({children}) => {
           if (!phoneCheck.empty) {
             const existingUser = phoneCheck.docs[0].data();
             const existingType = existingUser.userType || 'unknown';
-            const typeLabels = {
-              consumer: 'நுகர்வோர் / Customer',
-              farmer: 'விவசாயி / Farmer',
-              delivery: 'டெலிவரி / Delivery',
-            };
+            const typeLabel = i18n.t(`login.${existingType}`, {
+              defaultValue: existingType,
+            });
             // ❌ Phone already exists → Delete the just-created auth account
             await fbUser.delete();
             return {
               success: false,
-              error: `📱 இந்த தொலைபேசி எண் ஏற்கனவே "${
-                typeLabels[existingType] || existingType
-              }" கணக்கில் பதிவு செய்யப்பட்டுள்ளது!\n\nஒரு தொலைபேசி எண்ணுக்கு ஒரே ஒரு கணக்கு மட்டுமே அனுமதிக்கப்படும்.\n\nThis phone number is already registered with a "${existingType}" account. Only one account per phone number is allowed.`,
+              error: i18n.t('authAlerts.phoneExistsDetails', {
+                type: typeLabel,
+              }),
               errorType: 'phone-exists',
             };
           }
@@ -279,8 +273,9 @@ export const AuthProvider = ({children}) => {
           await fbUser.delete();
           return {
             success: false,
-            error:
-              'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\nThis email is already registered!',
+            error: i18n.t('authAlerts.emailExistsSimple', {
+              defaultValue: 'This email is already registered!',
+            }),
             errorType: 'email-exists',
           };
         }

@@ -89,63 +89,54 @@ const RegisterScreen = ({navigation}) => {
     const e = {};
     // Name validation
     if (!name.trim()) {
-      e.name = '⚠ பெயர் உள்ளிடவும் / Enter your name';
+      e.name = t('validation.nameRequired');
     } else if (name.trim().length < 2) {
-      e.name =
-        '⚠ பெயர் குறைந்தது 2 எழுத்துக்கள் இருக்க வேண்டும் / Name must be at least 2 characters';
+      e.name = t('validation.nameMin');
     }
 
     // Email validation - strict format check
     if (!email.trim()) {
-      e.email = '⚠ மின்னஞ்சல் உள்ளிடவும் / Enter email';
+      e.email = t('validation.emailRequired');
     } else if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())
     ) {
-      e.email =
-        '⚠ சரியான மின்னஞ்சல் வடிவம் உள்ளிடவும்\n  எ.கா: example@gmail.com\n  Valid email format needed';
+      e.email = t('validation.emailInvalid');
     }
 
     // Phone validation
     if (!phone.trim()) {
-      e.phone = '⚠ தொலைபேசி எண் உள்ளிடவும் / Enter phone number';
+      e.phone = t('validation.phoneRequired');
     } else if (phone.length !== 10) {
-      e.phone =
-        '⚠ சரியான 10 இலக்க எண் உள்ளிடவும் / Enter valid 10-digit number';
+      e.phone = t('validation.phoneLength');
     } else if (!/^[6-9]\d{9}$/.test(phone)) {
-      e.phone =
-        '⚠ சரியான இந்திய மொபைல் எண் உள்ளிடவும் / Valid Indian mobile number needed';
+      e.phone = t('validation.phoneInvalid');
     }
 
     // Location validation - mandatory
     if (!location.trim()) {
-      e.location = '⚠ இடம் உள்ளிடவும் / Enter your location/city';
+      e.location = t('validation.locationRequired');
     }
 
     // Password validation - strong password rules
     if (!password) {
-      e.password = '⚠ கடவுச்சொல் உள்ளிடவும் / Enter password';
+      e.password = t('validation.passwordRequired');
     } else if (password.length < 6) {
-      e.password = '⚠ குறைந்தது 6 எழுத்துக்கள் வேண்டும் / Min 6 characters';
+      e.password = t('validation.passwordMin');
     } else if (!/[A-Z]/.test(password)) {
-      e.password =
-        '⚠ ஒரு பெரிய எழுத்து வேண்டும் (A-Z) / Need at least 1 uppercase letter';
+      e.password = t('validation.passwordUpper');
     } else if (!/[a-z]/.test(password)) {
-      e.password =
-        '⚠ ஒரு சிறிய எழுத்து வேண்டும் (a-z) / Need at least 1 lowercase letter';
+      e.password = t('validation.passwordLower');
     } else if (!/[0-9]/.test(password)) {
-      e.password = '⚠ ஒரு எண் வேண்டும் (0-9) / Need at least 1 number';
+      e.password = t('validation.passwordDigit');
     } else if (!/[!@#$%^&*()_+\-=\[\]{};:\'",.<>?/\\|`~]/.test(password)) {
-      e.password =
-        '⚠ ஒரு சிறப்பு எழுத்து வேண்டும் (!@#$%^&*) / Need at least 1 special character';
+      e.password = t('validation.passwordSpecial');
     }
 
     // Confirm password validation
     if (!confirmPassword) {
-      e.confirmPassword =
-        '⚠ உறுதி கடவுச்சொல் உள்ளிடவும் / Enter confirm password';
+      e.confirmPassword = t('validation.confirmPasswordRequired');
     } else if (password !== confirmPassword) {
-      e.confirmPassword =
-        '⚠ கடவுச்சொல் பொருந்தவில்லை! இரண்டும் ஒரே மாதிரி இருக்க வேண்டும்.\n  Passwords do not match!';
+      e.confirmPassword = t('validation.passwordsMatch');
     }
 
     setErrors(e);
@@ -173,42 +164,38 @@ const RegisterScreen = ({navigation}) => {
 
       if (errorType === 'email-exists') {
         Alert.alert(
-          '⚠️ மின்னஞ்சல் ஏற்கனவே உள்ளது / Email Already Exists',
-          'இந்த Email Address ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது!\n\nவேறு Email பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered. Use a different email or login.',
+          t('authAlerts.emailExistsTitle'),
+          t('authAlerts.emailExistsMsg'),
           [
-            {text: 'சரி / OK', style: 'cancel'},
+            {text: t('common.ok'), style: 'cancel'},
             {
-              text: '🔐 Login செய்ய',
+              text: t('authAlerts.goToLoginBtn'),
               onPress: () => navigation.navigate('Login'),
             },
           ],
         );
       } else if (errorType === 'phone-exists') {
-        Alert.alert(
-          '📱 தொலைபேசி எண் ஏற்கனவே உள்ளது / Phone Already Registered',
-          result.error,
-          [
-            {text: 'சரி / OK', style: 'cancel'},
-            {
-              text: '🔐 Login செய்ய',
-              onPress: () => navigation.navigate('Login'),
-            },
-          ],
-        );
+        Alert.alert(t('authAlerts.phoneExistsTitle'), result.error, [
+          {text: t('common.ok'), style: 'cancel'},
+          {
+            text: t('authAlerts.goToLoginBtn'),
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]);
       } else {
         Alert.alert(
-          'பிழை / Error',
-          result.error || 'பதிவு செய்வதில் பிழை\nRegistration failed',
+          t('common.error'),
+          result.error || t('farmer.uploadFailed'),
         );
       }
     } else {
       // ✅ Registration successful - Show email verification alert
       Alert.alert(
-        '✅ பதிவு வெற்றி! / Registration Successful!',
-        '📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\nஉங்கள் மின்னஞ்சலுக்கு (Email) ஒரு Verification Link அனுப்பப்பட்டுள்ளது.\n\n👉 உங்கள் Email Inbox-ஐ திறந்து Verification Link-ஐ Click செய்யுங்கள்.\n👉 Spam/Junk folder-ஐயும் சரிபார்க்கவும்.\n👉 Verify செய்த பிறகு Login செய்யுங்கள்.\n\nA verification link has been sent to your email. Please verify before logging in.',
+        t('authAlerts.regSuccessTitle'),
+        t('authAlerts.regSuccessMsg'),
         [
           {
-            text: 'சரி, Login பக்கம் செல் →',
+            text: t('authAlerts.goToLoginBtnMain'),
             onPress: async () => {
               // Logout so user must verify email before accessing app
               try {
@@ -302,7 +289,7 @@ const RegisterScreen = ({navigation}) => {
 
         {/* ── Form Fields (state-ஐ individual set functions use பண்றோம்) ── */}
         <Field
-          label={'👤 பெயர்\n    Full Name'}
+          label={'👤 ' + t('profile.fullName')}
           value={name}
           onChangeText={setName}
           error={errors.name}
@@ -310,7 +297,7 @@ const RegisterScreen = ({navigation}) => {
           textContentType="name"
         />
         <Field
-          label={'📧 மின்னஞ்சல்\n    Email Address'}
+          label={'📧 ' + t('farmer.email')}
           value={email}
           onChangeText={text => setEmail(text.trim())}
           keyboardType="email-address"
@@ -320,7 +307,7 @@ const RegisterScreen = ({navigation}) => {
           autoCorrect={false}
         />
         <Field
-          label={'📱 தொலைபேசி\n    Phone Number'}
+          label={'📱 ' + t('farmer.phone')}
           value={phone}
           onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
           keyboardType="phone-pad"
@@ -330,7 +317,7 @@ const RegisterScreen = ({navigation}) => {
           importantForAutofill="no"
         />
         <Field
-          label={'📍 இடம்\n    Location / City'}
+          label={'📍 ' + t('farmer.location')}
           value={location}
           onChangeText={setLocation}
           error={errors.location}
@@ -338,7 +325,7 @@ const RegisterScreen = ({navigation}) => {
           textContentType="none"
         />
         <Field
-          label={'🔒 கடவுச்சொல்\n    Password'}
+          label={t('login.passwordLabel')}
           value={password}
           onChangeText={setPassword}
           secure
@@ -349,7 +336,7 @@ const RegisterScreen = ({navigation}) => {
           textContentType="newPassword"
         />
         <Field
-          label={'🔒 கடவுச்சொல் உறுதி\n    Confirm Password'}
+          label={'🔒 ' + t('validation.confirmPasswordRequired')}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secure
@@ -373,7 +360,9 @@ const RegisterScreen = ({navigation}) => {
             {isLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.regBtnText}>பதிவு செய்க / Register →</Text>
+              <Text style={styles.regBtnText}>
+                {t('register.btnText', {defaultValue: 'Register →'})}
+              </Text>
             )}
           </LinearGradient>
         </TouchableOpacity>

@@ -15,6 +15,7 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -92,6 +93,7 @@ const EditProfileScreen = ({navigation}) => {
   const [avatarUri, setAvatarUri] = useState(user?.avatar || '');
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const isFarmer = user?.userType === 'farmer';
   const letter = (name || 'U').charAt(0).toUpperCase();
@@ -153,40 +155,8 @@ const EditProfileScreen = ({navigation}) => {
 
   // Show Camera/Gallery choice dialog
   const handlePhotoPick = useCallback(() => {
-    const options = [
-      {
-        text: '📷 ' + t('profile.camera', {defaultValue: 'கேமரா'}),
-        onPress: () => pickImage('camera'),
-      },
-      {
-        text: '🖼 ' + t('profile.gallery', {defaultValue: 'கேலரி'}),
-        onPress: () => pickImage('gallery'),
-      },
-    ];
-
-    if (avatarUri) {
-      options.push({
-        text:
-          '🗑 ' + t('profile.deletePhoto', {defaultValue: 'புகைப்படம் நீக்கு'}),
-        onPress: () => setAvatarUri(''),
-        style: 'destructive',
-      });
-    }
-
-    options.push({
-      text: t('common.cancel', {defaultValue: 'ரத்து / CANCEL'}),
-      style: 'cancel',
-    });
-
-    Alert.alert(
-      '📷 ' + t('profile.changePhoto', {defaultValue: 'புகைப்படம் மாற்றவும்'}),
-      t('profile.chooseSource', {
-        defaultValue:
-          'கேமரா அல்லது கேலரியில் இருந்து தேர்வு பண்ணுங்கள்\nChoose from Camera or Gallery',
-      }),
-      options,
-    );
-  }, [pickImage, t, avatarUri]);
+    setModalVisible(true);
+  }, []);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -357,6 +327,94 @@ const EditProfileScreen = ({navigation}) => {
         </TouchableOpacity>
         <View style={{height: rs(40)}} />
       </ScrollView>
+
+      {/* Photo Picker Bottom Sheet Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <TouchableOpacity
+            style={styles.modalBgDismiss}
+            activeOpacity={1}
+            onPress={() => setModalVisible(false)}
+          />
+          <View
+            style={[styles.modalCard, {backgroundColor: themeColors.cardBg}]}>
+            <View style={styles.modalBar} />
+
+            <Text style={[styles.modalTitle, {color: themeColors.text}]}>
+              📷 {t('profile.changePhoto', {defaultValue: 'Change Photo'})}
+            </Text>
+            <Text
+              style={[styles.modalSubtitle, {color: themeColors.textMuted}]}>
+              {t('profile.chooseSource', {
+                defaultValue: 'Choose from Camera or Gallery',
+              })}
+            </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.modalOption,
+                {borderBottomWidth: 1, borderBottomColor: themeColors.border},
+              ]}
+              onPress={() => {
+                setModalVisible(false);
+                pickImage('camera');
+              }}>
+              <Text style={[styles.modalOptionText, {color: themeColors.text}]}>
+                📷 {t('profile.camera', {defaultValue: 'Camera'})}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.modalOption,
+                {borderBottomWidth: 1, borderBottomColor: themeColors.border},
+              ]}
+              onPress={() => {
+                setModalVisible(false);
+                pickImage('gallery');
+              }}>
+              <Text style={[styles.modalOptionText, {color: themeColors.text}]}>
+                🖼️ {t('profile.gallery', {defaultValue: 'Gallery'})}
+              </Text>
+            </TouchableOpacity>
+
+            {!!avatarUri && (
+              <TouchableOpacity
+                style={[
+                  styles.modalOption,
+                  {borderBottomWidth: 1, borderBottomColor: themeColors.border},
+                ]}
+                onPress={() => {
+                  setModalVisible(false);
+                  setAvatarUri('');
+                }}>
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    {color: COLORS.error || '#D32F2F'},
+                  ]}>
+                  🗑️ {t('profile.deletePhoto', {defaultValue: 'Delete Photo'})}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[
+                styles.modalCancelBtn,
+                {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
+              ]}
+              onPress={() => setModalVisible(false)}>
+              <Text style={[styles.modalCancelText, {color: themeColors.text}]}>
+                {t('common.cancel', {defaultValue: 'No'})}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -455,6 +513,59 @@ const styles = StyleSheet.create({
   saveBtn: {borderRadius: RADIUS.lg, overflow: 'hidden'},
   saveGrad: {paddingVertical: rs(16), alignItems: 'center'},
   saveTxt: {color: COLORS.white, fontSize: rs(FONTS.lg), fontWeight: 'bold'},
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalBgDismiss: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  modalCard: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: SPACING.xl,
+    paddingBottom: rs(34),
+    alignItems: 'center',
+    width: '100%',
+  },
+  modalBar: {
+    width: 40,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#CCCCCC',
+    marginBottom: SPACING.lg,
+  },
+  modalTitle: {
+    fontSize: rs(FONTS.lg),
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: rs(FONTS.sm),
+    marginBottom: SPACING.xl,
+    textAlign: 'center',
+  },
+  modalOption: {
+    width: '100%',
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  modalOptionText: {
+    fontSize: rs(16),
+    fontWeight: '500',
+  },
+  modalCancelBtn: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: SPACING.xl,
+  },
+  modalCancelText: {
+    fontSize: rs(16),
+    fontWeight: 'bold',
+  },
 });
 
 export default EditProfileScreen;

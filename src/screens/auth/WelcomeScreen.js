@@ -8,12 +8,14 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, FONTS, SPACING, RADIUS} from '../../utils/theme';
 
 const {width, height} = Dimensions.get('window');
 
 const WelcomeScreen = ({navigation}) => {
+  const {t} = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(60)).current;
   const card1Anim = useRef(new Animated.Value(width)).current;
@@ -80,31 +82,31 @@ const WelcomeScreen = ({navigation}) => {
           ]}>
           <Text style={styles.heroEmoji}>🌿</Text>
           <Text style={styles.heroTitle}>F2C</Text>
-          <Text style={styles.heroSubtitle}>
-            விவசாயியிடமிருந்து{'\n'}நேரடியாக உங்களுக்கு
-          </Text>
+          <Text style={styles.heroSubtitle}>{t('welcome.heroSubtitle')}</Text>
 
           <View style={styles.tagRow}>
-            {['🌱 இயற்கை', '🚜 நேரடி', '✅ நம்பகமான'].map((tag, i) => (
-              <View key={i} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
+            {[t('welcome.tag1'), t('welcome.tag2'), t('welcome.tag3')].map(
+              (tag, i) => (
+                <View key={i} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ),
+            )}
           </View>
         </Animated.View>
 
         {/* Floating info cards */}
         <FloatingCard
           emoji="🥦"
-          label="புதிய காய்கறிகள்"
-          sublabel="தினமும் புதிசு"
+          label={t('welcome.card1Label')}
+          sublabel={t('welcome.card1Sub')}
           anim={card1Anim}
           style={styles.card1}
         />
         <FloatingCard
           emoji="👨‍🌾"
-          label="200+ விவசாயிகள்"
-          sublabel="சரிபார்க்கப்பட்டவர்கள்"
+          label={t('welcome.card2Label')}
+          sublabel={t('welcome.card2Sub')}
           anim={card2Anim}
           style={styles.card2}
         />
@@ -112,17 +114,15 @@ const WelcomeScreen = ({navigation}) => {
 
       {/* Bottom white section */}
       <View style={styles.bottomSection}>
-        <Text style={styles.welcomeTitle}>வரவேற்கிறோம்!</Text>
-        <Text style={styles.welcomeSubtitle}>
-          விவசாயி மற்றும் நுகர்வோர் இடையே{'\n'}நேரடி தொடர்பு
-        </Text>
+        <Text style={styles.welcomeTitle}>{t('welcome.title')}</Text>
+        <Text style={styles.welcomeSubtitle}>{t('welcome.subtitle')}</Text>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
           {[
-            {num: '200+', label: 'விவசாயிகள்'},
-            {num: '500+', label: 'தயாரிப்புகள்'},
-            {num: '10K+', label: 'நுகர்வோர்'},
+            {num: '200+', label: t('welcome.statFarmers')},
+            {num: '500+', label: t('welcome.statProducts')},
+            {num: '10K+', label: t('welcome.statConsumers')},
           ].map((stat, i) => (
             <View key={i} style={styles.statItem}>
               <Text style={styles.statNum}>{stat.num}</Text>
@@ -141,7 +141,7 @@ const WelcomeScreen = ({navigation}) => {
             style={styles.loginBtnGrad}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}>
-            <Text style={styles.loginBtnText}>உள்நுழைக ➡️</Text>
+            <Text style={styles.loginBtnText}>{t('welcome.loginBtn')}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -149,7 +149,7 @@ const WelcomeScreen = ({navigation}) => {
           style={styles.registerBtn}
           activeOpacity={0.85}
           onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.registerBtnText}>புதிய கணக்கு உருவாக்கு</Text>
+          <Text style={styles.registerBtnText}>{t('welcome.registerBtn')}</Text>
         </TouchableOpacity>
       </View>
     </View>
