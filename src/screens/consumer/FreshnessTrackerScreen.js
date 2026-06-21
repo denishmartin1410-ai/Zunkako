@@ -281,7 +281,7 @@ const FreshnessTrackerScreen = ({navigation}) => {
           <Text style={styles.headerDesc}>
             {t('freshness.desc', {
               defaultValue:
-                'அறுவடை ஆன நேரத்திலிருந்து இப்போது எத்தனை நேரம் ஆச்சு என்று live-ஆ தெரியும்!',
+                'அறுவடை ஆன நேரத்திலிருந்து இப்போது வரை எவ்வளவு நேரம் ஆனது என்று நேரடியாக தெரியும்!',
             })}
           </Text>
         </View>
@@ -329,7 +329,8 @@ const FreshnessTrackerScreen = ({navigation}) => {
               color: COLORS.textGray,
             }}>
             {t('freshness.noProducts', {
-              defaultValue: 'தற்போது எந்த fresh products-ம் இல்லை.',
+              defaultValue:
+                'தற்போது எந்த புதிய தயாரிப்புகளும் இல்லை.',
             })}
           </Text>
         ) : (

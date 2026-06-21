@@ -94,7 +94,7 @@ const HarvestCalendarScreen = ({navigation}) => {
           </Text>
           <Text style={styles.headerDesc}>
             {t('harvestCalendar.desc', {
-              defaultValue: 'இந்த வாரம் என்ன fresh-ஆ கிடைக்கும்?',
+              defaultValue: 'இந்த வாரம் என்ன புதுசா கிடைக்கும்?',
             })}
           </Text>
         </View>
@@ -271,7 +271,7 @@ const HarvestCalendarScreen = ({navigation}) => {
                     <LinearGradient
                       colors={COLORS.gradientButton}
                       style={styles.preOrderGrad}>
-                      <Text style={styles.preOrderTxt}>முன் Order</Text>
+                      <Text style={styles.preOrderTxt}>முன் ஆர்டர்</Text>
                       <Text style={styles.preOrderTxtEn}>Pre-order</Text>
                     </LinearGradient>
                   </TouchableOpacity>

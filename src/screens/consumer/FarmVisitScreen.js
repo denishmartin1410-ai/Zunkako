@@ -585,7 +585,7 @@ const FarmVisitScreen = ({navigation}) => {
             🌿{' '}
             {t('farmVisit.infoTxt', {
               defaultValue:
-                'நம்மால் நேரில் பண்ணைக்கு சென்று பொருட்களை வாங்கலாம். 100% fresh + 100% நம்பகம்!',
+                'நம்மால் நேரில் பண்ணைக்கு சென்று பொருட்களை வாங்கலாம். 100% புதியது + 100% நம்பகம்!',
             })}
           </Text>
         </View>
@@ -607,7 +607,7 @@ const FarmVisitScreen = ({navigation}) => {
               color: themeColors.textMuted,
             }}>
             {t('farmVisit.noFarms', {
-              defaultValue: 'தற்போது எந்த பண்ணைகளும் இல்லை.',
+              defaultValue
             })}
           </Text>
         ) : (

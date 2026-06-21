@@ -483,7 +483,7 @@ const NutritionReportScreen = ({navigation}) => {
           <Text style={styles.headerDesc}>
             {t('nutrition.desc', {
               defaultValue:
-                'நீங்கள் வாங்கிய F2C products-ல் இருந்து\nஉங்கள் வார ஊட்டச்சத்து பார்க்கலாம்!',
+                'நீங்கள் வாங்கிய F2C தயாரிப்புகளில் இருந்து\nஉங்கள் வார ஊட்டச்சத்து பார்க்கலாம்!',
             })}
           </Text>
         </View>

@@ -418,7 +418,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
     if (!newGroup.title || !newGroup.location) {
       Alert.alert(
         'பிழை / Error',
-        'அனைத்து fields நிரப்பவும் / Fill all fields',
+        'அனைத்து விவரங்களையும் நிரப்பவும் / Fill all fields',
       );
       return;
     }
@@ -446,7 +446,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
     if (res.success) {
       Alert.alert(
         '✅ குழு உருவாக்கப்பட்டது!',
-        'உங்கள் Group Buy குழு வெற்றிகரமாக உருவாக்கப்பட்டது!\nYour group has been created!',
+        'உங்கள் கூட்டு வாங்கல் குழு வெற்றிகரமாக உருவாக்கப்பட்டது!\nYour group has been created!',
         [
           {
             text: 'சரி / OK',
@@ -479,7 +479,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
           <Text style={styles.headerDesc}>
             {t('groupBuy.desc', {
               defaultValue:
-                '5 பேர் சேர்ந்து order பண்ணினால்\n15-25% தள்ளுபடி + இலவச டெலிவரி!',
+                '5 பேர் சேர்ந்து ஆர்டர் பண்ணினால்\n15-25% தள்ளுபடி + இலவச டெலிவரி!',
             })}
           </Text>
         </View>

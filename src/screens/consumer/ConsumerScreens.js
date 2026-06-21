@@ -312,7 +312,7 @@ export const OrdersScreen = ({navigation}) => {
                       <Text
                         style={[S.statusText, {color: COLORS.primaryGreen}]}>
                         {t('harvestCalendar.preOrderBtn', {
-                          defaultValue: 'முன் Order',
+                          defaultValue: 'முன் ஆர்டர்',
                         })}
                       </Text>
                     </View>
@@ -392,7 +392,7 @@ export const OrdersScreen = ({navigation}) => {
                         }}>
                         {t('preOrder.peoplePreOrdered', {
                           defaultValue:
-                            '{{count}} பேர் முன்கூட்டியே order பண்ணியுள்ளனர்',
+                            '{{count}} பேர் முன்கூட்டியே ஆர்டர் பண்ணியுள்ளனர்',
                           count: order.totalPreOrders,
                         })}
                       </Text>

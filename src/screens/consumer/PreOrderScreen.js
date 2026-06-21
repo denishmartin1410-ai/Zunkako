@@ -313,11 +313,11 @@ const PreOrderScreen = ({navigation, route}) => {
             if (res.success) {
               Alert.alert(
                 t('preOrder.successTitle', {
-                  defaultValue: '🎉 Pre-Order வெற்றி!',
+                  defaultValue: '🎉 முன் ஆர்டர் வெற்றி!',
                 }),
                 t('preOrder.successDesc', {
                   defaultValue:
-                    'உங்கள் முன் order உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.\n\nPre-order confirmed successfully!',
+                    'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.\n\nPre-order confirmed successfully!',
                 }),
               );
             } else {
@@ -340,12 +340,12 @@ const PreOrderScreen = ({navigation, route}) => {
         <View style={styles.headerContent}>
           <Text style={styles.headerEmoji}>📅</Text>
           <Text style={styles.headerTitle}>
-            {t('preOrder.title', {defaultValue: 'முன் Order'})}
+            {t('preOrder.title', {defaultValue: 'முன் ஆர்டர்'})}
           </Text>
           <Text style={styles.headerDesc}>
             {t('preOrder.desc', {
               defaultValue:
-                'விளைவதற்கு முன்பே order பண்ணுங்கள்!\nஅதிக சேமிப்பு + guaranteed fresh!',
+                'விளைவதற்கு முன்பே ஆர்டர் பண்ணுங்கள்!\nஅதிக சேமிப்பு + புதிய உத்தரவாதம்!',
             })}
           </Text>
         </View>
@@ -362,11 +362,11 @@ const PreOrderScreen = ({navigation, route}) => {
           },
           {
             emoji: '🌿',
-            label: t('preOrder.benefit2', {defaultValue: '100%\nFresh'}),
+            label: t('preOrder.benefit2', {defaultValue: '100%\nபுதியது'}),
           },
           {
             emoji: '🚚',
-            label: t('preOrder.benefit3', {defaultValue: 'நேரடி\nDelivery'}),
+            label: t('preOrder.benefit3', {defaultValue: 'நேரடி\nடெலிவரி'}),
           },
           {
             emoji: '✅',
@@ -398,7 +398,8 @@ const PreOrderScreen = ({navigation, route}) => {
               color: COLORS.textGray,
             }}>
             {t('preOrder.noPreOrders', {
-              defaultValue: 'தற்போது எந்த முன் ஆர்டரும் இல்லை.',
+              defaultValue:
+                'தற்போது எந்த முன் ஆர்டரும் இல்லை.',
             })}
           </Text>
         ) : (
