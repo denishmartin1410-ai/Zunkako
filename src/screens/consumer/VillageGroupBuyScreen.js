@@ -208,13 +208,21 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
           </View>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>🚚</Text>
-            <Text style={styles.benefitLabel}>Delivery</Text>
-            <Text style={styles.benefitValue}>{t('groupBuy.free')}</Text>
+            <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
+              {t('groupBuy.delivery', {defaultValue: 'Delivery'})}
+            </Text>
+            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
+              {t('groupBuy.free')}
+            </Text>
           </View>
           <View style={styles.benefitChip}>
             <Text style={styles.benefitEmoji}>📅</Text>
-            <Text style={styles.benefitLabel}>Deadline</Text>
-            <Text style={styles.benefitValue}>{group.deadline}</Text>
+            <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
+              {t('groupBuy.deadline', {defaultValue: 'Deadline'})}
+            </Text>
+            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
+              {group.deadline}
+            </Text>
           </View>
         </View>
 
@@ -371,16 +379,37 @@ const VillageGroupBuyScreen = ({navigation}) => {
         memberNames: [...(prev.memberNames || []), emailPrefix],
       }));
 
-      Alert.alert(
-        t('groupBuy.inviteSuccessTitle', {
-          defaultValue: '📧 அழைப்பு அனுப்பப்பட்டது!',
-        }),
-        t('groupBuy.inviteSuccessMsg', {
-          defaultValue: `${email} முகவரிக்கு வெற்றிகரமாக அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது. நீங்கள் (${organizerName}) அவர்களை இந்த குழுவில் சேர்த்துள்ளீர்கள் என்பது அவர்களுக்குத் தெரிவிக்கப்பட்டது!`,
-          email: email,
-          organizer: organizerName,
-        }),
+      // Launch native email client with prefilled template
+      const subject = encodeURIComponent(
+        `${
+          selectedGroupForAdd.title || 'காய்கறி'
+        } குழுவில் 15-25% இணைந்து தள்ளுபடி பெறுங்கள்!`,
       );
+      const body = encodeURIComponent(
+        `கூட்டு வாங்கல்: "${selectedGroupForAdd.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\n` +
+          `Village Group Buy! Join "${selectedGroupForAdd.title}" to get 15-25% discount & free delivery!\n\n` +
+          `Join now: f2capp://groupbuy/${selectedGroupForAdd.id}`,
+      );
+      const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
+
+      const {Linking} = require('react-native');
+      Linking.canOpenURL(mailtoUrl).then(supported => {
+        if (supported) {
+          Linking.openURL(mailtoUrl);
+        } else {
+          Alert.alert(
+            t('groupBuy.inviteSuccessTitle', {
+              defaultValue: '📧 அழைப்பு அனுப்பப்பட்டது!',
+            }),
+            t('groupBuy.inviteSuccessMsg', {
+              defaultValue: `${email} முகவரிக்கு வெற்றிகரமாக அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது. நீங்கள் (${organizerName}) அவர்களை இந்த குழுவில் சேர்த்துள்ளீர்கள் என்பது அவர்களுக்குத் தெரிவிக்கப்பட்டது!`,
+              email: email,
+              organizer: organizerName,
+            }),
+          );
+        }
+      });
+
       setSearchQuery('');
     } else {
       Alert.alert('Error', res.error || 'Failed to add email');

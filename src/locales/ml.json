@@ -202,7 +202,7 @@
     "shelfLife": "ഷെൽഫ് ആയുസ്സ് (മാസങ്ങൾ)",
     "shelfLifePlaceholder": "ഷെൽഫ് ആയുസ്സ് മാസങ്ങളിൽ നൽകുക (ഉദാ: 6)",
     "material": "ഉപയോഗിച്ച നിർമ്മാണ സാമഗ്രി (Material)",
-    "materialPlaceholder": "നിർമ്മാണ സാമഗ്രി നൽകുക (ഉദാ: മണ്ണ്, മരം)",
+    "materialPlaceholder": "",
     "craftingTime": "നിർമ്മാണ സമയം (ദിവസങ്ങൾ)",
     "craftingTimePlaceholder": "നിർമ്മാണ സമയം ദിവസങ്ങളിൽ നൽകുക (ഉദാ: 3)",
     "fillMaterial": "ഉപയോഗിച്ച നിർമ്മാണ സാമഗ്രി നൽകുക!",
@@ -515,7 +515,9 @@
     "inviteBtn": "നേരിട്ട് ചേർത്ത് ക്ഷണം അയക്കുക",
     "inviteSuccessTitle": "📧 ക്ഷണം അയച്ചു!",
     "inviteSuccessMsg": "{{email}} എന്ന വിലാസത്തിലേക്ക് വിജയകരമായി ക്ഷണം അയച്ചു. നിങ്ങൾ ({{organizer}}) അവരെ ഗ്രൂപ്പിൽ ചേർത്തതായി അവരെ അറിയിച്ചു!",
-    "invalidEmail": "ഇമെയിൽ വിലാസം തെറ്റാണ്"
+    "invalidEmail": "ഇമെയിൽ വിലാസം തെറ്റാണ്",
+    "delivery": "ഡെലിവറി",
+    "deadline": "അവസാന തീയതി"
   },
   "delivery": {
     "title": "ഡെലിവറി പാർട്ണർ",

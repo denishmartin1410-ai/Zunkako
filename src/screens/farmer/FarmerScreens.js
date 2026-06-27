@@ -329,16 +329,17 @@ export const FarmerDashboardScreen = ({navigation}) => {
               style={[
                 S.emptyAddBtn,
                 {
-                  backgroundColor: themeColors.cardBg,
-                  borderColor: themeColors.border,
+                  backgroundColor: COLORS.primaryGreen,
+                  borderWidth: 0,
                 },
               ]}
               onPress={() => navigation.navigate('AddProduct')}>
               <Text style={S.emptyAddTxt}>
-                +{' '}
-                {t('farmer.addFirstProduct', {
-                  defaultValue: 'முதல் தயாரிப்பு சேர்க்கவும்! 🌱',
-                })}
+                ➕{' '}
+                {t('farmer.addProduct', {
+                  defaultValue: 'தயாரிப்பு சேர்',
+                })}{' '}
+                🌱
               </Text>
             </TouchableOpacity>
           ) : (
@@ -518,16 +519,17 @@ export const MyProductsScreen = ({navigation}) => {
                 style={[
                   S.emptyAddBtn,
                   {
-                    backgroundColor: themeColors.cardBg,
-                    borderColor: themeColors.border,
+                    backgroundColor: COLORS.primaryGreen,
+                    borderWidth: 0,
                   },
                 ]}
                 onPress={() => navigation.navigate('AddProduct')}>
                 <Text style={S.emptyAddTxt}>
-                  +{' '}
-                  {t('farmer.addFirstProduct', {
-                    defaultValue: 'முதல் தயாரிப்பு சேர்',
-                  })}
+                  ➕{' '}
+                  {t('farmer.addProduct', {
+                    defaultValue: 'தயாரிப்பு சேர்',
+                  })}{' '}
+                  🌱
                 </Text>
               </TouchableOpacity>
             </View>
@@ -961,7 +963,7 @@ export const AddProductScreen = ({navigation}) => {
               value={material}
               onChangeText={setMaterial}
               placeholder={t('farmer.materialPlaceholder', {
-                defaultValue: 'Enter material (e.g. Clay, Wood)',
+                defaultValue: '',
               })}
             />
             <FormField

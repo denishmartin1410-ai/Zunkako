@@ -214,7 +214,7 @@
     "shelfLife": "Shelf Life (Months)",
     "shelfLifePlaceholder": "Enter shelf life in months (e.g. 6)",
     "material": "Material Used",
-    "materialPlaceholder": "Enter material (e.g. Clay, Wood)",
+    "materialPlaceholder": "",
     "craftingTime": "Crafting Time (Days)",
     "craftingTimePlaceholder": "Enter crafting time in days (e.g. 3)",
     "fillMaterial": "Please enter the material used!",
@@ -376,7 +376,9 @@
     "inviteBtn": "Invite & Add directly",
     "inviteSuccessTitle": "📧 Invitation Sent!",
     "inviteSuccessMsg": "Invitation email successfully sent to {{email}}! They have been added to the group and notified that {{organizer}} added them.",
-    "invalidEmail": "Invalid email format"
+    "invalidEmail": "Invalid email format",
+    "delivery": "Delivery",
+    "deadline": "Deadline"
   },
   "freshness": {
     "title": "Freshness Tracker",
