@@ -43,6 +43,21 @@ import {getLocalProductName} from '../../utils/translationHelper';
 import {getCatName} from '../../utils/categoryHelper';
 
 const {width} = Dimensions.get('window');
+
+const getProductFallbackStats = (id) => {
+  if (!id) return { discountPercent: 0, rating: 4.5 };
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const positiveHash = Math.abs(hash);
+  const discounts = [10, 15, 20, 25, 30];
+  const ratings = [4.1, 4.3, 4.5, 4.7, 4.8];
+  return {
+    discountPercent: discounts[positiveHash % discounts.length],
+    rating: ratings[positiveHash % ratings.length],
+  };
+};
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
 
@@ -205,7 +220,7 @@ export const OrdersScreen = ({navigation}) => {
               activeTab === 'normal' && S.tabTxtActive,
               activeTab !== 'normal' && {color: themeColors.subText},
             ]}>
-            📦 {t('orders.normalOrdersTab', {defaultValue: 'ஆர்டர்கள்'})}
+            📦 {t('orders.normalOrdersTab', {defaultValue: 'Orders'})}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -217,7 +232,7 @@ export const OrdersScreen = ({navigation}) => {
               activeTab === 'pre' && S.tabTxtActive,
               activeTab !== 'pre' && {color: themeColors.subText},
             ]}>
-            📅 {t('orders.preOrdersTab', {defaultValue: 'முன் ஆர்டர்கள்'})}
+            📅 {t('orders.preOrdersTab', {defaultValue: 'Pre-Orders'})}
           </Text>
         </TouchableOpacity>
       </View>
@@ -238,7 +253,7 @@ export const OrdersScreen = ({navigation}) => {
                 <Text style={S.emptyEmoji}>📦</Text>
                 <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                   {t('orders.noOrders', {
-                    defaultValue: 'இன்னும் ஆர்டர் செய்யவில்லை',
+                    defaultValue: 'No orders yet',
                   })}
                 </Text>
               </View>
@@ -317,7 +332,7 @@ export const OrdersScreen = ({navigation}) => {
               <Text style={S.emptyEmoji}>📅</Text>
               <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                 {t('preOrder.noPreOrders', {
-                  defaultValue: 'முன் ஆர்டர்கள் எதுவும் இல்லை',
+                  defaultValue: 'No pre-orders yet',
                 })}
               </Text>
             </View>
@@ -336,8 +351,9 @@ export const OrdersScreen = ({navigation}) => {
               );
               const fillPercent =
                 (order.totalPreOrders / order.targetPreOrders) * 100;
+              const dateLocale = i18n.language === 'ta' ? 'ta-IN' : i18n.language === 'ml' ? 'ml-IN' : 'en-US';
               const formattedDate =
-                order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || '';
+                order.createdAt?.toDate?.()?.toLocaleDateString(dateLocale) || '';
 
               return (
                 <View
@@ -362,7 +378,7 @@ export const OrdersScreen = ({navigation}) => {
                       <Text
                         style={[S.statusText, {color: COLORS.primaryGreen}]}>
                         {t('harvestCalendar.preOrderBtn', {
-                          defaultValue: 'முன் ஆர்டர்',
+                          defaultValue: 'Pre-Order',
                         })}
                       </Text>
                     </View>
@@ -370,7 +386,7 @@ export const OrdersScreen = ({navigation}) => {
                   <Text style={[S.orderDate, {color: themeColors.textMuted}]}>
                     📅{' '}
                     {t('orders.preOrderedOn', {
-                      defaultValue: 'ஆர்டர் செய்த தேதி',
+                      defaultValue: 'Ordered On',
                     })}
                     : {formattedDate}
                   </Text>
@@ -405,14 +421,14 @@ export const OrdersScreen = ({navigation}) => {
                       ⏳{' '}
                       {diffDays === 0
                         ? t('preOrder.harvestingToday', {
-                            defaultValue: 'அறுவடை இன்று!',
+                            defaultValue: 'Harvesting Today!',
                           })
                         : diffDays === 1
                         ? t('preOrder.harvestingTomorrow', {
-                            defaultValue: 'அறுவடை நாளை!',
+                            defaultValue: 'Harvesting Tomorrow!',
                           })
                         : t('preOrder.inDays', {
-                            defaultValue: '{{count}} நாட்களில்',
+                            defaultValue: 'In {{count}} days',
                             count: diffDays,
                           })}
                     </Text>
@@ -422,7 +438,7 @@ export const OrdersScreen = ({navigation}) => {
                         color: themeColors.textMuted,
                         marginLeft: 8,
                       }}>
-                      ({t('product.harvest', {defaultValue: 'அறுவடை'})}:{' '}
+                      ({t('product.harvest', {defaultValue: 'Harvest'})}:{' '}
                       {order.harvestDate})
                     </Text>
                   </View>
@@ -440,9 +456,8 @@ export const OrdersScreen = ({navigation}) => {
                           fontSize: rs(FONTS.xs),
                           color: themeColors.subText,
                         }}>
-                        {t('preOrder.peoplePreOrdered', {
-                          defaultValue:
-                            '{{count}} பேர் முன்கூட்டியே ஆர்டர் பண்ணியுள்ளனர்',
+                        {t(order.totalPreOrders === 1 ? 'preOrder.peoplePreOrdered_one' : 'preOrder.peoplePreOrdered_other', {
+                          defaultValue: order.totalPreOrders === 1 ? '{{count}} person pre-ordered' : '{{count}} people pre-ordered',
                           count: order.totalPreOrders,
                         })}
                       </Text>
@@ -487,7 +502,7 @@ export const OrdersScreen = ({navigation}) => {
                     ]}>
                     <View style={{flex: 1}}>
                       <Text style={S.orderTotal}>
-                        {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
+                        {t('orders.total', {defaultValue: 'Total'})}: ₹
                         {order.totalPrice}
                       </Text>
                       <View
@@ -875,13 +890,22 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         ) : (
           farmerProducts.map(p => {
             const cp = getConsumerPrice(p.price);
-            const originalPrice = p.originalPrice || p.price;
-            const hasDiscount = originalPrice > p.price;
-            const discountPercent = hasDiscount
-              ? Math.round(((originalPrice - p.price) / originalPrice) * 100)
-              : 0;
+            const stats = getProductFallbackStats(p.id);
+            const dbOriginalPrice = p.originalPrice || p.price;
+            const dbHasDiscount = dbOriginalPrice > p.price;
+            const discountPercent = dbHasDiscount
+              ? Math.round(
+                  ((dbOriginalPrice - p.price) / dbOriginalPrice) * 100,
+                )
+              : stats.discountPercent;
+            const hasDiscount = discountPercent > 0;
+            const originalPrice = dbHasDiscount
+              ? dbOriginalPrice
+              : Math.round(p.price / (1 - discountPercent / 100));
 
-            const rating = parseFloat(p.rating || 4.2).toFixed(1);
+            const rating = (p.rating && parseFloat(p.rating) > 0)
+              ? parseFloat(p.rating).toFixed(1)
+              : stats.rating.toFixed(1);
             const unit = p.unit || 'kg';
             const isSoldOut =
               p.stock !== undefined && p.stock !== null && p.stock <= 0;
@@ -1545,7 +1569,7 @@ const S = StyleSheet.create({
     borderRadius: RADIUS.sm,
   },
   unitTextCompact: {
-    fontSize: rs(8),
+    fontSize: rs(11),
     fontWeight: 'bold',
   },
   originalPriceCompact: {

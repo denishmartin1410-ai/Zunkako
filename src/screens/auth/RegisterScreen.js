@@ -320,7 +320,12 @@ const RegisterScreen = ({navigation}) => {
         <Field
           label={'📱 ' + t('farmer.phone')}
           value={phone}
-          onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
+          onChangeText={text => {
+            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+              return;
+            }
+            setPhone(text.replace(/[^0-9]/g, ''));
+          }}
           keyboardType="phone-pad"
           error={errors.phone}
           autoCompleteType="off"

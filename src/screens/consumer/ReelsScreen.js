@@ -77,10 +77,10 @@ const ReelItem = ({
   const isPlay = isScreenFocused && activeIndex === index;
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(
-    item.likes || Math.floor(Math.random() * 200) + 50,
+    item.storyLikes || item.likes || 0,
   );
   const [viewCount, setViewCount] = useState(
-    item.views || Math.floor(Math.random() * 500) + 120,
+    item.storyViews || item.views || 0,
   );
   const videoRef = useRef(null);
 
@@ -105,9 +105,29 @@ const ReelItem = ({
     if (liked) {
       setLiked(false);
       setLikeCount(prev => prev - 1);
+      // Update Firestore
+      if (item.id) {
+        firestore()
+          .collection('users')
+          .doc(item.id)
+          .update({
+            storyLikes: firestore.FieldValue.increment(-1),
+          })
+          .catch(() => {});
+      }
     } else {
       setLiked(true);
       setLikeCount(prev => prev + 1);
+      // Update Firestore
+      if (item.id) {
+        firestore()
+          .collection('users')
+          .doc(item.id)
+          .update({
+            storyLikes: firestore.FieldValue.increment(1),
+          })
+          .catch(() => {});
+      }
     }
   };
 
@@ -163,7 +183,9 @@ const ReelItem = ({
       {/* Top Header info (Category/Views) */}
       <View style={styles.topHeader}>
         <View style={styles.popularBadge}>
-          <Text style={styles.popularText}> Popular</Text>
+          <Text style={styles.popularText}>
+            {t('reels.popular', {defaultValue: 'Popular'})}
+          </Text>
         </View>
         <View style={styles.viewsBadge}>
           <Text style={styles.viewsText}>
@@ -212,7 +234,7 @@ const ReelItem = ({
             {item.farmName ? `${item.farmName} - ` : ''}
             {t('reels.slogan', {
               defaultValue:
-                'உழவர் உழைப்பிலிருந்து உங்கள் இல்லத்திற்கு நேரடியாக! / Fresh from our farm straight to your table!',
+                'Fresh from our farm straight to your table!',
             })}
           </Text>
         </View>
@@ -409,7 +431,7 @@ const styles = StyleSheet.create({
   },
   topHeader: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 50 : 25,
+    top: Platform.OS === 'ios' ? 55 : 45,
     left: SPACING.lg,
     right: SPACING.lg,
     flexDirection: 'row',

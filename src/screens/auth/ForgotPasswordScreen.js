@@ -43,13 +43,14 @@ const ForgotPasswordScreen = ({navigation}) => {
     try {
       const trimmedEmail = email.trim().toLowerCase();
 
-      // ✅ Check if email exists in Firebase Auth (no Firestore permission needed!)
-      const auth = require('@react-native-firebase/auth').default;
-      const signInMethods = await auth().fetchSignInMethodsForEmail(
-        trimmedEmail,
-      );
+      // ✅ Check if email exists in Firestore (since Firebase Auth fetchSignInMethodsForEmail fails with email enumeration protection enabled)
+      const firestore = require('@react-native-firebase/firestore').default;
+      const userQuery = await firestore()
+        .collection('users')
+        .where('email', '==', trimmedEmail)
+        .get();
 
-      if (!signInMethods || signInMethods.length === 0) {
+      if (userQuery.empty) {
         // Email NOT registered - block reset
         setIsLoading(false);
         Alert.alert(
@@ -77,26 +78,7 @@ const ForgotPasswordScreen = ({navigation}) => {
       }
     } catch (e) {
       setIsLoading(false);
-      // Handle Firebase email enumeration protection (newer Firebase versions)
-      if (e.code === 'auth/invalid-email') {
-        Alert.alert(t('common.error'), t('forgot.invalidEmailError'));
-      } else {
-        // If fetchSignInMethods fails (e.g., email enumeration protection enabled),
-        // fallback: just try sending the reset email directly
-        try {
-          const result = await sendPasswordResetEmail(
-            email.trim().toLowerCase(),
-          );
-          setIsLoading(false);
-          if (result.success) {
-            setEmailSent(true);
-          } else {
-            Alert.alert(t('common.error'), result.error);
-          }
-        } catch (e2) {
-          Alert.alert(t('common.error'), e2.message);
-        }
-      }
+      Alert.alert(t('common.error'), e.message);
     }
   };
 

@@ -73,6 +73,21 @@ const AvatarView = ({uri, name, size = 64, style}) => {
   );
 };
 
+const getProductFallbackStats = (id) => {
+  if (!id) return { discountPercent: 0, rating: 4.5 };
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const positiveHash = Math.abs(hash);
+  const discounts = [10, 15, 20, 25, 30];
+  const ratings = [4.1, 4.3, 4.5, 4.7, 4.8];
+  return {
+    discountPercent: discounts[positiveHash % discounts.length],
+    rating: ratings[positiveHash % ratings.length],
+  };
+};
+
 const ProductCard = ({item, onAddToCart, onPress}) => {
   const cp = getConsumerPrice(item.price);
   const {t, i18n} = useTranslation();
@@ -84,13 +99,24 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
       ? item.farmerNameTa || item.farmerName
       : item.farmerName || item.farmerNameTa;
 
-  const originalPrice = item.originalPrice || item.price;
-  const hasDiscount = originalPrice > item.price;
-  const discountPercent = hasDiscount
-    ? Math.round(((originalPrice - item.price) / originalPrice) * 100)
-    : 0;
+  const stats = getProductFallbackStats(item.id);
+  const dbOriginalPrice = item.originalPrice || item.price;
+  const dbHasDiscount = dbOriginalPrice > item.price;
 
-  const rating = item.rating || 4.2;
+  const discountPercent = dbHasDiscount
+    ? Math.round(((dbOriginalPrice - item.price) / dbOriginalPrice) * 100)
+    : stats.discountPercent;
+
+  const hasDiscount = discountPercent > 0;
+
+  const originalPrice = dbHasDiscount
+    ? dbOriginalPrice
+    : Math.round(item.price / (1 - discountPercent / 100));
+
+  const rating = (item.rating && parseFloat(item.rating) > 0)
+    ? parseFloat(item.rating).toFixed(1)
+    : stats.rating.toFixed(1);
+
   const unit = item.unit || 'kg';
   const isSoldOut =
     item.stock !== undefined && item.stock !== null && item.stock <= 0;
@@ -569,14 +595,14 @@ const HomeScreen = ({navigation}) => {
           </View>
         )}
 
-        {/* All Products */}
+        {/* All Products — Grouped by Farmer */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
               {searchQuery
                 ? `"${searchQuery}"`
                 : `🌿 ${t('home.allProducts', {
-                    defaultValue: 'அனைத்து தயாரிப்புகள்',
+                    defaultValue: 'All Products',
                   })}`}
             </Text>
             <Text
@@ -595,21 +621,62 @@ const HomeScreen = ({navigation}) => {
               <Text style={styles.emptyEmoji}>🌱</Text>
               <Text style={[styles.emptyText, {color: themeColors.textMuted}]}>
                 {t('home.noProducts', {
-                  defaultValue: 'இன்னும் தயாரிப்புகள் இல்லை',
+                  defaultValue: 'No products yet',
                 })}
               </Text>
             </View>
           ) : (
-            <View style={styles.productsGrid}>
-              {filteredProducts.map(item => (
-                <ProductCard
-                  key={item.id}
-                  item={item}
-                  onAddToCart={handleAddToCart}
-                  onPress={handleProductPress}
-                />
-              ))}
-            </View>
+            (() => {
+              // Group products by farmerId
+              const farmerGroups = {};
+              filteredProducts.forEach(p => {
+                const fid = p.farmerId || 'unknown';
+                if (!farmerGroups[fid]) {
+                  farmerGroups[fid] = {
+                    farmerId: fid,
+                    farmerName: p.farmerName || 'Farmer',
+                    farmerNameTa: p.farmerNameTa || p.farmerName || 'Farmer',
+                    products: [],
+                  };
+                }
+                farmerGroups[fid].products.push(p);
+              });
+              const groups = Object.values(farmerGroups);
+
+              return groups.map(group => {
+                const displayName =
+                  i18n.language === 'ta'
+                    ? group.farmerNameTa
+                    : group.farmerName;
+                return (
+                  <View key={group.farmerId} style={{marginBottom: SPACING.lg}}>
+                    <Text
+                      style={[
+                        styles.farmerGroupTitle,
+                        {color: themeColors.text},
+                      ]}>
+                      👨‍🌾 {displayName}{' '}
+                      {t('home.farmProducts', {
+                        defaultValue: 'Farm Products',
+                      })}
+                    </Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={{paddingRight: SPACING.lg}}>
+                      {group.products.map(item => (
+                        <ProductCard
+                          key={item.id}
+                          item={item}
+                          onAddToCart={handleAddToCart}
+                          onPress={handleProductPress}
+                        />
+                      ))}
+                    </ScrollView>
+                  </View>
+                );
+              });
+            })()
           )}
         </View>
         <View style={{height: 90}} />
@@ -740,6 +807,12 @@ const styles = StyleSheet.create({
   },
   catTextActive: {color: COLORS.white, fontWeight: 'bold'},
   productsGrid: {flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.md},
+  farmerGroupTitle: {
+    fontSize: rs(FONTS.md),
+    fontWeight: 'bold',
+    marginBottom: SPACING.sm,
+    marginTop: SPACING.xs,
+  },
   productCard: {
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
@@ -902,7 +975,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.sm,
     marginBottom: 4,
   },
-  unitText: {fontSize: rs(9), fontWeight: 'bold'},
+  unitText: {fontSize: rs(12), fontWeight: 'bold'},
   pricePerUnit: {fontSize: rs(9), marginTop: 2},
 });
 

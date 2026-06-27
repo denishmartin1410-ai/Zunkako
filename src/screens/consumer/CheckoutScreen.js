@@ -436,7 +436,12 @@ const CheckoutScreen = ({navigation}) => {
                 },
               ]}
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={text => {
+                if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+                  return;
+                }
+                setPhone(text.replace(/[^0-9]/g, ''));
+              }}
               placeholder={t('checkout.phonePlaceholder', {
                 defaultValue: 'Enter 10-digit Phone Number',
               })}

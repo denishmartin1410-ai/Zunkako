@@ -73,6 +73,21 @@ const AvatarView = ({uri, name, size = 50, style}) => {
   );
 };
 
+const getProductFallbackStats = (id) => {
+  if (!id) return { discountPercent: 0, rating: 4.5 };
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const positiveHash = Math.abs(hash);
+  const discounts = [10, 15, 20, 25, 30];
+  const ratings = [4.1, 4.3, 4.5, 4.7, 4.8];
+  return {
+    discountPercent: discounts[positiveHash % discounts.length],
+    rating: ratings[positiveHash % ratings.length],
+  };
+};
+
 const AllProductsScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
@@ -279,15 +294,22 @@ const AllProductsScreen = ({navigation}) => {
                       i18n.language,
                     );
                     const cp = getConsumerPrice(p.price);
-                    const originalPrice = p.originalPrice || p.price;
-                    const hasDiscount = originalPrice > p.price;
-                    const discountPercent = hasDiscount
+                    const stats = getProductFallbackStats(p.id);
+                    const dbOriginalPrice = p.originalPrice || p.price;
+                    const dbHasDiscount = dbOriginalPrice > p.price;
+                    const discountPercent = dbHasDiscount
                       ? Math.round(
-                          ((originalPrice - p.price) / originalPrice) * 100,
+                          ((dbOriginalPrice - p.price) / dbOriginalPrice) * 100,
                         )
-                      : 0;
+                      : stats.discountPercent;
+                    const hasDiscount = discountPercent > 0;
+                    const originalPrice = dbHasDiscount
+                      ? dbOriginalPrice
+                      : Math.round(p.price / (1 - discountPercent / 100));
 
-                    const rating = parseFloat(p.rating || 4.2).toFixed(1);
+                    const rating = (p.rating && parseFloat(p.rating) > 0)
+                      ? parseFloat(p.rating).toFixed(1)
+                      : stats.rating.toFixed(1);
                     const unit = p.unit || 'kg';
                     const isSoldOut =
                       p.stock !== undefined && p.stock !== null && p.stock <= 0;
@@ -692,7 +714,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   unitText: {
-    fontSize: rs(8),
+    fontSize: rs(11),
     fontWeight: 'bold',
   },
   pricePerUnit: {

@@ -97,12 +97,25 @@ export const sendPhoneOTP = async phoneNumber => {
     );
     return {success: true, confirmation};
   } catch (error) {
-    let message = 'OTP அனுப்ப முடியவில்லை';
+    let message = 'OTP அனுப்ப முடியவில்லை / Could not send OTP';
     if (error.code === 'auth/invalid-phone-number') {
-      message = 'தவறான தொலைபேசி எண்';
+      message = 'தவறான தொலைபேசி எண் / Invalid phone number';
     }
     if (error.code === 'auth/too-many-requests') {
-      message = 'சற்று நேரம் காத்திருங்கள்';
+      message = 'சற்று நேரம் காத்திருங்கள் / Please wait a moment';
+    }
+    if (
+      error.code === 'auth/billing-not-enabled' ||
+      error.code === 'auth/operation-not-allowed' ||
+      (error.message && error.message.includes('BILLING_NOT_ENABLED'))
+    ) {
+      message =
+        '📱 OTP சேவை தற்போது கிடைக்கவில்லை!\n\n' +
+        'Firebase Blaze (pay-as-you-go) plan தேவை.\n' +
+        'தயவுசெய்து Email Login பயன்படுத்தவும்.\n\n' +
+        'OTP service is currently unavailable.\n' +
+        'Firebase Blaze plan is required for Phone Auth.\n' +
+        'Please use Email Login instead.';
     }
     return {
       success: false,
@@ -332,22 +345,36 @@ export const getAllFarmers = async () => {
       .where('isActive', '==', true)
       .get();
 
-    let farmersList = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    const farmersList = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
 
-    // Fallback: If farmers collection is empty, check users collection for userType == 'farmer'
-    if (farmersList.length === 0) {
-      const usersSnap = await firestore()
-        .collection('users')
-        .where('userType', '==', 'farmer')
-        .get();
-      farmersList = usersSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-    }
+    // Query users collection for userType == 'farmer' as well, and merge them
+    const usersSnap = await firestore()
+      .collection('users')
+      .where('userType', '==', 'farmer')
+      .get();
 
-    return {success: true, data: farmersList};
+    const usersList = usersSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
+    const farmersMap = new Map();
+    // Insert farmers first
+    farmersList.forEach(f => farmersMap.set(f.id, f));
+    // Insert/merge users next
+    usersList.forEach(u => {
+      if (!farmersMap.has(u.id)) {
+        farmersMap.set(u.id, {
+          ...u,
+          isActive: true,
+          farmName: u.farmName || (u.name ? `${u.name}'s Farm` : 'Farm'),
+          qrCode: u.qrCode || `F2C-FARMER-${u.id.slice(0, 8).toUpperCase()}`,
+        });
+      }
+    });
+
+    const mergedFarmers = Array.from(farmersMap.values());
+    return {success: true, data: mergedFarmers};
   } catch (error) {
     console.log('getAllFarmers error:', error.message);
 
-    // Fallback if permission error on farmers collection
     try {
       const usersSnap = await firestore()
         .collection('users')

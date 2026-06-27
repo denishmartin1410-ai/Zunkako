@@ -48,7 +48,11 @@ const TabIcon = ({label, emoji, focused}) => (
     <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>
       {emoji}
     </Text>
-    <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
+    <Text
+      style={[styles.tabLabel, focused && styles.tabLabelActive]}
+      numberOfLines={1}
+      adjustsFontSizeToFit={true}
+      minimumFontScale={0.8}>
       {label}
     </Text>
   </View>
@@ -220,6 +224,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 8,
+    minWidth: 50,
+    maxWidth: 72,
   },
   tabEmoji: {fontSize: 22, opacity: 0.5},
   tabEmojiActive: {opacity: 1, transform: [{scale: 1.1}]},
@@ -228,6 +234,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: 2,
     fontWeight: '500',
+    textAlign: 'center',
   },
   tabLabelActive: {
     color: COLORS.primaryGreen,

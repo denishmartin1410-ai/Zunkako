@@ -78,7 +78,18 @@ export const AuthProvider = ({children}) => {
 
       const r = await firebaseEmailLogin(formattedEmail, password);
       if (!r.success) {
-        return {success: false, error: r.error, errorType: r.errorType};
+        let errorType = r.errorType;
+        if (errorType === 'wrong-password') {
+          const firestoreModule = require('@react-native-firebase/firestore').default;
+          const userQuery = await firestoreModule()
+            .collection('users')
+            .where('email', '==', formattedEmail)
+            .get();
+          if (userQuery.empty) {
+            errorType = 'user-not-found';
+          }
+        }
+        return {success: false, error: r.error, errorType: errorType};
       }
       const fbUser = r.user;
 

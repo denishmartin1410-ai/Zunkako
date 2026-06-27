@@ -267,7 +267,12 @@ const EditProfileScreen = ({navigation}) => {
           <Field
             label={'📱 ' + t('profile.phoneLabel', {defaultValue: 'தொலைபேசி'})}
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={text => {
+              if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+                return;
+              }
+              setPhone(text.replace(/[^0-9]/g, ''));
+            }}
             placeholder="9876543210"
             keyboard="phone-pad"
           />

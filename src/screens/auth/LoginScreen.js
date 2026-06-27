@@ -152,10 +152,6 @@ const LoginScreen = ({navigation}) => {
                 text: t('authAlerts.forgotPasswordBtn'),
                 onPress: () => navigation.navigate('ForgotPassword'),
               },
-              {
-                text: t('authAlerts.createAccountBtn'),
-                onPress: () => navigation.navigate('Register'),
-              },
             ],
           );
         } else if (errorType === 'account-disabled') {
@@ -348,8 +344,12 @@ const LoginScreen = ({navigation}) => {
           label={t('login.phoneLabel', {
             defaultValue: 'Phone Number (For OTP Login)',
           })}
-          value={phone}
-          onChangeText={setPhone}
+          onChangeText={text => {
+            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+              return;
+            }
+            setPhone(text.replace(/[^0-9]/g, ''));
+          }}
           keyboardType="phone-pad"
         />
 
