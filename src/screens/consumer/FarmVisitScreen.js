@@ -207,6 +207,36 @@ const FarmVisitScreen = ({navigation}) => {
       )}\nCan we visit?`;
     }
 
+    // Asynchronously increment the visitor count in database
+    const visitorsIncrement = parseInt(visitors) || 1;
+    (async () => {
+      try {
+        const batch = firestore().batch();
+        const farmerRef = firestore().collection('farmers').doc(selectedFarm.farmerId);
+        const userRef = firestore().collection('users').doc(selectedFarm.farmerId);
+        batch.set(farmerRef, {
+          visitorsCount: firestore.FieldValue.increment(visitorsIncrement)
+        }, { merge: true });
+        batch.set(userRef, {
+          visitorsCount: firestore.FieldValue.increment(visitorsIncrement)
+        }, { merge: true });
+        await batch.commit();
+
+        // Update local state
+        setFarms(prev => prev.map(f => {
+          if (f.id === selectedFarm.id) {
+            return {
+              ...f,
+              totalVisitors: (f.totalVisitors || 0) + visitorsIncrement
+            };
+          }
+          return f;
+        }));
+      } catch (err) {
+        console.log('Error updating visitor count:', err.message);
+      }
+    })();
+
     setShowBooking(false);
     setSelectedFarm(null);
 
@@ -231,34 +261,37 @@ const FarmVisitScreen = ({navigation}) => {
           borderWidth: isDark ? 1 : 0,
         },
       ]}>
-      <FastImage
-        source={{uri: farm.coverImage, priority: FastImage.priority.normal}}
-        style={styles.farmCover}
-        resizeMode={FastImage.resizeMode.cover}
-      />
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.8)']}
-        style={styles.coverOverlay}
-      />
+      {/* Cover Image & Badges Relative Container */}
+      <View style={{position: 'relative', height: 200, overflow: 'hidden'}}>
+        <FastImage
+          source={{uri: farm.coverImage, priority: FastImage.priority.normal}}
+          style={styles.farmCover}
+          resizeMode={FastImage.resizeMode.cover}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={styles.coverOverlay}
+        />
 
-      {/* Distance badge */}
-      <View style={styles.distanceBadge}>
-        <Text style={styles.distanceTxt}>📍 {farm.distance}</Text>
-      </View>
+        {/* Distance badge */}
+        <View style={styles.distanceBadge}>
+          <Text style={styles.distanceTxt}>📍 {farm.distance}</Text>
+        </View>
 
-      {/* FREE badge */}
-      <View style={styles.freeBadge}>
-        <Text style={styles.freeTxt}>
-          {t('farmVisit.freeVisit', {defaultValue: 'இலவசம் / FREE Visit!'})}
-        </Text>
-      </View>
+        {/* FREE badge */}
+        <View style={styles.freeBadge}>
+          <Text style={styles.freeTxt}>
+            {t('farmVisit.freeVisit', {defaultValue: 'இலவசம் / FREE Visit!'})}
+          </Text>
+        </View>
 
-      {/* Farmer info on image */}
-      <View style={styles.farmerOnImage}>
-        <FastImage source={{uri: farm.avatar}} style={styles.farmAvatar} />
-        <View>
-          <Text style={styles.farmerNameOnImg}>{farm.farmerName}</Text>
-          <Text style={styles.farmerNameEnOnImg}>{farm.farmerNameEn}</Text>
+        {/* Farmer info on image */}
+        <View style={styles.farmerOnImage}>
+          <FastImage source={{uri: farm.avatar}} style={styles.farmAvatar} />
+          <View>
+            <Text style={styles.farmerNameOnImg}>{farm.farmerName}</Text>
+            <Text style={styles.farmerNameEnOnImg}>{farm.farmerNameEn}</Text>
+          </View>
         </View>
       </View>
 
@@ -274,7 +307,7 @@ const FarmVisitScreen = ({navigation}) => {
         {/* Rating & visitors */}
         <View style={styles.farmMetaRow}>
           <Text style={[styles.farmRating, {color: themeColors.text}]}>
-            ⭐ {farm.rating}
+            ⭐ {parseFloat(farm.rating || 4.0).toFixed(1)}
           </Text>
           <Text style={[styles.farmVisitors, {color: themeColors.subText}]}>
             👥{' '}

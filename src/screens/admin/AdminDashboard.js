@@ -459,7 +459,7 @@ const AdminDashboard = () => {
                 <Text
                   style={[
                     styles.detail,
-                    {paddingLeft: 18, color: COLORS.textSecondary},
+                    {color: COLORS.textSecondary},
                   ]}>
                   📌 PIN Code: {item.deliveryPincode}
                 </Text>
@@ -468,7 +468,7 @@ const AdminDashboard = () => {
                 <Text
                   style={[
                     styles.detail,
-                    {paddingLeft: 18, color: COLORS.textSecondary},
+                    {color: COLORS.textSecondary},
                   ]}>
                   📞 Phone: {item.consumerPhone}
                 </Text>
@@ -637,87 +637,6 @@ const AdminDashboard = () => {
         </TouchableOpacity>
       </LinearGradient>
 
-      {/* User Statistics */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <Text style={styles.statEmoji}>👨‍🌾</Text>
-          <Text style={styles.statNum}>{userStats.farmers}</Text>
-          <Text style={styles.statLabel}>Farmers</Text>
-        </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statEmoji}>🛒</Text>
-          <Text style={styles.statNum}>{userStats.consumers}</Text>
-          <Text style={styles.statLabel}>Customers</Text>
-        </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statEmoji}>🚚</Text>
-          <Text style={styles.statNum}>{userStats.deliveryBoys}</Text>
-          <Text style={styles.statLabel}>Delivery</Text>
-        </View>
-      </View>
-
-      {/* Feedbacks Banner */}
-      <TouchableOpacity
-        style={styles.feedbackBanner}
-        onPress={() => setFeedbackModalVisible(true)}>
-        <View style={styles.feedbackBannerContent}>
-          <Text style={styles.feedbackBannerText}>
-            💬 User Feedbacks ({feedbacks.length})
-          </Text>
-          <Text style={styles.feedbackBannerSub}>
-            View suggestions, voice recordings, & screenshots
-          </Text>
-        </View>
-        <Text style={styles.feedbackBannerArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* Pre-Orders Banner */}
-      <TouchableOpacity
-        style={[
-          styles.feedbackBanner,
-          {
-            backgroundColor: '#E3F2FD',
-            borderLeftColor: '#1565C0',
-            marginTop: 8,
-          },
-        ]}
-        onPress={() => setPreOrdersModalVisible(true)}>
-        <View style={styles.feedbackBannerContent}>
-          <Text style={[styles.feedbackBannerText, {color: '#1565C0'}]}>
-            📅 User Pre-Orders ({preOrders.length})
-          </Text>
-          <Text style={[styles.feedbackBannerSub, {color: '#1E88E5'}]}>
-            Track crop reservations and update status (Harvested / Delivered)
-          </Text>
-        </View>
-        <Text style={[styles.feedbackBannerArrow, {color: '#1565C0'}]}>›</Text>
-      </TouchableOpacity>
-
-      {/* Filter tabs - horizontally scrollable */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterScrollView}
-        contentContainerStyle={styles.filterRow}>
-        {filters.map(f => (
-          <TouchableOpacity
-            key={f.key}
-            style={[
-              styles.filterChip,
-              activeFilter === f.key && styles.filterChipActive,
-            ]}
-            onPress={() => setActiveFilter(f.key)}>
-            <Text
-              style={[
-                styles.filterTxt,
-                activeFilter === f.key && styles.filterTxtActive,
-              ]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
       {loading ? (
         <ActivityIndicator
           size="large"
@@ -726,12 +645,110 @@ const AdminDashboard = () => {
         />
       ) : (
         <FlatList
-          data={filteredOrders}
+          data={(() => {
+            const listData = [{id: 'filters'}];
+            if (filteredOrders.length === 0) {
+              listData.push({id: 'empty'});
+            } else {
+              listData.push(...filteredOrders);
+            }
+            return listData;
+          })()}
           keyExtractor={item => item.id}
-          renderItem={renderOrder}
+          renderItem={({item}) => {
+            if (item.id === 'filters') {
+              return (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.filterScrollView}
+                  contentContainerStyle={styles.filterRow}>
+                  {filters.map(f => (
+                    <TouchableOpacity
+                      key={f.key}
+                      style={[
+                        styles.filterChip,
+                        activeFilter === f.key && styles.filterChipActive,
+                      ]}
+                      onPress={() => setActiveFilter(f.key)}>
+                      <Text
+                        style={[
+                          styles.filterTxt,
+                          activeFilter === f.key && styles.filterTxtActive,
+                        ]}>
+                        {f.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              );
+            }
+            if (item.id === 'empty') {
+              return <Text style={styles.emptyText}>No orders found</Text>;
+            }
+            return renderOrder({item});
+          }}
+          stickyHeaderIndices={[0]}
           contentContainerStyle={{padding: SPACING.md, paddingBottom: 100}}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No orders found</Text>
+          ListHeaderComponent={
+            <View style={{paddingBottom: SPACING.md}}>
+              {/* User Statistics */}
+              <View style={[styles.statsContainer, {marginHorizontal: 0, marginTop: 8}]}>
+                <View style={styles.statBox}>
+                  <Text style={styles.statEmoji}>👨‍🌾</Text>
+                  <Text style={styles.statNum}>{userStats.farmers}</Text>
+                  <Text style={styles.statLabel}>Farmers</Text>
+                </View>
+                <View style={styles.statBox}>
+                  <Text style={styles.statEmoji}>🛒</Text>
+                  <Text style={styles.statNum}>{userStats.consumers}</Text>
+                  <Text style={styles.statLabel}>Customers</Text>
+                </View>
+                <View style={styles.statBox}>
+                  <Text style={styles.statEmoji}>🚚</Text>
+                  <Text style={styles.statNum}>{userStats.deliveryBoys}</Text>
+                  <Text style={styles.statLabel}>Delivery</Text>
+                </View>
+              </View>
+
+              {/* Feedbacks Banner */}
+              <TouchableOpacity
+                style={[styles.feedbackBanner, {marginHorizontal: 0}]}
+                onPress={() => setFeedbackModalVisible(true)}>
+                <View style={styles.feedbackBannerContent}>
+                  <Text style={styles.feedbackBannerText}>
+                    💬 User Feedbacks ({feedbacks.length})
+                  </Text>
+                  <Text style={styles.feedbackBannerSub}>
+                    View suggestions, voice recordings, & screenshots
+                  </Text>
+                </View>
+                <Text style={styles.feedbackBannerArrow}>›</Text>
+              </TouchableOpacity>
+
+              {/* Pre-Orders Banner */}
+              <TouchableOpacity
+                style={[
+                  styles.feedbackBanner,
+                  {
+                    backgroundColor: '#E3F2FD',
+                    borderLeftColor: '#1565C0',
+                    marginTop: 8,
+                    marginHorizontal: 0,
+                  },
+                ]}
+                onPress={() => setPreOrdersModalVisible(true)}>
+                <View style={styles.feedbackBannerContent}>
+                  <Text style={[styles.feedbackBannerText, {color: '#1565C0'}]}>
+                    📅 User Pre-Orders ({preOrders.length})
+                  </Text>
+                  <Text style={[styles.feedbackBannerSub, {color: '#1E88E5'}]}>
+                    Track crop reservations and update status (Harvested / Delivered)
+                  </Text>
+                </View>
+                <Text style={[styles.feedbackBannerArrow, {color: '#1565C0'}]}>›</Text>
+              </TouchableOpacity>
+            </View>
           }
         />
       )}
