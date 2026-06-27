@@ -55,6 +55,8 @@ const AdminDashboard = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [feedbacks, setFeedbacks] = useState([]);
+  const [preOrders, setPreOrders] = useState([]);
+  const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
   const [userStats, setUserStats] = useState({
     farmers: 0,
     consumers: 0,
@@ -185,6 +187,98 @@ const AdminDashboard = () => {
       );
     return unsubFeedbacks;
   }, []);
+
+  // Fetch all pre-orders across harvests live
+  useEffect(() => {
+    const unsub = firestore()
+      .collectionGroup('preOrders')
+      .onSnapshot(
+        async snap => {
+          if (snap) {
+            const list = [];
+            const promises = snap.docs.map(async doc => {
+              const preOrderData = doc.data();
+              const harvestRef = doc.ref.parent.parent;
+              let harvestData = {};
+              if (harvestRef) {
+                const hDoc = await harvestRef.get();
+                if (hDoc.exists) {
+                  harvestData = hDoc.data();
+                }
+              }
+              list.push({
+                id: doc.id,
+                harvestId: harvestRef ? harvestRef.id : '',
+                ...harvestData,
+                ...preOrderData,
+              });
+            });
+            await Promise.all(promises);
+            list.sort((a, b) => {
+              const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
+              const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
+              return tB - tA;
+            });
+            setPreOrders(list);
+          }
+        },
+        err => console.log('Admin pre-orders fetch error:', err.message),
+      );
+    return unsub;
+  }, []);
+
+  const handleUpdatePreOrderStatus = async (item, newStatus) => {
+    try {
+      await firestore()
+        .collection('harvests')
+        .doc(item.harvestId)
+        .collection('preOrders')
+        .doc(item.userId)
+        .update({
+          status: newStatus,
+          updatedAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Send a notification to the Consumer about status change
+      let title = '📅 Pre-Order Update';
+      let message = `Your pre-ordered ${
+        item.nameEn || item.name
+      } has been updated to ${newStatus}.`;
+      let emoji = '📅';
+      let bgColor = '#E3F2FD';
+
+      if (newStatus === 'harvested') {
+        title = '🌾 Crop Harvested!';
+        message = `Your pre-ordered ${
+          item.nameEn || item.name || 'crop'
+        } has been harvested and is ready for pickup/delivery!`;
+        emoji = '🌾';
+        bgColor = '#E8F5E9';
+      } else if (newStatus === 'completed') {
+        title = '🎉 Pre-Order Completed!';
+        message = `Your pre-order for ${
+          item.nameEn || item.name || 'crop'
+        } has been successfully delivered and completed.`;
+        emoji = '🎉';
+        bgColor = '#E8F5E9';
+      }
+
+      await firestore().collection('notifications').add({
+        userId: item.userId,
+        title,
+        message,
+        emoji,
+        bgColor,
+        read: false,
+        type: 'preorder_update',
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+
+      Alert.alert('✅ Success', `Pre-Order marked as ${newStatus}`);
+    } catch (err) {
+      Alert.alert('❌ Error', err.message);
+    }
+  };
 
   const filteredOrders =
     activeFilter === 'all'
@@ -577,6 +671,28 @@ const AdminDashboard = () => {
         <Text style={styles.feedbackBannerArrow}>›</Text>
       </TouchableOpacity>
 
+      {/* Pre-Orders Banner */}
+      <TouchableOpacity
+        style={[
+          styles.feedbackBanner,
+          {
+            backgroundColor: '#E3F2FD',
+            borderLeftColor: '#1565C0',
+            marginTop: 8,
+          },
+        ]}
+        onPress={() => setPreOrdersModalVisible(true)}>
+        <View style={styles.feedbackBannerContent}>
+          <Text style={[styles.feedbackBannerText, {color: '#1565C0'}]}>
+            📅 User Pre-Orders ({preOrders.length})
+          </Text>
+          <Text style={[styles.feedbackBannerSub, {color: '#1E88E5'}]}>
+            Track crop reservations and update status (Harvested / Delivered)
+          </Text>
+        </View>
+        <Text style={[styles.feedbackBannerArrow, {color: '#1565C0'}]}>›</Text>
+      </TouchableOpacity>
+
       {/* Filter tabs - horizontally scrollable */}
       <ScrollView
         horizontal
@@ -916,6 +1032,171 @@ const AdminDashboard = () => {
             contentContainerStyle={{padding: SPACING.md, paddingBottom: 60}}
             ListEmptyComponent={
               <Text style={styles.emptyText}>No user feedbacks found</Text>
+            }
+          />
+        </View>
+      </Modal>
+
+      {/* Pre-Orders Modal */}
+      <Modal
+        visible={preOrdersModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setPreOrdersModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <LinearGradient
+            colors={['#1565C0', '#1E88E5']}
+            style={styles.modalHeader}>
+            <TouchableOpacity
+              onPress={() => setPreOrdersModalVisible(false)}
+              style={styles.modalCloseBtn}>
+              <Text style={styles.modalCloseTxt}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>📅 Pre-Orders List</Text>
+            <View style={{width: 60}} />
+          </LinearGradient>
+
+          <FlatList
+            data={preOrders}
+            keyExtractor={(item, index) =>
+              item.harvestId + '_' + item.userId + '_' + index
+            }
+            contentContainerStyle={{padding: 16}}
+            renderItem={({item}) => (
+              <View
+                style={{
+                  backgroundColor: COLORS.white,
+                  borderRadius: 12,
+                  padding: 16,
+                  marginVertical: 8,
+                  shadowColor: '#000',
+                  shadowOffset: {width: 0, height: 2},
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 8,
+                  }}>
+                  <Text
+                    style={{fontWeight: 'bold', fontSize: 16, color: '#333'}}>
+                    {item.nameEn || item.name || 'Crop'}
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor:
+                        item.status === 'completed'
+                          ? '#E8F5E9'
+                          : item.status === 'harvested'
+                          ? '#FFF3E0'
+                          : '#E3F2FD',
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                    }}>
+                    <Text
+                      style={{
+                        color:
+                          item.status === 'completed'
+                            ? '#4CAF50'
+                            : item.status === 'harvested'
+                            ? '#FF9800'
+                            : '#1565C0',
+                        fontWeight: 'bold',
+                        fontSize: 12,
+                      }}>
+                      {item.status === 'completed'
+                        ? 'Completed'
+                        : item.status === 'harvested'
+                        ? 'Harvested'
+                        : 'Reserved'}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                  👤 Customer:{' '}
+                  <Text style={{fontWeight: '600', color: '#333'}}>
+                    {item.userName || item.userId?.slice(-6)}
+                  </Text>
+                </Text>
+                <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                  👨‍🌾 Farmer:{' '}
+                  <Text style={{fontWeight: '600', color: '#333'}}>
+                    {item.farmer || 'Farmer'}
+                  </Text>
+                </Text>
+                <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                  📦 Quantity:{' '}
+                  <Text style={{fontWeight: '600', color: '#333'}}>
+                    {item.quantity || item.qty} {item.unit || 'kg'}
+                  </Text>
+                </Text>
+                <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                  💵 Price:{' '}
+                  <Text style={{fontWeight: '600', color: '#333'}}>
+                    ₹{item.totalAmount || item.totalPrice}
+                  </Text>
+                </Text>
+                <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                  📅 Harvest Date:{' '}
+                  <Text style={{fontWeight: '600', color: '#333'}}>
+                    {item.harvestDate || '-'}
+                  </Text>
+                </Text>
+
+                {item.status !== 'completed' && (
+                  <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
+                    {item.status === 'pending' && (
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#FFF3E0',
+                          borderColor: '#FF9800',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                        }}
+                        onPress={() =>
+                          handleUpdatePreOrderStatus(item, 'harvested')
+                        }>
+                        <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
+                          🚜 Mark Harvested
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#E8F5E9',
+                        borderColor: '#4CAF50',
+                        borderWidth: 1,
+                        paddingVertical: 8,
+                        borderRadius: 6,
+                        alignItems: 'center',
+                      }}
+                      onPress={() =>
+                        handleUpdatePreOrderStatus(item, 'completed')
+                      }>
+                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                        ✅ Mark Delivered
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            )}
+            ListEmptyComponent={
+              <View style={{alignItems: 'center', paddingVertical: 80}}>
+                <Text style={{fontSize: 50, marginBottom: 12}}>📅</Text>
+                <Text style={{color: '#999', fontSize: 16}}>
+                  No user pre-orders found
+                </Text>
+              </View>
             }
           />
         </View>

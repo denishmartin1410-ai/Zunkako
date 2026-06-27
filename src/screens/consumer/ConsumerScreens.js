@@ -125,6 +125,46 @@ export const OrdersScreen = ({navigation}) => {
     load();
   }, [user, activeTab]);
 
+  const handleConfirmReceipt = async order => {
+    try {
+      const {uid} = user;
+      const firestore = require('@react-native-firebase/firestore').default;
+      await firestore()
+        .collection('harvests')
+        .doc(order.harvestId)
+        .collection('preOrders')
+        .doc(uid)
+        .update({
+          status: 'completed',
+          completedAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Add user notification
+      await firestore()
+        .collection('notifications')
+        .add({
+          userId: uid,
+          title: '🎉 Pre-Order Completed!',
+          message: `Your pre-ordered crop ${
+            order.nameEn || order.name
+          } receipt has been confirmed. Thank you!`,
+          emoji: '🎉',
+          bgColor: '#E8F5E9',
+          read: false,
+          type: 'preorder_completed',
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Refresh pre-orders locally
+      const r = await getConsumerPreOrders(uid);
+      setPreOrders(Array.isArray(r?.data) ? r.data : []);
+
+      Alert.alert('✅ Done', 'Receipt confirmed successfully! Thank you.');
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    }
+  };
+
   const STATUS_COLOR = {
     Pending: '#FF9800',
     Confirmed: '#2196F3',
@@ -232,7 +272,17 @@ export const OrdersScreen = ({navigation}) => {
                           S.statusText,
                           {color: STATUS_COLOR[order.status] || '#999'},
                         ]}>
-                        {order.status}
+                        {t('orders.status' + order.status.replace(/ /g, '_'), {
+                          defaultValue: order.status,
+                        })}
+                        {order.status === 'Cancelled' && order.rejectReason
+                          ? ` (${t(
+                              'orders.rejectReason_' + order.rejectReason,
+                              {
+                                defaultValue: order.rejectReason,
+                              },
+                            )})`
+                          : ''}
                       </Text>
                     </View>
                   </View>
@@ -435,18 +485,81 @@ export const OrdersScreen = ({navigation}) => {
                         paddingTop: SPACING.md,
                       },
                     ]}>
-                    <Text style={S.orderTotal}>
-                      {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
-                      {order.totalPrice}
-                    </Text>
-                    <View style={[S.statusBadge, {backgroundColor: '#E8F5E9'}]}>
-                      <Text
-                        style={[S.statusText, {color: COLORS.primaryGreen}]}>
-                        {t('harvestCalendar.infoGuarantee', {
-                          defaultValue: 'Guaranteed Fresh',
-                        })}
+                    <View style={{flex: 1}}>
+                      <Text style={S.orderTotal}>
+                        {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
+                        {order.totalPrice}
                       </Text>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: 4,
+                        }}>
+                        <View
+                          style={[
+                            S.statusBadge,
+                            {
+                              backgroundColor:
+                                order.status === 'completed'
+                                  ? '#E8F5E9'
+                                  : order.status === 'harvested'
+                                  ? '#FFF3E0'
+                                  : '#E3F2FD',
+                              marginRight: 8,
+                            },
+                          ]}>
+                          <Text
+                            style={[
+                              S.statusText,
+                              {
+                                color:
+                                  order.status === 'completed'
+                                    ? '#4CAF50'
+                                    : order.status === 'harvested'
+                                    ? '#FF9800'
+                                    : '#1565C0',
+                              },
+                            ]}>
+                            {order.status === 'completed'
+                              ? t('preOrder.statusCompleted', {
+                                  defaultValue: 'Completed',
+                                })
+                              : order.status === 'harvested'
+                              ? t('preOrder.statusHarvested', {
+                                  defaultValue: 'Harvested',
+                                })
+                              : t('preOrder.statusReserved', {
+                                  defaultValue: 'Reserved',
+                                })}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
+
+                    {order.status === 'harvested' && (
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: COLORS.primaryGreen,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: RADIUS.md,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                        onPress={() => handleConfirmReceipt(order)}>
+                        <Text
+                          style={{
+                            color: COLORS.white,
+                            fontWeight: 'bold',
+                            fontSize: rs(12),
+                          }}>
+                          {t('preOrder.confirmReceipt', {
+                            defaultValue: 'Mark Received',
+                          })}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               );
@@ -712,7 +825,7 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         {[
           {
             label: `⭐ ${t('farmer.rating', {defaultValue: 'மதிப்பீடு'})}`,
-            val: `${farmer.rating || '0'} / 5.0`,
+            val: `${parseFloat(farmer.rating || 0).toFixed(1)} / 5.0`,
           },
           {
             label: `🏡 ${t('farmer.farm', {defaultValue: 'பண்ணை'})}`,
@@ -768,7 +881,7 @@ export const FarmerProfileScreen = ({route, navigation}) => {
               ? Math.round(((originalPrice - p.price) / originalPrice) * 100)
               : 0;
 
-            const rating = p.rating || 4.2;
+            const rating = parseFloat(p.rating || 4.2).toFixed(1);
             const unit = p.unit || 'kg';
             const isSoldOut =
               p.stock !== undefined && p.stock !== null && p.stock <= 0;
@@ -1090,7 +1203,7 @@ export const AllFarmersScreen = ({navigation}) => {
                 </Text>
                 <Text
                   style={[S.farmerListRating, {color: themeColors.subText}]}>
-                  ⭐ {item.rating || '0'}
+                  ⭐ {parseFloat(item.rating || 0).toFixed(1)}
                 </Text>
               </View>
               <Text style={{fontSize: rs(22), color: themeColors.textMuted}}>

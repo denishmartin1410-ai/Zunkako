@@ -231,7 +231,10 @@ const CartScreen = ({navigation}) => {
                 styles.freeDelivery,
                 {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
               ]}>
-              ✅ {t('cart.freeDelivery', {defaultValue: 'இலவச டெலிவரி!'})}
+              ✅{' '}
+              {t('cart.freeDelivery', {
+                defaultValue: 'Free Delivery for first 3 months!',
+              })}
             </Text>
           )}
         </View>

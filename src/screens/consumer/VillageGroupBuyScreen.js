@@ -27,8 +27,16 @@ import {
   joinGroupBuy,
   getAllConsumers,
 } from '../../services/firebase';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
+import {useTheme} from '../../context/ThemeContext';
 
 // Read from Firestore instead of hardcoded data
 
@@ -52,6 +60,8 @@ const STATUS_CONFIG = {
 
 const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
 
   const creatorCount = 1;
   const invitedCount = Math.max(0, group.currentMembers - 1);
@@ -74,7 +84,15 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
   };
 
   return (
-    <View style={styles.groupCard}>
+    <View
+      style={[
+        styles.groupCard,
+        {
+          backgroundColor: themeColors.cardBg,
+          borderColor: themeColors.border,
+          borderWidth: isDark ? 1 : 0,
+        },
+      ]}>
       {/* Card Header */}
       <LinearGradient
         colors={
@@ -84,10 +102,14 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
         <View style={styles.cardHeaderLeft}>
           <Text style={styles.groupEmoji}>{group.emoji}</Text>
           <View style={{flex: 1, paddingRight: 8}}>
-            <Text style={styles.groupTitle} numberOfLines={1}>
+            <Text
+              style={[styles.groupTitle, {color: themeColors.text}]}
+              numberOfLines={1}>
               {group.title}
             </Text>
-            <Text style={styles.groupLocation}>📍 {group.location}</Text>
+            <Text style={[styles.groupLocation, {color: themeColors.subText}]}>
+              📍 {group.location}
+            </Text>
           </View>
         </View>
       </LinearGradient>
@@ -96,10 +118,18 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
         {/* Members progress */}
         <View style={styles.membersSection}>
           <View style={styles.membersHeader}>
-            <Text style={styles.membersLabel}>👥 {t('groupBuy.members')}:</Text>
-            <Text style={styles.membersCount}>1 / {invitedCount}</Text>
+            <Text style={[styles.membersLabel, {color: themeColors.text}]}>
+              👥 {t('groupBuy.members')}:
+            </Text>
+            <Text style={[styles.membersCount, {color: themeColors.text}]}>
+              1 / {invitedCount}
+            </Text>
           </View>
-          <View style={styles.progressBg}>
+          <View
+            style={[
+              styles.progressBg,
+              {backgroundColor: isDark ? '#333333' : '#E0E0E0'},
+            ]}>
             <LinearGradient
               colors={
                 group.status === 'full'
@@ -133,7 +163,8 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
                 </Text>
               </View>
             )}
-            <Text style={styles.membersNeeded}>
+            <Text
+              style={[styles.membersNeeded, {color: themeColors.textMuted}]}>
               {neededCount > 0
                 ? `${neededCount} ${t('groupBuy.needed', {
                     defaultValue: 'more needed',
@@ -145,26 +176,33 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
 
         {/* Products */}
         <View style={styles.productsSection}>
-          <Text style={styles.productsSectionTitle}>
+          <Text
+            style={[styles.productsSectionTitle, {color: themeColors.text}]}>
             🛒 {t('groupBuy.products')}:
           </Text>
           {(group.products || []).map((p, i) => (
             <View key={i} style={styles.productRow}>
-              <Text style={styles.productName}>{p.name}</Text>
-              <Text style={styles.productQty}>{p.qty}</Text>
-              <Text style={styles.productPrice}>₹{p.price}</Text>
+              <Text style={[styles.productName, {color: themeColors.text}]}>
+                {p.name}
+              </Text>
+              <Text style={[styles.productQty, {color: themeColors.subText}]}>
+                {p.qty}
+              </Text>
+              <Text style={[styles.productPrice, {color: themeColors.text}]}>
+                ₹{p.price}
+              </Text>
             </View>
           ))}
         </View>
 
         {/* Benefits */}
         <View style={styles.benefitsRow}>
-          <View style={styles.benefitChip}>
+          <View style={[styles.benefitChip, {backgroundColor: themeColors.bg}]}>
             <Text style={styles.benefitEmoji}>🎁</Text>
-            <Text style={styles.benefitLabel}>
+            <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
               {group.discount} {t('groupBuy.discount')}
             </Text>
-            <Text style={styles.benefitValue}>
+            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
               ₹{group.discountAmount} {t('groupBuy.savings')}
             </Text>
           </View>
@@ -243,6 +281,8 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
 
 const VillageGroupBuyScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [showCreate, setShowCreate] = useState(false);
   const [newGroup, setNewGroup] = useState({
@@ -463,7 +503,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       {/* Header */}
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
@@ -486,8 +526,16 @@ const VillageGroupBuyScreen = ({navigation}) => {
       </LinearGradient>
 
       {/* How it works */}
-      <View style={styles.howItWorks}>
-        <Text style={styles.howTitle}>
+      <View
+        style={[
+          styles.howItWorks,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderBottomColor: themeColors.border,
+            borderBottomWidth: 1,
+          },
+        ]}>
+        <Text style={[styles.howTitle, {color: themeColors.text}]}>
           ⚡ {t('groupBuy.howItWorks', {defaultValue: 'எப்படி வேலை செய்யும்?'})}
         </Text>
         <View style={styles.stepsRow}>
@@ -498,11 +546,8 @@ const VillageGroupBuyScreen = ({navigation}) => {
             {step: '4', emoji: '🎁', label: t('groupBuy.step4')},
           ].map((s, i) => (
             <View key={i} style={styles.stepItem}>
-              <View style={styles.stepNum}>
-                <Text style={styles.stepNumTxt}>{s.step}</Text>
-              </View>
-              <Text style={styles.stepEmoji}>{s.emoji}</Text>
-              <Text style={styles.stepLabel} numberOfLines={2}>
+              <Text style={{fontSize: 26, marginBottom: 4}}>{s.emoji}</Text>
+              <Text style={[styles.stepLabel, {color: themeColors.subText}]}>
                 {s.label}
               </Text>
             </View>
@@ -534,8 +579,16 @@ const VillageGroupBuyScreen = ({navigation}) => {
 
         {/* Create form */}
         {showCreate && (
-          <View style={styles.createForm}>
-            <Text style={styles.createFormTitle}>
+          <View
+            style={[
+              styles.createForm,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+                borderWidth: 1,
+              },
+            ]}>
+            <Text style={[styles.createFormTitle, {color: themeColors.text}]}>
               🆕 {t('groupBuy.createTitle')}
             </Text>
             {[
@@ -550,13 +603,20 @@ const VillageGroupBuyScreen = ({navigation}) => {
               const isTargetMembers = field.key === 'targetMembers';
               return (
                 <View key={field.key} style={styles.formField}>
-                  <Text style={styles.formLabel}>{field.label}</Text>
+                  <Text style={[styles.formLabel, {color: themeColors.text}]}>
+                    {field.label}
+                  </Text>
                   <TextInput
                     style={[
                       styles.formInput,
+                      {
+                        backgroundColor: themeColors.inputBg,
+                        color: themeColors.text,
+                        borderColor: themeColors.border,
+                      },
                       isTargetMembers && {
-                        backgroundColor: '#F5F5F5',
-                        color: COLORS.textSecondary,
+                        backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5',
+                        color: themeColors.subText,
                       },
                     ]}
                     value={
@@ -594,7 +654,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
         )}
 
         {/* Active groups */}
-        <Text style={styles.activeGroupsTitle}>
+        <Text style={[styles.activeGroupsTitle, {color: themeColors.text}]}>
           🏘️{' '}
           {t('groupBuy.activeGroups', {defaultValue: 'இப்போ உள்ள குழுக்கள்'})} (
           {groups.length})
@@ -623,10 +683,20 @@ const VillageGroupBuyScreen = ({navigation}) => {
         animationType="slide"
         onRequestClose={() => setShowDirectAdd(false)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <View
+            style={[
+              styles.modalContainer,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+                borderWidth: isDark ? 1 : 0,
+              },
+            ]}>
             {/* Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle} numberOfLines={1}>
+              <Text
+                style={[styles.modalTitle, {color: themeColors.text}]}
+                numberOfLines={1}>
                 👥{' '}
                 {t('groupBuy.directAddTitle', {
                   defaultValue: 'உறுப்பினர்களை நேரடியாக சேர்',
@@ -635,15 +705,25 @@ const VillageGroupBuyScreen = ({navigation}) => {
               <TouchableOpacity
                 style={styles.closeBtn}
                 onPress={() => setShowDirectAdd(false)}>
-                <Text style={styles.closeBtnTxt}>✕</Text>
+                <Text style={[styles.closeBtnTxt, {color: themeColors.text}]}>
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
 
             {/* Search Bar */}
-            <View style={styles.searchBarContainer}>
+            <View
+              style={[
+                styles.searchBarContainer,
+                {
+                  backgroundColor: themeColors.bg,
+                  borderColor: themeColors.border,
+                  borderWidth: 1,
+                },
+              ]}>
               <Text style={styles.searchIcon}>🔍</Text>
               <TextInput
-                style={styles.searchInput}
+                style={[styles.searchInput, {color: themeColors.text}]}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder={t('groupBuy.searchPlaceholder', {
@@ -657,13 +737,14 @@ const VillageGroupBuyScreen = ({navigation}) => {
             {consumersLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={COLORS.primaryGreen} />
-                <Text style={styles.loadingText}>
+                <Text style={[styles.loadingText, {color: themeColors.text}]}>
                   {t('common.loading', {defaultValue: 'Loading...'})}
                 </Text>
               </View>
             ) : filteredConsumers.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>
+                <Text
+                  style={[styles.emptyText, {color: themeColors.textMuted}]}>
                   📭{' '}
                   {t('groupBuy.noConsumers', {
                     defaultValue: 'வாடிக்கையாளர்கள் யாரும் இல்லை.',
@@ -706,7 +787,10 @@ const VillageGroupBuyScreen = ({navigation}) => {
                   return (
                     <View
                       key={consumer.id || consumer.uid}
-                      style={styles.consumerItem}>
+                      style={[
+                        styles.consumerItem,
+                        {borderBottomColor: themeColors.border},
+                      ]}>
                       <View style={styles.consumerInfo}>
                         <View style={styles.avatarCircle}>
                           <Text style={styles.avatarLetter}>
@@ -714,8 +798,18 @@ const VillageGroupBuyScreen = ({navigation}) => {
                           </Text>
                         </View>
                         <View style={styles.consumerDetails}>
-                          <Text style={styles.consumerName}>{cName}</Text>
-                          <Text style={styles.consumerEmail}>
+                          <Text
+                            style={[
+                              styles.consumerName,
+                              {color: themeColors.text},
+                            ]}>
+                            {cName}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.consumerEmail,
+                              {color: themeColors.subText},
+                            ]}>
                             {consumer.email || consumer.phone || ''}
                           </Text>
                         </View>

@@ -19,8 +19,16 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../context/ThemeContext';
 
 import {listenToHarvests, createPreOrder} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
@@ -34,6 +42,8 @@ const {width} = Dimensions.get('window');
 
 const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const [quantity, setQuantity] = useState(1);
   const fillPercent = (item.totalPreOrders / item.targetPreOrders) * 100;
 
@@ -53,6 +63,11 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
     <View
       style={[
         styles.card,
+        {
+          backgroundColor: themeColors.cardBg,
+          borderColor: themeColors.border,
+          borderWidth: isDark ? 1 : 0,
+        },
         isHighlighted && {
           borderWidth: 2,
           borderColor: COLORS.primaryGreen,
@@ -118,17 +133,31 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
 
       <View style={styles.cardBody}>
         {/* Product info */}
-        <Text style={styles.itemName}>{localName}</Text>
+        <Text style={[styles.itemName, {color: themeColors.text}]}>
+          {localName}
+        </Text>
         {localName !== item.nameEn && (
-          <Text style={styles.itemNameEn}>{item.nameEn}</Text>
+          <Text style={[styles.itemNameEn, {color: themeColors.subText}]}>
+            {item.nameEn}
+          </Text>
         )}
 
         {/* Farmer + Harvest date */}
         <View style={styles.metaRow}>
-          <View style={styles.metaChip}>
-            <Text style={styles.metaChipTxt}>👨‍🌾 {item.farmer}</Text>
+          <View
+            style={[
+              styles.metaChip,
+              {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'},
+            ]}>
+            <Text style={[styles.metaChipTxt, {color: themeColors.text}]}>
+              👨‍🌾 {item.farmer}
+            </Text>
           </View>
-          <View style={[styles.metaChip, {backgroundColor: '#E3F2FD'}]}>
+          <View
+            style={[
+              styles.metaChip,
+              {backgroundColor: isDark ? '#1A334B' : '#E3F2FD'},
+            ]}>
             <Text style={[styles.metaChipTxt, {color: COLORS.primaryBlue}]}>
               📅 {item.harvestDate}
             </Text>
@@ -136,19 +165,25 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         </View>
 
         {/* Description */}
-        <Text style={styles.description}>{localDesc}</Text>
+        <Text style={[styles.description, {color: themeColors.subText}]}>
+          {localDesc}
+        </Text>
 
         {/* Pre-orders progress */}
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
-            <Text style={styles.progressLabel}>
+            <Text style={[styles.progressLabel, {color: themeColors.text}]}>
               🔥 {t('preOrder.peoplePreOrdered', {count: item.totalPreOrders})}
             </Text>
-            <Text style={styles.progressCount}>
+            <Text style={[styles.progressCount, {color: themeColors.text}]}>
               {item.totalPreOrders}/{item.targetPreOrders}
             </Text>
           </View>
-          <View style={styles.progressBg}>
+          <View
+            style={[
+              styles.progressBg,
+              {backgroundColor: isDark ? '#333333' : '#E0E0E0'},
+            ]}>
             <LinearGradient
               colors={COLORS.gradientButton}
               style={[
@@ -169,11 +204,15 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         {/* Price row */}
         <View style={styles.priceRow}>
           <View>
-            <Text style={styles.price}>
+            <Text style={[styles.price, {color: themeColors.text}]}>
               ₹{item.price}
-              <Text style={styles.unit}> /{item.unit}</Text>
+              <Text style={[styles.unit, {color: themeColors.textMuted}]}>
+                {' '}
+                /{item.unit}
+              </Text>
             </Text>
-            <Text style={styles.originalPrice}>
+            <Text
+              style={[styles.originalPrice, {color: themeColors.textMuted}]}>
               {t('preOrder.regular')}: ₹{item.originalPrice} |{' '}
               {t('preOrder.savings')}: ₹{item.originalPrice - item.price}
             </Text>
@@ -231,6 +270,8 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
 
 const PreOrderScreen = ({navigation, route}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -330,7 +371,7 @@ const PreOrderScreen = ({navigation, route}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
         style={styles.headerRow}>
@@ -398,8 +439,7 @@ const PreOrderScreen = ({navigation, route}) => {
               color: COLORS.textGray,
             }}>
             {t('preOrder.noPreOrders', {
-              defaultValue:
-                'தற்போது எந்த முன் ஆர்டரும் இல்லை.',
+              defaultValue: 'தற்போது எந்த முன் ஆர்டரும் இல்லை.',
             })}
           </Text>
         ) : (

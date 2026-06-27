@@ -247,7 +247,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                   {backgroundColor: isDark ? '#2D2715' : '#FFF9E6'},
                 ]}>
                 <Text style={[styles.ratingNum, {color: themeColors.text}]}>
-                  ⭐ {avgRating}
+                  ⭐ {parseFloat(avgRating || 0).toFixed(1)}
                 </Text>
                 <Text style={styles.reviewCount}>
                   {reviewCount}{' '}
@@ -282,7 +282,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                 styles.farmerArrow,
                 {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
               ]}>
-              →
+              ›
             </Text>
           </TouchableOpacity>
 
@@ -660,7 +660,11 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   farmerLoc: {fontSize: rs(FONTS.sm), color: COLORS.textMuted},
-  farmerArrow: {fontSize: rs(20), color: COLORS.primaryGreen},
+  farmerArrow: {
+    fontSize: rs(26),
+    color: COLORS.primaryGreen,
+    fontWeight: '300',
+  },
   directionBtn: {
     backgroundColor: '#E3F2FD',
     padding: SPACING.md,

@@ -53,7 +53,7 @@
     "addToCart": "Cart",
     "subtotal": "Subtotal",
     "delivery": "Delivery",
-    "freeDelivery": "Free for first 3 months!",
+    "freeDelivery": "Free Delivery for first 3 months!",
     "checkout": "Place Order"
   },
   "orders": {
@@ -104,7 +104,12 @@
     "statusCancelled": "Cancelled",
     "status_Refund_Requested": "Refund Requested",
     "normalOrdersTab": "Orders",
-    "preOrdersTab": "Pre-Orders"
+    "preOrdersTab": "Pre-Orders",
+    "rejectTitle": "Select Rejection Reason",
+    "rejectReason_out_of_stock": "Product Sold Out",
+    "rejectReason_out_of_service": "Delivery Partner Unavailable",
+    "rejectReason_quality_issue": "Quality Defect",
+    "rejectReason_unexpected_conditions": "Adverse weather"
   },
   "notification": {
     "title": "Notifications",
@@ -289,7 +294,7 @@
     "priceDetails": "Price Details",
     "subtotal": "Subtotal",
     "delivery": "Delivery",
-    "free": "Free for first 3 months!",
+    "free": "Free Delivery for first 3 months!",
     "total": "Total",
     "cod": "Cash on Delivery",
     "codSub": "Pay when the order arrives",

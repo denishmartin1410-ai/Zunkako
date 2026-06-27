@@ -260,7 +260,7 @@ const AllProductsScreen = ({navigation}) => {
                   <View style={styles.ratingRow}>
                     <Text style={styles.starIcon}>⭐</Text>
                     <Text style={[styles.ratingVal, {color: themeColors.text}]}>
-                      {farmer.rating || '4.5'}
+                      {parseFloat(farmer.rating || 4.5).toFixed(1)}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -287,7 +287,7 @@ const AllProductsScreen = ({navigation}) => {
                         )
                       : 0;
 
-                    const rating = p.rating || 4.2;
+                    const rating = parseFloat(p.rating || 4.2).toFixed(1);
                     const unit = p.unit || 'kg';
                     const isSoldOut =
                       p.stock !== undefined && p.stock !== null && p.stock <= 0;

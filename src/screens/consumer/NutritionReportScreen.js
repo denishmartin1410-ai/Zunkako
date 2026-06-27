@@ -16,8 +16,16 @@ import {
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../context/ThemeContext';
 import {getDeliveredOrdersForPeriod} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
@@ -112,6 +120,8 @@ const RECOMMENDED = {
 
 const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const percent = Math.min((value / recommended) * 100, 100);
   const isGood = percent >= 70 && percent <= 100;
   const isLow = percent < 70;
@@ -121,20 +131,33 @@ const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
     <View style={styles.nutritionItem}>
       <View style={styles.nutritionHeader}>
         <Text style={styles.nutritionEmoji}>{emoji}</Text>
-        <Text style={styles.nutritionLabel}>{label}</Text>
+        <Text style={[styles.nutritionLabel, {color: themeColors.text}]}>
+          {label}
+        </Text>
         <View style={styles.nutritionValues}>
           <Text style={[styles.nutritionActual, {color}]}>
             {value}
             {unit}
           </Text>
-          <Text style={styles.nutritionSlash}> / </Text>
-          <Text style={styles.nutritionRecommended}>
+          <Text style={[styles.nutritionSlash, {color: themeColors.textMuted}]}>
+            {' '}
+            /{' '}
+          </Text>
+          <Text
+            style={[
+              styles.nutritionRecommended,
+              {color: themeColors.textMuted},
+            ]}>
             {recommended}
             {unit}
           </Text>
         </View>
       </View>
-      <View style={styles.nutritionBarBg}>
+      <View
+        style={[
+          styles.nutritionBarBg,
+          {backgroundColor: isDark ? '#333333' : '#E0E0E0'},
+        ]}>
         <LinearGradient
           colors={
             isOver
@@ -171,6 +194,8 @@ const NutritionBar = ({label, emoji, value, recommended, unit, color}) => {
 
 const NutritionReportScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [allOrders, setAllOrders] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(0);
@@ -280,61 +305,39 @@ const NutritionReportScreen = ({navigation}) => {
       return;
     }
 
-    let targetOrder = null;
-    let periodDays = 7;
+    const now = new Date();
+    const todayEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
 
+    let start, end;
     if (selectedWeek === 0) {
-      targetOrder = allOrders[0];
-      periodDays = 7;
+      end = todayEnd;
+      start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000 + 1000);
     } else if (selectedWeek === 1) {
-      // Find the first order that is at least 7 days older than allOrders[0]
-      const firstDate = allOrders[0].createdAt?.toDate?.() || new Date();
-      targetOrder =
-        allOrders.find(o => {
-          const d = o.createdAt?.toDate?.();
-          return d && firstDate - d >= 7 * 24 * 60 * 60 * 1000;
-        }) ||
-        allOrders[1] ||
-        allOrders[0];
-      periodDays = 7;
+      end = new Date(todayEnd.getTime() - 7 * 24 * 60 * 60 * 1000);
+      start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000 + 1000);
     } else {
-      // selectedWeek === 2
-      // Find the first order that is at least 14 days older than allOrders[0]
-      const firstDate = allOrders[0].createdAt?.toDate?.() || new Date();
-      targetOrder =
-        allOrders.find(o => {
-          const d = o.createdAt?.toDate?.();
-          return d && firstDate - d >= 14 * 24 * 60 * 60 * 1000;
-        }) ||
-        allOrders[2] ||
-        allOrders[1] ||
-        allOrders[0];
-      periodDays = 14;
+      end = new Date(todayEnd.getTime() - 14 * 24 * 60 * 60 * 1000);
+      start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000 + 1000);
     }
-
-    const orderDate = targetOrder.createdAt?.toDate?.() || new Date();
-
-    // Start date = orderDate + 1 day
-    const start = new Date(orderDate);
-    start.setDate(start.getDate() + 1);
-
-    // End date = start + periodDays
-    const end = new Date(start);
-    end.setDate(end.getDate() + periodDays);
 
     const formatDate = d =>
       `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
     const weekStr = `${formatDate(start)} - ${formatDate(end)}`;
 
-    // Get all orders that belong to this consumption week (between target order date - 12h and end date)
     const reportOrders = allOrders.filter(o => {
       const d = o.createdAt?.toDate?.();
       if (!d) {
         return false;
       }
-      return (
-        d >= new Date(orderDate.getTime() - 12 * 60 * 60 * 1000) && d <= end
-      );
+      return d >= start && d <= end;
     });
 
     let totalSpent = 0;
@@ -460,7 +463,7 @@ const NutritionReportScreen = ({navigation}) => {
               {emoji: '🌟', tip: t('nutrition.tip3')},
             ],
     });
-  }, [selectedWeek, allOrders]);
+  }, [selectedWeek, allOrders, t]);
 
   const scoreColor =
     report?.healthScore >= 80
@@ -470,7 +473,7 @@ const NutritionReportScreen = ({navigation}) => {
       : COLORS.accentRed;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.headerRow}>
         <View style={styles.headerTop}>
           <BackButton onPress={() => navigation.goBack()} />
@@ -547,23 +550,25 @@ const NutritionReportScreen = ({navigation}) => {
                 }
                 style={styles.scoreCardGrad}>
                 <View style={styles.scoreLeft}>
-                  <Text style={styles.scoreWeek}>{report.weekStr}</Text>
+                  <Text style={[styles.scoreWeek, {color: '#333333'}]}>
+                    {report.weekStr}
+                  </Text>
                   <Text style={styles.scoreWeekEn} />
                   <View style={styles.scoreStatsRow}>
                     <View style={styles.scoreStat}>
-                      <Text style={styles.scoreStatNum}>
+                      <Text style={[styles.scoreStatNum, {color: '#333333'}]}>
                         {report.totalItems}
                       </Text>
-                      <Text style={styles.scoreStatLabel}>
+                      <Text style={[styles.scoreStatLabel, {color: '#555555'}]}>
                         {t('nutrition.productsPurchased')}
                       </Text>
                     </View>
                     <View style={styles.scoreDivider} />
                     <View style={styles.scoreStat}>
-                      <Text style={styles.scoreStatNum}>
+                      <Text style={[styles.scoreStatNum, {color: '#333333'}]}>
                         ₹{report.totalSpent}
                       </Text>
-                      <Text style={styles.scoreStatLabel}>
+                      <Text style={[styles.scoreStatLabel, {color: '#555555'}]}>
                         {t('nutrition.spent')}
                       </Text>
                     </View>
@@ -574,8 +579,10 @@ const NutritionReportScreen = ({navigation}) => {
                   <Text style={[styles.scoreNum, {color: scoreColor}]}>
                     {report.healthScore}
                   </Text>
-                  <Text style={styles.scoreOutOf}>/100</Text>
-                  <Text style={styles.scoreLabel}>
+                  <Text style={[styles.scoreOutOf, {color: '#555555'}]}>
+                    /100
+                  </Text>
+                  <Text style={[styles.scoreLabel, {color: '#555555'}]}>
                     {t('nutrition.healthScore')}
                   </Text>
                 </View>
@@ -583,24 +590,45 @@ const NutritionReportScreen = ({navigation}) => {
             </View>
 
             {/* Nutrition Bars */}
-            <View style={styles.nutritionCard}>
-              <Text style={styles.sectionTitle}>{t('nutrition.details')}</Text>
-              <Text style={styles.sectionSub}>{t('nutrition.detailsSub')}</Text>
+            <View
+              style={[
+                styles.nutritionCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: isDark ? 1 : 0,
+                },
+              ]}>
+              <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
+                {t('nutrition.details')}
+              </Text>
+              <Text style={[styles.sectionSub, {color: themeColors.subText}]}>
+                {t('nutrition.detailsSub')}
+              </Text>
               {Object.entries(report.nutrition).map(([key, data]) => (
                 <NutritionBar key={key} {...data} />
               ))}
             </View>
 
             {/* Products purchased */}
-            <View style={styles.productsCard}>
-              <Text style={styles.sectionTitle}>
+            <View
+              style={[
+                styles.productsCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: isDark ? 1 : 0,
+                },
+              ]}>
+              <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
                 {t('nutrition.purchased')}
               </Text>
               {report.purchasedItems.map((item, i) => (
                 <View key={i} style={styles.purchasedRow}>
                   <Text style={styles.purchasedEmoji}>{item.emoji}</Text>
                   <View style={styles.purchasedInfo}>
-                    <Text style={styles.purchasedName}>
+                    <Text
+                      style={[styles.purchasedName, {color: themeColors.text}]}>
                       {getLocalProductName(
                         item.nameEn,
                         item.nameTa,
@@ -608,7 +636,11 @@ const NutritionReportScreen = ({navigation}) => {
                       )}{' '}
                       x{item.qty}
                     </Text>
-                    <Text style={styles.purchasedNutrition}>
+                    <Text
+                      style={[
+                        styles.purchasedNutrition,
+                        {color: themeColors.subText},
+                      ]}>
                       🔥{Math.round(item.calories)}kcal • 💪
                       {Math.round(item.protein)}g protein • 🌾
                       {Math.round(item.carbs)}g carbs
@@ -619,8 +651,16 @@ const NutritionReportScreen = ({navigation}) => {
             </View>
 
             {/* Health Tips */}
-            <View style={styles.tipsCard}>
-              <Text style={styles.sectionTitle}>
+            <View
+              style={[
+                styles.tipsCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: isDark ? 1 : 0,
+                },
+              ]}>
+              <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
                 {t('nutrition.healthTips')}
               </Text>
               {report.tips.map((tip, i) => (

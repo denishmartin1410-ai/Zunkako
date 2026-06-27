@@ -851,7 +851,7 @@ export const getUserProductRating = async (productId, userId) => {
 // ✅ ORDER STATUS UPDATE
 // ════════════════════════════════════════════════
 
-export const updateOrderStatus = async (orderId, newStatus) => {
+export const updateOrderStatus = async (orderId, newStatus, extraFields = {}) => {
   try {
     await firestore()
       .collection('orders')
@@ -861,6 +861,7 @@ export const updateOrderStatus = async (orderId, newStatus) => {
         updatedAt: firestore.FieldValue.serverTimestamp(),
         [`${newStatus.toLowerCase().replace(/ /g, '')}At`]:
           firestore.FieldValue.serverTimestamp(),
+        ...extraFields,
       });
     return {success: true};
   } catch (error) {

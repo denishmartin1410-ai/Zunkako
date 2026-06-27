@@ -14,6 +14,7 @@ import {
   Linking,
   PermissionsAndroid,
   Platform,
+  Modal,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -1269,18 +1270,31 @@ export const FarmerOrdersScreen = ({navigation}) => {
     })();
   }, [user]);
 
-  const handleUpdateStatus = async (orderId, newStatus) => {
+  const [rejectModalVisible, setRejectModalVisible] = useState(false);
+  const [rejectingOrderId, setRejectingOrderId] = useState(null);
+
+  const handleUpdateStatus = async (orderId, newStatus, extraFields = {}) => {
     try {
       const {updateOrderStatus} = require('../../services/firebase');
-      const r = await updateOrderStatus(orderId, newStatus);
+      const r = await updateOrderStatus(orderId, newStatus, extraFields);
       if (r.success) {
         setOrders(prev =>
-          prev.map(o => (o.id === orderId ? {...o, status: newStatus} : o)),
+          prev.map(o =>
+            o.id === orderId ? {...o, status: newStatus, ...extraFields} : o,
+          ),
         );
         Alert.alert('✅', `Status: ${newStatus}`);
       }
     } catch (e) {
       Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);
+    }
+  };
+
+  const handleRejectOrder = reason => {
+    if (rejectingOrderId) {
+      handleUpdateStatus(rejectingOrderId, 'Cancelled', {rejectReason: reason});
+      setRejectModalVisible(false);
+      setRejectingOrderId(null);
     }
   };
 
@@ -1410,7 +1424,10 @@ export const FarmerOrdersScreen = ({navigation}) => {
                         S.statusBtn,
                         {backgroundColor: isDark ? '#3D1B1E' : '#FFEBEE'},
                       ]}
-                      onPress={() => handleUpdateStatus(order.id, 'Cancelled')}>
+                      onPress={() => {
+                        setRejectingOrderId(order.id);
+                        setRejectModalVisible(true);
+                      }}>
                       <Text
                         style={{
                           color: '#FF5252',
@@ -1494,6 +1511,102 @@ export const FarmerOrdersScreen = ({navigation}) => {
           <View style={{height: 90}} />
         </ScrollView>
       )}
+
+      <Modal
+        visible={rejectModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          setRejectModalVisible(false);
+          setRejectingOrderId(null);
+        }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          }}>
+          <View
+            style={{
+              width: '85%',
+              backgroundColor: themeColors.cardBg,
+              borderRadius: RADIUS.xl,
+              padding: SPACING.xl,
+              borderWidth: isDark ? 1 : 0,
+              borderColor: themeColors.border,
+              ...SHADOWS.card,
+            }}>
+            <Text
+              style={{
+                fontSize: rs(FONTS.md),
+                fontWeight: 'bold',
+                color: themeColors.text,
+                marginBottom: SPACING.md,
+                textAlign: 'center',
+              }}>
+              ❌{' '}
+              {t('orders.rejectTitle', {
+                defaultValue: 'Select Rejection Reason',
+              })}
+            </Text>
+
+            {[
+              {key: 'out_of_stock', emoji: '📦'},
+              {key: 'out_of_service', emoji: '📍'},
+              {key: 'quality_issue', emoji: '⚠️'},
+              {key: 'unexpected_conditions', emoji: '☁️'},
+            ].map(reason => (
+              <TouchableOpacity
+                key={reason.key}
+                style={{
+                  paddingVertical: SPACING.md,
+                  paddingHorizontal: SPACING.md,
+                  backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5',
+                  borderRadius: RADIUS.md,
+                  marginVertical: 4,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+                onPress={() => handleRejectOrder(reason.key)}>
+                <Text style={{fontSize: rs(18), marginRight: SPACING.md}}>
+                  {reason.emoji}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: rs(FONTS.sm),
+                    color: themeColors.text,
+                    flex: 1,
+                  }}>
+                  {t('orders.rejectReason_' + reason.key)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={{
+                marginTop: SPACING.lg,
+                padding: SPACING.md,
+                alignItems: 'center',
+                backgroundColor: isDark ? '#3D3D3D' : '#E0E0E0',
+                borderRadius: RADIUS.md,
+              }}
+              onPress={() => {
+                setRejectModalVisible(false);
+                setRejectingOrderId(null);
+              }}>
+              <Text
+                style={{
+                  color: themeColors.text,
+                  fontWeight: 'bold',
+                  fontSize: rs(FONTS.sm),
+                }}>
+                {t('orders.close', {defaultValue: 'Close'})}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

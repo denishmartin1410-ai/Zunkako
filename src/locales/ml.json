@@ -53,7 +53,7 @@
     "addToCart": "കാർട്ട്",
     "subtotal": "തുക",
     "delivery": "ഡെലിവറി",
-    "freeDelivery": "ആദ്യത്തെ 3 മാസം സൗജന്യം!",
+    "freeDelivery": "ആദ്യത്തെ 3 മാസം സൗജന്യ ഡെലിവറി!",
     "checkout": "ഓർഡർ ചെയ്യൂ"
   },
   "orders": {
@@ -104,7 +104,12 @@
     "statusCancelled": "റദ്ദാക്കി",
     "status_Refund_Requested": "റീഫണ്ട് അഭ്യർത്ഥിച്ചു",
     "normalOrdersTab": "ഓർഡറുകൾ",
-    "preOrdersTab": "മുൻകൂർ ഓർഡറുകൾ"
+    "preOrdersTab": "മുൻകൂർ ഓർഡറുകൾ",
+    "rejectTitle": "നിരസിക്കാനുള്ള കാരണം തിരഞ്ഞെടുക്കുക",
+    "rejectReason_out_of_stock": "സ്റ്റോക്ക് ലഭ്യമല്ല",
+    "rejectReason_out_of_service": "ഡെലിവറി ചെയ്യാൻ കഴിയില്ല",
+    "rejectReason_quality_issue": "ഗുണനിലവാര പ്രശ്നം",
+    "rejectReason_unexpected_conditions": "മോശം കാലാവസ്ഥ"
   },
   "profile": {
     "wishlist": "എന്റെ ആഗ്രഹ പട്ടിക",
@@ -277,7 +282,7 @@
     "priceDetails": "വില വിവരങ്ങൾ",
     "subtotal": "തുക",
     "delivery": "ഡെലിവറി",
-    "free": "ആദ്യത്തെ 3 മാസം സൗജന്യം!",
+    "free": "ആദ്യത്തെ 3 മാസം സൗജന്യ ഡെലിവറി!",
     "total": "ആകെ",
     "cod": "ക്യാഷ് ഓൺ ഡെലിവറി",
     "codSub": "ഓർഡർ എത്തുമ്പോൾ പണം നൽകുക",

@@ -187,6 +187,8 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
 // ── Chat List Screen (All Conversations) ──
 export const ChatListScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [farmers, setFarmers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -204,7 +206,7 @@ export const ChatListScreen = ({navigation}) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.headerTitle, {marginLeft: SPACING.md}]}>
@@ -225,7 +227,13 @@ export const ChatListScreen = ({navigation}) => {
           contentContainerStyle={{padding: SPACING.lg}}
           renderItem={({item}) => (
             <TouchableOpacity
-              style={styles.chatListItem}
+              style={[
+                styles.chatListItem,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                },
+              ]}
               onPress={() =>
                 navigation.navigate('FarmerChatRoom', {farmer: item})
               }>
@@ -240,25 +248,41 @@ export const ChatListScreen = ({navigation}) => {
               <View style={styles.chatInfo}>
                 <View style={styles.chatInfoTop}>
                   <View style={styles.nameRow}>
-                    <Text style={styles.chatFarmerName}>
+                    <Text
+                      style={[
+                        styles.chatFarmerName,
+                        {color: themeColors.text},
+                      ]}>
                       {item.nameTa || item.name}
                     </Text>
                     {item.isVerified && <Text style={{fontSize: 13}}> ✅</Text>}
                   </View>
                 </View>
-                <Text style={styles.lastMessage} numberOfLines={1}>
+                <Text
+                  style={[styles.lastMessage, {color: themeColors.subText}]}
+                  numberOfLines={1}>
                   {t('chat.startChatting', {
                     defaultValue: 'அரட்டையை தொடங்குங்கள்',
                   })}
                 </Text>
-                <Text style={styles.chatFarmerLoc}>
+                <Text
+                  style={[
+                    styles.chatFarmerLoc,
+                    {color: themeColors.textMuted},
+                  ]}>
                   📍 {(item.location || '').split(',')[0]}
                 </Text>
               </View>
-              <Text style={styles.chatArrow}>›</Text>
+              <Text style={[styles.chatArrow, {color: themeColors.subText}]}>
+                ›
+              </Text>
             </TouchableOpacity>
           )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={() => (
+            <View
+              style={[styles.separator, {backgroundColor: themeColors.border}]}
+            />
+          )}
           ListEmptyComponent={
             <View style={{alignItems: 'center', paddingVertical: 60}}>
               <Text style={{fontSize: 56}}>👨‍🌾</Text>

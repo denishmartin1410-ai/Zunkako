@@ -16,11 +16,19 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import {useTranslation} from 'react-i18next';
 import BackButton from '../../utils/BackButton';
 import {useCart} from '../../context/CartContext';
 import {listenToFreshProducts} from '../../services/firebase';
+import {useTheme} from '../../context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 
@@ -73,6 +81,8 @@ const getFreshnessLabel = percent => {
 // ── Individual Product Freshness Card ──
 const FreshnessCard = ({product, onAddToCart}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const [tick, setTick] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -101,7 +111,7 @@ const FreshnessCard = ({product, onAddToCart}) => {
         ]),
       ).start();
     }
-  }, []);
+  }, [product.harvestTime, product.freshHours, pulseAnim]);
 
   const parsedHarvestTime = new Date(product.harvestTime);
   const info = getElapsedAndPercent(
@@ -124,7 +134,16 @@ const FreshnessCard = ({product, onAddToCart}) => {
   };
 
   return (
-    <Animated.View style={[styles.card, {transform: [{scale: pulseAnim}]}]}>
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          backgroundColor: themeColors.cardBg,
+          borderColor: themeColors.border,
+          borderWidth: isDark ? 1 : 0,
+        },
+        {transform: [{scale: pulseAnim}]},
+      ]}>
       {/* Product image */}
       <FastImage
         source={{uri: product.image, priority: FastImage.priority.normal}}
@@ -152,20 +171,31 @@ const FreshnessCard = ({product, onAddToCart}) => {
         <View style={styles.productRow}>
           <Text style={styles.productEmoji}>{product.emoji}</Text>
           <View style={styles.productInfo}>
-            <Text style={styles.productName}>{product.name}</Text>
-            <Text style={styles.productNameEn}>{product.nameEn}</Text>
-            <Text style={styles.farmerName}>👨‍🌾 {product.farmer}</Text>
+            <Text style={[styles.productName, {color: themeColors.text}]}>
+              {product.name}
+            </Text>
+            <Text style={[styles.productNameEn, {color: themeColors.subText}]}>
+              {product.nameEn}
+            </Text>
+            <Text style={[styles.farmerName, {color: themeColors.textMuted}]}>
+              👨‍🌾 {product.farmer}
+            </Text>
           </View>
           <View style={styles.priceBox}>
-            <Text style={styles.price}>₹{product.price}</Text>
-            <Text style={styles.unit}>/{product.unit}</Text>
+            <Text style={[styles.price, {color: themeColors.text}]}>
+              ₹{product.price}
+            </Text>
+            <Text style={[styles.unit, {color: themeColors.textMuted}]}>
+              /{product.unit}
+            </Text>
           </View>
         </View>
 
         {/* ── FRESHNESS BAR - Main unique feature ── */}
-        <View style={styles.freshnessSection}>
+        <View
+          style={[styles.freshnessSection, {backgroundColor: themeColors.bg}]}>
           <View style={styles.freshnessHeaderRow}>
-            <Text style={styles.freshnessTitle}>
+            <Text style={[styles.freshnessTitle, {color: themeColors.text}]}>
               ⏱{' '}
               {t('freshness.timeSinceHarvest', {
                 defaultValue: 'அறுவடை ஆன நேரம்',
@@ -180,7 +210,11 @@ const FreshnessCard = ({product, onAddToCart}) => {
           </View>
 
           {/* Progress bar */}
-          <View style={styles.progressBarBg}>
+          <View
+            style={[
+              styles.progressBarBg,
+              {backgroundColor: isDark ? '#333333' : '#E0E0E0'},
+            ]}>
             <LinearGradient
               colors={colors}
               style={[styles.progressBarFill, {width: `${info.percent}%`}]}
@@ -191,7 +225,7 @@ const FreshnessCard = ({product, onAddToCart}) => {
 
           {/* Remaining time */}
           <View style={styles.remainingRow}>
-            <Text style={styles.remainingLabel}>
+            <Text style={[styles.remainingLabel, {color: themeColors.subText}]}>
               {t('freshness.freshFor', {
                 defaultValue: 'இன்னும் எத்தனை நேரம் நல்லது?',
               })}
@@ -244,6 +278,8 @@ const FreshnessCard = ({product, onAddToCart}) => {
 
 const FreshnessTrackerScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {addToCart} = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -269,7 +305,7 @@ const FreshnessTrackerScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       {/* Header */}
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
@@ -288,7 +324,15 @@ const FreshnessTrackerScreen = ({navigation}) => {
       </LinearGradient>
 
       {/* Legend */}
-      <View style={styles.legend}>
+      <View
+        style={[
+          styles.legend,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderBottomColor: themeColors.border,
+            borderBottomWidth: 1,
+          },
+        ]}>
         {[
           {
             color: COLORS.primaryGreen,
@@ -309,7 +353,9 @@ const FreshnessTrackerScreen = ({navigation}) => {
         ].map((item, i) => (
           <View key={i} style={styles.legendItem}>
             <View style={[styles.legendDot, {backgroundColor: item.color}]} />
-            <Text style={styles.legendTxt}>{item.label}</Text>
+            <Text style={[styles.legendTxt, {color: themeColors.subText}]}>
+              {item.label}
+            </Text>
           </View>
         ))}
       </View>
@@ -329,8 +375,7 @@ const FreshnessTrackerScreen = ({navigation}) => {
               color: COLORS.textGray,
             }}>
             {t('freshness.noProducts', {
-              defaultValue:
-                'தற்போது எந்த புதிய தயாரிப்புகளும் இல்லை.',
+              defaultValue: 'தற்போது எந்த புதிய தயாரிப்புகளும் இல்லை.',
             })}
           </Text>
         ) : (

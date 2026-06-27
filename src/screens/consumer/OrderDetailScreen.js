@@ -129,9 +129,15 @@ const OrderDetailScreen = ({route, navigation}) => {
     }
     return 'orders.status_' + status.replace(' ', '_');
   };
-  const statusTa = t(getStatusI18nKey(order.status), {
-    defaultValue: STATUS_TA[order.status] || order.status,
-  });
+  const statusTa =
+    t(getStatusI18nKey(order.status), {
+      defaultValue: STATUS_TA[order.status] || order.status,
+    }) +
+    (order.status === 'Cancelled' && order.rejectReason
+      ? ` (${t('orders.rejectReason_' + order.rejectReason, {
+          defaultValue: order.rejectReason,
+        })})`
+      : '');
   const orderDate =
     order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') || '';
 
@@ -219,9 +225,15 @@ const OrderDetailScreen = ({route, navigation}) => {
       },
       {
         key: 'Cancelled',
-        label: t('orders.statusCancelled', {
-          defaultValue: 'ரத்து செய்யப்பட்டது',
-        }),
+        label:
+          t('orders.statusCancelled', {
+            defaultValue: 'ரத்து செய்யப்பட்டது',
+          }) +
+          (order.rejectReason
+            ? ` (${t('orders.rejectReason_' + order.rejectReason, {
+                defaultValue: order.rejectReason,
+              })})`
+            : ''),
         icon: '❌',
       },
     ];
