@@ -19,6 +19,8 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from '../../context/ThemeContext';
+import firestore from '@react-native-firebase/firestore';
+import {useAuth} from '../../context/AuthContext';
 import {
   COLORS,
   FONTS,
@@ -35,6 +37,7 @@ const rs = size => Math.round(size * scale);
 
 const FeedbackScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {user} = useAuth();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
 
@@ -44,6 +47,7 @@ const FeedbackScreen = ({navigation}) => {
   const [recordDuration, setRecordDuration] = useState(0);
   const [hasVoiceRecorded, setHasVoiceRecorded] = useState(false);
   const [hasAttachment, setHasAttachment] = useState(false);
+  const [attachmentUri, setAttachmentUri] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -100,15 +104,68 @@ const FeedbackScreen = ({navigation}) => {
   };
 
   const handleAttachmentToggle = () => {
-    setHasAttachment(prev => !prev);
-    Alert.alert(
-      t('common.success', {defaultValue: 'Success'}),
-      hasAttachment
-        ? t('feedback.removedAttachment', {defaultValue: 'Attachment removed.'})
-        : t('feedback.attachedSuccess', {
-            defaultValue: 'Screenshot attached successfully!',
-          }),
-    );
+    if (hasAttachment) {
+      Alert.alert(
+        t('feedback.attachmentOptions', {defaultValue: 'Attachment Options'}),
+        t('feedback.attachmentAction', {
+          defaultValue: 'What would you like to do with the attached file?',
+        }),
+        [
+          {
+            text: t('feedback.remove', {defaultValue: 'Remove'}),
+            onPress: () => {
+              setHasAttachment(false);
+              setAttachmentUri(null);
+              Alert.alert(
+                t('common.success', {defaultValue: 'Success'}),
+                t('feedback.removedAttachment', {
+                  defaultValue: 'Attachment removed.',
+                }),
+              );
+            },
+            style: 'destructive',
+          },
+          {
+            text: t('feedback.replace', {defaultValue: 'Replace'}),
+            onPress: pickImage,
+          },
+          {
+            text: t('common.cancel', {defaultValue: 'Cancel'}),
+            style: 'cancel',
+          },
+        ],
+      );
+    } else {
+      pickImage();
+    }
+  };
+
+  const pickImage = async () => {
+    try {
+      const {launchImageLibrary} = require('react-native-image-picker');
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 0.8,
+      });
+
+      if (result.didCancel || !result.assets?.[0]) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      setAttachmentUri(asset.uri);
+      setHasAttachment(true);
+
+      Alert.alert(
+        t('common.success', {defaultValue: 'Success'}),
+        t('feedback.attachedSuccess', {
+          defaultValue: 'Screenshot attached successfully!',
+        }),
+      );
+    } catch (e) {
+      console.log('Image pick error:', e);
+      Alert.alert('Error', e.message);
+    }
   };
 
   const formatDuration = sec => {
@@ -117,13 +174,58 @@ const FeedbackScreen = ({navigation}) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      let fileUrl = null;
+
+      // 1. Upload attachment to Cloudinary if it exists
+      if (hasAttachment && attachmentUri) {
+        const {
+          uploadImageToCloudinary,
+        } = require('../../services/cloudinaryServices');
+        const uploadRes = await uploadImageToCloudinary(
+          attachmentUri,
+          'feedbacks',
+        );
+        if (uploadRes.success) {
+          fileUrl = uploadRes.url;
+        } else {
+          Alert.alert(
+            t('common.error', {defaultValue: 'Error'}),
+            t('feedback.uploadFailed', {
+              defaultValue: 'Failed to upload screenshot.',
+            }) +
+              '\n' +
+              uploadRes.error,
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Submit feedback to Firestore
+      await firestore()
+        .collection('feedbacks')
+        .add({
+          userId: user?.id || user?.uid || 'anonymous',
+          userName: user?.name || 'Anonymous User',
+          userEmail: user?.email || '',
+          userPhone: user?.phone || '',
+          userType: user?.userType || 'consumer',
+          type: activeTab, // 'voice' | 'write'
+          content: activeTab === 'write' ? writtenText : 'Voice Feedback',
+          voiceDuration: activeTab === 'voice' ? recordDuration : null,
+          attachmentUrl: fileUrl || null,
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+
       setIsSubmitting(false);
       Alert.alert(
         t('common.success', {defaultValue: 'Success'}),
-        t('feedback.success', {defaultValue: 'Thank you for your feedback!'}),
+        t('feedback.success', {
+          defaultValue: 'Thank you for your feedback! Submitted to Admin.',
+        }),
         [
           {
             text: t('common.ok', {defaultValue: 'OK'}),
@@ -131,7 +233,14 @@ const FeedbackScreen = ({navigation}) => {
           },
         ],
       );
-    }, 1500);
+    } catch (e) {
+      setIsSubmitting(false);
+      console.log('Feedback submission error:', e);
+      Alert.alert(
+        t('common.error', {defaultValue: 'Error'}),
+        e.message || 'Failed to submit feedback',
+      );
+    }
   };
 
   const isSubmitDisabled = !writtenText.trim() && !hasVoiceRecorded;

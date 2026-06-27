@@ -19,6 +19,7 @@ import {
   Dimensions,
   ScrollView,
   Modal,
+  Image,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -52,6 +53,8 @@ const AdminDashboard = () => {
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [userStats, setUserStats] = useState({
     farmers: 0,
     consumers: 0,
@@ -165,6 +168,22 @@ const AdminDashboard = () => {
         err => console.log('Delivery boys fetch error:', err.message),
       );
     return unsub;
+  }, []);
+
+  // Fetch user feedbacks live
+  useEffect(() => {
+    const unsubFeedbacks = firestore()
+      .collection('feedbacks')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(
+        snap => {
+          if (snap) {
+            setFeedbacks(snap.docs.map(doc => ({id: doc.id, ...doc.data()})));
+          }
+        },
+        err => console.log('Feedbacks fetch error:', err.message),
+      );
+    return unsubFeedbacks;
   }, []);
 
   const filteredOrders =
@@ -543,6 +562,21 @@ const AdminDashboard = () => {
         </View>
       </View>
 
+      {/* Feedbacks Banner */}
+      <TouchableOpacity
+        style={styles.feedbackBanner}
+        onPress={() => setFeedbackModalVisible(true)}>
+        <View style={styles.feedbackBannerContent}>
+          <Text style={styles.feedbackBannerText}>
+            💬 User Feedbacks ({feedbacks.length})
+          </Text>
+          <Text style={styles.feedbackBannerSub}>
+            View suggestions, voice recordings, & screenshots
+          </Text>
+        </View>
+        <Text style={styles.feedbackBannerArrow}>›</Text>
+      </TouchableOpacity>
+
       {/* Filter tabs - horizontally scrollable */}
       <ScrollView
         horizontal
@@ -782,6 +816,110 @@ const AdminDashboard = () => {
           </View>
         </View>
       </Modal>
+
+      {/* ✅ User Feedbacks Viewer Modal */}
+      <Modal
+        visible={feedbackModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setFeedbackModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          {/* Modal Header */}
+          <LinearGradient
+            colors={[COLORS.primaryGreen, '#1B8A4E']}
+            style={styles.modalHeader}>
+            <TouchableOpacity
+              onPress={() => setFeedbackModalVisible(false)}
+              style={styles.modalCloseBtn}>
+              <Text style={styles.modalCloseTxt}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>💬 User Feedbacks</Text>
+            <View style={{width: 60}} />
+          </LinearGradient>
+
+          {/* Feedback List */}
+          <FlatList
+            data={feedbacks}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => {
+              const dateStr = item.createdAt?.toDate
+                ? item.createdAt.toDate().toLocaleString()
+                : new Date(item.createdAt || Date.now()).toLocaleString();
+
+              const roleLabel =
+                item.userType === 'farmer'
+                  ? '👨‍🌾 Farmer'
+                  : item.userType === 'delivery'
+                  ? '🚚 Delivery'
+                  : '🛒 Customer';
+
+              return (
+                <View style={styles.feedbackCard}>
+                  <View style={styles.feedbackCardHeader}>
+                    <View>
+                      <Text style={styles.feedbackUser}>{item.userName}</Text>
+                      <Text style={styles.feedbackRole}>{roleLabel}</Text>
+                    </View>
+                    <Text style={styles.feedbackDate}>{dateStr}</Text>
+                  </View>
+
+                  {item.userEmail || item.userPhone ? (
+                    <View style={styles.contactRow}>
+                      {item.userEmail ? (
+                        <Text style={styles.contactText}>
+                          📧 {item.userEmail}
+                        </Text>
+                      ) : null}
+                      {item.userPhone ? (
+                        <Text style={styles.contactText}>
+                          📞 {item.userPhone}
+                        </Text>
+                      ) : null}
+                    </View>
+                  ) : null}
+
+                  <View style={styles.feedbackBody}>
+                    <Text style={styles.feedbackType}>
+                      {item.type === 'voice'
+                        ? '🎙️ Voice Feedback'
+                        : '📝 Written Feedback'}
+                    </Text>
+                    {item.type === 'voice' ? (
+                      <Text style={styles.voiceDuration}>
+                        Captured duration:{' '}
+                        {item.voiceDuration
+                          ? `${Math.floor(item.voiceDuration / 60)}:${
+                              item.voiceDuration % 60 < 10 ? '0' : ''
+                            }${item.voiceDuration % 60}`
+                          : 'N/A'}
+                      </Text>
+                    ) : (
+                      <Text style={styles.feedbackContent}>{item.content}</Text>
+                    )}
+                  </View>
+
+                  {item.attachmentUrl ? (
+                    <View style={styles.attachmentBox}>
+                      <Text style={styles.attachmentLabel}>
+                        📎 Attached Screenshot:
+                      </Text>
+                      <Image
+                        source={{uri: item.attachmentUrl}}
+                        style={styles.feedbackImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              );
+            }}
+            contentContainerStyle={{padding: SPACING.md, paddingBottom: 60}}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No user feedbacks found</Text>
+            }
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1007,6 +1145,117 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   liveStatusTxt: {fontSize: rs(FONTS.sm), color: '#2E7D32', fontWeight: '600'},
+
+  // Feedback styles
+  feedbackBanner: {
+    backgroundColor: '#EDF4FF',
+    borderColor: '#1976D2',
+    borderWidth: 1,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...SHADOWS.small,
+  },
+  feedbackBannerContent: {
+    flex: 1,
+  },
+  feedbackBannerText: {
+    fontSize: rs(15),
+    fontWeight: 'bold',
+    color: '#1565C0',
+  },
+  feedbackBannerSub: {
+    fontSize: rs(12),
+    color: '#424242',
+    marginTop: 2,
+  },
+  feedbackBannerArrow: {
+    fontSize: rs(24),
+    color: '#1565C0',
+    fontWeight: 'bold',
+  },
+  feedbackCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    ...SHADOWS.small,
+  },
+  feedbackCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: SPACING.xs,
+  },
+  feedbackUser: {
+    fontSize: rs(FONTS.md),
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  feedbackRole: {
+    fontSize: rs(FONTS.xs),
+    color: COLORS.primaryGreen,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  feedbackDate: {
+    fontSize: rs(FONTS.xs),
+    color: COLORS.textMuted,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.md,
+    marginBottom: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+    paddingBottom: SPACING.xs,
+  },
+  contactText: {
+    fontSize: rs(FONTS.xs),
+    color: COLORS.textSecondary,
+  },
+  feedbackBody: {
+    marginVertical: SPACING.xs,
+  },
+  feedbackType: {
+    fontSize: rs(FONTS.sm),
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  voiceDuration: {
+    fontSize: rs(FONTS.sm),
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+  },
+  feedbackContent: {
+    fontSize: rs(FONTS.sm),
+    color: COLORS.textSecondary,
+    lineHeight: rs(20),
+  },
+  attachmentBox: {
+    marginTop: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borderLight,
+    paddingTop: SPACING.md,
+  },
+  attachmentLabel: {
+    fontSize: rs(FONTS.xs),
+    fontWeight: 'bold',
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+  feedbackImage: {
+    width: '100%',
+    height: rs(200),
+    borderRadius: RADIUS.md,
+    backgroundColor: '#F5F5F5',
+  },
 });
 
 export default AdminDashboard;

@@ -32,7 +32,7 @@ const rs = size => Math.round(size * scale);
 
 const StoryVideoScreen = ({navigation}) => {
   const {t} = useTranslation();
-  const {user} = useAuth();
+  const {user, updateUser} = useAuth();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const [videoUri, setVideoUri] = useState(user?.storyVideo || null);
@@ -100,6 +100,41 @@ const StoryVideoScreen = ({navigation}) => {
       console.log('Video pick error:', e);
       Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);
     }
+  };
+
+  const handleDeleteVideo = async () => {
+    Alert.alert(
+      t('common.confirm', {defaultValue: 'உறுதிப்படுத்து'}),
+      t('story.deleteConfirm', {defaultValue: 'வீடியோவை நீக்க வேண்டுமா?'}),
+      [
+        {text: t('common.cancel', {defaultValue: 'Cancel'}), style: 'cancel'},
+        {
+          text: t('common.yes', {defaultValue: 'Yes'}),
+          onPress: async () => {
+            try {
+              setIsUploading(true);
+              const res = await updateUser({storyVideo: null});
+              if (res.success) {
+                setVideoUri(null);
+                Alert.alert(
+                  '✅',
+                  t('story.videoDeleted', {
+                    defaultValue: 'வீடியோ வெற்றிகரமாக நீக்கப்பட்டது!',
+                  }),
+                );
+              } else {
+                Alert.alert('Error', res.error || 'Failed to delete video');
+              }
+            } catch (err) {
+              console.log('Video delete error:', err);
+              Alert.alert('Error', err.message);
+            } finally {
+              setIsUploading(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -199,6 +234,26 @@ const StoryVideoScreen = ({navigation}) => {
                   ]}>
                   🔄{' '}
                   {t('story.changeVideo', {defaultValue: 'வீடியோ மாற்றவும்'})}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.deleteBtn,
+                  {
+                    backgroundColor: isDark ? '#3D1C1F' : '#FFEBEE',
+                    borderColor: isDark ? '#EF5350' : COLORS.accentRed,
+                    marginTop: 10,
+                  },
+                ]}
+                onPress={handleDeleteVideo}>
+                <Text
+                  style={[
+                    styles.deleteBtnTxt,
+                    {color: isDark ? '#FF9E9E' : COLORS.accentRed},
+                  ]}>
+                  🗑️{' '}
+                  {t('story.deleteVideo', {defaultValue: 'வீடியோவை நீக்கவும்'})}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -400,6 +455,18 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: rs(24),
     marginBottom: 4,
+  },
+  deleteBtn: {
+    borderRadius: RADIUS.lg,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteBtnTxt: {
+    fontWeight: 'bold',
+    fontSize: rs(FONTS.sm),
   },
 });
 
