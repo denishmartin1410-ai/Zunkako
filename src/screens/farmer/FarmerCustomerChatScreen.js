@@ -381,44 +381,64 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
     setDeleteModalVisible(true);
   };
 
-  const handleShareLocation = async () => {
-    try {
-      const {PermissionsAndroid, Platform} = require('react-native');
-      let granted = false;
-      if (Platform.OS === 'android') {
-        const res = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        );
-        granted = res === PermissionsAndroid.RESULTS.GRANTED;
-      } else {
-        granted = true;
-      }
-
-      if (!granted) {
-        Alert.alert(
-          t('common.error', {defaultValue: 'பிழை'}),
-          t('chat.locationPermissionErr', {
-            defaultValue: 'GPS permission denied',
-          }),
-        );
-        return;
-      }
-
-      const Geolocation = require('@react-native-community/geolocation');
-      Geolocation.getCurrentPosition(
-        async pos => {
-          const {latitude, longitude} = pos.coords;
-          const locMsg = `📍 Location: https://maps.google.com/?q=${latitude},${longitude}`;
-          await sendChatMessage(farmerId, consumerId, locMsg, 'farmer');
+  const handleShareLocation = () => {
+    Alert.alert(
+      t('chat.sendLocationTitle', {defaultValue: 'Share Location'}),
+      t('chat.sendLocationPrompt', {
+        defaultValue: 'Send your current location?',
+      }),
+      [
+        {
+          text: t('common.cancel', {defaultValue: 'Cancel'}),
+          style: 'cancel',
         },
-        err => {
-          Alert.alert(t('common.error', {defaultValue: 'பிழை'}), err.message);
+        {
+          text: t('common.send', {defaultValue: 'Send'}),
+          onPress: async () => {
+            try {
+              const {PermissionsAndroid, Platform} = require('react-native');
+              let granted = false;
+              if (Platform.OS === 'android') {
+                const res = await PermissionsAndroid.request(
+                  PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                );
+                granted = res === PermissionsAndroid.RESULTS.GRANTED;
+              } else {
+                granted = true;
+              }
+
+              if (!granted) {
+                Alert.alert(
+                  t('common.error', {defaultValue: 'பிழை'}),
+                  t('chat.locationPermissionErr', {
+                    defaultValue: 'GPS permission denied',
+                  }),
+                );
+                return;
+              }
+
+              const Geolocation = require('@react-native-community/geolocation');
+              Geolocation.getCurrentPosition(
+                async pos => {
+                  const {latitude, longitude} = pos.coords;
+                  const locMsg = `📍 Location: https://maps.google.com/?q=${latitude},${longitude}`;
+                  await sendChatMessage(farmerId, consumerId, locMsg, 'farmer');
+                },
+                err => {
+                  Alert.alert(
+                    t('common.error', {defaultValue: 'பிழை'}),
+                    err.message,
+                  );
+                },
+                {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+              );
+            } catch (e) {
+              console.log('Share location error:', e);
+            }
+          },
         },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-      );
-    } catch (e) {
-      console.log('Share location error:', e);
-    }
+      ],
+    );
   };
 
   return (

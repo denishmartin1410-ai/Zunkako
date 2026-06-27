@@ -315,6 +315,7 @@
     "getLocationBtn": "📍 Link GPS Location",
     "locationAdded": "✅ GPS Location Linked",
     "locationMissing": "❌ GPS Location Missing (Important)",
+    "gpsLocation": "GPS Location",
     "locationCoordsRequired": "Please link your GPS Location for delivery!"
   },
   "harvestCalendar": {

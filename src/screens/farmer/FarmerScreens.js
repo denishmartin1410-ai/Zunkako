@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Linking,
   PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -563,9 +564,10 @@ export const AddProductScreen = ({navigation}) => {
   const [longitude, setLongitude] = useState(null);
   const [locStatus, setLocStatus] = useState('fetching'); // fetching, success, error
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      try {
+  const fetchLocation = async () => {
+    setLocStatus('fetching');
+    try {
+      if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
@@ -592,18 +594,34 @@ export const AddProductScreen = ({navigation}) => {
               setLocStatus('error');
               console.log('Location error:', error);
             },
-            {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
+            {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
           );
         } else {
           setLocStatus('error');
         }
-      } catch (err) {
-        setLocStatus('error');
-        console.warn(err);
+      } else {
+        Geolocation.getCurrentPosition(
+          position => {
+            setLatitude(position.coords.latitude);
+            setLongitude(position.coords.longitude);
+            setLocStatus('success');
+          },
+          error => {
+            setLocStatus('error');
+          },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+        );
       }
-    };
+    } catch (err) {
+      setLocStatus('error');
+      console.warn(err);
+    }
+  };
+
+  useEffect(() => {
     fetchLocation();
-  }, [t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const units = ['kg', 'g', 'piece', 'dozen', 'bunch', 'litre'];
   const categories = [
@@ -1025,7 +1043,8 @@ export const AddProductScreen = ({navigation}) => {
           })}
         </ScrollView>
 
-        <View
+        <TouchableOpacity
+          onPress={fetchLocation}
           style={{
             marginBottom: SPACING.xl,
             padding: SPACING.md,
@@ -1055,7 +1074,7 @@ export const AddProductScreen = ({navigation}) => {
                   })}
             </Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={S.submitBtn}
@@ -1093,11 +1112,60 @@ export const EditProductScreen = ({route, navigation}) => {
 
   const handleSave = async () => {
     setIsSaving(true);
+
+    // Fetch fresh coordinates before saving to confirm live location
+    const loc = await new Promise(resolve => {
+      try {
+        if (Platform.OS === 'android') {
+          PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          )
+            .then(granted => {
+              if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                Geolocation.getCurrentPosition(
+                  pos =>
+                    resolve({
+                      lat: pos.coords.latitude,
+                      lng: pos.coords.longitude,
+                    }),
+                  () => resolve(null),
+                  {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+                );
+              } else {
+                resolve(null);
+              }
+            })
+            .catch(() => resolve(null));
+        } else {
+          Geolocation.getCurrentPosition(
+            pos =>
+              resolve({lat: pos.coords.latitude, lng: pos.coords.longitude}),
+            () => resolve(null),
+            {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+          );
+        }
+      } catch (e) {
+        resolve(null);
+      }
+    });
+
+    if (!loc) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('farmer.locationError', {
+          defaultValue: 'இருப்பிடத்தை பெற முடியவில்லை. GPS ஆன் செய்யவும்.',
+        }),
+      );
+      setIsSaving(false);
+      return;
+    }
+
     try {
       const {updateProduct} = require('../../services/firebase');
       const r = await updateProduct(product.id, {
         price: parseFloat(price),
         stock: parseInt(stock, 10),
+        coordinates: loc,
       });
       setIsSaving(false);
       if (r.success) {

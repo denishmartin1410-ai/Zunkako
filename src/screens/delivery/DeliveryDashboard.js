@@ -53,9 +53,10 @@ const DeliveryDashboard = () => {
   const {t} = useTranslation();
   const {user, logout} = useAuth();
   const [orders, setOrders] = useState([]);
+  const [availableOrders, setAvailableOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState('available');
 
   const deliveryBoyId = user?.id || user?.uid;
 
@@ -70,7 +71,13 @@ const DeliveryDashboard = () => {
       o.status,
     ),
   );
-  const displayOrders = activeTab === 'active' ? activeOrders : completedOrders;
+
+  const displayOrders =
+    activeTab === 'available'
+      ? availableOrders
+      : activeTab === 'active'
+      ? activeOrders
+      : completedOrders;
 
   // Get current location initially
   useEffect(() => {
@@ -170,6 +177,7 @@ const DeliveryDashboard = () => {
         Geolocation.clearWatch(watchId);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryBoyId, activeOrders.length]);
 
   // Listen to assigned orders
@@ -205,6 +213,33 @@ const DeliveryDashboard = () => {
     return unsubscribe;
   }, [deliveryBoyId]);
 
+  // Listen to unassigned confirmed orders (Available)
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('orders')
+      .where('status', '==', 'Confirmed')
+      .onSnapshot(
+        snap => {
+          if (snap) {
+            const list = snap.docs
+              .map(doc => ({id: doc.id, ...doc.data()}))
+              .filter(o => !o.deliveryBoyId)
+              .sort((a, b) => {
+                const tA = a.createdAt?.toMillis?.() || 0;
+                const tB = b.createdAt?.toMillis?.() || 0;
+                return tB - tA;
+              });
+            setAvailableOrders(list);
+          }
+        },
+        error => {
+          console.log('Available orders error:', error.message);
+        },
+      );
+
+    return unsubscribe;
+  }, []);
+
   // Open Google Maps navigation
   const navigateToLocation = (lat, lng, label = 'Destination') => {
     if (!lat || !lng) {
@@ -224,6 +259,48 @@ const DeliveryDashboard = () => {
         `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
       );
     });
+  };
+
+  // Accept unassigned delivery order
+  const handleAcceptOrder = async order => {
+    Alert.alert(
+      t('delivery.acceptTitle', {defaultValue: 'Accept Order'}),
+      t('delivery.acceptConfirm', {
+        defaultValue: 'Do you want to accept this delivery order?',
+      }),
+      [
+        {text: t('common.cancel', {defaultValue: 'Cancel'}), style: 'cancel'},
+        {
+          text: t('common.yes', {defaultValue: 'Yes'}),
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await firestore()
+                .collection('orders')
+                .doc(order.id)
+                .update({
+                  deliveryBoyId: deliveryBoyId,
+                  deliveryBoyName: user?.name || user?.email || 'Partner',
+                  deliveryBoyPhone: user?.phone || '',
+                  updatedAt: firestore.FieldValue.serverTimestamp(),
+                });
+
+              Alert.alert(
+                t('common.success', {defaultValue: 'Success'}),
+                t('delivery.acceptedMsg', {
+                  defaultValue: 'Order accepted! Go to Active tab to navigate.',
+                }),
+              );
+              setActiveTab('active');
+            } catch (e) {
+              Alert.alert('Error', e.message);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   // Update order status
@@ -294,6 +371,8 @@ const DeliveryDashboard = () => {
       defaultValue: item.status,
     });
 
+    const isAvailableTab = activeTab === 'available';
+
     return (
       <View style={styles.card}>
         {/* Header */}
@@ -325,142 +404,161 @@ const DeliveryDashboard = () => {
           </View>
         </View>
 
-        {/* Farmer info - Pickup */}
-        {item.status === 'Confirmed' ? (
-          <View style={styles.locationCard}>
-            <Text style={styles.locationLabel}>
-              🧑‍🌾 {t('delivery.pickupFrom', {defaultValue: 'PICKUP FROM'})}
-            </Text>
-            <Text style={styles.locationName}>
-              {item.farmerName || 'Farmer'}
-            </Text>
-            {item.farmerPhone ? (
-              <Text style={styles.locationPhone}>📞 {item.farmerPhone}</Text>
-            ) : null}
-            {item.farmerLocation ? (
-              <Text style={styles.locationAddr}>{item.farmerLocation}</Text>
-            ) : null}
-            <TouchableOpacity
-              style={[styles.navBtn, {backgroundColor: '#E3F2FD'}]}
-              onPress={() =>
-                navigateToLocation(
-                  item.farmerCoords?.lat || item.farmerCoords?.latitude,
-                  item.farmerCoords?.lng || item.farmerCoords?.longitude,
-                  'Farmer',
-                )
-              }>
-              <Text style={[styles.navBtnTxt, {color: '#1565C0'}]}>
-                {t('delivery.navigateFarmer', {
-                  defaultValue: '🗺️ Navigate to Farmer',
-                })}
+        {isAvailableTab ? (
+          // AVAILABLE TAB: Accept Delivery card
+          <View>
+            <View style={styles.locationCard}>
+              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP AREA</Text>
+              <Text style={styles.locationName}>
+                {item.farmerName || 'Farmer'}
               </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View
-            style={[
-              styles.locationCard,
-              {borderLeftColor: '#F44336', backgroundColor: '#FFEBEE'},
-            ]}>
-            <Text style={styles.locationLabel}>
-              🧑‍🌾 {t('delivery.pickupFrom', {defaultValue: 'PICKUP FROM'})}
-            </Text>
-            <Text style={[styles.locationName, {color: '#C62828'}]}>
-              🚫{' '}
-              {t('delivery.connectionCut', {
-                defaultValue: 'Farmer connection cut (Item Purchased)',
-              })}
-            </Text>
-          </View>
-        )}
-
-        {/* Customer info - Delivery */}
-        {item.status !== 'Confirmed' ? (
-          <View style={styles.locationCard}>
-            <Text style={styles.locationLabel}>
-              🏠 {t('delivery.deliverTo', {defaultValue: 'DELIVER TO'})}
-            </Text>
-            <Text style={styles.locationName}>
-              {item.consumerName || 'Customer'}
-            </Text>
-            {item.consumerPhone ? (
-              <Text style={styles.locationPhone}>📞 {item.consumerPhone}</Text>
-            ) : null}
-            <Text style={styles.locationAddr}>
-              {item.deliveryAddress || 'No address'}
-            </Text>
-            {item.deliveryPincode && (
               <Text style={styles.locationAddr}>
-                PIN: {item.deliveryPincode}
+                {item.farmerLocation || 'Farmer location not specified'}
               </Text>
-            )}
+            </View>
+
+            <View style={styles.itemsBox}>
+              <Text style={styles.itemsTitle}>
+                📋 {t('delivery.items', {defaultValue: 'Items'})} (
+                {(item.items || []).length})
+              </Text>
+              {(item.items || []).map((itm, idx) => (
+                <Text key={idx} style={styles.itemLine}>
+                  • {itm.nameTa || itm.name} x{itm.quantity}
+                </Text>
+              ))}
+              <Text style={styles.totalLine}>
+                💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
+                {item.total}
+              </Text>
+            </View>
+
             <TouchableOpacity
-              style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
-              onPress={() =>
-                navigateToLocation(
-                  item.consumerCoords?.lat || item.consumerCoords?.latitude,
-                  item.consumerCoords?.lng || item.consumerCoords?.longitude,
-                  'Customer',
-                )
-              }>
-              <Text style={[styles.navBtnTxt, {color: '#2E7D32'}]}>
-                {t('delivery.navigateCustomer', {
-                  defaultValue: '🗺️ Navigate to Customer',
-                })}
-              </Text>
+              style={[styles.updateBtn, {backgroundColor: COLORS.primaryGreen}]}
+              onPress={() => handleAcceptOrder(item)}>
+              <Text style={styles.updateBtnTxt}>🤝 Accept Delivery</Text>
             </TouchableOpacity>
           </View>
         ) : (
-          <View
-            style={[
-              styles.locationCard,
-              {borderLeftColor: '#F44336', backgroundColor: '#FFEBEE'},
-            ]}>
-            <Text style={styles.locationLabel}>
-              🏠 {t('delivery.deliverTo', {defaultValue: 'DELIVER TO'})}
-            </Text>
-            <Text
+          // ACTIVE/COMPLETED TAB: Unified pickup/delivery cards
+          <View>
+            {/* Farmer Pickup Card */}
+            <View
               style={[
-                styles.locationName,
-                {color: '#C62828', fontSize: rs(13)},
+                styles.locationCard,
+                item.status !== 'Confirmed' && {opacity: 0.7},
               ]}>
-              🔒{' '}
-              {t('delivery.detailsLocked', {
-                defaultValue:
-                  'Customer details are locked until item is purchased.',
-              })}
-            </Text>
+              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP FROM (FARMER)</Text>
+              <Text style={styles.locationName}>
+                {item.farmerName || 'Farmer'}
+              </Text>
+              {item.farmerPhone ? (
+                <Text style={styles.locationPhone}>📞 {item.farmerPhone}</Text>
+              ) : null}
+              <Text style={styles.locationAddr}>
+                {item.farmerLocation || 'No address'}
+              </Text>
+
+              {item.status === 'Confirmed' ? (
+                <TouchableOpacity
+                  style={[styles.navBtn, {backgroundColor: '#E3F2FD'}]}
+                  onPress={() =>
+                    navigateToLocation(
+                      item.farmerCoords?.lat || item.farmerCoords?.latitude,
+                      item.farmerCoords?.lng || item.farmerCoords?.longitude,
+                      'Farmer',
+                    )
+                  }>
+                  <Text style={[styles.navBtnTxt, {color: '#1565C0'}]}>
+                    🗺️ Navigate to Farmer
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.stepCompletedLabel}>
+                  ✅ Picked Up from Farmer
+                </Text>
+              )}
+            </View>
+
+            {/* Customer Delivery Card */}
+            <View
+              style={[
+                styles.locationCard,
+                item.status === 'Confirmed' && {opacity: 0.7},
+              ]}>
+              <Text style={styles.locationLabel}>🏠 DELIVER TO (CUSTOMER)</Text>
+              <Text style={styles.locationName}>
+                {item.consumerName || 'Customer'}
+              </Text>
+              {item.consumerPhone ? (
+                <Text style={styles.locationPhone}>
+                  📞 {item.consumerPhone}
+                </Text>
+              ) : null}
+              <Text style={styles.locationAddr}>
+                {item.deliveryAddress || 'No address'}
+              </Text>
+              {item.deliveryPincode && (
+                <Text style={styles.locationAddr}>
+                  PIN: {item.deliveryPincode}
+                </Text>
+              )}
+
+              {item.status !== 'Confirmed' ? (
+                <TouchableOpacity
+                  style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
+                  onPress={() =>
+                    navigateToLocation(
+                      item.consumerCoords?.lat || item.consumerCoords?.latitude,
+                      item.consumerCoords?.lng ||
+                        item.consumerCoords?.longitude,
+                      'Customer',
+                    )
+                  }>
+                  <Text style={[styles.navBtnTxt, {color: '#2E7D32'}]}>
+                    🗺️ Navigate to Customer
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.stepLockedLabel}>
+                  🔒 Available after product pickup
+                </Text>
+              )}
+            </View>
+
+            {/* Items */}
+            <View style={styles.itemsBox}>
+              <Text style={styles.itemsTitle}>
+                📋 {t('delivery.items', {defaultValue: 'Items'})} (
+                {(item.items || []).length})
+              </Text>
+              {(item.items || []).map((itm, idx) => (
+                <Text key={idx} style={styles.itemLine}>
+                  • {itm.nameTa || itm.name} x{itm.quantity}
+                </Text>
+              ))}
+              <Text style={styles.totalLine}>
+                💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
+                {item.total}
+              </Text>
+            </View>
+
+            {/* Status Update Button */}
+            {statusConfig && (
+              <TouchableOpacity
+                style={[
+                  styles.updateBtn,
+                  {backgroundColor: statusConfig.color},
+                ]}
+                onPress={() => handleStatusUpdate(item, statusConfig.next)}>
+                <Text style={styles.updateBtnTxt}>
+                  {t(statusConfig.labelKey, {
+                    defaultValue: statusConfig.defaultLabel,
+                  })}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-        )}
-
-        {/* Items */}
-        <View style={styles.itemsBox}>
-          <Text style={styles.itemsTitle}>
-            📋 {t('delivery.items', {defaultValue: 'Items'})} (
-            {(item.items || []).length})
-          </Text>
-          {(item.items || []).map((itm, idx) => (
-            <Text key={idx} style={styles.itemLine}>
-              • {itm.nameTa || itm.name} x{itm.quantity}
-            </Text>
-          ))}
-          <Text style={styles.totalLine}>
-            💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
-            {item.total}
-          </Text>
-        </View>
-
-        {/* Status Update Button */}
-        {statusConfig && (
-          <TouchableOpacity
-            style={[styles.updateBtn, {backgroundColor: statusConfig.color}]}
-            onPress={() => handleStatusUpdate(item, statusConfig.next)}>
-            <Text style={styles.updateBtnTxt}>
-              {t(statusConfig.labelKey, {
-                defaultValue: statusConfig.defaultLabel,
-              })}
-            </Text>
-          </TouchableOpacity>
         )}
       </View>
     );
@@ -501,9 +599,9 @@ const DeliveryDashboard = () => {
             </Text>
           </View>
           <View style={styles.statBox}>
-            <Text style={styles.statNum}>{orders.length}</Text>
+            <Text style={styles.statNum}>{availableOrders.length}</Text>
             <Text style={styles.statLabel}>
-              {t('delivery.total', {defaultValue: 'Total'})}
+              {t('delivery.available', {defaultValue: 'Available'})}
             </Text>
           </View>
         </View>
@@ -512,6 +610,12 @@ const DeliveryDashboard = () => {
       {/* Tabs */}
       <View style={styles.tabRow}>
         {[
+          {
+            key: 'available',
+            label: `🤝 ${t('delivery.available', {
+              defaultValue: 'Available',
+            })} (${availableOrders.length})`,
+          },
           {
             key: 'active',
             label: `🟢 ${t('delivery.active', {defaultValue: 'Active'})} (${
@@ -557,18 +661,28 @@ const DeliveryDashboard = () => {
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Text style={styles.emptyEmoji}>
-                {activeTab === 'active' ? '🚚' : '📦'}
+                {activeTab === 'available'
+                  ? '🤝'
+                  : activeTab === 'active'
+                  ? '🚚'
+                  : '📦'}
               </Text>
               <Text style={styles.emptyTitle}>
-                {activeTab === 'active'
+                {activeTab === 'available'
+                  ? t('delivery.noAvailable', {
+                      defaultValue: 'No available orders',
+                    })
+                  : activeTab === 'active'
                   ? t('orders.noOrders', {defaultValue: 'No active deliveries'})
                   : t('orders.noOrders', {
                       defaultValue: 'No completed deliveries',
                     })}
               </Text>
               <Text style={styles.emptyMsg}>
-                {activeTab === 'active'
-                  ? 'New orders will appear here when assigned to you'
+                {activeTab === 'available'
+                  ? 'Confirmed orders waiting for delivery will appear here'
+                  : activeTab === 'active'
+                  ? 'New orders will appear here when accepted/assigned'
                   : 'Completed deliveries will show here'}
               </Text>
             </View>
@@ -704,6 +818,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navBtnTxt: {fontSize: rs(FONTS.sm), fontWeight: 'bold'},
+  stepCompletedLabel: {
+    fontSize: rs(FONTS.xs),
+    fontWeight: 'bold',
+    color: '#2E7D32',
+    marginTop: SPACING.sm,
+    backgroundColor: '#E8F5E9',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.md,
+    alignSelf: 'flex-start',
+  },
+  stepLockedLabel: {
+    fontSize: rs(FONTS.xs),
+    fontWeight: 'bold',
+    color: COLORS.textMuted,
+    marginTop: SPACING.sm,
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: RADIUS.md,
+    alignSelf: 'flex-start',
+  },
 
   // Items
   itemsBox: {

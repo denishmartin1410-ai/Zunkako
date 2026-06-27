@@ -85,7 +85,7 @@ const CheckoutScreen = ({navigation}) => {
                     lng: pos.coords.longitude,
                   }),
                 () => resolve(null),
-                {enableHighAccuracy: true, timeout: 10000, maximumAge: 10000},
+                {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
               );
             })
             .catch(() => resolve(null));
@@ -94,7 +94,7 @@ const CheckoutScreen = ({navigation}) => {
             pos =>
               resolve({lat: pos.coords.latitude, lng: pos.coords.longitude}),
             () => resolve(null),
-            {enableHighAccuracy: true, timeout: 10000, maximumAge: 10000},
+            {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
           );
         }
       } catch (e) {
@@ -372,7 +372,7 @@ const CheckoutScreen = ({navigation}) => {
           <View style={styles.formField}>
             <Text style={[styles.formLabel, {color: themeColors.subText}]}>
               {t('checkout.gpsLocation', {
-                defaultValue: 'GPS இருப்பிடம் / GPS Location',
+                defaultValue: 'GPS Location',
               })}{' '}
               *
             </Text>

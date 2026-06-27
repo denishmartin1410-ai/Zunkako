@@ -303,7 +303,8 @@
     "getLocationBtn": "📍 GPS ലൊക്കേഷൻ ലിങ്ക് ചെയ്യുക",
     "locationAdded": "✅ GPS ലൊക്കേഷൻ ലിങ്ക് ചെയ്തു",
     "locationMissing": "❌ GPS ലൊക്കേഷൻ ഇല്ല (ബിൽഡിന് വളരെ പ്രധാനം)",
-    "locationCoordsRequired": "ഡെലിവറി സുഗമമാക്കാൻ ദയവായി നിങ്ങളുടെ ജിപിഎസ് ലൊക്കേഷൻ ലിങ്ക് ചെയ്യുക!"
+    "locationCoordsRequired": "ഡെലിവറി സുഗമമാക്കാൻ ദയവായി നിങ്ങളുടെ ജിപിഎസ് ലൊക്കേഷൻ ലിങ്ക് ചെയ്യുക!",
+    "gpsLocation": "GPS ലൊക്കേഷൻ"
   },
   "harvestCalendar": {
     "title": "വിളവെടുപ്പ് കലണ്ടർ",

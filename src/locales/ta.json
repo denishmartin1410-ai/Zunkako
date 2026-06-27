@@ -314,6 +314,7 @@
     "getLocationBtn": "📍 GPS இருப்பிடத்தை இணைக்கவும்",
     "locationAdded": "✅ GPS இருப்பிடம் இணைக்கப்பட்டது",
     "locationMissing": "❌ GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)",
+    "gpsLocation": "GPS இருப்பிடம்",
     "locationCoordsRequired": "விநியோகஸ்தருக்கு உதவ, தயவுசெய்து உங்கள் GPS இருப்பிடத்தை இணைக்கவும்!"
   },
   "harvestCalendar": {
