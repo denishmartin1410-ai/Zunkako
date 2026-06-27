@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>F2C Group Buy Gateway</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="F2C கூட்டு வாங்கல் குழு">
+  <meta property="og:description" content="குழுவில் இணைந்து 15-25% தள்ளுபடி + இலவச டெலிவரி பெறுங்கள்! 🎁">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding: 60px 20px;
+      background-color: #f9f9f9;
+      color: #2e7d32;
+    }
+    .card {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+      border: 1px solid #e8f5e9;
+    }
+    .logo {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #1b5e20;
+    }
+    p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #4caf50;
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      margin-top: 20px;
+      box-shadow: 0 4px 10px rgba(76,175,80,0.3);
+      transition: background-color 0.2s;
+    }
+    .btn:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🌱</div>
+    <h2>F2C கூட்டு வாங்கல்</h2>
+    <p>உங்களை F2C குழுவில் இணைய அழைக்கிறார்கள்!</p>
+    <p id="status">ஆப் திறக்கப்படுகிறது, தயவுசெய்து காத்திருக்கவும்...</p>
+    <a id="app-link" href="#" class="btn">ஆப் திறக்க கிளிக் செய்க</a>
+  </div>
+
+  <script>
+    // Extract groupId from url path
+    const pathParts = window.location.pathname.split('/');
+    let groupId = '';
+    const groupBuyIndex = pathParts.indexOf('groupbuy');
+    if (groupBuyIndex !== -1 && pathParts[groupBuyIndex + 1]) {
+      groupId = pathParts[groupBuyIndex + 1];
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      groupId = urlParams.get('id') || '';
+    }
+
+    if (groupId) {
+      const deepLink = `f2capp://groupbuy/${groupId}`;
+      document.getElementById('app-link').href = deepLink;
+      
+      // Auto redirect
+      window.location.href = deepLink;
+      
+      setTimeout(() => {
+        document.getElementById('status').innerText = "ஆப் திறக்கவில்லை எனில் மேலே உள்ள பொத்தானை அழுத்தவும் அல்லது F2C ஆப் இன்ஸ்டால் செய்யப்பட்டுள்ளதா என உறுதிப்படுத்தவும்.";
+      }, 2000);
+    } else {
+      document.getElementById('status').innerText = "தவறான குழு லிங்க்!";
+      document.getElementById('app-link').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

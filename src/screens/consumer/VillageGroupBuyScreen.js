@@ -77,7 +77,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
     group.members && group.members.includes(user?.uid || user?.id);
 
   const handleInvite = async () => {
-    const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: f2capp://groupbuy/${group.id}`;
+    const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: https://f2capp-e6c1d.web.app/groupbuy/${group.id}`;
     try {
       await Share.share({message: shareMsg});
     } catch (e) {}
@@ -388,7 +388,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
       const body = encodeURIComponent(
         `கூட்டு வாங்கல்: "${selectedGroupForAdd.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\n` +
           `Village Group Buy! Join "${selectedGroupForAdd.title}" to get 15-25% discount & free delivery!\n\n` +
-          `Join now: f2capp://groupbuy/${selectedGroupForAdd.id}`,
+          `Join now: https://f2capp-e6c1d.web.app/groupbuy/${selectedGroupForAdd.id}`,
       );
       const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
 
