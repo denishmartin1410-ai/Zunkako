@@ -200,7 +200,7 @@ export const FarmerDashboardScreen = ({navigation}) => {
               {t('home.greeting', {defaultValue: 'வணக்கம்! 👨‍🌾'})}
             </Text>
             <Text style={S.dashName} numberOfLines={1}>
-              {user?.name || t('farmer.farmer', {defaultValue: 'விவசாயி'})}
+              {user?.name || t('farmer.farmerLabel', {defaultValue: 'Farmer'})}
             </Text>
           </View>
           <View

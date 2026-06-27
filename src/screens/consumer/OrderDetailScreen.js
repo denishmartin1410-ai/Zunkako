@@ -597,7 +597,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {order.farmerName && (
           <View style={styles.farmerCard}>
             <Text style={styles.sectionTitle}>
-              👨‍🌾 {t('farmer.farmer', {defaultValue: 'விவசாயி'})}
+              👨‍🌾 {t('farmer.farmerLabel', {defaultValue: 'Farmer'})}
             </Text>
             <Text style={styles.farmerName}>
               {i18n.language === 'ta'
