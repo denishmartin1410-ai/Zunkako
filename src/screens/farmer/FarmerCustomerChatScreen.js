@@ -270,8 +270,7 @@ export const FarmerChatListScreen = ({navigation}) => {
             const customerName =
               customer.name ||
               customer.nameTa ||
-              item.consumerId?.slice(0, 8) ||
-              'Customer';
+              t('common.loading', {defaultValue: 'Loading...'});
             return (
               <TouchableOpacity
                 style={[
@@ -296,14 +295,19 @@ export const FarmerChatListScreen = ({navigation}) => {
                 />
                 <View style={styles.chatInfo}>
                   <View style={styles.chatInfoTop}>
-                    <Text style={[styles.chatName, {color: themeColors.text}]} numberOfLines={1}>
+                    <Text
+                      style={[styles.chatName, {color: themeColors.text}]}
+                      numberOfLines={1}>
                       {customerName}
                     </Text>
-                    <Text style={[styles.chatTime, {color: themeColors.textMuted}]}>
+                    <Text
+                      style={[styles.chatTime, {color: themeColors.textMuted}]}>
                       {getTimeAgo(item.lastMessageTime)}
                     </Text>
                   </View>
-                  <Text style={[styles.chatLastMsg, {color: themeColors.subText}]} numberOfLines={1}>
+                  <Text
+                    style={[styles.chatLastMsg, {color: themeColors.subText}]}
+                    numberOfLines={1}>
                     {item.lastSenderId === farmerId ? '✓ ' : ''}
                     {item.lastMessage ||
                       t('chat.startChatting', {

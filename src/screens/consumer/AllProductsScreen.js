@@ -73,19 +73,91 @@ const AvatarView = ({uri, name, size = 50, style}) => {
   );
 };
 
-const getProductFallbackStats = (id) => {
-  if (!id) return { discountPercent: 0, rating: 4.5 };
+const getProductFallbackStats = product => {
+  if (!product) {
+    return {discountPercent: 10, rating: 4.5};
+  }
+  const id = product.id || '';
+  const nameEn = (product.nameEn || product.name || '').toLowerCase();
+  const category = (product.category || '').toLowerCase();
+
+  // 1. Generate a stable hash from product ID/name for rating variation
   let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  const seedString = id + nameEn;
+  for (let i = 0; i < seedString.length; i++) {
+    hash = seedString.charCodeAt(i) + ((hash << 5) - hash);
   }
   const positiveHash = Math.abs(hash);
-  const discounts = [10, 15, 20, 25, 30];
-  const ratings = [4.1, 4.3, 4.5, 4.7, 4.8];
-  return {
-    discountPercent: discounts[positiveHash % discounts.length],
-    rating: ratings[positiveHash % ratings.length],
-  };
+
+  // 2. Select realistic ratings based on hash
+  const ratings = [4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9];
+  const rating = ratings[positiveHash % ratings.length];
+
+  // 3. Determine highly realistic discount based on product name/category
+  let discountPercent = 10; // default fallback
+
+  if (category === 'dairy') {
+    const dairyDiscounts = [3, 5, 8];
+    discountPercent = dairyDiscounts[positiveHash % dairyDiscounts.length];
+  } else if (category === 'greens') {
+    const greensDiscounts = [5, 8, 10];
+    discountPercent = greensDiscounts[positiveHash % greensDiscounts.length];
+  } else if (category === 'fruits') {
+    const fruitsDiscounts = [10, 12, 15, 18, 20];
+    discountPercent = fruitsDiscounts[positiveHash % fruitsDiscounts.length];
+  } else if (category === 'nuts' || category === 'handicrafts') {
+    const premiumDiscounts = [12, 15, 18, 20, 25];
+    discountPercent = premiumDiscounts[positiveHash % premiumDiscounts.length];
+  } else {
+    if (
+      nameEn.includes('onion') ||
+      nameEn.includes('வெங்காயம்') ||
+      nameEn.includes('ഉള്ളി')
+    ) {
+      discountPercent = 10;
+    } else if (
+      nameEn.includes('tomato') ||
+      nameEn.includes('தக்காளி') ||
+      nameEn.includes('തക്കാളി')
+    ) {
+      discountPercent = 12;
+    } else if (
+      nameEn.includes('potato') ||
+      nameEn.includes('உருளை') ||
+      nameEn.includes('ഉരുളക്കിഴങ്ങ്')
+    ) {
+      discountPercent = 15;
+    } else if (
+      nameEn.includes('carrot') ||
+      nameEn.includes('கேரட்') ||
+      nameEn.includes('കാരറ്റ്')
+    ) {
+      discountPercent = 8;
+    } else if (
+      nameEn.includes('garlic') ||
+      nameEn.includes('பூண்டு') ||
+      nameEn.includes('വെളുത്തുള്ളി')
+    ) {
+      discountPercent = 5;
+    } else if (
+      nameEn.includes('brinjal') ||
+      nameEn.includes('கத்தரிக்காய்') ||
+      nameEn.includes('വഴുതനങ്ങ')
+    ) {
+      discountPercent = 14;
+    } else if (
+      nameEn.includes('drumstick') ||
+      nameEn.includes('முருங்கை') ||
+      nameEn.includes('മുരിങ്ങക്കായ')
+    ) {
+      discountPercent = 18;
+    } else {
+      const vegDiscounts = [8, 10, 12, 15, 16, 18];
+      discountPercent = vegDiscounts[positiveHash % vegDiscounts.length];
+    }
+  }
+
+  return {discountPercent, rating};
 };
 
 const AllProductsScreen = ({navigation}) => {
@@ -294,7 +366,7 @@ const AllProductsScreen = ({navigation}) => {
                       i18n.language,
                     );
                     const cp = getConsumerPrice(p.price);
-                    const stats = getProductFallbackStats(p.id);
+                    const stats = getProductFallbackStats(p);
                     const dbOriginalPrice = p.originalPrice || p.price;
                     const dbHasDiscount = dbOriginalPrice > p.price;
                     const discountPercent = dbHasDiscount
@@ -307,9 +379,10 @@ const AllProductsScreen = ({navigation}) => {
                       ? dbOriginalPrice
                       : Math.round(p.price / (1 - discountPercent / 100));
 
-                    const rating = (p.rating && parseFloat(p.rating) > 0)
-                      ? parseFloat(p.rating).toFixed(1)
-                      : stats.rating.toFixed(1);
+                    const rating =
+                      p.rating && parseFloat(p.rating) > 0
+                        ? parseFloat(p.rating).toFixed(1)
+                        : stats.rating.toFixed(1);
                     const unit = p.unit || 'kg';
                     const isSoldOut =
                       p.stock !== undefined && p.stock !== null && p.stock <= 0;

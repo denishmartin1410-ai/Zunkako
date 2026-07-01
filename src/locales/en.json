@@ -389,7 +389,9 @@
     "inviteSuccessMsg": "Invitation email successfully sent to {{email}}! They have been added to the group and notified that {{organizer}} added them.",
     "invalidEmail": "Invalid email format",
     "delivery": "Delivery",
-    "deadline": "Deadline"
+    "deadline": "Deadline",
+    "groupCreatedTitle": "✅ Group Created!",
+    "groupCreatedDesc": "Your group buy has been successfully created!"
   },
   "freshness": {
     "title": "Freshness Tracker",
@@ -569,7 +571,11 @@
     "markDelivered": "🎉 Item Delivered",
     "connectionCut": "Farmer connection cut (Item Purchased)",
     "detailsLocked": "Customer details are locked until item is purchased.",
-    "phoneHidden": "Farmer Contact Hidden"
+    "phoneHidden": "Farmer Contact Hidden",
+    "acceptTitle": "Accept Order",
+    "acceptConfirm": "Do you want to accept this delivery order?",
+    "acceptDeliveryBtn": "🤝 Accept Delivery",
+    "acceptedMsg": "Order accepted! Go to Active tab to navigate."
   },
   "authAlerts": {
     "noAccountTitle": "❌ No Account Found",

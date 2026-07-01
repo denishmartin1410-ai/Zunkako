@@ -436,7 +436,11 @@ const DeliveryDashboard = () => {
             <TouchableOpacity
               style={[styles.updateBtn, {backgroundColor: COLORS.primaryGreen}]}
               onPress={() => handleAcceptOrder(item)}>
-              <Text style={styles.updateBtnTxt}>🤝 Accept Delivery</Text>
+              <Text style={styles.updateBtnTxt}>
+                {t('delivery.acceptDeliveryBtn', {
+                  defaultValue: '🤝 Accept Delivery',
+                })}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (

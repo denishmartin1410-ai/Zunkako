@@ -106,7 +106,10 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
       {isHighlighted && (
         <View style={styles.highlightBadge}>
           <Text style={styles.highlightBadgeTxt}>
-            🎯 {t('groupBuy.invitedGroup', {defaultValue: 'Invited Group / அழைக்கப்பட்ட குழு'})}
+            🎯{' '}
+            {t('groupBuy.invitedGroup', {
+              defaultValue: 'Invited Group / அழைக்கப்பட்ட குழு',
+            })}
           </Text>
         </View>
       )}
@@ -556,11 +559,13 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
 
     if (res.success) {
       Alert.alert(
-        '✅ குழு உருவாக்கப்பட்டது!',
-        'உங்கள் கூட்டு வாங்கல் குழு வெற்றிகரமாக உருவாக்கப்பட்டது!\nYour group has been created!',
+        t('groupBuy.groupCreatedTitle', {defaultValue: '✅ Group Created!'}),
+        t('groupBuy.groupCreatedDesc', {
+          defaultValue: 'Your group buy has been successfully created!',
+        }),
         [
           {
-            text: 'சரி / OK',
+            text: t('common.ok', {defaultValue: 'OK'}),
             onPress: () => {
               setShowCreate(false);
               setNewGroup({title: '', location: '', targetMembers: '5'});
