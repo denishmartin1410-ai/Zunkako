@@ -479,7 +479,8 @@
     "attendance": "Attendance",
     "confirmBtn": "Yes",
     "member_one": "Member",
-    "member_other": "Members"
+    "member_other": "Members",
+    "noFarms": "No farm visits available at the moment."
   },
   "story": {
     "title": "Share your farm story!",

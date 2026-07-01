@@ -428,7 +428,8 @@
     "attendance": "സന്ദർശനം ബുക്ക് ചെയ്യുക",
     "confirmBtn": "അതെ",
     "member_one": "പേർ",
-    "member_other": "പേർ"
+    "member_other": "പേർ",
+    "noFarms": "നിലവിൽ ഫാം സന്ദർശനങ്ങൾ ഒന്നും ലഭ്യമല്ല."
   },
   "notification": {
     "title": "അറിയിപ്പുകൾ",

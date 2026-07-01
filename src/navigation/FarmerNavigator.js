@@ -164,12 +164,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 8,
     minWidth: 50,
-    maxWidth: 72,
   },
   tabEmoji: {fontSize: 22, opacity: 0.5},
   tabEmojiActive: {opacity: 1},
   tabLabel: {
-    fontSize: FONTS.xs,
+    fontSize: 10.5,
     color: COLORS.textMuted,
     marginTop: 2,
     textAlign: 'center',

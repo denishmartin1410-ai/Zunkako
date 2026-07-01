@@ -450,7 +450,7 @@ export const MyProductsScreen = ({navigation}) => {
           </Text>
         </TouchableOpacity>
       </LinearGradient>
-      {isLoading ? (
+      {isLoading && myProducts.length === 0 ? (
         <ActivityIndicator
           color={COLORS.primaryGreen}
           size="large"

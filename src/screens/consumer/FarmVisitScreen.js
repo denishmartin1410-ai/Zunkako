@@ -290,7 +290,9 @@ const FarmVisitScreen = ({navigation}) => {
           <FastImage source={{uri: farm.avatar}} style={styles.farmAvatar} />
           <View>
             <Text style={styles.farmerNameOnImg}>{farm.farmerName}</Text>
-            <Text style={styles.farmerNameEnOnImg}>{farm.farmerNameEn}</Text>
+            {farm.farmerName !== farm.farmerNameEn && farm.farmerNameEn ? (
+              <Text style={styles.farmerNameEnOnImg}>{farm.farmerNameEn}</Text>
+            ) : null}
           </View>
         </View>
       </View>
@@ -640,7 +642,7 @@ const FarmVisitScreen = ({navigation}) => {
               color: themeColors.textMuted,
             }}>
             {t('farmVisit.noFarms', {
-              defaultValue
+              defaultValue: 'தற்போது பண்ணை வருகைகள் எதுவும் இல்லை. / No farm visits available at the moment.',
             })}
           </Text>
         ) : (
