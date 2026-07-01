@@ -414,9 +414,13 @@ const RegisterScreen = ({navigation}) => {
 
         {/* Login link */}
         <View style={styles.loginRow}>
-          <Text style={styles.loginPrompt}>கணக்கு இருக்கிறதா? </Text>
+          <Text style={styles.loginPrompt}>
+            {t('login.haveAccount', {defaultValue: 'கணக்கு இருக்கிறதா? '})}
+          </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.loginLink}>உள்நுழைக / Login</Text>
+            <Text style={styles.loginLink}>
+              {t('login.loginLink', {defaultValue: 'உள்நுழைக'})}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

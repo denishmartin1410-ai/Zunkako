@@ -180,6 +180,8 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
 // ── Farmer Chat List (All Customer Conversations) ──
 export const FarmerChatListScreen = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
   const [chats, setChats] = useState([]);
   const [customerNames, setCustomerNames] = useState({});
@@ -241,7 +243,7 @@ export const FarmerChatListScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <View style={{flex: 1, marginLeft: SPACING.md}}>
@@ -271,7 +273,14 @@ export const FarmerChatListScreen = ({navigation}) => {
               'Customer';
             return (
               <TouchableOpacity
-                style={styles.chatListItem}
+                style={[
+                  styles.chatListItem,
+                  {
+                    backgroundColor: themeColors.cardBg,
+                    borderColor: themeColors.border,
+                    borderWidth: isDark ? 1 : 0,
+                  },
+                ]}
                 onPress={() =>
                   navigation.navigate('FarmerCustomerChatRoom', {
                     consumerId: item.consumerId,
@@ -286,14 +295,14 @@ export const FarmerChatListScreen = ({navigation}) => {
                 />
                 <View style={styles.chatInfo}>
                   <View style={styles.chatInfoTop}>
-                    <Text style={styles.chatName} numberOfLines={1}>
+                    <Text style={[styles.chatName, {color: themeColors.text}]} numberOfLines={1}>
                       {customerName}
                     </Text>
-                    <Text style={styles.chatTime}>
+                    <Text style={[styles.chatTime, {color: themeColors.textMuted}]}>
                       {getTimeAgo(item.lastMessageTime)}
                     </Text>
                   </View>
-                  <Text style={styles.chatLastMsg} numberOfLines={1}>
+                  <Text style={[styles.chatLastMsg, {color: themeColors.subText}]} numberOfLines={1}>
                     {item.lastSenderId === farmerId ? '✓ ' : ''}
                     {item.lastMessage ||
                       t('chat.startChatting', {

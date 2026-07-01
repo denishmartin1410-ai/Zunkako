@@ -130,7 +130,7 @@ const FeedbackScreen = ({navigation}) => {
             onPress: pickImage,
           },
           {
-            text: t('common.cancel', {defaultValue: 'Cancel'}),
+            text: t('feedback.cancel', {defaultValue: 'Cancel'}),
             style: 'cancel',
           },
         ],

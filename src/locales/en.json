@@ -23,6 +23,8 @@
     "otpLogin": "OTP Login",
     "noAccount": "No account? ",
     "registerLink": "Register",
+    "haveAccount": "Do you have an account? ",
+    "loginLink": "Login",
     "delivery": "Delivery",
     "deliverOrders": "Deliver orders",
     "buyFresh": "Buy fresh vegetables",
@@ -260,6 +262,7 @@
   "common": {
     "cancel": "No",
     "yes": "Yes",
+    "confirm": "Confirm",
     "save": "Save",
     "loading": "Loading...",
     "error": "Error",
@@ -491,6 +494,9 @@
     "videoReady": "Video ready!",
     "customersCanWatch": "Customers can watch now",
     "changeVideo": "Change Video",
+    "deleteVideo": "Delete Video",
+    "deleteConfirm": "Do you want to delete the video?",
+    "videoDeleted": "Video deleted successfully!",
     "uploadVideo": "Select video from gallery",
     "videoTooLarge": "Video must be under 50MB",
     "tips": "Tips",
@@ -640,7 +646,13 @@
     "placeholder": "Write your feedback here...",
     "attach": "Attach Screenshot / Document (Optional)",
     "submit": "Submit Feedback",
-    "success": "Thank you for your feedback!"
+    "success": "Thank you for your feedback!",
+    "attachmentOptions": "Attachment Options",
+    "attachmentAction": "What would you like to do with the attached file?",
+    "remove": "Remove",
+    "replace": "Replace",
+    "removedAttachment": "Attachment removed.",
+    "cancel": "Cancel"
   },
   "legal": {
     "terms": "Terms & Conditions",
