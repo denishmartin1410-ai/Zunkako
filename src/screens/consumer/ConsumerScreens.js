@@ -44,8 +44,8 @@ import {getCatName} from '../../utils/categoryHelper';
 
 const {width} = Dimensions.get('window');
 
-const getProductFallbackStats = (id) => {
-  if (!id) return { discountPercent: 0, rating: 4.5 };
+const getProductFallbackStats = id => {
+  if (!id) return {discountPercent: 0, rating: 4.5};
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
@@ -112,6 +112,190 @@ export const OrdersScreen = ({navigation}) => {
   const [preOrders, setPreOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [selectedPreOrder, setSelectedPreOrder] = useState(null);
+  const [cancelModalVisible, setCancelModalVisible] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [refundModalVisible, setRefundModalVisible] = useState(false);
+  const [refundReason, setRefundReason] = useState('');
+
+  const handleCancelPreOrder = order => {
+    setSelectedPreOrder(order);
+    setCancelReason('');
+    setCancelModalVisible(true);
+  };
+
+  const submitCancelPreOrder = async () => {
+    if (!cancelReason) {
+      Alert.alert('Error', 'Please select a reason');
+      return;
+    }
+    const order = selectedPreOrder;
+    if (!order) return;
+
+    setCancelModalVisible(false);
+    setIsLoading(true);
+    try {
+      const firestore = require('@react-native-firebase/firestore').default;
+      const uid = user?.id || user?.uid;
+
+      // Update preorder status to Cancelled
+      await firestore()
+        .collection('harvests')
+        .doc(order.harvestId)
+        .collection('preOrders')
+        .doc(uid)
+        .update({
+          status: 'Cancelled',
+          cancelledAt: firestore.FieldValue.serverTimestamp(),
+          cancelReason: cancelReason,
+        });
+
+      // Decrement totalPreOrders on the harvest doc
+      await firestore()
+        .collection('harvests')
+        .doc(order.harvestId)
+        .update({
+          totalPreOrders: firestore.FieldValue.increment(-1),
+        });
+
+      // Notify customer
+      await firestore()
+        .collection('notifications')
+        .doc(uid)
+        .collection('items')
+        .add({
+          userId: uid,
+          title: t('notification.preOrderCancelledTitle', {
+            defaultValue: 'Pre-Order Cancelled',
+          }),
+          message: `Your pre-order for ${
+            order.nameEn || order.name
+          } has been cancelled.`,
+          emoji: '❌',
+          bgColor: '#FFEBEE',
+          isRead: false,
+          type: 'preorder_cancelled',
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Notify farmer
+      if (order.farmerId) {
+        await firestore()
+          .collection('notifications')
+          .doc(order.farmerId)
+          .collection('items')
+          .add({
+            userId: order.farmerId,
+            title: t('notification.preOrderCancelledTitle', {
+              defaultValue: 'Pre-Order Cancelled',
+            }),
+            message: `Pre-order for ${
+              order.nameEn || order.name
+            } has been cancelled by the customer. Reason: ${cancelReason}`,
+            emoji: '❌',
+            bgColor: '#FFEBEE',
+            isRead: false,
+            type: 'preorder_cancelled',
+            createdAt: firestore.FieldValue.serverTimestamp(),
+          });
+      }
+
+      Alert.alert('Success', 'Pre-Order cancelled successfully!');
+
+      // Refresh list
+      const r = await getConsumerPreOrders(uid);
+      setPreOrders(Array.isArray(r?.data) ? r.data : []);
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    }
+    setIsLoading(false);
+  };
+
+  const handleRefundPreOrder = order => {
+    setSelectedPreOrder(order);
+    setRefundReason('');
+    setRefundModalVisible(true);
+  };
+
+  const submitRefundPreOrder = async () => {
+    if (!refundReason) {
+      Alert.alert('Error', 'Please select a reason');
+      return;
+    }
+    const order = selectedPreOrder;
+    if (!order) return;
+
+    setRefundModalVisible(false);
+    setIsLoading(true);
+    try {
+      const firestore = require('@react-native-firebase/firestore').default;
+      const uid = user?.id || user?.uid;
+
+      // Update preorder status to Refund Requested
+      await firestore()
+        .collection('harvests')
+        .doc(order.harvestId)
+        .collection('preOrders')
+        .doc(uid)
+        .update({
+          status: 'Refund Requested',
+          refundRequestedAt: firestore.FieldValue.serverTimestamp(),
+          refundReason: refundReason,
+        });
+
+      // Notify customer
+      await firestore()
+        .collection('notifications')
+        .doc(uid)
+        .collection('items')
+        .add({
+          userId: uid,
+          title: t('notification.refundRequestedTitle', {
+            defaultValue: 'Refund Requested',
+          }),
+          message: `Your refund request for ${
+            order.nameEn || order.name
+          } pre-order has been submitted.`,
+          emoji: '💸',
+          bgColor: '#FFEBEE',
+          isRead: false,
+          type: 'preorder_refund_requested',
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      // Notify farmer
+      if (order.farmerId) {
+        await firestore()
+          .collection('notifications')
+          .doc(order.farmerId)
+          .collection('items')
+          .add({
+            userId: order.farmerId,
+            title: t('notification.refundRequestedTitle', {
+              defaultValue: 'Refund Requested',
+            }),
+            message: `Refund requested for pre-order ${
+              order.nameEn || order.name
+            }. Reason: ${refundReason}`,
+            emoji: '💸',
+            bgColor: '#FFEBEE',
+            isRead: false,
+            type: 'preorder_refund_requested',
+            createdAt: firestore.FieldValue.serverTimestamp(),
+          });
+      }
+
+      Alert.alert('Success', 'Refund request submitted successfully!');
+
+      // Refresh list
+      const r = await getConsumerPreOrders(uid);
+      setPreOrders(Array.isArray(r?.data) ? r.data : []);
+    } catch (e) {
+      Alert.alert('Error', e.message);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     const load = async () => {
       const uid = user?.id || user?.uid;
@@ -154,9 +338,11 @@ export const OrdersScreen = ({navigation}) => {
           completedAt: firestore.FieldValue.serverTimestamp(),
         });
 
-      // Add user notification
+      // Add user notification to correct sub-collection path
       await firestore()
         .collection('notifications')
+        .doc(uid)
+        .collection('items')
         .add({
           userId: uid,
           title: '🎉 Pre-Order Completed!',
@@ -165,10 +351,32 @@ export const OrdersScreen = ({navigation}) => {
           } receipt has been confirmed. Thank you!`,
           emoji: '🎉',
           bgColor: '#E8F5E9',
-          read: false,
+          isRead: false,
           type: 'preorder_completed',
           createdAt: firestore.FieldValue.serverTimestamp(),
         });
+
+      // Notify farmer
+      if (order.farmerId) {
+        await firestore()
+          .collection('notifications')
+          .doc(order.farmerId)
+          .collection('items')
+          .add({
+            userId: order.farmerId,
+            title: '🎉 Pre-Order Completed!',
+            message: `Customer ${
+              order.deliveryName || user.name || 'User'
+            } has marked pre-ordered crop ${
+              order.nameEn || order.name
+            } as received.`,
+            emoji: '🎉',
+            bgColor: '#E8F5E9',
+            isRead: false,
+            type: 'preorder_completed',
+            createdAt: firestore.FieldValue.serverTimestamp(),
+          });
+      }
 
       // Refresh pre-orders locally
       const r = await getConsumerPreOrders(uid);
@@ -357,9 +565,40 @@ export const OrdersScreen = ({navigation}) => {
               );
               const fillPercent =
                 (order.totalPreOrders / order.targetPreOrders) * 100;
-              const dateLocale = i18n.language === 'ta' ? 'ta-IN' : i18n.language === 'ml' ? 'ml-IN' : 'en-US';
+              const dateLocale =
+                i18n.language === 'ta'
+                  ? 'ta-IN'
+                  : i18n.language === 'ml'
+                  ? 'ml-IN'
+                  : 'en-US';
               const formattedDate =
-                order.createdAt?.toDate?.()?.toLocaleDateString(dateLocale) || '';
+                order.createdAt?.toDate?.()?.toLocaleDateString(dateLocale) ||
+                '';
+
+              const orderTime =
+                order.createdAt?.toDate?.() ||
+                (order.createdAt?.seconds
+                  ? new Date(order.createdAt.seconds * 1000)
+                  : null);
+              const hoursSinceOrder = orderTime
+                ? (Date.now() - orderTime.getTime()) / (1000 * 60 * 60)
+                : 0;
+              const isCancellable =
+                (order.status === 'pending' ||
+                  order.status === 'Reserved' ||
+                  !order.status) &&
+                hoursSinceOrder <= 3;
+
+              const completedTime =
+                order.completedAt?.toDate?.() ||
+                (order.completedAt?.seconds
+                  ? new Date(order.completedAt.seconds * 1000)
+                  : null);
+              const hoursSinceCompleted = completedTime
+                ? (Date.now() - completedTime.getTime()) / (1000 * 60 * 60)
+                : 0;
+              const isRefundable =
+                order.status === 'completed' && hoursSinceCompleted <= 24;
 
               return (
                 <View
@@ -462,10 +701,18 @@ export const OrdersScreen = ({navigation}) => {
                           fontSize: rs(FONTS.xs),
                           color: themeColors.subText,
                         }}>
-                        {t(order.totalPreOrders === 1 ? 'preOrder.peoplePreOrdered_one' : 'preOrder.peoplePreOrdered_other', {
-                          defaultValue: order.totalPreOrders === 1 ? '{{count}} person pre-ordered' : '{{count}} people pre-ordered',
-                          count: order.totalPreOrders,
-                        })}
+                        {t(
+                          order.totalPreOrders === 1
+                            ? 'preOrder.peoplePreOrdered_one'
+                            : 'preOrder.peoplePreOrdered_other',
+                          {
+                            defaultValue:
+                              order.totalPreOrders === 1
+                                ? '{{count}} person pre-ordered'
+                                : '{{count}} people pre-ordered',
+                            count: order.totalPreOrders,
+                          },
+                        )}
                       </Text>
                       <Text
                         style={{
@@ -526,6 +773,11 @@ export const OrdersScreen = ({navigation}) => {
                                   ? '#E8F5E9'
                                   : order.status === 'harvested'
                                   ? '#FFF3E0'
+                                  : order.status === 'Cancelled' ||
+                                    order.status === 'Refund Requested'
+                                  ? '#FFEBEE'
+                                  : order.status === 'Refunded'
+                                  ? '#F3E5F5'
                                   : '#E3F2FD',
                               marginRight: 8,
                             },
@@ -535,10 +787,14 @@ export const OrdersScreen = ({navigation}) => {
                               S.statusText,
                               {
                                 color:
-                                  order.status === 'completed'
+                                  order.status === 'completed' ||
+                                  order.status === 'Refunded'
                                     ? '#4CAF50'
                                     : order.status === 'harvested'
                                     ? '#FF9800'
+                                    : order.status === 'Cancelled' ||
+                                      order.status === 'Refund Requested'
+                                    ? '#FF5252'
                                     : '#1565C0',
                               },
                             ]}>
@@ -550,6 +806,18 @@ export const OrdersScreen = ({navigation}) => {
                               ? t('preOrder.statusHarvested', {
                                   defaultValue: 'Harvested',
                                 })
+                              : order.status === 'Cancelled'
+                              ? t('orders.statusCancelled', {
+                                  defaultValue: 'Cancelled',
+                                })
+                              : order.status === 'Refund Requested'
+                              ? t('orders.refundRequested', {
+                                  defaultValue: 'Refund Requested',
+                                })
+                              : order.status === 'Refunded'
+                              ? t('orders.statusRefunded', {
+                                  defaultValue: 'Refunded',
+                                })
                               : t('preOrder.statusReserved', {
                                   defaultValue: 'Reserved',
                                 })}
@@ -558,6 +826,7 @@ export const OrdersScreen = ({navigation}) => {
                       </View>
                     </View>
 
+                    {/* Mark Received */}
                     {order.status === 'harvested' && (
                       <TouchableOpacity
                         style={{
@@ -581,6 +850,64 @@ export const OrdersScreen = ({navigation}) => {
                         </Text>
                       </TouchableOpacity>
                     )}
+
+                    {/* Cancel Pre-Order Button */}
+                    {isCancellable && (
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: '#FFEBEE',
+                          borderColor: '#FF5252',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: RADIUS.md,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: 8,
+                        }}
+                        onPress={() => handleCancelPreOrder(order)}>
+                        <Text
+                          style={{
+                            color: '#FF5252',
+                            fontWeight: 'bold',
+                            fontSize: rs(12),
+                          }}>
+                          ❌{' '}
+                          {t('preOrder.cancelPreOrderBtn', {
+                            defaultValue: 'Cancel Pre-Order',
+                          })}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {/* Request Refund Button */}
+                    {isRefundable && (
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: '#FFF3E0',
+                          borderColor: '#FF9800',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: RADIUS.md,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          marginLeft: 8,
+                        }}
+                        onPress={() => handleRefundPreOrder(order)}>
+                        <Text
+                          style={{
+                            color: '#FF9800',
+                            fontWeight: 'bold',
+                            fontSize: rs(12),
+                          }}>
+                          💸{' '}
+                          {t('preOrder.refundPreOrderBtn', {
+                            defaultValue: 'Request Refund',
+                          })}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               );
@@ -588,6 +915,163 @@ export const OrdersScreen = ({navigation}) => {
           )}
         </ScrollView>
       )}
+
+      {/* Pre-Order Cancel Modal */}
+      <Modal visible={cancelModalVisible} transparent animationType="fade">
+        <View style={S.modalOverlay}>
+          <View style={[S.modalContent, {backgroundColor: themeColors.cardBg}]}>
+            <Text style={[S.modalTitle, {color: themeColors.text}]}>
+              {t('preOrder.cancelReasonTitle', {
+                defaultValue: 'ரத்து செய்வதற்கான காரணத்தைத் தேர்ந்தெடுக்கவும்',
+              })}
+            </Text>
+
+            {[
+              {
+                id: 1,
+                label: t('preOrder.cancelReason1', {
+                  defaultValue: 'Change of mind / என் முடிவை மாற்றிவிட்டேன்',
+                }),
+              },
+              {
+                id: 2,
+                label: t('preOrder.cancelReason2', {
+                  defaultValue:
+                    'Ordered by mistake / தவறுதலாக ஆர்டர் செய்துவிட்டேன்',
+                }),
+              },
+              {
+                id: 3,
+                label: t('preOrder.cancelReason3', {
+                  defaultValue: 'Price is too high / விலை அதிகமாக உள்ளது',
+                }),
+              },
+              {
+                id: 4,
+                label: t('preOrder.cancelReason4', {
+                  defaultValue: 'Not needed anymore / இப்போது தேவையில்லை',
+                }),
+              },
+            ].map(reason => (
+              <TouchableOpacity
+                key={reason.id}
+                style={[
+                  S.reasonOption,
+                  cancelReason === reason.label && S.reasonOptionActive,
+                ]}
+                onPress={() => setCancelReason(reason.label)}>
+                <View
+                  style={[
+                    S.radioDot,
+                    cancelReason === reason.label && S.radioDotActive,
+                  ]}
+                />
+                <Text style={[S.reasonText, {color: themeColors.text}]}>
+                  {reason.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <View style={S.modalActions}>
+              <TouchableOpacity
+                style={S.modalCancelBtn}
+                onPress={() => setCancelModalVisible(false)}>
+                <Text style={S.modalCancelBtnTxt}>
+                  {t('orders.close', {defaultValue: 'மூடு'})}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[S.modalSubmitBtn, !cancelReason && {opacity: 0.5}]}
+                disabled={!cancelReason}
+                onPress={submitCancelPreOrder}>
+                <Text style={S.modalSubmitBtnTxt}>
+                  {t('common.confirm', {defaultValue: 'Confirm'})}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Pre-Order Refund Modal */}
+      <Modal visible={refundModalVisible} transparent animationType="fade">
+        <View style={S.modalOverlay}>
+          <View style={[S.modalContent, {backgroundColor: themeColors.cardBg}]}>
+            <Text style={[S.modalTitle, {color: themeColors.text}]}>
+              {t('preOrder.refundReasonTitle', {
+                defaultValue:
+                  'பணம் திரும்பப் பெறுவதற்கான காரணத்தைத் தேர்ந்தெடுக்கவும்',
+              })}
+            </Text>
+
+            {[
+              {
+                id: 1,
+                label: t('preOrder.refundReason1', {
+                  defaultValue:
+                    'Bad quality or spoiled / பொருட்களின் தரம் சரியில்லை',
+                }),
+              },
+              {
+                id: 2,
+                label: t('preOrder.refundReason2', {
+                  defaultValue:
+                    'Wrong items delivered / தவறான பொருட்கள் வந்துள்ளது',
+                }),
+              },
+              {
+                id: 3,
+                label: t('preOrder.refundReason3', {
+                  defaultValue: 'Items damaged / பொருட்கள் சேதமடைந்துள்ளது',
+                }),
+              },
+              {
+                id: 4,
+                label: t('preOrder.refundReason4', {
+                  defaultValue:
+                    'Delivery was extremely delayed / டெலிவரி மிகவும் தாமதம்',
+                }),
+              },
+            ].map(reason => (
+              <TouchableOpacity
+                key={reason.id}
+                style={[
+                  S.reasonOption,
+                  refundReason === reason.label && S.reasonOptionActive,
+                ]}
+                onPress={() => setRefundReason(reason.label)}>
+                <View
+                  style={[
+                    S.radioDot,
+                    refundReason === reason.label && S.radioDotActive,
+                  ]}
+                />
+                <Text style={[S.reasonText, {color: themeColors.text}]}>
+                  {reason.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <View style={S.modalActions}>
+              <TouchableOpacity
+                style={S.modalCancelBtn}
+                onPress={() => setRefundModalVisible(false)}>
+                <Text style={S.modalCancelBtnTxt}>
+                  {t('orders.close', {defaultValue: 'மூடு'})}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[S.modalSubmitBtn, !refundReason && {opacity: 0.5}]}
+                disabled={!refundReason}
+                onPress={submitRefundPreOrder}>
+                <Text style={S.modalSubmitBtnTxt}>
+                  {t('common.confirm', {defaultValue: 'Confirm'})}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -909,9 +1393,10 @@ export const FarmerProfileScreen = ({route, navigation}) => {
               ? dbOriginalPrice
               : Math.round(p.price / (1 - discountPercent / 100));
 
-            const rating = (p.rating && parseFloat(p.rating) > 0)
-              ? parseFloat(p.rating).toFixed(1)
-              : stats.rating.toFixed(1);
+            const rating =
+              p.rating && parseFloat(p.rating) > 0
+                ? parseFloat(p.rating).toFixed(1)
+                : stats.rating.toFixed(1);
             const unit = p.unit || 'kg';
             const isSoldOut =
               p.stock !== undefined && p.stock !== null && p.stock <= 0;
@@ -1582,5 +2067,74 @@ const S = StyleSheet.create({
     fontSize: rs(FONTS.xs),
     color: COLORS.textGray || '#888',
     textDecorationLine: 'line-through',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: SPACING.lg,
+  },
+  modalContent: {
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+  },
+  modalTitle: {
+    fontSize: rs(FONTS.lg),
+    fontWeight: 'bold',
+    marginBottom: SPACING.lg,
+    textAlign: 'center',
+  },
+  reasonOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.borderLight,
+  },
+  reasonOptionActive: {backgroundColor: 'rgba(76, 175, 80, 0.08)'},
+  radioDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: COLORS.textMuted,
+    marginRight: SPACING.md,
+  },
+  radioDotActive: {
+    borderColor: COLORS.primaryGreen,
+    backgroundColor: COLORS.primaryGreen,
+  },
+  reasonText: {fontSize: rs(FONTS.sm), flex: 1},
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.xl,
+    gap: SPACING.md,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    backgroundColor: '#EEEEEE',
+    alignItems: 'center',
+  },
+  modalCancelBtnTxt: {
+    fontSize: rs(FONTS.md),
+    color: COLORS.textPrimary,
+    fontWeight: 'bold',
+  },
+  modalSubmitBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primaryGreen,
+    alignItems: 'center',
+  },
+  modalSubmitBtnTxt: {
+    fontSize: rs(FONTS.md),
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
 });

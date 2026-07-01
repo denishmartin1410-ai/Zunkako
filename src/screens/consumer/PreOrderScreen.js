@@ -6,7 +6,7 @@
 // எந்த app-லயும் இல்லாத UNIQUE Feature!
 // ============================================================
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,11 @@ import {
   TouchableOpacity,
   Alert,
   Dimensions,
+  Modal,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
@@ -173,7 +177,8 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={[styles.progressLabel, {color: themeColors.text}]}>
-              🔥 {t('preOrder.peoplePreOrdered', {
+              🔥{' '}
+              {t('preOrder.peoplePreOrdered', {
                 count: item.totalPreOrders,
                 defaultValue: '{{count}} pre-ordered',
               })}
@@ -246,7 +251,9 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         {/* Total + Pre-order button */}
         <View style={styles.orderRow}>
           <View>
-            <Text style={styles.totalLabel}>{t('common.total', {defaultValue: 'Total'})}:</Text>
+            <Text style={styles.totalLabel}>
+              {t('common.total', {defaultValue: 'Total'})}:
+            </Text>
             <Text style={styles.totalValue}>₹{item.price * quantity}</Text>
           </View>
           <TouchableOpacity
@@ -287,6 +294,63 @@ const PreOrderScreen = ({navigation, route}) => {
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
   const selectedHarvestId = route?.params?.selectedHarvestId;
+
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedItemForPreOrder, setSelectedItemForPreOrder] = useState(null);
+  const [selectedQtyForPreOrder, setSelectedQtyForPreOrder] = useState(1);
+  const [customerName, setCustomerName] = useState(user?.name || '');
+  const [address, setAddress] = useState(user?.address || user?.location || '');
+  const [pincode, setPincode] = useState(user?.pincode || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [coords, setCoords] = useState(null);
+  const [linkingLocation, setLinkingLocation] = useState(false);
+
+  useEffect(() => {
+    const fid = user?.id || user?.uid;
+    if (fid) {
+      const {getUserProfile} = require('../../services/firebase');
+      getUserProfile(fid).then(res => {
+        if (res.success && res.data) {
+          const profile = res.data;
+          if (profile.name) {
+            setCustomerName(profile.name);
+          }
+          if (profile.address) {
+            setAddress(profile.address);
+          }
+          if (profile.pincode) {
+            setPincode(profile.pincode);
+          }
+          if (profile.phone) {
+            setPhone(profile.phone);
+          }
+        }
+      });
+    }
+  }, [user]);
+
+  const handleLinkLocation = () => {
+    setLinkingLocation(true);
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        setCoords({latitude, longitude});
+        setLinkingLocation(false);
+        Alert.alert(
+          t('common.success', {defaultValue: 'வெற்றி'}),
+          t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
+        );
+      },
+      error => {
+        setLinkingLocation(false);
+        Alert.alert(
+          t('common.error', {defaultValue: 'பிழை'}),
+          error.message || 'Failed to get location',
+        );
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
 
   React.useEffect(() => {
     const unsubscribe = listenToHarvests(res => {
@@ -340,45 +404,99 @@ const PreOrderScreen = ({navigation, route}) => {
       Alert.alert('Login Required', 'Please login to pre-order.');
       return;
     }
+    setSelectedItemForPreOrder(item);
+    setSelectedQtyForPreOrder(qty);
+    setShowDetailsModal(true);
+  };
 
-    Alert.alert(
-      t('preOrder.confirmTitle'),
-      `${getLocalProductName(
-        item.nameEn,
-        item.name,
-        i18n.language,
-      )} × ${qty} = ₹${item.price * qty}\n\n` +
-        t('preOrder.confirmDetails', {date: item.harvestDate}),
-      [
-        {text: t('preOrder.cancelBtn'), style: 'cancel'},
-        {
-          text: t('preOrder.confirmBtn'),
-          onPress: async () => {
-            const res = await createPreOrder(
-              item.id,
-              user.uid || user.id,
-              user.name || 'User',
-              qty,
-              item.price * qty,
-            );
+  const confirmAndSubmitPreOrder = async () => {
+    if (
+      !customerName.trim() ||
+      !phone.trim() ||
+      !address.trim() ||
+      !pincode.trim()
+    ) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('orders.fillDetails', {
+          defaultValue: 'தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்',
+        }),
+      );
+      return;
+    }
 
-            if (res.success) {
-              Alert.alert(
-                t('preOrder.successTitle', {
-                  defaultValue: '🎉 முன் ஆர்டர் வெற்றி!',
-                }),
-                t('preOrder.successDesc', {
-                  defaultValue:
-                    'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.\n\nPre-order confirmed successfully!',
-                }),
-              );
-            } else {
-              Alert.alert('Error', res.error);
-            }
-          },
-        },
-      ],
+    const item = selectedItemForPreOrder;
+    const qty = selectedQtyForPreOrder;
+    if (!item) {
+      return;
+    }
+
+    setShowDetailsModal(false);
+
+    const deliveryDetails = {
+      deliveryName: customerName,
+      deliveryPhone: phone,
+      deliveryAddress: address,
+      deliveryPincode: pincode,
+      deliveryLocation: coords ? `${coords.latitude},${coords.longitude}` : '',
+      preOrderDate: new Date().toISOString(),
+    };
+
+    const res = await createPreOrder(
+      item.id,
+      user.uid || user.id,
+      user.name || customerName || 'User',
+      qty,
+      item.price * qty,
+      deliveryDetails,
     );
+
+    if (res.success) {
+      // Send notification to Farmer
+      if (item.farmerId) {
+        const {createNotification} = require('../../services/firebase');
+        await createNotification({
+          userId: item.farmerId,
+          title: t('notification.newPreOrderTitle', {
+            defaultValue: 'புதிய முன் ஆர்டர்',
+          }),
+          message: `A new pre-order of ${qty} kg ${getLocalProductName(
+            item.nameEn,
+            item.name,
+            i18n.language,
+          )} has been placed by ${customerName}.`,
+          emoji: '📅',
+          bgColor: '#E3F2FD',
+          type: 'new_preorder',
+        });
+      }
+
+      // Send notification to Customer
+      const {createNotification} = require('../../services/firebase');
+      await createNotification({
+        userId: user.uid || user.id,
+        title: t('preOrder.successTitle', {
+          defaultValue: '🎉 முன் ஆர்டர் வெற்றி!',
+        }),
+        message: t('preOrder.successDesc', {
+          defaultValue:
+            'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.',
+        }),
+        emoji: '🎉',
+        bgColor: '#E8F5E9',
+        type: 'preorder_confirmed',
+      });
+
+      Alert.alert(
+        t('preOrder.successTitle', {defaultValue: '🎉 முன் ஆர்டர் வெற்றி!'}),
+        t('preOrder.successDesc', {
+          defaultValue:
+            'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.',
+        }),
+      );
+    } else {
+      Alert.alert('Error', res.error);
+    }
   };
 
   return (
@@ -464,6 +582,199 @@ const PreOrderScreen = ({navigation, route}) => {
           ))
         )}
       </ScrollView>
+
+      {/* Details Confirmation Modal */}
+      <Modal
+        visible={showDetailsModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDetailsModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+              },
+            ]}>
+            <Text style={[styles.modalTitle, {color: themeColors.text}]}>
+              {t('preOrder.fillDetailsTitle', {
+                defaultValue: '📋 Enter Delivery Details',
+              })}
+            </Text>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{width: '100%', maxHeight: 380}}>
+              {/* Name */}
+              <View style={styles.formField}>
+                <Text style={[styles.formLabel, {color: themeColors.subText}]}>
+                  {t('preOrder.deliveryName', {defaultValue: 'Name'})} *
+                </Text>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    {
+                      backgroundColor: themeColors.inputBg,
+                      borderColor: themeColors.border,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  value={customerName}
+                  onChangeText={setCustomerName}
+                  placeholder={t('checkout.namePlaceholder', {
+                    defaultValue: 'Your Name',
+                  })}
+                  placeholderTextColor={
+                    isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+                  }
+                />
+              </View>
+
+              {/* Phone */}
+              <View style={styles.formField}>
+                <Text style={[styles.formLabel, {color: themeColors.subText}]}>
+                  {t('preOrder.deliveryPhone', {defaultValue: 'Phone Number'})}{' '}
+                  *
+                </Text>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    {
+                      backgroundColor: themeColors.inputBg,
+                      borderColor: themeColors.border,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  value={phone}
+                  onChangeText={setPhone}
+                  keyboardType="phone-pad"
+                  placeholder={t('checkout.phonePlaceholder', {
+                    defaultValue: 'Phone Number',
+                  })}
+                  placeholderTextColor={
+                    isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+                  }
+                />
+              </View>
+
+              {/* Address */}
+              <View style={styles.formField}>
+                <Text style={[styles.formLabel, {color: themeColors.subText}]}>
+                  {t('preOrder.deliveryAddress', {
+                    defaultValue: 'Delivery Address',
+                  })}{' '}
+                  *
+                </Text>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    {
+                      height: 80,
+                      textAlignVertical: 'top',
+                      paddingTop: SPACING.md,
+                      backgroundColor: themeColors.inputBg,
+                      borderColor: themeColors.border,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  value={address}
+                  onChangeText={setAddress}
+                  multiline={true}
+                  placeholder={t('checkout.addressPlaceholder', {
+                    defaultValue: 'Full Address',
+                  })}
+                  placeholderTextColor={
+                    isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+                  }
+                />
+              </View>
+
+              {/* PIN Code */}
+              <View style={styles.formField}>
+                <Text style={[styles.formLabel, {color: themeColors.subText}]}>
+                  {t('preOrder.deliveryPincode', {defaultValue: 'PIN Code'})} *
+                </Text>
+                <TextInput
+                  style={[
+                    styles.formInput,
+                    {
+                      backgroundColor: themeColors.inputBg,
+                      borderColor: themeColors.border,
+                      color: themeColors.text,
+                    },
+                  ]}
+                  value={pincode}
+                  onChangeText={setPincode}
+                  keyboardType="number-pad"
+                  placeholder={t('checkout.pincodePlaceholder', {
+                    defaultValue: 'Pincode',
+                  })}
+                  placeholderTextColor={
+                    isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
+                  }
+                />
+              </View>
+
+              {/* GPS coordinates */}
+              <TouchableOpacity
+                style={[
+                  styles.locationBtn,
+                  {
+                    backgroundColor: coords ? '#E8F5E9' : themeColors.inputBg,
+                    borderColor: coords
+                      ? COLORS.primaryGreen
+                      : themeColors.border,
+                    borderWidth: 1,
+                  },
+                ]}
+                onPress={handleLinkLocation}
+                disabled={linkingLocation}>
+                {linkingLocation ? (
+                  <ActivityIndicator size="small" color={COLORS.primaryGreen} />
+                ) : (
+                  <Text
+                    style={[
+                      styles.locationBtnTxt,
+                      {color: coords ? COLORS.primaryGreen : themeColors.text},
+                    ]}>
+                    {coords
+                      ? t('preOrder.gpsLinked', {
+                          defaultValue: 'Location Linked ✓',
+                        })
+                      : t('preOrder.linkGPSBtn', {
+                          defaultValue: '📍 Link GPS Location',
+                        })}
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {coords && (
+                <Text style={[styles.coordsText, {color: themeColors.subText}]}>
+                  {coords.latitude.toFixed(6)}, {coords.longitude.toFixed(6)}
+                </Text>
+              )}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setShowDetailsModal(false)}>
+                <Text style={styles.modalCancelBtnTxt}>
+                  {t('orders.close', {defaultValue: 'மூடு'})}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSubmitBtn}
+                onPress={confirmAndSubmitPreOrder}>
+                <Text style={styles.modalSubmitBtnTxt}>
+                  {t('preOrder.confirmBtn', {defaultValue: 'Confirm'})}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -724,6 +1035,88 @@ const styles = StyleSheet.create({
   },
   cardImgEmoji: {
     fontSize: 72,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  modalContent: {
+    width: '100%',
+    borderRadius: RADIUS.xl,
+    padding: SPACING.xl,
+    borderWidth: 1,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: SPACING.lg,
+    textAlign: 'center',
+  },
+  formField: {
+    marginBottom: SPACING.md,
+  },
+  formLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  formInput: {
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.lg,
+    height: 48,
+    fontSize: 14,
+    borderWidth: 1.5,
+  },
+  locationBtn: {
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: SPACING.sm,
+  },
+  locationBtnTxt: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  coordsText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: SPACING.md,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+  },
+  modalCancelBtn: {
+    flex: 1,
+    backgroundColor: '#FFEBEE',
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+  },
+  modalCancelBtnTxt: {
+    color: '#FF5252',
+    fontWeight: 'bold',
+  },
+  modalSubmitBtn: {
+    flex: 1,
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+  },
+  modalSubmitBtnTxt: {
+    color: COLORS.white,
+    fontWeight: 'bold',
   },
 });
 

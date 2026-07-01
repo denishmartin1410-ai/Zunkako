@@ -878,7 +878,11 @@ export const getUserProductRating = async (productId, userId) => {
 // ✅ ORDER STATUS UPDATE
 // ════════════════════════════════════════════════
 
-export const updateOrderStatus = async (orderId, newStatus, extraFields = {}) => {
+export const updateOrderStatus = async (
+  orderId,
+  newStatus,
+  extraFields = {},
+) => {
   try {
     await firestore()
       .collection('orders')
@@ -1288,6 +1292,7 @@ export const createPreOrder = async (
   userName,
   quantity,
   totalAmount,
+  details = {},
 ) => {
   try {
     // Add pre-order doc
@@ -1303,6 +1308,7 @@ export const createPreOrder = async (
         totalAmount,
         status: 'pending',
         createdAt: firestore.FieldValue.serverTimestamp(),
+        ...details,
       });
 
     // Increment totalPreOrders on the harvest doc
@@ -1372,6 +1378,70 @@ export const getConsumerPreOrders = async userId => {
     return {success: true, data: sorted};
   } catch (error) {
     console.log('getConsumerPreOrders error:', error.message);
+    return {success: false, error: error.message, data: []};
+  }
+};
+
+export const updatePreOrderStatus = async (
+  harvestId,
+  userId,
+  newStatus,
+  extraFields = {},
+) => {
+  try {
+    await firestore()
+      .collection('harvests')
+      .doc(harvestId)
+      .collection('preOrders')
+      .doc(userId)
+      .update({
+        status: newStatus,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+        ...extraFields,
+      });
+    return {success: true};
+  } catch (error) {
+    console.log('updatePreOrderStatus error:', error.message);
+    return {success: false, error: error.message};
+  }
+};
+
+export const getFarmerPreOrders = async farmerId => {
+  try {
+    const harvestsSnap = await firestore()
+      .collection('harvests')
+      .where('farmerId', '==', farmerId)
+      .get();
+    const preOrders = [];
+
+    const promises = harvestsSnap.docs.map(async harvestDoc => {
+      const harvestId = harvestDoc.id;
+      const harvestData = harvestDoc.data();
+
+      const preOrdersSnap = await harvestDoc.ref.collection('preOrders').get();
+
+      preOrdersSnap.docs.forEach(doc => {
+        preOrders.push({
+          id: doc.id,
+          harvestId,
+          ...harvestData,
+          ...doc.data(),
+          userId: doc.id,
+        });
+      });
+    });
+
+    await Promise.all(promises);
+
+    const sorted = [...preOrders].sort((a, b) => {
+      const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
+      const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
+      return tB - tA;
+    });
+
+    return {success: true, data: sorted};
+  } catch (error) {
+    console.log('getFarmerPreOrders error:', error.message);
     return {success: false, error: error.message, data: []};
   }
 };

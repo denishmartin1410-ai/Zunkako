@@ -133,6 +133,94 @@ export const FarmerDashboardScreen = ({navigation}) => {
   const [myProducts, setMyProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
+  const [preOrders, setPreOrders] = useState([]);
+  const [preOrdersLoading, setPreOrdersLoading] = useState(false);
+
+  const loadFarmerPreOrders = async () => {
+    const farmerId = user?.id || user?.uid;
+    if (!farmerId) {
+      return;
+    }
+    setPreOrdersLoading(true);
+    try {
+      const {getFarmerPreOrders} = require('../../services/firebase');
+      const res = await getFarmerPreOrders(farmerId);
+      if (res.success) {
+        setPreOrders(res.data);
+      }
+    } catch (e) {
+      console.log('loadFarmerPreOrders error:', e);
+    }
+    setPreOrdersLoading(false);
+  };
+
+  const handleUpdateFarmerPreOrderStatus = async (item, newStatus) => {
+    try {
+      const {updatePreOrderStatus} = require('../../services/firebase');
+      const targetUserId = item.userId || item.id;
+      const r = await updatePreOrderStatus(
+        item.harvestId,
+        targetUserId,
+        newStatus,
+      );
+      if (r.success) {
+        Alert.alert('✅ Success', `Pre-Order status updated to: ${newStatus}`);
+
+        // Update locally
+        setPreOrders(prev =>
+          prev.map(o =>
+            o.userId === targetUserId && o.harvestId === item.harvestId
+              ? {...o, status: newStatus}
+              : o,
+          ),
+        );
+
+        // Notify user about status change
+        const firestore = require('@react-native-firebase/firestore').default;
+        let title = '📅 Pre-Order Update';
+        let message = `Your pre-ordered ${
+          item.nameEn || item.name
+        } has been updated to ${newStatus} by the farmer.`;
+        let emoji = '📅';
+        let bgColor = '#E3F2FD';
+
+        if (newStatus === 'harvested') {
+          title = '🌾 Crop Harvested!';
+          message = `Your pre-ordered ${
+            item.nameEn || item.name || 'crop'
+          } has been harvested and is ready for pickup/delivery!`;
+          emoji = '🌾';
+          bgColor = '#E8F5E9';
+        } else if (newStatus === 'completed') {
+          title = '🎉 Pre-Order Completed!';
+          message = `Your pre-order for ${
+            item.nameEn || item.name || 'crop'
+          } has been successfully delivered and completed.`;
+          emoji = '🎉';
+          bgColor = '#E8F5E9';
+        }
+
+        await firestore()
+          .collection('notifications')
+          .doc(targetUserId)
+          .collection('items')
+          .add({
+            userId: targetUserId,
+            title,
+            message,
+            emoji,
+            bgColor,
+            isRead: false,
+            type: 'preorder_update',
+            createdAt: firestore.FieldValue.serverTimestamp(),
+          });
+      }
+    } catch (e) {
+      Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);
+    }
+  };
+
   useEffect(() => {
     const farmerId = user?.id || user?.uid;
     if (!farmerId) {
@@ -278,6 +366,14 @@ export const FarmerDashboardScreen = ({navigation}) => {
                 screen: 'FarmerAddHarvest',
               },
               {
+                icon: '📋',
+                label: t('preOrder.title', {defaultValue: 'മുൻകൂട്ടി ഓർഡറുകൾ'}),
+                onPress: () => {
+                  loadFarmerPreOrders();
+                  setPreOrdersModalVisible(true);
+                },
+              },
+              {
                 icon: '💬',
                 label: t('farmer.customerChats', {
                   defaultValue: 'வாடிக்கையாளர் அரட்டை',
@@ -298,7 +394,9 @@ export const FarmerDashboardScreen = ({navigation}) => {
               <TouchableOpacity
                 key={i}
                 style={S.qaCard}
-                onPress={() => navigation.navigate(qa.screen)}>
+                onPress={
+                  qa.onPress ? qa.onPress : () => navigation.navigate(qa.screen)
+                }>
                 <LinearGradient
                   colors={
                     isDark ? ['#1A3028', '#152A20'] : ['#E8F5E9', '#E3F2FD']
@@ -385,6 +483,408 @@ export const FarmerDashboardScreen = ({navigation}) => {
         </View>
         <View style={{height: 90}} />
       </ScrollView>
+
+      {/* Farmer Pre-Orders Modal */}
+      <Modal
+        visible={preOrdersModalVisible}
+        transparent={false}
+        animationType="slide"
+        onRequestClose={() => setPreOrdersModalVisible(false)}>
+        <View style={[S.container, {backgroundColor: themeColors.bg}]}>
+          <LinearGradient
+            colors={['#0D5C32', '#1B8A4E']}
+            style={[
+              S.headerRow,
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              },
+            ]}>
+            <BackButton onPress={() => setPreOrdersModalVisible(false)} />
+            <Text style={[S.headerTitle, {flex: 1, marginLeft: 16}]}>
+              📅 {t('preOrder.title', {defaultValue: 'முன்பதிவுகள்'})} (
+              {preOrders.length})
+            </Text>
+          </LinearGradient>
+
+          {preOrdersLoading ? (
+            <ActivityIndicator
+              color={COLORS.primaryGreen}
+              size="large"
+              style={{marginTop: 50}}
+            />
+          ) : (
+            <FlatList
+              data={preOrders}
+              keyExtractor={(item, index) =>
+                item.harvestId + '_' + item.userId + '_' + index
+              }
+              contentContainerStyle={{padding: 16}}
+              renderItem={({item}) => {
+                const dateLocale =
+                  i18n.language === 'ta'
+                    ? 'ta-IN'
+                    : i18n.language === 'ml'
+                    ? 'ml-IN'
+                    : 'en-US';
+                const formattedDate =
+                  item.createdAt?.toDate?.()?.toLocaleDateString(dateLocale) ||
+                  '';
+
+                return (
+                  <View
+                    style={{
+                      backgroundColor: themeColors.cardBg,
+                      borderRadius: 12,
+                      padding: 16,
+                      marginVertical: 8,
+                      borderWidth: 1,
+                      borderColor: themeColors.border,
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginBottom: 8,
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          color: themeColors.text,
+                        }}>
+                        {getLocalProductName(
+                          item.nameEn,
+                          item.name,
+                          i18n.language,
+                        )}
+                      </Text>
+                      <View
+                        style={{
+                          backgroundColor:
+                            item.status === 'completed'
+                              ? '#E8F5E9'
+                              : item.status === 'harvested'
+                              ? '#FFF3E0'
+                              : item.status === 'Cancelled' ||
+                                item.status === 'Refund Requested'
+                              ? '#FFEBEE'
+                              : '#E3F2FD',
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderRadius: 6,
+                        }}>
+                        <Text
+                          style={{
+                            color:
+                              item.status === 'completed'
+                                ? '#4CAF50'
+                                : item.status === 'harvested'
+                                ? '#FF9800'
+                                : item.status === 'Cancelled' ||
+                                  item.status === 'Refund Requested'
+                                ? '#FF5252'
+                                : '#1565C0',
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                          }}>
+                          {item.status === 'completed'
+                            ? t('preOrder.statusCompleted', {
+                                defaultValue: 'Completed',
+                              })
+                            : item.status === 'harvested'
+                            ? t('preOrder.statusHarvested', {
+                                defaultValue: 'Harvested',
+                              })
+                            : item.status === 'Cancelled'
+                            ? t('orders.statusCancelled', {
+                                defaultValue: 'Cancelled',
+                              })
+                            : item.status === 'Refund Requested'
+                            ? t('orders.refundRequested', {
+                                defaultValue: 'Refund Requested',
+                              })
+                            : t('preOrder.statusReserved', {
+                                defaultValue: 'Reserved',
+                              })}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <Text
+                      style={{
+                        color: themeColors.subText,
+                        fontSize: 14,
+                        marginVertical: 2,
+                      }}>
+                      👤{' '}
+                      {t('preOrder.deliveryName', {defaultValue: 'Customer'})}:{' '}
+                      <Text
+                        style={{fontWeight: '600', color: themeColors.text}}>
+                        {item.deliveryName || item.userName || 'User'}
+                      </Text>
+                    </Text>
+                    {item.deliveryPhone && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 14,
+                          marginVertical: 2,
+                        }}>
+                        📞{' '}
+                        {t('preOrder.deliveryPhone', {defaultValue: 'Phone'})}:{' '}
+                        <Text
+                          style={{fontWeight: '600', color: themeColors.text}}>
+                          {item.deliveryPhone}
+                        </Text>
+                      </Text>
+                    )}
+                    {item.deliveryAddress && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 14,
+                          marginVertical: 2,
+                        }}>
+                        📍{' '}
+                        {t('preOrder.deliveryAddress', {
+                          defaultValue: 'Address',
+                        })}
+                        :{' '}
+                        <Text
+                          style={{fontWeight: '600', color: themeColors.text}}>
+                          {item.deliveryAddress}{' '}
+                          {item.deliveryPincode
+                            ? `(PIN: ${item.deliveryPincode})`
+                            : ''}
+                        </Text>
+                      </Text>
+                    )}
+                    {item.deliveryLocation && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 14,
+                          marginVertical: 2,
+                        }}>
+                        🌐 GPS:{' '}
+                        <Text
+                          style={{fontWeight: '600', color: themeColors.text}}>
+                          {item.deliveryLocation}
+                        </Text>
+                      </Text>
+                    )}
+                    <Text
+                      style={{
+                        color: themeColors.subText,
+                        fontSize: 14,
+                        marginVertical: 2,
+                      }}>
+                      📅{' '}
+                      {t('orders.preOrderedOn', {defaultValue: 'Ordered On'})}:{' '}
+                      <Text
+                        style={{fontWeight: '600', color: themeColors.text}}>
+                        {formattedDate}
+                      </Text>
+                    </Text>
+                    <Text
+                      style={{
+                        color: themeColors.subText,
+                        fontSize: 14,
+                        marginVertical: 2,
+                      }}>
+                      📦 {t('orders.quantity', {defaultValue: 'Quantity'})}:{' '}
+                      <Text
+                        style={{fontWeight: '600', color: themeColors.text}}>
+                        {item.quantity || item.qty} {item.unit || 'kg'}
+                      </Text>
+                    </Text>
+                    <Text
+                      style={{
+                        color: themeColors.subText,
+                        fontSize: 14,
+                        marginVertical: 2,
+                      }}>
+                      💵 {t('orders.total', {defaultValue: 'Price'})}:{' '}
+                      <Text
+                        style={{fontWeight: '600', color: themeColors.text}}>
+                        ₹{item.totalAmount || item.totalPrice}
+                      </Text>
+                    </Text>
+                    <Text
+                      style={{
+                        color: themeColors.subText,
+                        fontSize: 14,
+                        marginVertical: 2,
+                      }}>
+                      🌾 {t('product.harvest', {defaultValue: 'Harvest'})}:{' '}
+                      <Text
+                        style={{fontWeight: '600', color: themeColors.text}}>
+                        {item.harvestDate || '-'}
+                      </Text>
+                    </Text>
+
+                    {item.status === 'Cancelled' ||
+                    item.status === 'Refund Requested' ||
+                    item.status === 'Refunded' ? (
+                      <View
+                        style={{
+                          marginTop: 12,
+                          paddingVertical: 8,
+                          backgroundColor: '#FFEBEE',
+                          borderColor: '#FF5252',
+                          borderWidth: 1,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                        }}>
+                        <Text style={{color: '#FF5252', fontWeight: 'bold'}}>
+                          🚫 {item.status.toUpperCase()}
+                        </Text>
+                        {item.cancelReason && (
+                          <Text
+                            style={{
+                              color: themeColors.subText,
+                              fontSize: 12,
+                              marginTop: 4,
+                              textAlign: 'center',
+                              paddingHorizontal: 12,
+                            }}>
+                            {item.cancelReason}
+                          </Text>
+                        )}
+                        {item.refundReason && (
+                          <Text
+                            style={{
+                              color: themeColors.subText,
+                              fontSize: 12,
+                              marginTop: 4,
+                              textAlign: 'center',
+                              paddingHorizontal: 12,
+                            }}>
+                            {item.refundReason}
+                          </Text>
+                        )}
+                      </View>
+                    ) : (
+                      <View
+                        style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
+                        {/* Harvest Process */}
+                        {item.status === 'pending' ||
+                        item.status === 'Reserved' ||
+                        !item.status ? (
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#FFF3E0',
+                              borderColor: '#FF9800',
+                              borderWidth: 1,
+                              paddingVertical: 8,
+                              borderRadius: 6,
+                              alignItems: 'center',
+                            }}
+                            onPress={() =>
+                              handleUpdateFarmerPreOrderStatus(
+                                item,
+                                'harvested',
+                              )
+                            }>
+                            <Text
+                              style={{color: '#FF9800', fontWeight: 'bold'}}>
+                              🚜{' '}
+                              {t('farmer.markHarvest', {
+                                defaultValue: 'Mark Harvest',
+                              })}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <View
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#E8F5E9',
+                              borderColor: '#4CAF50',
+                              borderWidth: 1,
+                              paddingVertical: 8,
+                              borderRadius: 6,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                              🚜{' '}
+                              {t('preOrder.statusHarvested', {
+                                defaultValue: 'Harvested ✓',
+                              })}
+                            </Text>
+                          </View>
+                        )}
+
+                        {/* Deliver Process */}
+                        {item.status !== 'completed' ? (
+                          <TouchableOpacity
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#FFF3E0',
+                              borderColor: '#FF9800',
+                              borderWidth: 1,
+                              paddingVertical: 8,
+                              borderRadius: 6,
+                              alignItems: 'center',
+                            }}
+                            onPress={() =>
+                              handleUpdateFarmerPreOrderStatus(
+                                item,
+                                'completed',
+                              )
+                            }>
+                            <Text
+                              style={{color: '#FF9800', fontWeight: 'bold'}}>
+                              ✅{' '}
+                              {t('farmer.markDeliver', {
+                                defaultValue: 'Mark Deliver',
+                              })}
+                            </Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <View
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#E8F5E9',
+                              borderColor: '#4CAF50',
+                              borderWidth: 1,
+                              paddingVertical: 8,
+                              borderRadius: 6,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text
+                              style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                              ✅{' '}
+                              {t('preOrder.statusCompleted', {
+                                defaultValue: 'Delivered ✓',
+                              })}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                );
+              }}
+              ListEmptyComponent={
+                <View style={{alignItems: 'center', paddingVertical: 80}}>
+                  <Text style={{fontSize: 50, marginBottom: 12}}>📅</Text>
+                  <Text style={{color: themeColors.textMuted, fontSize: 16}}>
+                    {t('preOrder.noPreOrders', {
+                      defaultValue: 'No pre-orders found',
+                    })}
+                  </Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1346,6 +1846,56 @@ export const FarmerOrdersScreen = ({navigation}) => {
                       ''}
                   </Text>
                 </View>
+
+                {/* Consumer delivery details */}
+                <View
+                  style={{
+                    marginVertical: 6,
+                    paddingVertical: 6,
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: themeColors.border,
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: themeColors.text,
+                      fontWeight: 'bold',
+                    }}>
+                    👤 {order.customerName || 'Customer'}
+                  </Text>
+                  {order.customerPhone && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: themeColors.subText,
+                        marginTop: 2,
+                      }}>
+                      📞 {order.customerPhone}
+                    </Text>
+                  )}
+                  {order.address && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: themeColors.subText,
+                        marginTop: 2,
+                      }}>
+                      📍 {order.address}{' '}
+                      {order.pincode ? `(PIN: ${order.pincode})` : ''}
+                    </Text>
+                  )}
+                  {order.location && (
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: themeColors.subText,
+                        marginTop: 2,
+                      }}>
+                      🌐 GPS: {order.location}
+                    </Text>
+                  )}
+                </View>
+
                 {(order.items || []).map((item, i) => (
                   <Text
                     key={i}

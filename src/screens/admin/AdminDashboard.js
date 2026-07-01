@@ -265,16 +265,20 @@ const AdminDashboard = () => {
         bgColor = '#E8F5E9';
       }
 
-      await firestore().collection('notifications').add({
-        userId: targetUserId,
-        title,
-        message,
-        emoji,
-        bgColor,
-        read: false,
-        type: 'preorder_update',
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      });
+      await firestore()
+        .collection('notifications')
+        .doc(targetUserId)
+        .collection('items')
+        .add({
+          userId: targetUserId,
+          title,
+          message,
+          emoji,
+          bgColor,
+          isRead: false,
+          type: 'preorder_update',
+          createdAt: firestore.FieldValue.serverTimestamp(),
+        });
 
       Alert.alert('✅ Success', `Pre-Order marked as ${newStatus}`);
     } catch (err) {
@@ -458,20 +462,12 @@ const AdminDashboard = () => {
                 📍 Address: {item.deliveryAddress}
               </Text>
               {item.deliveryPincode && (
-                <Text
-                  style={[
-                    styles.detail,
-                    {color: COLORS.textSecondary},
-                  ]}>
+                <Text style={[styles.detail, {color: COLORS.textSecondary}]}>
                   📌 PIN Code: {item.deliveryPincode}
                 </Text>
               )}
               {item.consumerPhone && (
-                <Text
-                  style={[
-                    styles.detail,
-                    {color: COLORS.textSecondary},
-                  ]}>
+                <Text style={[styles.detail, {color: COLORS.textSecondary}]}>
                   📞 Phone: {item.consumerPhone}
                 </Text>
               )}
@@ -695,7 +691,11 @@ const AdminDashboard = () => {
           ListHeaderComponent={
             <View style={{paddingBottom: SPACING.md}}>
               {/* User Statistics */}
-              <View style={[styles.statsContainer, {marginHorizontal: 0, marginTop: 8}]}>
+              <View
+                style={[
+                  styles.statsContainer,
+                  {marginHorizontal: 0, marginTop: 8},
+                ]}>
                 <View style={styles.statBox}>
                   <Text style={styles.statEmoji}>👨‍🌾</Text>
                   <Text style={styles.statNum}>{userStats.farmers}</Text>
@@ -745,10 +745,13 @@ const AdminDashboard = () => {
                     📅 User Pre-Orders ({preOrders.length})
                   </Text>
                   <Text style={[styles.feedbackBannerSub, {color: '#1E88E5'}]}>
-                    Track crop reservations and update status (Harvested / Delivered)
+                    Track crop reservations and update status (Harvested /
+                    Delivered)
                   </Text>
                 </View>
-                <Text style={[styles.feedbackBannerArrow, {color: '#1565C0'}]}>›</Text>
+                <Text style={[styles.feedbackBannerArrow, {color: '#1565C0'}]}>
+                  ›
+                </Text>
               </TouchableOpacity>
             </View>
           }
@@ -1139,9 +1142,54 @@ const AdminDashboard = () => {
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
                   👤 Customer:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
-                    {item.userName || item.userId?.slice(-6)}
+                    {item.deliveryName || item.userName || 'User'}
                   </Text>
                 </Text>
+                {item.deliveryPhone && (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📞 Phone:{' '}
+                    <Text style={{fontWeight: '600', color: '#333'}}>
+                      {item.deliveryPhone}
+                    </Text>
+                  </Text>
+                )}
+                {item.deliveryAddress && (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📍 Address:{' '}
+                    <Text style={{fontWeight: '600', color: '#333'}}>
+                      {item.deliveryAddress}
+                    </Text>
+                  </Text>
+                )}
+                {item.deliveryPincode && (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📮 PIN Code:{' '}
+                    <Text style={{fontWeight: '600', color: '#333'}}>
+                      {item.deliveryPincode}
+                    </Text>
+                  </Text>
+                )}
+                {item.deliveryLocation && (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    🌐 GPS:{' '}
+                    <Text style={{fontWeight: '600', color: '#333'}}>
+                      {item.deliveryLocation}
+                    </Text>
+                  </Text>
+                )}
+                {item.preOrderDate && (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📅 Pre-Ordered Date:{' '}
+                    <Text style={{fontWeight: '600', color: '#333'}}>
+                      {new Date(item.preOrderDate).toLocaleDateString()}
+                    </Text>
+                  </Text>
+                )}
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
                   👨‍🌾 Farmer:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
@@ -1167,81 +1215,131 @@ const AdminDashboard = () => {
                   </Text>
                 </Text>
 
-                <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
-                  {/* Harvest Process: Active (pending) or Completed (harvested/completed) */}
-                  {item.status === 'pending' ? (
-                    <TouchableOpacity
+                {item.status === 'Cancelled' ||
+                item.status === 'Refund Requested' ||
+                item.status === 'Refunded' ? (
+                  <View
+                    style={{
+                      marginTop: 12,
+                      paddingVertical: 10,
+                      backgroundColor: '#FFEBEE',
+                      borderColor: '#FF5252',
+                      borderWidth: 1,
+                      borderRadius: 6,
+                      alignItems: 'center',
+                    }}>
+                    <Text
                       style={{
-                        flex: 1,
-                        backgroundColor: '#FFF3E0',
-                        borderColor: '#FF9800',
-                        borderWidth: 1,
-                        paddingVertical: 8,
-                        borderRadius: 6,
-                        alignItems: 'center',
-                      }}
-                      onPress={() =>
-                        handleUpdatePreOrderStatus(item, 'harvested')
-                      }>
-                      <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
-                        🚜 Mark Harvest
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <View
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#E8F5E9',
-                        borderColor: '#4CAF50',
-                        borderWidth: 1,
-                        paddingVertical: 8,
-                        borderRadius: 6,
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        color: '#FF5252',
+                        fontWeight: 'bold',
+                        fontSize: 14,
                       }}>
-                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                        🚜 Harvested ✓
+                      🚫 {item.status.toUpperCase()}
+                    </Text>
+                    {item.cancelReason && (
+                      <Text
+                        style={{
+                          color: '#666',
+                          fontSize: 12,
+                          marginTop: 4,
+                          paddingHorizontal: 12,
+                          textAlign: 'center',
+                        }}>
+                        Reason: {item.cancelReason}
                       </Text>
-                    </View>
-                  )}
+                    )}
+                    {item.refundReason && (
+                      <Text
+                        style={{
+                          color: '#666',
+                          fontSize: 12,
+                          marginTop: 4,
+                          paddingHorizontal: 12,
+                          textAlign: 'center',
+                        }}>
+                        Reason: {item.refundReason}
+                      </Text>
+                    )}
+                  </View>
+                ) : (
+                  <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
+                    {/* Harvest Process: Active (pending/Reserved) or Completed (harvested/completed) */}
+                    {item.status === 'pending' ||
+                    item.status === 'Reserved' ||
+                    !item.status ? (
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#FFF3E0',
+                          borderColor: '#FF9800',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                        }}
+                        onPress={() =>
+                          handleUpdatePreOrderStatus(item, 'harvested')
+                        }>
+                        <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
+                          🚜 Mark Harvest
+                        </Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#E8F5E9',
+                          borderColor: '#4CAF50',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                          🚜 Harvested ✓
+                        </Text>
+                      </View>
+                    )}
 
-                  {/* Deliver Process: Active (pending/harvested) or Completed (completed) */}
-                  {item.status !== 'completed' ? (
-                    <TouchableOpacity
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#FFF3E0',
-                        borderColor: '#FF9800',
-                        borderWidth: 1,
-                        paddingVertical: 8,
-                        borderRadius: 6,
-                        alignItems: 'center',
-                      }}
-                      onPress={() =>
-                        handleUpdatePreOrderStatus(item, 'completed')
-                      }>
-                      <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
-                        ✅ Mark Deliver
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <View
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#E8F5E9',
-                        borderColor: '#4CAF50',
-                        borderWidth: 1,
-                        paddingVertical: 8,
-                        borderRadius: 6,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                        ✅ Delivered ✓
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                    {/* Deliver Process: Active (pending/harvested/Reserved) or Completed (completed) */}
+                    {item.status !== 'completed' ? (
+                      <TouchableOpacity
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#FFF3E0',
+                          borderColor: '#FF9800',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                        }}
+                        onPress={() =>
+                          handleUpdatePreOrderStatus(item, 'completed')
+                        }>
+                        <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
+                          ✅ Mark Deliver
+                        </Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View
+                        style={{
+                          flex: 1,
+                          backgroundColor: '#E8F5E9',
+                          borderColor: '#4CAF50',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                          ✅ Delivered ✓
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
               </View>
             )}
             ListEmptyComponent={
