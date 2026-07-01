@@ -28,12 +28,21 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'admin';
     }
 
+    function isDelivery() {
+      return isLoggedIn() && (
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == 'delivery') 
+        || 
+        exists(/databases/$(database)/documents/deliveryBoys/$(request.auth.uid))
+      );
+    }
+
     // ---------------------------------------------------------
     // DATA VALIDATION & COLLECTIONS
     // ---------------------------------------------------------
 
     match /users/{userId} {
-      allow read: if isLoggedIn();
+      allow read: if true;
       allow create: if isOwner(userId) || isAdmin();
       allow update: if isOwner(userId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'totalReviews', 'updatedAt', 'fcmToken']));
       allow delete: if false;
@@ -92,16 +101,18 @@ service cloud.firestore {
         resource.data.consumerId == request.auth.uid || 
         resource.data.farmerId == request.auth.uid || 
         resource.data.deliveryBoyId == request.auth.uid ||
-        isAdmin()
+        isAdmin() ||
+        (isDelivery() && (resource.data.status == 'Confirmed' || !('deliveryBoyId' in resource.data) || resource.data.deliveryBoyId == null))
       );
       // Consumer creates order for themselves
       allow create: if isLoggedIn() && request.resource.data.consumerId == request.auth.uid;
-      // Anyone involved can update
+      // Anyone involved can update, and delivery boys can accept Confirmed orders
       allow update: if isLoggedIn() && (
         resource.data.consumerId == request.auth.uid || 
         resource.data.farmerId == request.auth.uid || 
         resource.data.deliveryBoyId == request.auth.uid ||
-        isAdmin()
+        isAdmin() ||
+        (isDelivery() && (resource.data.status == 'Confirmed' || !('deliveryBoyId' in resource.data) || resource.data.deliveryBoyId == null))
       );
       allow delete: if false; // Orders should never be deleted
     }
@@ -166,6 +177,11 @@ service cloud.firestore {
       match /bookings/{bookingId} {
         allow read, write: if isLoggedIn();
       }
+    }
+    // FEEDBACKS
+    match /feedbacks/{feedbackId} {
+      allow create: if true;
+      allow read: if isAdmin();
     }
     
     // Default Deny Rule

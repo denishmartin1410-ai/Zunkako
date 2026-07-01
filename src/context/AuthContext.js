@@ -80,13 +80,17 @@ export const AuthProvider = ({children}) => {
       if (!r.success) {
         let errorType = r.errorType;
         if (errorType === 'wrong-password') {
-          const firestoreModule = require('@react-native-firebase/firestore').default;
-          const userQuery = await firestoreModule()
-            .collection('users')
-            .where('email', '==', formattedEmail)
-            .get();
-          if (userQuery.empty) {
-            errorType = 'user-not-found';
+          try {
+            const firestoreModule = require('@react-native-firebase/firestore').default;
+            const userQuery = await firestoreModule()
+              .collection('users')
+              .where('email', '==', formattedEmail)
+              .get();
+            if (userQuery.empty) {
+              errorType = 'user-not-found';
+            }
+          } catch (e) {
+            console.log('Pre-login Firestore email check bypassed:', e.message);
           }
         }
         return {success: false, error: r.error, errorType: errorType};

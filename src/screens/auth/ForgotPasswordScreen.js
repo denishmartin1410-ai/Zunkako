@@ -43,30 +43,6 @@ const ForgotPasswordScreen = ({navigation}) => {
     try {
       const trimmedEmail = email.trim().toLowerCase();
 
-      // ✅ Check if email exists in Firestore (since Firebase Auth fetchSignInMethodsForEmail fails with email enumeration protection enabled)
-      const firestore = require('@react-native-firebase/firestore').default;
-      const userQuery = await firestore()
-        .collection('users')
-        .where('email', '==', trimmedEmail)
-        .get();
-
-      if (userQuery.empty) {
-        // Email NOT registered - block reset
-        setIsLoading(false);
-        Alert.alert(
-          t('authAlerts.resetNoAccountTitle'),
-          t('authAlerts.resetNoAccountMsg'),
-          [
-            {text: t('common.ok'), style: 'cancel'},
-            {
-              text: t('authAlerts.tryAgainBtn'),
-              style: 'default',
-            },
-          ],
-        );
-        return;
-      }
-
       // Email EXISTS - now send reset link
       const result = await sendPasswordResetEmail(trimmedEmail);
       setIsLoading(false);

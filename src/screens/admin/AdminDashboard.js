@@ -211,6 +211,7 @@ const AdminDashboard = () => {
                 harvestId: harvestRef ? harvestRef.id : '',
                 ...harvestData,
                 ...preOrderData,
+                userId: doc.id, // Explicitly override with document ID (which is the customer's userId)
               });
             });
             await Promise.all(promises);
@@ -229,11 +230,12 @@ const AdminDashboard = () => {
 
   const handleUpdatePreOrderStatus = async (item, newStatus) => {
     try {
+      const targetUserId = item.userId || item.id;
       await firestore()
         .collection('harvests')
         .doc(item.harvestId)
         .collection('preOrders')
-        .doc(item.userId)
+        .doc(targetUserId)
         .update({
           status: newStatus,
           updatedAt: firestore.FieldValue.serverTimestamp(),
@@ -264,7 +266,7 @@ const AdminDashboard = () => {
       }
 
       await firestore().collection('notifications').add({
-        userId: item.userId,
+        userId: targetUserId,
         title,
         message,
         emoji,
@@ -1165,28 +1167,28 @@ const AdminDashboard = () => {
                   </Text>
                 </Text>
 
-                {item.status !== 'completed' && (
-                  <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
-                    {item.status === 'pending' && (
-                      <TouchableOpacity
-                        style={{
-                          flex: 1,
-                          backgroundColor: '#FFF3E0',
-                          borderColor: '#FF9800',
-                          borderWidth: 1,
-                          paddingVertical: 8,
-                          borderRadius: 6,
-                          alignItems: 'center',
-                        }}
-                        onPress={() =>
-                          handleUpdatePreOrderStatus(item, 'harvested')
-                        }>
-                        <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
-                          🚜 Mark Harvested
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
+                  {/* Harvest Process: Active (pending) or Completed (harvested/completed) */}
+                  {item.status === 'pending' ? (
                     <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#FFF3E0',
+                        borderColor: '#FF9800',
+                        borderWidth: 1,
+                        paddingVertical: 8,
+                        borderRadius: 6,
+                        alignItems: 'center',
+                      }}
+                      onPress={() =>
+                        handleUpdatePreOrderStatus(item, 'harvested')
+                      }>
+                      <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
+                        🚜 Mark Harvest
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View
                       style={{
                         flex: 1,
                         backgroundColor: '#E8F5E9',
@@ -1195,16 +1197,51 @@ const AdminDashboard = () => {
                         paddingVertical: 8,
                         borderRadius: 6,
                         alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                        🚜 Harvested ✓
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Deliver Process: Active (pending/harvested) or Completed (completed) */}
+                  {item.status !== 'completed' ? (
+                    <TouchableOpacity
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#FFF3E0',
+                        borderColor: '#FF9800',
+                        borderWidth: 1,
+                        paddingVertical: 8,
+                        borderRadius: 6,
+                        alignItems: 'center',
                       }}
                       onPress={() =>
                         handleUpdatePreOrderStatus(item, 'completed')
                       }>
-                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                        ✅ Mark Delivered
+                      <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
+                        ✅ Mark Deliver
                       </Text>
                     </TouchableOpacity>
-                  </View>
-                )}
+                  ) : (
+                    <View
+                      style={{
+                        flex: 1,
+                        backgroundColor: '#E8F5E9',
+                        borderColor: '#4CAF50',
+                        borderWidth: 1,
+                        paddingVertical: 8,
+                        borderRadius: 6,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
+                        ✅ Delivered ✓
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
             )}
             ListEmptyComponent={
