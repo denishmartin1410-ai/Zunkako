@@ -9,6 +9,20 @@
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
+      <intent-filter android:label="filter_view_f2c">
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="f2capp"/>
+      </intent-filter>
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="http"/>
+        <data android:scheme="https"/>
+        <data android:host="f2capp-e6c1d.web.app"/>
+      </intent-filter>
     </activity>
     <meta-data android:name="com.google.firebase.appcheck.debug.DEBUG_TOKEN" android:value="11811025-7A91-4EE2-9796-9D5FD5F49BA2"/>
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAC0JvmRAajANb3BoBCBVwdatpO8U9idA8"/>

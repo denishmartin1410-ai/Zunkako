@@ -58,10 +58,11 @@ const STATUS_CONFIG = {
   },
 };
 
-const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
+const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
   const {t} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
+  const chipBg = isDark ? '#1C3024' : '#E8F5E9';
 
   const creatorCount = 1;
   const invitedCount = Math.max(0, group.currentMembers - 1);
@@ -92,7 +93,23 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
           borderColor: themeColors.border,
           borderWidth: isDark ? 1 : 0,
         },
+        isHighlighted && {
+          borderWidth: 2,
+          borderColor: COLORS.primaryGreen,
+          shadowColor: COLORS.primaryGreen,
+          shadowOffset: {width: 0, height: 0},
+          shadowOpacity: 0.8,
+          shadowRadius: 10,
+          elevation: 8,
+        },
       ]}>
+      {isHighlighted && (
+        <View style={styles.highlightBadge}>
+          <Text style={styles.highlightBadgeTxt}>
+            🎯 {t('groupBuy.invitedGroup', {defaultValue: 'Invited Group / அழைக்கப்பட்ட குழு'})}
+          </Text>
+        </View>
+      )}
       {/* Card Header */}
       <LinearGradient
         colors={
@@ -197,30 +214,42 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
 
         {/* Benefits */}
         <View style={styles.benefitsRow}>
-          <View style={[styles.benefitChip, {backgroundColor: themeColors.bg}]}>
+          <View style={[styles.benefitChip, {backgroundColor: chipBg}]}>
             <Text style={styles.benefitEmoji}>🎁</Text>
             <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
               {group.discount} {t('groupBuy.discount')}
             </Text>
-            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
+            <Text
+              style={[
+                styles.benefitValue,
+                {color: isDark ? '#81C784' : COLORS.primaryGreen},
+              ]}>
               ₹{group.discountAmount} {t('groupBuy.savings')}
             </Text>
           </View>
-          <View style={styles.benefitChip}>
+          <View style={[styles.benefitChip, {backgroundColor: chipBg}]}>
             <Text style={styles.benefitEmoji}>🚚</Text>
             <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
               {t('groupBuy.delivery', {defaultValue: 'Delivery'})}
             </Text>
-            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
+            <Text
+              style={[
+                styles.benefitValue,
+                {color: isDark ? '#81C784' : COLORS.primaryGreen},
+              ]}>
               {t('groupBuy.free')}
             </Text>
           </View>
-          <View style={styles.benefitChip}>
+          <View style={[styles.benefitChip, {backgroundColor: chipBg}]}>
             <Text style={styles.benefitEmoji}>📅</Text>
             <Text style={[styles.benefitLabel, {color: themeColors.text}]}>
               {t('groupBuy.deadline', {defaultValue: 'Deadline'})}
             </Text>
-            <Text style={[styles.benefitValue, {color: themeColors.subText}]}>
+            <Text
+              style={[
+                styles.benefitValue,
+                {color: isDark ? '#81C784' : COLORS.primaryGreen},
+              ]}>
               {group.deadline}
             </Text>
           </View>
@@ -287,7 +316,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user}) => {
   );
 };
 
-const VillageGroupBuyScreen = ({navigation}) => {
+const VillageGroupBuyScreen = ({navigation, route}) => {
   const {t} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
@@ -299,6 +328,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
     targetMembers: '5',
   });
   const [groups, setGroups] = useState([]);
+  const selectedGroupId = route?.params?.groupId;
   const [loading, setLoading] = useState(true);
 
   const [showDirectAdd, setShowDirectAdd] = useState(false);
@@ -440,12 +470,24 @@ const VillageGroupBuyScreen = ({navigation}) => {
   React.useEffect(() => {
     const unsubscribe = listenToGroupBuys(res => {
       if (res.success) {
-        setGroups(res.data);
+        let processed = res.data || [];
+        if (selectedGroupId) {
+          processed = [...processed].sort((a, b) => {
+            if (a.id === selectedGroupId) {
+              return -1;
+            }
+            if (b.id === selectedGroupId) {
+              return 1;
+            }
+            return 0;
+          });
+        }
+        setGroups(processed);
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [selectedGroupId]);
 
   const handleJoin = group => {
     if (!user) {
@@ -700,6 +742,7 @@ const VillageGroupBuyScreen = ({navigation}) => {
               onJoin={handleJoin}
               onDirectAdd={handleOpenDirectAdd}
               user={user}
+              isHighlighted={group.id === selectedGroupId}
             />
           ))
         )}
@@ -1278,6 +1321,20 @@ const styles = StyleSheet.create({
     fontSize: FONTS.sm,
     color: COLORS.textMuted,
     textAlign: 'center',
+  },
+  highlightBadge: {
+    backgroundColor: COLORS.primaryGreen,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  highlightBadgeTxt: {
+    color: COLORS.white,
+    fontSize: 10.5,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });
 

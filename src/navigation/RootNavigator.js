@@ -20,6 +20,20 @@ import DeliveryNavigator from './DeliveryNavigator';
 
 const Stack = createNativeStackNavigator();
 
+const linking = {
+  prefixes: ['f2capp://', 'https://f2capp-e6c1d.web.app'],
+  config: {
+    screens: {
+      Consumer: {
+        path: '',
+        screens: {
+          VillageGroupBuy: 'groupbuy/:groupId',
+        },
+      },
+    },
+  },
+};
+
 const RootNavigator = () => {
   const {isAuthenticated, isLoading, userType} = useAuth();
 
@@ -34,7 +48,7 @@ const RootNavigator = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {!isAuthenticated ? (
           <Stack.Screen

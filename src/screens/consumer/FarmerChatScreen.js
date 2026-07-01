@@ -41,6 +41,7 @@ import {
 } from '../../services/firebase';
 import {getAllFarmers} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import Geolocation from '@react-native-community/geolocation';
 
 const AvatarView = ({uri, name, size = 58, style}) => {
   const [err, setErr] = useState(false);
@@ -407,7 +408,6 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
                 return;
               }
 
-              const Geolocation = require('@react-native-community/geolocation');
               Geolocation.getCurrentPosition(
                 async pos => {
                   const {latitude, longitude} = pos.coords;

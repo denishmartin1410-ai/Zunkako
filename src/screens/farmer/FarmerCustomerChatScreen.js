@@ -42,6 +42,7 @@ import {
   deleteChatMessageForEveryone,
 } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
+import Geolocation from '@react-native-community/geolocation';
 
 const AvatarView = ({uri, name, size = 52, style}) => {
   const [err, setErr] = useState(false);
@@ -426,7 +427,6 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
                 return;
               }
 
-              const Geolocation = require('@react-native-community/geolocation');
               Geolocation.getCurrentPosition(
                 async pos => {
                   const {latitude, longitude} = pos.coords;
