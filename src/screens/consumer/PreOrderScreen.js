@@ -173,7 +173,10 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={[styles.progressLabel, {color: themeColors.text}]}>
-              🔥 {t('preOrder.peoplePreOrdered', {count: item.totalPreOrders})}
+              🔥 {t('preOrder.peoplePreOrdered', {
+                count: item.totalPreOrders,
+                defaultValue: '{{count}} pre-ordered',
+              })}
             </Text>
             <Text style={[styles.progressCount, {color: themeColors.text}]}>
               {item.totalPreOrders}/{item.targetPreOrders}
@@ -243,21 +246,29 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         {/* Total + Pre-order button */}
         <View style={styles.orderRow}>
           <View>
-            <Text style={styles.totalLabel}>{t('common.total')}:</Text>
+            <Text style={styles.totalLabel}>{t('common.total', {defaultValue: 'Total'})}:</Text>
             <Text style={styles.totalValue}>₹{item.price * quantity}</Text>
           </View>
           <TouchableOpacity
-            style={styles.preOrderBtn}
+            style={[styles.preOrderBtn, {flex: 1, marginLeft: SPACING.md}]}
             onPress={() => onPreOrder(item, quantity)}>
             <LinearGradient
               colors={COLORS.gradientButton}
               style={styles.preOrderGrad}
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}}>
-              <Text style={styles.preOrderTxt}>
+              <Text
+                style={styles.preOrderTxt}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}>
                 📅 {t('preOrder.preOrderBtnText')}
               </Text>
-              <Text style={styles.preOrderSubTxt}>
+              <Text
+                style={styles.preOrderSubTxt}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}>
                 {t('preOrder.preOrderSubText')}
               </Text>
             </LinearGradient>

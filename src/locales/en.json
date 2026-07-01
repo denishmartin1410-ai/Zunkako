@@ -270,7 +270,8 @@
     "guest": "Friend",
     "ok": "OK",
     "back": "Back",
-    "close": "Close"
+    "close": "Close",
+    "total": "Total"
   },
   "product": {
     "organic": "Organic",
@@ -300,6 +301,7 @@
     "subtotal": "Subtotal",
     "delivery": "Delivery",
     "free": "Free Delivery for first 3 months!",
+    "freeLabel": "Free!",
     "total": "Total",
     "cod": "Cash on Delivery",
     "codSub": "Pay when the order arrives",
@@ -416,6 +418,7 @@
     "harvestingToday": "Harvesting Today!",
     "harvestingTomorrow": "Harvesting Tomorrow!",
     "selectedHarvest": "Selected Harvest",
+    "peoplePreOrdered": "{{count}} people pre-ordered",
     "peoplePreOrdered_one": "{{count}} person pre-ordered",
     "peoplePreOrdered_other": "{{count}} people pre-ordered",
     "regular": "Regular",

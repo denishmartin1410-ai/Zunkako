@@ -390,31 +390,35 @@ const CheckoutScreen = ({navigation}) => {
                       : COLORS.primaryGreen
                     : COLORS.accentRed,
                   borderWidth: 1.5,
+                  height: 'auto',
+                  paddingVertical: 10,
                 },
               ]}
               onPress={fetchGPSLocation}
               disabled={fetchingLocation}>
-              <Text
-                style={{
-                  color: consumerLocation
-                    ? isDark
-                      ? '#4CAF50'
-                      : COLORS.primaryGreen
-                    : COLORS.accentRed,
-                  fontWeight: 'bold',
-                  fontSize: rs(FONTS.sm),
-                }}>
-                {consumerLocation
-                  ? `${t('checkout.locationAdded', {
-                      defaultValue: '✅ GPS இருப்பிடம் இணைக்கப்பட்டது',
-                    })} (${consumerLocation.lat.toFixed(
-                      4,
-                    )}, ${consumerLocation.lng.toFixed(4)})`
-                  : t('checkout.locationMissing', {
-                      defaultValue:
-                        '❌ GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)',
-                    })}
-              </Text>
+              <View style={{flex: 1, marginRight: 8}}>
+                <Text
+                  style={{
+                    color: consumerLocation
+                      ? isDark
+                        ? '#4CAF50'
+                        : COLORS.primaryGreen
+                      : COLORS.accentRed,
+                    fontWeight: 'bold',
+                    fontSize: rs(FONTS.sm) - 1.5,
+                  }}>
+                  {consumerLocation
+                    ? `${t('checkout.locationAdded', {
+                        defaultValue: '✅ GPS இருப்பிடம் இணைக்கப்பட்டது',
+                      })} (${consumerLocation.lat.toFixed(
+                        4,
+                      )}, ${consumerLocation.lng.toFixed(4)})`
+                    : t('checkout.locationMissing', {
+                        defaultValue:
+                          '❌ GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)',
+                      })}
+                </Text>
+              </View>
               {fetchingLocation ? (
                 <ActivityIndicator color={COLORS.primaryGreen} size="small" />
               ) : (
@@ -529,10 +533,24 @@ const CheckoutScreen = ({navigation}) => {
                   : {color: themeColors.text},
               ]}>
               {deliveryFee === 0
-                ? t('checkout.free', {defaultValue: 'இலவசம்!'})
+                ? t('checkout.freeLabel', {defaultValue: 'இலவசம்!'})
                 : `₹${deliveryFee}`}
             </Text>
           </View>
+          {deliveryFee === 0 && (
+            <Text
+              style={{
+                fontSize: rs(11),
+                color: isDark ? '#81C784' : COLORS.primaryGreen,
+                textAlign: 'right',
+                marginTop: -4,
+                marginBottom: 6,
+              }}>
+              {t('checkout.free', {
+                defaultValue: 'முதல் 3 மாதங்களுக்கு இலவச டெலிவரி!',
+              })}
+            </Text>
+          )}
           <View
             style={[
               styles.priceRow,

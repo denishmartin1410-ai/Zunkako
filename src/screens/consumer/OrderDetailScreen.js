@@ -456,7 +456,7 @@ const OrderDetailScreen = ({route, navigation}) => {
           <View
             style={[
               styles.statusBadge,
-              {backgroundColor: statusColor + '22', maxWidth: '60%'},
+              {backgroundColor: statusColor + '22', maxWidth: '95%'},
             ]}>
             <Text
               style={[styles.statusText, {color: statusColor}]}
@@ -870,9 +870,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: rs(4),
+    flex: 1,
   },
   timelineIcon: {fontSize: rs(16), marginRight: 8},
-  timelineLabel: {fontSize: rs(FONTS.sm), color: COLORS.textSecondary},
+  timelineLabel: {
+    fontSize: rs(FONTS.sm),
+    color: COLORS.textSecondary,
+    flex: 1,
+    flexWrap: 'wrap',
+  },
   timelineLabelActive: {color: COLORS.primaryGreen, fontWeight: 'bold'},
 
   itemsCard: {

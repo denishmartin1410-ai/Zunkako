@@ -258,7 +258,8 @@
     "guest": "സുഹൃത്ത്",
     "ok": "ശരി",
     "back": "തിരികെ",
-    "close": "അടയ്ക്കുക"
+    "close": "അടയ്ക്കുക",
+    "total": "ആകെ"
   },
   "product": {
     "organic": "ഓർഗാനിക്",
@@ -288,6 +289,7 @@
     "subtotal": "തുക",
     "delivery": "ഡെലിവറി",
     "free": "ആദ്യത്തെ 3 മാസം സൗജന്യ ഡെലിവറി!",
+    "freeLabel": "സൗജന്യം!",
     "total": "ആകെ",
     "cod": "ക്യാഷ് ഓൺ ഡെലിവറി",
     "codSub": "ഓർഡർ എത്തുമ്പോൾ പണം നൽകുക",
@@ -365,6 +367,7 @@
     "harvestingToday": "ഇന്ന് വിളവെടുപ്പ്!",
     "harvestingTomorrow": "നാളെ വിളവെടുപ്പ്!",
     "selectedHarvest": "തിരഞ്ഞെടുത്ത വിളവെടുപ്പ്",
+    "peoplePreOrdered": "{{count}} പേർ മുൻകൂട്ടി ഓർഡർ ചെയ്തു",
     "peoplePreOrdered_one": "{{count}} പേർ മുൻകൂട്ടി ഓർഡർ ചെയ്തു",
     "peoplePreOrdered_other": "{{count}} പേർ മുൻകൂട്ടി ഓർഡർ ചെയ്തു",
     "regular": "സാധാരണ",

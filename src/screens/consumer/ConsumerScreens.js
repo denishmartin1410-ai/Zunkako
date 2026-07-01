@@ -280,13 +280,19 @@ export const OrdersScreen = ({navigation}) => {
                         {
                           backgroundColor:
                             (STATUS_COLOR[order.status] || '#999') + '22',
+                          flexShrink: 1,
+                          maxWidth: '75%',
+                          marginLeft: 8,
                         },
                       ]}>
                       <Text
                         style={[
                           S.statusText,
                           {color: STATUS_COLOR[order.status] || '#999'},
-                        ]}>
+                        ]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.75}>
                         {t('orders.status' + order.status.replace(/ /g, '_'), {
                           defaultValue: order.status,
                         })}
