@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...SHADOWS.small,
   },
-  cartImg: {width: rs(100), height: rs(100)},
+  cartImg: {width: rs(115), alignSelf: 'stretch'},
   cartInfo: {flex: 1, padding: SPACING.md},
   cartName: {
     fontSize: rs(FONTS.md),

@@ -515,7 +515,11 @@ const DeliveryDashboard = () => {
                 </Text>
               )}
 
-              {item.status !== 'Confirmed' ? (
+              {item.status === 'Delivered' ? (
+                <Text style={styles.stepCompletedLabel}>
+                  ✅ Delivered to Consumer
+                </Text>
+              ) : item.status === 'Shipped' ? (
                 <TouchableOpacity
                   style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
                   onPress={() =>

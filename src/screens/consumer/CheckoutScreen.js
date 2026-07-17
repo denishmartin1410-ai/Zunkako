@@ -43,7 +43,7 @@ const rs = size => Math.round(size * scale);
 const CheckoutScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
   const {user} = useAuth();
-  const {cartItems, totalAmount, clearCart} = useCart();
+  const {cartItems, totalAmount, discount, clearCart} = useCart();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const [customerName, setCustomerName] = useState(user?.name || '');
@@ -67,7 +67,7 @@ const CheckoutScreen = ({navigation}) => {
   }, []);
 
   const deliveryFee = 0; // Free for first 3 months
-  const finalAmount = totalAmount + deliveryFee;
+  const finalAmount = totalAmount - (discount || 0) + deliveryFee;
 
   // ✅ Get consumer's current location for delivery navigation
   const getConsumerLocation = () => {
@@ -200,6 +200,10 @@ const CheckoutScreen = ({navigation}) => {
             (s, i) => s + (i.consumerPrice || i.price) * i.quantity,
             0,
           );
+          const orderDiscount =
+            totalAmount >= 299 ? Math.round(subtotal * 0.05) : 0;
+          const orderTotal = subtotal - orderDiscount + deliveryFee;
+
           return createOrder({
             consumerId: user?.id || user?.uid,
             consumerName: customerName.trim(),
@@ -226,8 +230,9 @@ const CheckoutScreen = ({navigation}) => {
               image: i.image,
             })),
             subtotal,
+            discount: orderDiscount,
             deliveryFee: deliveryFee,
-            total: subtotal + deliveryFee,
+            total: orderTotal,
             deliveryAddress: address.trim(),
             deliveryPincode: pincode.trim(),
             paymentMethod: 'COD',
@@ -537,6 +542,23 @@ const CheckoutScreen = ({navigation}) => {
                 : `₹${deliveryFee}`}
             </Text>
           </View>
+          {!!discount && (
+            <View style={styles.priceRow}>
+              <Text style={[styles.priceLabel, {color: '#FF5252'}]}>
+                🎁{' '}
+                {t('checkout.bulkDiscount', {
+                  defaultValue: 'கூட்டு தள்ளுபடி (5%)',
+                })}
+              </Text>
+              <Text
+                style={[
+                  styles.priceVal,
+                  {color: '#FF5252', fontWeight: 'bold'},
+                ]}>
+                -₹{discount}
+              </Text>
+            </View>
+          )}
           {deliveryFee === 0 && (
             <Text
               style={{

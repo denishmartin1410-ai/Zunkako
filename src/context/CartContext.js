@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Alert} from 'react-native';
 
 const CartContext = createContext(null);
 
@@ -55,6 +56,17 @@ export const CartProvider = ({children}) => {
   const addToCart = item => {
     setCartItems(prev => {
       const existingItem = prev.find(i => i.id === item.id);
+      const currentQty = existingItem ? existingItem.quantity : 0;
+      const maxStock = item.stock !== undefined ? Number(item.stock) : 999;
+
+      if (currentQty >= maxStock) {
+        Alert.alert(
+          'மன்னிக்கவும் (Sorry)',
+          'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+        );
+        return prev;
+      }
+
       if (existingItem) {
         // Increase quantity if already exists
         return prev.map(i =>
@@ -69,9 +81,20 @@ export const CartProvider = ({children}) => {
   // ✅ Increase quantity
   const increaseQuantity = itemId => {
     setCartItems(prev =>
-      prev.map(item =>
-        item.id === itemId ? {...item, quantity: item.quantity + 1} : item,
-      ),
+      prev.map(item => {
+        if (item.id === itemId) {
+          const maxStock = item.stock !== undefined ? Number(item.stock) : 999;
+          if (item.quantity >= maxStock) {
+            Alert.alert(
+              'மன்னிக்கவும் (Sorry)',
+              'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+            );
+            return item;
+          }
+          return {...item, quantity: item.quantity + 1};
+        }
+        return item;
+      }),
     );
   };
 
@@ -94,11 +117,23 @@ export const CartProvider = ({children}) => {
     if (newQuantity <= 0) {
       setCartItems(prev => prev.filter(item => item.id !== itemId));
     } else {
-      setCartItems(prev =>
-        prev.map(item =>
+      setCartItems(prev => {
+        const targetItem = prev.find(item => item.id === itemId);
+        if (targetItem) {
+          const maxStock =
+            targetItem.stock !== undefined ? Number(targetItem.stock) : 999;
+          if (newQuantity > maxStock) {
+            Alert.alert(
+              'மன்னிக்கவும் (Sorry)',
+              'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+            );
+            return prev;
+          }
+        }
+        return prev.map(item =>
           item.id === itemId ? {...item, quantity: newQuantity} : item,
-        ),
-      );
+        );
+      });
     }
   };
 
@@ -130,10 +165,14 @@ export const CartProvider = ({children}) => {
   );
   const totalAmount = subtotal; // ✅ alias used by CartScreen & CheckoutScreen
 
+  const BULK_DISCOUNT_THRESHOLD = 299;
+  const discount =
+    subtotal >= BULK_DISCOUNT_THRESHOLD ? Math.round(subtotal * 0.05) : 0;
+
   const deliveryFee =
     subtotal === 0 ? 0 : subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 
-  const total = subtotal + deliveryFee;
+  const total = subtotal - discount + deliveryFee;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
 
@@ -152,6 +191,8 @@ export const CartProvider = ({children}) => {
         getItemQuantity,
         subtotal,
         totalAmount,
+        discount,
+        BULK_DISCOUNT_THRESHOLD,
         deliveryFee,
         total,
         totalItems,

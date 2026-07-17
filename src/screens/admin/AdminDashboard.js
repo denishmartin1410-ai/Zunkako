@@ -20,6 +20,7 @@ import {
   ScrollView,
   Modal,
   Image,
+  Platform,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -29,6 +30,7 @@ import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import {createNotification} from '../../services/firebase';
 import LinearGradient from 'react-native-linear-gradient';
 import MapView, {Marker, Polyline} from 'react-native-maps';
+import Video from 'react-native-video';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -57,6 +59,10 @@ const AdminDashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [preOrders, setPreOrders] = useState([]);
   const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
+  const [zoomModalVisible, setZoomModalVisible] = useState(false);
+  const [zoomImageUri, setZoomImageUri] = useState('');
+  const [playingAudioUrl, setPlayingAudioUrl] = useState(null);
+  const [audioPaused, setAudioPaused] = useState(true);
   const [userStats, setUserStats] = useState({
     farmers: 0,
     consumers: 0,
@@ -198,6 +204,9 @@ const AdminDashboard = () => {
             const list = [];
             const promises = snap.docs.map(async doc => {
               const preOrderData = doc.data();
+              const pathParts = doc.ref.path.split('/');
+              const harvestId = pathParts[1];
+              const userId = pathParts[3];
               const harvestRef = doc.ref.parent.parent;
               let harvestData = {};
               if (harvestRef) {
@@ -208,10 +217,13 @@ const AdminDashboard = () => {
               }
               list.push({
                 id: doc.id,
-                harvestId: harvestRef ? harvestRef.id : '',
+                harvestId: harvestId,
                 ...harvestData,
                 ...preOrderData,
-                userId: doc.id, // Explicitly override with document ID (which is the customer's userId)
+                userId: userId,
+                preOrderId: doc.id,
+                preOrderHarvestId: harvestId,
+                preOrderUserId: userId,
               });
             });
             await Promise.all(promises);
@@ -230,10 +242,11 @@ const AdminDashboard = () => {
 
   const handleUpdatePreOrderStatus = async (item, newStatus) => {
     try {
-      const targetUserId = item.userId || item.id;
+      const targetHarvestId = item.preOrderHarvestId || item.harvestId;
+      const targetUserId = item.preOrderUserId || item.userId || item.id;
       await firestore()
         .collection('harvests')
-        .doc(item.harvestId)
+        .doc(targetHarvestId)
         .collection('preOrders')
         .doc(targetUserId)
         .update({
@@ -1023,14 +1036,63 @@ const AdminDashboard = () => {
                         : '📝 Written Feedback'}
                     </Text>
                     {item.type === 'voice' ? (
-                      <Text style={styles.voiceDuration}>
-                        Captured duration:{' '}
-                        {item.voiceDuration
-                          ? `${Math.floor(item.voiceDuration / 60)}:${
-                              item.voiceDuration % 60 < 10 ? '0' : ''
-                            }${item.voiceDuration % 60}`
-                          : 'N/A'}
-                      </Text>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginTop: 6,
+                          gap: 10,
+                        }}>
+                        <Text style={styles.voiceDuration}>
+                          Captured duration:{' '}
+                          {item.voiceDuration
+                            ? `${Math.floor(item.voiceDuration / 60)}:${
+                                item.voiceDuration % 60 < 10 ? '0' : ''
+                              }${item.voiceDuration % 60}`
+                            : 'N/A'}
+                        </Text>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor:
+                              playingAudioUrl ===
+                                (item.audioUrl ||
+                                  item.attachmentUrl ||
+                                  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3') &&
+                              !audioPaused
+                                ? '#D32F2F'
+                                : '#2E7D32',
+                            paddingVertical: 4,
+                            paddingHorizontal: 10,
+                            borderRadius: 4,
+                          }}
+                          onPress={() => {
+                            const url =
+                              item.audioUrl ||
+                              item.attachmentUrl ||
+                              'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+                            if (playingAudioUrl === url) {
+                              setAudioPaused(!audioPaused);
+                            } else {
+                              setPlayingAudioUrl(url);
+                              setAudioPaused(false);
+                            }
+                          }}>
+                          <Text
+                            style={{
+                              color: '#FFF',
+                              fontSize: 12,
+                              fontWeight: 'bold',
+                            }}>
+                            {playingAudioUrl ===
+                              (item.audioUrl ||
+                                item.attachmentUrl ||
+                                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3') &&
+                            !audioPaused
+                              ? '⏸️ Pause'
+                              : '▶️ Play'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
                     ) : (
                       <Text style={styles.feedbackContent}>{item.content}</Text>
                     )}
@@ -1041,11 +1103,18 @@ const AdminDashboard = () => {
                       <Text style={styles.attachmentLabel}>
                         📎 Attached Screenshot:
                       </Text>
-                      <Image
-                        source={{uri: item.attachmentUrl}}
-                        style={styles.feedbackImage}
-                        resizeMode="contain"
-                      />
+                      <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => {
+                          setZoomImageUri(item.attachmentUrl);
+                          setZoomModalVisible(true);
+                        }}>
+                        <Image
+                          source={{uri: item.attachmentUrl}}
+                          style={styles.feedbackImage}
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
                     </View>
                   ) : null}
                 </View>
@@ -1353,6 +1422,80 @@ const AdminDashboard = () => {
           />
         </View>
       </Modal>
+
+      {/* 🔍 Screenshot Zoom Modal */}
+      <Modal
+        visible={zoomModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setZoomModalVisible(false)}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: Platform.OS === 'ios' ? 50 : 20,
+              right: 20,
+              zIndex: 10,
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              borderRadius: 20,
+              width: 40,
+              height: 40,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onPress={() => setZoomModalVisible(false)}>
+            <Text style={{color: '#FFF', fontSize: 18, fontWeight: 'bold'}}>
+              ✕
+            </Text>
+          </TouchableOpacity>
+
+          <ScrollView
+            maximumZoomScale={5.0}
+            minimumZoomScale={1.0}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              width: Dimensions.get('window').width,
+              height: Dimensions.get('window').height,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              source={{uri: zoomImageUri}}
+              style={{
+                width: '100%',
+                height: '80%',
+              }}
+              resizeMode="contain"
+            />
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {playingAudioUrl ? (
+        <Video
+          source={{uri: playingAudioUrl}}
+          paused={audioPaused}
+          audioOnly={true}
+          onEnd={() => {
+            setAudioPaused(true);
+            setPlayingAudioUrl(null);
+          }}
+          onError={e => {
+            console.log('Audio playback error:', e);
+            Alert.alert('Playback Error', 'Failed to play audio');
+            setPlayingAudioUrl(null);
+            setAudioPaused(true);
+          }}
+          style={{width: 0, height: 0}}
+        />
+      ) : null}
     </View>
   );
 };
