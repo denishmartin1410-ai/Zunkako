@@ -17,6 +17,7 @@ import {
   Share,
   Modal,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
@@ -333,6 +334,12 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
   const [groups, setGroups] = useState([]);
   const selectedGroupId = route?.params?.groupId;
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshing(false);
+  }, []);
 
   const [showDirectAdd, setShowDirectAdd] = useState(false);
   const [selectedGroupForAdd, setSelectedGroupForAdd] = useState(null);
@@ -633,7 +640,15 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{padding: SPACING.lg, paddingBottom: 100}}>
+        contentContainerStyle={{padding: SPACING.lg, paddingBottom: 100}}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primaryGreen]}
+            tintColor={COLORS.primaryGreen}
+          />
+        }>
         {/* Create group button */}
         <TouchableOpacity
           style={styles.createBtn}

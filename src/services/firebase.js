@@ -857,6 +857,45 @@ export const submitProductRating = async (
   }
 };
 
+export const getFarmerProductReviews = async farmerId => {
+  try {
+    const productsSnap = await firestore()
+      .collection('products')
+      .where('farmerId', '==', farmerId)
+      .get();
+
+    const reviews = [];
+    const promises = productsSnap.docs.map(async prodDoc => {
+      const prodData = prodDoc.data();
+      const prodId = prodDoc.id;
+      const ratingsSnap = await prodDoc.ref.collection('ratings').get();
+      ratingsSnap.docs.forEach(ratingDoc => {
+        const ratingData = ratingDoc.data();
+        reviews.push({
+          id: ratingDoc.id,
+          productId: prodId,
+          productName: prodData.name || '',
+          productNameEn: prodData.nameEn || '',
+          ...ratingData,
+        });
+      });
+    });
+    await Promise.all(promises);
+
+    // Sort by createdAt descending
+    reviews.sort((a, b) => {
+      const t1 = a.createdAt?.toDate?.() || 0;
+      const t2 = b.createdAt?.toDate?.() || 0;
+      return t2 - t1;
+    });
+
+    return {success: true, data: reviews};
+  } catch (error) {
+    console.log('getFarmerProductReviews error:', error.message);
+    return {success: false, error: error.message, data: []};
+  }
+};
+
 export const getUserProductRating = async (productId, userId) => {
   try {
     const doc = await firestore()

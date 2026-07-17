@@ -9,7 +9,11 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
+  Platform,
+  PermissionsAndroid,
+  Linking,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
 import {
@@ -89,6 +93,96 @@ const FarmerAddHarvestScreen = ({navigation}) => {
     description: '',
   });
 
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const [locStatus, setLocStatus] = useState('fetching'); // fetching, success, error
+
+  const getCurrentLocationWithFallback = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setLocStatus('success');
+      },
+      error => {
+        console.log(
+          'High accuracy location failed, retrying with low accuracy:',
+          error,
+        );
+        Geolocation.getCurrentPosition(
+          pos => {
+            setLatitude(pos.coords.latitude);
+            setLongitude(pos.coords.longitude);
+            setLocStatus('success');
+          },
+          err => {
+            console.log('Low accuracy location failed:', err);
+            setLocStatus('error');
+          },
+          {enableHighAccuracy: false, timeout: 15000, maximumAge: 10000},
+        );
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+    );
+  };
+
+  const fetchLocation = async () => {
+    setLocStatus('fetching');
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: t('farmer.locationPermissionTitle', {
+              defaultValue: 'இருப்பிட அனுமதி',
+            }),
+            message: t('farmer.locationPermissionMsg', {
+              defaultValue:
+                'பொருளின் இடத்தை வாடிக்கையாளருக்கு காட்ட இருப்பிட அனுமதி தேவை.',
+            }),
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocationWithFallback();
+        } else {
+          setLocStatus('error');
+          Alert.alert(
+            t('farmer.locationPermissionTitle', {
+              defaultValue: 'இருப்பிட அனுமதி',
+            }),
+            t('farmer.locationDeniedMsg', {
+              defaultValue:
+                'அறுவடையைச் சேர்க்க இருப்பிட அனுமதி தேவை. அதை அமைப்புகளில் அனுமதிக்கவும்.\nLocation permission is required to add harvests. Please allow it in App Settings.',
+            }),
+            [
+              {
+                text: t('common.cancel', {defaultValue: 'Cancel'}),
+                style: 'cancel',
+              },
+              {
+                text: t('profile.settings', {defaultValue: 'Settings'}),
+                onPress: () => Linking.openSettings(),
+              },
+            ],
+          );
+        }
+      } else {
+        getCurrentLocationWithFallback();
+      }
+    } catch (err) {
+      setLocStatus('error');
+      console.warn(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Listen to this farmer's harvests in real time
   useEffect(() => {
     const userId = user?.id || user?.uid;
@@ -148,6 +242,9 @@ const FarmerAddHarvestScreen = ({navigation}) => {
         descriptionEn: formData.description || '',
         totalPreOrders: 0,
         targetPreOrders: 50,
+        coordinates:
+          latitude && longitude ? {lat: latitude, lng: longitude} : null,
+        location: user?.location || '',
       };
 
       const res = await addHarvest(harvestData);
@@ -253,6 +350,39 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             keyboard="default"
             placeholder=""
           />
+
+          <TouchableOpacity
+            onPress={fetchLocation}
+            style={{
+              marginBottom: SPACING.md,
+              padding: SPACING.md,
+              backgroundColor: isDark ? 'rgba(46, 125, 50, 0.2)' : '#E8F5E9',
+              borderRadius: RADIUS.md,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 24, marginRight: 10}}>📍</Text>
+            <View style={{flex: 1}}>
+              <Text
+                style={{
+                  fontSize: FONTS.sm,
+                  fontWeight: FONTS.semiBold,
+                  color: isDark ? COLORS.primaryGreen : COLORS.primaryGreenDark,
+                }}>
+                {locStatus === 'fetching'
+                  ? t('farmer.fetchingLocation', {
+                      defaultValue: 'Fetching your location...',
+                    })
+                  : locStatus === 'success'
+                  ? t('farmer.locationAdded', {
+                      defaultValue: 'Your location added successfully!',
+                    })
+                  : t('farmer.locationError', {
+                      defaultValue: 'Could not get location. Turn on GPS.',
+                    })}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <View style={{flexDirection: 'row', gap: SPACING.md}}>
             <View style={{flex: 1}}>

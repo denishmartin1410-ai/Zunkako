@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Platform,
   PermissionsAndroid,
+  Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
@@ -81,6 +82,7 @@ const QRScanScreen = ({navigation}) => {
       }
     };
     initCamera();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onReadCode = async event => {
@@ -243,6 +245,13 @@ const QRScanScreen = ({navigation}) => {
                   'Please grant camera permission in Settings to scan QR codes.',
               })}
             </Text>
+            <TouchableOpacity
+              style={[styles.settingsBtn, {marginTop: 16}]}
+              onPress={() => Linking.openSettings()}>
+              <Text style={styles.settingsBtnTxt}>
+                ⚙️ {t('profile.settings', {defaultValue: 'Settings'})}
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : !hasPermission ? (
           <View style={styles.loadingContainer}>
@@ -362,6 +371,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: SPACING.xxl,
     lineHeight: rs(22),
+  },
+  settingsBtn: {
+    backgroundColor: COLORS.primaryGreen,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: RADIUS.md,
+  },
+  settingsBtnTxt: {
+    color: COLORS.white,
+    fontSize: rs(FONTS.md),
+    fontWeight: 'bold',
   },
 });
 

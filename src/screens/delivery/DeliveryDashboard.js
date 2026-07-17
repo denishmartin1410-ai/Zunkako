@@ -20,6 +20,7 @@ import {
   Linking,
   Platform,
   PermissionsAndroid,
+  RefreshControl,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Geolocation from '@react-native-community/geolocation';
@@ -55,6 +56,12 @@ const DeliveryDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [availableOrders, setAvailableOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshing(false);
+  }, []);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [activeTab, setActiveTab] = useState('available');
 
@@ -662,6 +669,8 @@ const DeliveryDashboard = () => {
           renderItem={renderOrder}
           contentContainerStyle={{padding: SPACING.md, paddingBottom: 100}}
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Text style={styles.emptyEmoji}>

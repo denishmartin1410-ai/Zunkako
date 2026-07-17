@@ -15,6 +15,7 @@ import {
   PermissionsAndroid,
   Platform,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -132,6 +133,11 @@ export const FarmerDashboardScreen = ({navigation}) => {
   });
   const [myProducts, setMyProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [salesModalVisible, setSalesModalVisible] = useState(false);
+  const [monthlyModalVisible, setMonthlyModalVisible] = useState(false);
+  const [detailsOrders, setDetailsOrders] = useState([]);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
   const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
   const [preOrders, setPreOrders] = useState([]);
@@ -221,13 +227,19 @@ export const FarmerDashboardScreen = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    const farmerId = user?.id || user?.uid;
-    if (!farmerId) {
-      setIsLoading(false);
-      return;
-    }
-    (async () => {
+  const loadDashboardData = useCallback(
+    async (isRefresh = false) => {
+      const farmerId = user?.id || user?.uid;
+      if (!farmerId) {
+        setIsLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       try {
         const {
           getFarmerStats,
@@ -247,8 +259,64 @@ export const FarmerDashboardScreen = ({navigation}) => {
         console.log('dashboard error:', e);
       }
       setIsLoading(false);
-    })();
-  }, [user]);
+      setRefreshing(false);
+    },
+    [user],
+  );
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const onRefreshDashboard = () => {
+    loadDashboardData(true);
+  };
+
+  const openSalesDetails = async () => {
+    setSalesModalVisible(true);
+    setDetailsLoading(true);
+    const farmerId = user?.id || user?.uid;
+    if (farmerId) {
+      try {
+        const {getFarmerOrders} = require('../../services/firebase');
+        const res = await getFarmerOrders(farmerId);
+        if (res.success) {
+          const delivered = res.data.filter(o => o.status === 'Delivered');
+          setDetailsOrders(delivered);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setDetailsLoading(false);
+  };
+
+  const openMonthlyDetails = async () => {
+    setMonthlyModalVisible(true);
+    setDetailsLoading(true);
+    const farmerId = user?.id || user?.uid;
+    if (farmerId) {
+      try {
+        const {getFarmerOrders} = require('../../services/firebase');
+        const res = await getFarmerOrders(farmerId);
+        if (res.success) {
+          const now = new Date();
+          const thisMonth = res.data.filter(o => {
+            const created = o.createdAt?.toDate?.();
+            return (
+              created &&
+              created.getMonth() === now.getMonth() &&
+              created.getFullYear() === now.getFullYear()
+            );
+          });
+          setDetailsOrders(thisMonth);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setDetailsLoading(false);
+  };
 
   const statCards = [
     {
@@ -256,24 +324,28 @@ export const FarmerDashboardScreen = ({navigation}) => {
       val: `₹${stats.totalSales.toLocaleString()}`,
       icon: '💰',
       color: '#4CAF50',
+      onPress: openSalesDetails,
     },
     {
       label: t('farmer.thisMonth', {defaultValue: 'இந்த மாதம்'}),
       val: `₹${stats.thisMonthRevenue.toLocaleString()}`,
       icon: '📈',
       color: '#2196F3',
+      onPress: openMonthlyDetails,
     },
     {
       label: t('nav.orders', {defaultValue: 'ஆர்டர்கள்'}),
       val: `${stats.totalOrders}`,
       icon: '📦',
       color: '#FF9800',
+      onPress: () => navigation.navigate('FarmerOrders'),
     },
     {
       label: t('nav.products', {defaultValue: 'தயாரிப்புகள்'}),
       val: `${myProducts.length}`,
       icon: '🥬',
       color: '#9C27B0',
+      onPress: () => navigation.navigate('MyProducts'),
     },
   ];
 
@@ -302,20 +374,32 @@ export const FarmerDashboardScreen = ({navigation}) => {
               onPress={() => navigation.navigate('Notifications')}>
               <Text style={{fontSize: rs(24)}}>🔔</Text>
             </TouchableOpacity>
-            <AvatarView
-              uri={user?.avatar}
-              name={user?.name}
-              size={rs(56)}
-              style={{borderWidth: 2, borderColor: COLORS.white}}
-            />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('FarmerProfile')}>
+              <AvatarView
+                uri={user?.avatar}
+                name={user?.name}
+                size={rs(56)}
+                style={{borderWidth: 2, borderColor: COLORS.white}}
+              />
+            </TouchableOpacity>
           </View>
         </View>
         <Text style={S.farmName}>
           {user?.farmName || t('farmer.myFarm', {defaultValue: 'என் பண்ணை'})}
         </Text>
       </LinearGradient>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {isLoading ? (
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefreshDashboard}
+            colors={[COLORS.primaryGreen]}
+            tintColor={COLORS.primaryGreen}
+          />
+        }>
+        {isLoading && !refreshing ? (
           <ActivityIndicator
             color={COLORS.primaryGreen}
             size="large"
@@ -324,8 +408,10 @@ export const FarmerDashboardScreen = ({navigation}) => {
         ) : (
           <View style={S.statsGrid}>
             {statCards.map((stat, i) => (
-              <View
+              <TouchableOpacity
                 key={i}
+                onPress={stat.onPress}
+                activeOpacity={0.7}
                 style={[
                   S.statCard,
                   {
@@ -340,7 +426,7 @@ export const FarmerDashboardScreen = ({navigation}) => {
                 <Text style={[S.statLbl, {color: themeColors.subText}]}>
                   {stat.label}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
@@ -885,6 +971,328 @@ export const FarmerDashboardScreen = ({navigation}) => {
           )}
         </View>
       </Modal>
+
+      {/* 💰 Total Sales Details Modal */}
+      <Modal
+        visible={salesModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSalesModalVisible(false)}>
+        <View style={S.modalOverlay}>
+          <View
+            style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
+            <View style={S.modalHeader}>
+              <Text style={[S.modalTitle, {color: themeColors.text}]}>
+                💰 {t('farmer.totalSales', {defaultValue: 'மொத்த விற்பனை'})}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setSalesModalVisible(false)}
+                style={S.modalCloseBtn}>
+                <Text style={{fontSize: 20, color: themeColors.text}}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {detailsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={COLORS.primaryGreen}
+                style={{marginVertical: 40}}
+              />
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View
+                  style={[
+                    S.summaryBox,
+                    {backgroundColor: isDark ? '#1E3A24' : '#E8F5E9'},
+                  ]}>
+                  <Text style={[S.summaryVal, {color: '#4CAF50'}]}>
+                    ₹{stats.totalSales.toLocaleString()}
+                  </Text>
+                  <Text style={[S.summaryLbl, {color: themeColors.text}]}>
+                    {t('farmer.totalCompletedEarnings', {
+                      defaultValue:
+                        'மொத்த வருவாய் (பூர்த்தி செய்யப்பட்ட ஆர்டர்கள்)',
+                    })}
+                  </Text>
+                  <Text
+                    style={[
+                      S.summarySub,
+                      {color: themeColors.subText, marginTop: 4},
+                    ]}>
+                    {t('farmer.completedCount', {
+                      defaultValue: 'மொத்த ஆர்டர்கள்',
+                    })}
+                    : {detailsOrders.length}
+                  </Text>
+                </View>
+
+                <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
+                  📦{' '}
+                  {t('farmer.salesList', {defaultValue: 'விற்பனைப் பட்டியல்'})}
+                </Text>
+
+                {detailsOrders.length === 0 ? (
+                  <View style={{alignItems: 'center', paddingVertical: 40}}>
+                    <Text style={{fontSize: 40, marginBottom: 8}}>💰</Text>
+                    <Text style={{color: themeColors.textMuted}}>
+                      {t('orders.noOrders', {
+                        defaultValue: 'ஆர்டர்கள் எதுவும் இல்லை',
+                      })}
+                    </Text>
+                  </View>
+                ) : (
+                  detailsOrders.map((order, index) => (
+                    <View
+                      key={order.id || index}
+                      style={[
+                        S.detailOrderCard,
+                        {
+                          backgroundColor: themeColors.bg,
+                          borderColor: themeColors.border,
+                          borderWidth: 1,
+                        },
+                      ]}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 4,
+                        }}>
+                        <Text
+                          style={{fontWeight: 'bold', color: themeColors.text}}>
+                          #{order.orderId || order.id?.slice(-4)}
+                        </Text>
+                        <Text
+                          style={{fontSize: 12, color: themeColors.subText}}>
+                          {order.createdAt
+                            ?.toDate?.()
+                            ?.toLocaleDateString('ta-IN') || ''}
+                        </Text>
+                      </View>
+                      <Text
+                        style={{
+                          color: themeColors.text,
+                          fontSize: 13,
+                          fontWeight: '600',
+                        }}>
+                        👤{' '}
+                        {order.consumerName || order.customerName || 'Customer'}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: themeColors.subText,
+                          marginVertical: 4,
+                        }}>
+                        📍 {order.deliveryAddress || order.address || ''}
+                      </Text>
+                      <View
+                        style={{
+                          borderTopWidth: 0.5,
+                          borderTopColor: themeColors.border,
+                          paddingTop: 4,
+                          marginTop: 4,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{fontSize: 12, color: themeColors.subText}}>
+                          {(order.items || [])
+                            .map(i => i.nameTa || i.name)
+                            .join(', ')}
+                        </Text>
+                        <Text style={{fontWeight: 'bold', color: '#4CAF50'}}>
+                          ₹{order.total}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* 📈 This Month Revenue Details Modal */}
+      <Modal
+        visible={monthlyModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setMonthlyModalVisible(false)}>
+        <View style={S.modalOverlay}>
+          <View
+            style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
+            <View style={S.modalHeader}>
+              <Text style={[S.modalTitle, {color: themeColors.text}]}>
+                📈 {t('farmer.thisMonth', {defaultValue: 'இந்த மாதம்'})}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setMonthlyModalVisible(false)}
+                style={S.modalCloseBtn}>
+                <Text style={{fontSize: 20, color: themeColors.text}}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {detailsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={COLORS.primaryGreen}
+                style={{marginVertical: 40}}
+              />
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View
+                  style={[
+                    S.summaryBox,
+                    {backgroundColor: isDark ? '#1A334B' : '#E3F2FD'},
+                  ]}>
+                  <Text style={[S.summaryVal, {color: '#2196F3'}]}>
+                    ₹{stats.thisMonthRevenue.toLocaleString()}
+                  </Text>
+                  <Text style={[S.summaryLbl, {color: themeColors.text}]}>
+                    {t('farmer.thisMonthEarnings', {
+                      defaultValue: 'இந்த மாத வருவாய்',
+                    })}
+                  </Text>
+                  <Text
+                    style={[
+                      S.summarySub,
+                      {color: themeColors.subText, marginTop: 4},
+                    ]}>
+                    {t('farmer.thisMonthOrders', {
+                      defaultValue: 'இந்த மாத ஆர்டர்கள்',
+                    })}
+                    : {detailsOrders.length}
+                  </Text>
+                </View>
+
+                <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
+                  📦{' '}
+                  {t('farmer.thisMonthOrdersList', {
+                    defaultValue: 'இந்த மாத ஆர்டர்கள் பட்டியல்',
+                  })}
+                </Text>
+
+                {detailsOrders.length === 0 ? (
+                  <View style={{alignItems: 'center', paddingVertical: 40}}>
+                    <Text style={{fontSize: 40, marginBottom: 8}}>📈</Text>
+                    <Text style={{color: themeColors.textMuted}}>
+                      {t('orders.noOrders', {
+                        defaultValue: 'ஆர்டர்கள் எதுவும் இல்லை',
+                      })}
+                    </Text>
+                  </View>
+                ) : (
+                  detailsOrders.map((order, index) => (
+                    <View
+                      key={order.id || index}
+                      style={[
+                        S.detailOrderCard,
+                        {
+                          backgroundColor: themeColors.bg,
+                          borderColor: themeColors.border,
+                          borderWidth: 1,
+                        },
+                      ]}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 4,
+                        }}>
+                        <Text
+                          style={{fontWeight: 'bold', color: themeColors.text}}>
+                          #{order.orderId || order.id?.slice(-4)}
+                        </Text>
+                        <Text
+                          style={{fontSize: 12, color: themeColors.subText}}>
+                          {order.createdAt
+                            ?.toDate?.()
+                            ?.toLocaleDateString('ta-IN') || ''}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: themeColors.text,
+                            fontSize: 13,
+                            fontWeight: '600',
+                          }}>
+                          👤{' '}
+                          {order.consumerName ||
+                            order.customerName ||
+                            'Customer'}
+                        </Text>
+                        <View
+                          style={{
+                            paddingHorizontal: 6,
+                            paddingVertical: 2,
+                            borderRadius: 4,
+                            backgroundColor:
+                              order.status === 'Delivered'
+                                ? '#E8F5E9'
+                                : order.status === 'Cancelled'
+                                ? '#FFEBEE'
+                                : '#FFF9C4',
+                          }}>
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 'bold',
+                              color:
+                                order.status === 'Delivered'
+                                  ? '#4CAF50'
+                                  : order.status === 'Cancelled'
+                                  ? '#FF5252'
+                                  : '#FFB300',
+                            }}>
+                            {order.status}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: themeColors.subText,
+                          marginVertical: 4,
+                        }}>
+                        📍 {order.deliveryAddress || order.address || ''}
+                      </Text>
+                      <View
+                        style={{
+                          borderTopWidth: 0.5,
+                          borderTopColor: themeColors.border,
+                          paddingTop: 4,
+                          marginTop: 4,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{fontSize: 12, color: themeColors.subText}}>
+                          {(order.items || [])
+                            .map(i => i.nameTa || i.name)
+                            .join(', ')}
+                        </Text>
+                        <Text style={{fontWeight: 'bold', color: '#2196F3'}}>
+                          ₹{order.total}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -897,23 +1305,33 @@ export const MyProductsScreen = ({navigation}) => {
   const {user} = useAuth();
   const [myProducts, setMyProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const load = useCallback(async () => {
-    const farmerId = user?.id || user?.uid;
-    if (!farmerId) {
+  const load = useCallback(
+    async (isRefresh = false) => {
+      const farmerId = user?.id || user?.uid;
+      if (!farmerId) {
+        setIsLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      try {
+        const {getFarmerProducts} = require('../../services/firebase');
+        const r = await getFarmerProducts(farmerId);
+        setMyProducts(r.success ? r.data : []);
+      } catch (e) {
+        setMyProducts([]);
+      }
       setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const {getFarmerProducts} = require('../../services/firebase');
-      const r = await getFarmerProducts(farmerId);
-      setMyProducts(r.success ? r.data : []);
-    } catch (e) {
-      setMyProducts([]);
-    }
-    setIsLoading(false);
-  }, [user]);
+      setRefreshing(false);
+    },
+    [user],
+  );
 
   useEffect(() => {
     load();
@@ -961,8 +1379,8 @@ export const MyProductsScreen = ({navigation}) => {
           data={myProducts}
           keyExtractor={item => item.id}
           contentContainerStyle={{padding: SPACING.lg}}
-          onRefresh={load}
-          refreshing={isLoading}
+          onRefresh={() => load(true)}
+          refreshing={refreshing}
           renderItem={({item}) => (
             <View
               style={[
@@ -1067,6 +1485,35 @@ export const AddProductScreen = ({navigation}) => {
   const [longitude, setLongitude] = useState(null);
   const [locStatus, setLocStatus] = useState('fetching'); // fetching, success, error
 
+  const getCurrentLocationWithFallback = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setLocStatus('success');
+      },
+      error => {
+        console.log(
+          'High accuracy location failed, retrying with low accuracy:',
+          error,
+        );
+        Geolocation.getCurrentPosition(
+          pos => {
+            setLatitude(pos.coords.latitude);
+            setLongitude(pos.coords.longitude);
+            setLocStatus('success');
+          },
+          err => {
+            console.log('Low accuracy location failed:', err);
+            setLocStatus('error');
+          },
+          {enableHighAccuracy: false, timeout: 15000, maximumAge: 10000},
+        );
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+    );
+  };
+
   const fetchLocation = async () => {
     setLocStatus('fetching');
     try {
@@ -1087,33 +1534,31 @@ export const AddProductScreen = ({navigation}) => {
           },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          Geolocation.getCurrentPosition(
-            position => {
-              setLatitude(position.coords.latitude);
-              setLongitude(position.coords.longitude);
-              setLocStatus('success');
-            },
-            error => {
-              setLocStatus('error');
-              console.log('Location error:', error);
-            },
-            {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
-          );
+          getCurrentLocationWithFallback();
         } else {
           setLocStatus('error');
+          Alert.alert(
+            t('farmer.locationPermissionTitle', {
+              defaultValue: 'இருப்பிட அனுமதி',
+            }),
+            t('farmer.locationDeniedMsg', {
+              defaultValue:
+                'தயாரிப்பைச் சேர்க்க இருப்பிட அனுமதி தேவை. அதை அமைப்புகளில் அனுமதிக்கவும்.\nLocation permission is required to add products. Please allow it in App Settings.',
+            }),
+            [
+              {
+                text: t('common.cancel', {defaultValue: 'Cancel'}),
+                style: 'cancel',
+              },
+              {
+                text: t('profile.settings', {defaultValue: 'Settings'}),
+                onPress: () => Linking.openSettings(),
+              },
+            ],
+          );
         }
       } else {
-        Geolocation.getCurrentPosition(
-          position => {
-            setLatitude(position.coords.latitude);
-            setLongitude(position.coords.longitude);
-            setLocStatus('success');
-          },
-          error => {
-            setLocStatus('error');
-          },
-          {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
-        );
+        getCurrentLocationWithFallback();
       }
     } catch (err) {
       setLocStatus('error');
@@ -1753,14 +2198,23 @@ export const FarmerOrdersScreen = ({navigation}) => {
   const {user} = useAuth();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [detailsModalVisible, setDetailsModalVisible] = useState(false);
 
-  useEffect(() => {
-    const farmerId = user?.id || user?.uid;
-    if (!farmerId) {
-      setIsLoading(false);
-      return;
-    }
-    (async () => {
+  const loadOrders = useCallback(
+    async (isRefresh = false) => {
+      const farmerId = user?.id || user?.uid;
+      if (!farmerId) {
+        setIsLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       try {
         const {getFarmerOrders} = require('../../services/firebase');
         const r = await getFarmerOrders(farmerId);
@@ -1769,8 +2223,18 @@ export const FarmerOrdersScreen = ({navigation}) => {
         setOrders([]);
       }
       setIsLoading(false);
-    })();
-  }, [user]);
+      setRefreshing(false);
+    },
+    [user],
+  );
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const onRefreshOrders = () => {
+    loadOrders(true);
+  };
 
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
   const [rejectingOrderId, setRejectingOrderId] = useState(null);
@@ -1814,7 +2278,16 @@ export const FarmerOrdersScreen = ({navigation}) => {
           style={{marginTop: 40}}
         />
       ) : (
-        <ScrollView contentContainerStyle={{padding: SPACING.lg}}>
+        <ScrollView
+          contentContainerStyle={{padding: SPACING.lg}}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefreshOrders}
+              colors={[COLORS.primaryGreen]}
+              tintColor={COLORS.primaryGreen}
+            />
+          }>
           {orders.length === 0 ? (
             <View style={S.emptyBox}>
               <Text style={S.emptyEmoji}>📦</Text>
@@ -1825,240 +2298,266 @@ export const FarmerOrdersScreen = ({navigation}) => {
               </Text>
             </View>
           ) : (
-            orders.map(order => (
-              <View
-                key={order.id}
-                style={[
-                  S.foCard,
-                  {
-                    backgroundColor: themeColors.cardBg,
-                    borderColor: themeColors.border,
-                    borderWidth: 1,
-                  },
-                ]}>
-                <View style={S.foTop}>
-                  <Text style={[S.foId, {color: themeColors.text}]}>
-                    {t('orders.order', {defaultValue: 'ஆர்டர்'})} #
-                    {order.orderId || order.id?.slice(-4)}
-                  </Text>
-                  <Text style={[S.foDate, {color: themeColors.subText}]}>
-                    {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') ||
-                      ''}
-                  </Text>
-                </View>
+            orders.map(order => {
+              const displayCustomerName =
+                order.consumerName || order.customerName || 'Customer';
+              const displayCustomerPhone =
+                order.consumerPhone || order.customerPhone || '';
+              const displayAddress =
+                order.deliveryAddress || order.address || '';
+              const displayPincode =
+                order.deliveryPincode || order.pincode || '';
+              const displayLocation = order.consumerCoords
+                ? `${
+                    order.consumerCoords.lat || order.consumerCoords.latitude
+                  }, ${
+                    order.consumerCoords.lng || order.consumerCoords.longitude
+                  }`
+                : order.location || '';
 
-                {/* Consumer delivery details */}
-                <View
-                  style={{
-                    marginVertical: 6,
-                    paddingVertical: 6,
-                    borderBottomWidth: 0.5,
-                    borderBottomColor: themeColors.border,
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      color: themeColors.text,
-                      fontWeight: 'bold',
-                    }}>
-                    👤 {order.customerName || 'Customer'}
-                  </Text>
-                  {order.customerPhone && (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: themeColors.subText,
-                        marginTop: 2,
-                      }}>
-                      📞 {order.customerPhone}
+              return (
+                <TouchableOpacity
+                  key={order.id}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    setSelectedOrder(order);
+                    setDetailsModalVisible(true);
+                  }}
+                  style={[
+                    S.foCard,
+                    {
+                      backgroundColor: themeColors.cardBg,
+                      borderColor: themeColors.border,
+                      borderWidth: 1,
+                    },
+                  ]}>
+                  <View style={S.foTop}>
+                    <Text style={[S.foId, {color: themeColors.text}]}>
+                      {t('orders.order', {defaultValue: 'ஆர்டர்'})} #
+                      {order.orderId || order.id?.slice(-4)}
                     </Text>
-                  )}
-                  {order.address && (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: themeColors.subText,
-                        marginTop: 2,
-                      }}>
-                      📍 {order.address}{' '}
-                      {order.pincode ? `(PIN: ${order.pincode})` : ''}
-                    </Text>
-                  )}
-                  {order.location && (
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: themeColors.subText,
-                        marginTop: 2,
-                      }}>
-                      🌐 GPS: {order.location}
-                    </Text>
-                  )}
-                </View>
-
-                {(order.items || []).map((item, i) => (
-                  <Text
-                    key={i}
-                    style={[S.foItem, {color: themeColors.subText}]}>
-                    • {item.nameTa || item.name} x{item.quantity} — ₹
-                    {(item.price || 0) * item.quantity}
-                  </Text>
-                ))}
-                <View style={S.foBottom}>
-                  <Text
-                    style={[
-                      S.foTotal,
-                      {
-                        color: isDark
-                          ? COLORS.primaryGreen
-                          : COLORS.primaryGreenDark || COLORS.primaryGreen,
-                      },
-                    ]}>
-                    {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
-                    {order.total}
-                  </Text>
-                  <View
-                    style={[
-                      S.foStatus,
-                      {
-                        backgroundColor:
-                          order.status === 'Delivered'
-                            ? isDark
-                              ? '#1E3A24'
-                              : '#E8F5E9'
-                            : order.status === 'Shipped'
-                            ? isDark
-                              ? '#1A334B'
-                              : '#E3F2FD'
-                            : isDark
-                            ? '#4A3B12'
-                            : '#FFF9C4',
-                      },
-                    ]}>
-                    <Text
-                      style={[
-                        S.foStatusTxt,
-                        {
-                          color:
-                            order.status === 'Delivered'
-                              ? '#4CAF50'
-                              : order.status === 'Shipped'
-                              ? '#2196F3'
-                              : '#FFC107',
-                        },
-                      ]}>
-                      {t('orders.status' + order.status, {
-                        defaultValue: order.status,
-                      })}
+                    <Text style={[S.foDate, {color: themeColors.subText}]}>
+                      {order.createdAt
+                        ?.toDate?.()
+                        ?.toLocaleDateString('ta-IN') || ''}
                     </Text>
                   </View>
-                </View>
-                {/* Farmer actions & status indicators */}
-                {order.status === 'Pending' && (
-                  <View style={{flexDirection: 'row', gap: 8, marginTop: 8}}>
-                    <TouchableOpacity
+
+                  {/* Consumer delivery details */}
+                  <View
+                    style={{
+                      marginVertical: 6,
+                      paddingVertical: 6,
+                      borderBottomWidth: 0.5,
+                      borderBottomColor: themeColors.border,
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: themeColors.text,
+                        fontWeight: 'bold',
+                      }}>
+                      👤 {displayCustomerName}
+                    </Text>
+                    {!!displayCustomerPhone && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: themeColors.subText,
+                          marginTop: 2,
+                        }}>
+                        📞 {displayCustomerPhone}
+                      </Text>
+                    )}
+                    {!!displayAddress && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: themeColors.subText,
+                          marginTop: 2,
+                        }}>
+                        📍 {displayAddress}{' '}
+                        {displayPincode ? `(PIN: ${displayPincode})` : ''}
+                      </Text>
+                    )}
+                    {!!displayLocation && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: themeColors.subText,
+                          marginTop: 2,
+                        }}>
+                        🌐 GPS: {displayLocation}
+                      </Text>
+                    )}
+                  </View>
+
+                  {(order.items || []).map((item, i) => (
+                    <Text
+                      key={i}
+                      style={[S.foItem, {color: themeColors.subText}]}>
+                      • {item.nameTa || item.name} x{item.quantity} — ₹
+                      {(item.price || 0) * item.quantity}
+                    </Text>
+                  ))}
+                  <View style={S.foBottom}>
+                    <Text
+                      style={[
+                        S.foTotal,
+                        {
+                          color: isDark
+                            ? COLORS.primaryGreen
+                            : COLORS.primaryGreenDark || COLORS.primaryGreen,
+                        },
+                      ]}>
+                      {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
+                      {order.total}
+                    </Text>
+                    <View
+                      style={[
+                        S.foStatus,
+                        {
+                          backgroundColor:
+                            order.status === 'Delivered'
+                              ? isDark
+                                ? '#1E3A24'
+                                : '#E8F5E9'
+                              : order.status === 'Shipped'
+                              ? isDark
+                                ? '#1A334B'
+                                : '#E3F2FD'
+                              : isDark
+                              ? '#4A3B12'
+                              : '#FFF9C4',
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          S.foStatusTxt,
+                          {
+                            color:
+                              order.status === 'Delivered'
+                                ? '#4CAF50'
+                                : order.status === 'Shipped'
+                                ? '#2196F3'
+                                : '#FFC107',
+                          },
+                        ]}>
+                        {t('orders.status' + order.status, {
+                          defaultValue: order.status,
+                        })}
+                      </Text>
+                    </View>
+                  </View>
+                  {/* Farmer actions & status indicators */}
+                  {order.status === 'Pending' && (
+                    <View style={{flexDirection: 'row', gap: 8, marginTop: 8}}>
+                      <TouchableOpacity
+                        style={[
+                          S.statusBtn,
+                          {backgroundColor: isDark ? '#1E3A24' : '#E8F5E9'},
+                        ]}
+                        onPress={() =>
+                          handleUpdateStatus(order.id, 'Confirmed')
+                        }>
+                        <Text
+                          style={{
+                            color: '#4CAF50',
+                            fontSize: rs(FONTS.xs),
+                            fontWeight: 'bold',
+                          }}>
+                          ✅ {t('farmer.accept', {defaultValue: 'Accept'})}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          S.statusBtn,
+                          {backgroundColor: isDark ? '#3D1B1E' : '#FFEBEE'},
+                        ]}
+                        onPress={() => {
+                          setRejectingOrderId(order.id);
+                          setRejectModalVisible(true);
+                        }}>
+                        <Text
+                          style={{
+                            color: '#FF5252',
+                            fontSize: rs(FONTS.xs),
+                            fontWeight: 'bold',
+                          }}>
+                          ❌ {t('farmer.reject', {defaultValue: 'Reject'})}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {order.status === 'Confirmed' && (
+                    <View
                       style={[
                         S.statusBtn,
-                        {backgroundColor: isDark ? '#1E3A24' : '#E8F5E9'},
-                      ]}
-                      onPress={() => handleUpdateStatus(order.id, 'Confirmed')}>
+                        {
+                          backgroundColor: isDark ? '#4A2A0A' : '#FFF3E0',
+                          marginTop: 8,
+                        },
+                      ]}>
+                      <Text
+                        style={{
+                          color: '#FF9800',
+                          fontSize: rs(FONTS.xs),
+                          fontWeight: '600',
+                        }}>
+                        ⏳{' '}
+                        {t('farmer.waitingPickup', {
+                          defaultValue: 'Waiting for pickup',
+                        })}
+                      </Text>
+                    </View>
+                  )}
+                  {order.status === 'Shipped' && (
+                    <View
+                      style={[
+                        S.statusBtn,
+                        {
+                          backgroundColor: isDark ? '#1A334B' : '#E3F2FD',
+                          marginTop: 8,
+                        },
+                      ]}>
+                      <Text
+                        style={{
+                          color: '#2196F3',
+                          fontSize: rs(FONTS.xs),
+                          fontWeight: '600',
+                        }}>
+                        📦{' '}
+                        {t('farmer.itemPurchased', {
+                          defaultValue: 'Item has been purchased',
+                        })}
+                      </Text>
+                    </View>
+                  )}
+                  {order.status === 'Delivered' && (
+                    <View
+                      style={[
+                        S.statusBtn,
+                        {
+                          backgroundColor: isDark ? '#1E3A24' : '#E8F5E9',
+                          marginTop: 8,
+                        },
+                      ]}>
                       <Text
                         style={{
                           color: '#4CAF50',
                           fontSize: rs(FONTS.xs),
-                          fontWeight: 'bold',
+                          fontWeight: '600',
                         }}>
-                        ✅ {t('farmer.accept', {defaultValue: 'Accept'})}
+                        🎉{' '}
+                        {t('farmer.itemDelivered', {
+                          defaultValue: 'Item has been delivered',
+                        })}
                       </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        S.statusBtn,
-                        {backgroundColor: isDark ? '#3D1B1E' : '#FFEBEE'},
-                      ]}
-                      onPress={() => {
-                        setRejectingOrderId(order.id);
-                        setRejectModalVisible(true);
-                      }}>
-                      <Text
-                        style={{
-                          color: '#FF5252',
-                          fontSize: rs(FONTS.xs),
-                          fontWeight: 'bold',
-                        }}>
-                        ❌ {t('farmer.reject', {defaultValue: 'Reject'})}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-                {order.status === 'Confirmed' && (
-                  <View
-                    style={[
-                      S.statusBtn,
-                      {
-                        backgroundColor: isDark ? '#4A2A0A' : '#FFF3E0',
-                        marginTop: 8,
-                      },
-                    ]}>
-                    <Text
-                      style={{
-                        color: '#FF9800',
-                        fontSize: rs(FONTS.xs),
-                        fontWeight: '600',
-                      }}>
-                      ⏳{' '}
-                      {t('farmer.waitingPickup', {
-                        defaultValue: 'Waiting for pickup',
-                      })}
-                    </Text>
-                  </View>
-                )}
-                {order.status === 'Shipped' && (
-                  <View
-                    style={[
-                      S.statusBtn,
-                      {
-                        backgroundColor: isDark ? '#1A334B' : '#E3F2FD',
-                        marginTop: 8,
-                      },
-                    ]}>
-                    <Text
-                      style={{
-                        color: '#2196F3',
-                        fontSize: rs(FONTS.xs),
-                        fontWeight: '600',
-                      }}>
-                      📦{' '}
-                      {t('farmer.itemPurchased', {
-                        defaultValue: 'Item has been purchased',
-                      })}
-                    </Text>
-                  </View>
-                )}
-                {order.status === 'Delivered' && (
-                  <View
-                    style={[
-                      S.statusBtn,
-                      {
-                        backgroundColor: isDark ? '#1E3A24' : '#E8F5E9',
-                        marginTop: 8,
-                      },
-                    ]}>
-                    <Text
-                      style={{
-                        color: '#4CAF50',
-                        fontSize: rs(FONTS.xs),
-                        fontWeight: '600',
-                      }}>
-                      🎉{' '}
-                      {t('farmer.itemDelivered', {
-                        defaultValue: 'Item has been delivered',
-                      })}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ))
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })
           )}
           <View style={{height: 90}} />
         </ScrollView>
@@ -2159,16 +2658,334 @@ export const FarmerOrdersScreen = ({navigation}) => {
           </View>
         </View>
       </Modal>
+
+      {/* 📦 Order Details Modal */}
+      <Modal
+        visible={detailsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setDetailsModalVisible(false)}>
+        <View style={S.modalOverlay}>
+          <View
+            style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
+            <View style={S.modalHeader}>
+              <Text style={[S.modalTitle, {color: themeColors.text}]}>
+                📦{' '}
+                {t('orders.orderDetails', {defaultValue: 'ஆர்டர் விவரங்கள்'})}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setDetailsModalVisible(false)}
+                style={S.modalCloseBtn}>
+                <Text style={{fontSize: 20, color: themeColors.text}}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {selectedOrder ? (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Status card banner */}
+                <View
+                  style={[
+                    S.summaryBox,
+                    {
+                      backgroundColor:
+                        selectedOrder.status === 'Delivered'
+                          ? '#E8F5E9'
+                          : selectedOrder.status === 'Cancelled'
+                          ? '#FFEBEE'
+                          : selectedOrder.status === 'Shipped'
+                          ? '#E3F2FD'
+                          : '#FFF9C4',
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      S.summaryVal,
+                      {
+                        color:
+                          selectedOrder.status === 'Delivered'
+                            ? '#4CAF50'
+                            : selectedOrder.status === 'Cancelled'
+                            ? '#FF5252'
+                            : selectedOrder.status === 'Shipped'
+                            ? '#2196F3'
+                            : '#FFB300',
+                        fontSize: rs(24),
+                      },
+                    ]}>
+                    {t(
+                      'orders.status' + selectedOrder.status.replace(/ /g, '_'),
+                      {
+                        defaultValue: selectedOrder.status,
+                      },
+                    )}
+                  </Text>
+                  <Text style={[S.summaryLbl, {color: themeColors.text}]}>
+                    {t('orders.order', {defaultValue: 'ஆர்டர்'})} #
+                    {selectedOrder.orderId || selectedOrder.id?.slice(-4)}
+                  </Text>
+                  <Text
+                    style={[
+                      S.summarySub,
+                      {color: themeColors.subText, marginTop: 4},
+                    ]}>
+                    {selectedOrder.createdAt
+                      ?.toDate?.()
+                      ?.toLocaleDateString('ta-IN') || ''}
+                  </Text>
+                </View>
+
+                {/* Consumer Details */}
+                <View style={{marginBottom: SPACING.lg}}>
+                  <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
+                    👤{' '}
+                    {t('orders.customerDetails', {
+                      defaultValue: 'வாடிக்கையாளர் விவரங்கள்',
+                    })}
+                  </Text>
+                  <View
+                    style={[
+                      S.detailOrderCard,
+                      {
+                        backgroundColor: themeColors.bg,
+                        borderColor: themeColors.border,
+                        borderWidth: 1,
+                      },
+                    ]}>
+                    <Text
+                      style={{
+                        color: themeColors.text,
+                        fontWeight: 'bold',
+                        fontSize: 14,
+                      }}>
+                      {selectedOrder.consumerName ||
+                        selectedOrder.customerName ||
+                        'Customer'}
+                    </Text>
+                    {!!(
+                      selectedOrder.consumerPhone || selectedOrder.customerPhone
+                    ) && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 13,
+                          marginTop: 4,
+                        }}>
+                        📞{' '}
+                        {selectedOrder.consumerPhone ||
+                          selectedOrder.customerPhone}
+                      </Text>
+                    )}
+                    {!!(
+                      selectedOrder.deliveryAddress || selectedOrder.address
+                    ) && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 13,
+                          marginTop: 4,
+                        }}>
+                        📍{' '}
+                        {selectedOrder.deliveryAddress || selectedOrder.address}{' '}
+                        {selectedOrder.deliveryPincode || selectedOrder.pincode
+                          ? `(PIN: ${
+                              selectedOrder.deliveryPincode ||
+                              selectedOrder.pincode
+                            })`
+                          : ''}
+                      </Text>
+                    )}
+                    {!!(
+                      selectedOrder.consumerCoords || selectedOrder.location
+                    ) && (
+                      <Text
+                        style={{
+                          color: themeColors.subText,
+                          fontSize: 13,
+                          marginTop: 4,
+                        }}>
+                        🌐 GPS:{' '}
+                        {selectedOrder.consumerCoords
+                          ? `${
+                              selectedOrder.consumerCoords.lat ||
+                              selectedOrder.consumerCoords.latitude
+                            }, ${
+                              selectedOrder.consumerCoords.lng ||
+                              selectedOrder.consumerCoords.longitude
+                            }`
+                          : selectedOrder.location}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Items details */}
+                <View style={{marginBottom: SPACING.lg}}>
+                  <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
+                    🥦 {t('orders.items', {defaultValue: 'தயாரிப்புகள்'})}
+                  </Text>
+                  {(selectedOrder.items || []).map((item, i) => (
+                    <View
+                      key={i}
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        paddingVertical: 8,
+                        borderBottomWidth: 0.5,
+                        borderBottomColor: themeColors.border,
+                      }}>
+                      <Text style={{color: themeColors.text, fontSize: 13}}>
+                        • {item.nameTa || item.name} x{item.quantity} (
+                        {item.unit || 'kg'})
+                      </Text>
+                      <Text
+                        style={{
+                          color: themeColors.text,
+                          fontWeight: '600',
+                          fontSize: 13,
+                        }}>
+                        ₹{(item.price || 0) * item.quantity}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Total & Cancellation/Refund reasons */}
+                <View style={{marginBottom: SPACING.lg}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: SPACING.md,
+                    }}>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: 15,
+                        color: themeColors.text,
+                      }}>
+                      {t('orders.total', {defaultValue: 'மொத்தம்'})}:
+                    </Text>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: 18,
+                        color: COLORS.primaryGreen,
+                      }}>
+                      ₹{selectedOrder.total}
+                    </Text>
+                  </View>
+
+                  {selectedOrder.status === 'Cancelled' &&
+                  selectedOrder.rejectReason ? (
+                    <View
+                      style={{
+                        backgroundColor: '#FFEBEE',
+                        padding: SPACING.md,
+                        borderRadius: RADIUS.md,
+                        marginTop: 4,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#FF5252',
+                          fontWeight: 'bold',
+                          fontSize: 13,
+                        }}>
+                        ❌{' '}
+                        {t('farmer.rejectReason', {
+                          defaultValue: 'Reject Reason',
+                        })}
+                        :
+                      </Text>
+                      <Text
+                        style={{color: '#D32F2F', fontSize: 12, marginTop: 2}}>
+                        {selectedOrder.rejectReason}
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  {selectedOrder.refundReason ? (
+                    <View
+                      style={{
+                        backgroundColor: '#FFEBEE',
+                        padding: SPACING.md,
+                        borderRadius: RADIUS.md,
+                        marginTop: 4,
+                      }}>
+                      <Text
+                        style={{
+                          color: '#FF5252',
+                          fontWeight: 'bold',
+                          fontSize: 13,
+                        }}>
+                        💸{' '}
+                        {t('orders.refundReason', {
+                          defaultValue: 'Refund Reason',
+                        })}
+                        :
+                      </Text>
+                      <Text
+                        style={{color: '#D32F2F', fontSize: 12, marginTop: 2}}>
+                        {selectedOrder.refundReason}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </ScrollView>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 // ── FARMER PROFILE ──
 export const FarmerProfileScreen = ({navigation}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {user, logout} = useAuth();
+
+  const [reviewsModalVisible, setReviewsModalVisible] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [farmerRating, setFarmerRating] = useState(user?.rating || 0);
+
+  const loadFarmerReviews = useCallback(async () => {
+    const farmerId = user?.id || user?.uid;
+    if (!farmerId) return;
+    setReviewsLoading(true);
+    try {
+      const {getFarmerProductReviews} = require('../../services/firebase');
+      const res = await getFarmerProductReviews(farmerId);
+      if (res.success && res.data) {
+        setReviews(res.data);
+        if (res.data.length > 0) {
+          const total = res.data.reduce(
+            (sum, item) => sum + (item.rating || 0),
+            0,
+          );
+          const avg = Math.round((total / res.data.length) * 10) / 10;
+          setFarmerRating(avg);
+        } else {
+          setFarmerRating(0);
+        }
+      }
+    } catch (e) {
+      console.log('loadFarmerReviews error:', e);
+    }
+    setReviewsLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    loadFarmerReviews();
+  }, [loadFarmerReviews]);
+
+  const openReviewsModal = () => {
+    setReviewsModalVisible(true);
+    loadFarmerReviews();
+  };
   return (
     <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient
@@ -2212,30 +3029,50 @@ export const FarmerProfileScreen = ({navigation}) => {
           {
             icon: '⭐',
             label: t('farmer.rating', {defaultValue: 'மதிப்பீடு'}),
-            val: `${user?.rating || '0'} / 5.0`,
+            val: `${farmerRating || '0'} / 5.0`,
+            onPress: openReviewsModal,
           },
-        ].map((item, i) => (
-          <View
-            key={i}
-            style={[
-              S.profileInfoCard,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor: themeColors.border,
-                borderWidth: 1,
-              },
-            ]}>
-            <Text style={S.profileInfoIcon}>{item.icon}</Text>
-            <View>
-              <Text style={[S.profileInfoLabel, {color: themeColors.subText}]}>
-                {item.label}
-              </Text>
-              <Text style={[S.profileInfoVal, {color: themeColors.text}]}>
-                {item.val}
-              </Text>
-            </View>
-          </View>
-        ))}
+        ].map((item, i) => {
+          const Component = item.onPress ? TouchableOpacity : View;
+          return (
+            <Component
+              key={i}
+              onPress={item.onPress}
+              activeOpacity={0.7}
+              style={[
+                S.profileInfoCard,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: 1,
+                },
+              ]}>
+              <Text style={S.profileInfoIcon}>{item.icon}</Text>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <View>
+                  <Text
+                    style={[S.profileInfoLabel, {color: themeColors.subText}]}>
+                    {item.label}
+                  </Text>
+                  <Text style={[S.profileInfoVal, {color: themeColors.text}]}>
+                    {item.val}
+                  </Text>
+                </View>
+                {item.onPress && (
+                  <Text style={{fontSize: 14, color: themeColors.subText}}>
+                    ➔
+                  </Text>
+                )}
+              </View>
+            </Component>
+          );
+        })}
         {[
           {
             icon: '📷',
@@ -2305,6 +3142,135 @@ export const FarmerProfileScreen = ({navigation}) => {
         </TouchableOpacity>
         <View style={{height: 90}} />
       </ScrollView>
+
+      {/* ⭐ Product Reviews Modal */}
+      <Modal
+        visible={reviewsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setReviewsModalVisible(false)}>
+        <View style={S.modalOverlay}>
+          <View
+            style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
+            <View style={S.modalHeader}>
+              <Text style={[S.modalTitle, {color: themeColors.text}]}>
+                ⭐{' '}
+                {t('farmer.ratingAndReviews', {
+                  defaultValue: 'மதிப்பீடுகள் & விமர்சனங்கள்',
+                })}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setReviewsModalVisible(false)}
+                style={S.modalCloseBtn}>
+                <Text style={{fontSize: 20, color: themeColors.text}}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {reviewsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={COLORS.primaryGreen}
+                style={{marginVertical: 40}}
+              />
+            ) : (
+              <FlatList
+                data={reviews}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({item}) => {
+                  const localProdName =
+                    i18n.language === 'ta'
+                      ? item.productName
+                      : item.productNameEn || item.productName;
+                  return (
+                    <View
+                      style={[
+                        S.detailOrderCard,
+                        {
+                          backgroundColor: themeColors.bg,
+                          borderColor: themeColors.border,
+                          borderWidth: 1,
+                        },
+                      ]}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: themeColors.text,
+                            fontSize: 14,
+                          }}>
+                          🥬 {localProdName}
+                        </Text>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: '#FFB300',
+                            fontSize: 14,
+                          }}>
+                          ⭐ {item.rating} / 5
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginTop: 6,
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: themeColors.subText,
+                            fontWeight: '500',
+                          }}>
+                          👤 {item.userName || 'Customer'}
+                        </Text>
+                        <Text
+                          style={{fontSize: 11, color: themeColors.subText}}>
+                          {item.createdAt
+                            ?.toDate?.()
+                            ?.toLocaleDateString('ta-IN') || ''}
+                        </Text>
+                      </View>
+                      {item.review ? (
+                        <Text
+                          style={{
+                            color: themeColors.text,
+                            fontSize: 13,
+                            marginTop: 6,
+                            fontStyle: 'italic',
+                            backgroundColor: isDark
+                              ? 'rgba(255,255,255,0.05)'
+                              : '#F5F5F5',
+                            padding: 8,
+                            borderRadius: 4,
+                          }}>
+                          "{item.review}"
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                }}
+                ListEmptyComponent={
+                  <View style={{alignItems: 'center', paddingVertical: 60}}>
+                    <Text style={{fontSize: 50, marginBottom: 12}}>⭐</Text>
+                    <Text style={{color: themeColors.textMuted, fontSize: 15}}>
+                      {t('farmer.noReviewsYet', {
+                        defaultValue:
+                          'மதிப்பீடுகள் இன்னும் இல்லை\nNo reviews yet',
+                      })}
+                    </Text>
+                  </View>
+                }
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -2695,5 +3661,61 @@ const S = StyleSheet.create({
     color: COLORS.white,
     fontSize: rs(FONTS.md),
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    maxHeight: '85%',
+    padding: SPACING.lg,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    paddingBottom: 10,
+  },
+  modalTitle: {
+    fontSize: rs(FONTS.lg),
+    fontWeight: 'bold',
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  summaryBox: {
+    padding: SPACING.lg,
+    borderRadius: RADIUS.md,
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  summaryVal: {
+    fontSize: rs(32),
+    fontWeight: 'bold',
+  },
+  summaryLbl: {
+    fontSize: rs(14),
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  summarySub: {
+    fontSize: rs(12),
+  },
+  modalSecTitle: {
+    fontSize: rs(FONTS.md),
+    fontWeight: 'bold',
+    marginBottom: SPACING.md,
+  },
+  detailOrderCard: {
+    padding: SPACING.md,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.md,
   },
 });

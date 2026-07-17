@@ -12,19 +12,24 @@ import './src/locales/i18n';
 
 const App = () => {
   useEffect(() => {
-    // 1. Request Android 13+ Permissions
-    const requestUserPermission = async () => {
-      if (Platform.OS === 'android' && Platform.Version >= 33) {
+    // 1. Request Android Permissions (Location, Camera, Notifications)
+    const requestUserPermissions = async () => {
+      if (Platform.OS === 'android') {
+        const permissions = [
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+        ];
+        if (Platform.Version >= 33) {
+          permissions.push(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+        }
         try {
-          await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-          );
+          await PermissionsAndroid.requestMultiple(permissions);
         } catch (e) {
           console.log('Permission request error:', e);
         }
       }
     };
-    requestUserPermission();
+    requestUserPermissions();
 
     // 2. Foreground Message Handler
     const unsubscribe = messaging().onMessage(async remoteMessage => {

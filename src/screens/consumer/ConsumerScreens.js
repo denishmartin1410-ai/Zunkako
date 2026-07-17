@@ -2,7 +2,7 @@
 // ✅ Orders header FIXED
 // ✅ Full i18n on all screens
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
@@ -184,6 +185,7 @@ export const OrdersScreen = ({navigation}) => {
   const [orders, setOrders] = useState([]);
   const [preOrders, setPreOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [selectedPreOrder, setSelectedPreOrder] = useState(null);
   const [cancelModalVisible, setCancelModalVisible] = useState(false);
@@ -369,14 +371,19 @@ export const OrdersScreen = ({navigation}) => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    const load = async () => {
+  const loadOrdersData = useCallback(
+    async (isRefresh = false) => {
       const uid = user?.id || user?.uid;
       if (!uid) {
         setIsLoading(false);
+        setRefreshing(false);
         return;
       }
-      setIsLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
       try {
         if (activeTab === 'normal') {
           const r = await getConsumerOrders(uid);
@@ -393,9 +400,18 @@ export const OrdersScreen = ({navigation}) => {
         }
       }
       setIsLoading(false);
-    };
-    load();
-  }, [user, activeTab]);
+      setRefreshing(false);
+    },
+    [user, activeTab],
+  );
+
+  useEffect(() => {
+    loadOrdersData();
+  }, [loadOrdersData]);
+
+  const onRefreshOrders = () => {
+    loadOrdersData(true);
+  };
 
   const handleConfirmReceipt = async order => {
     try {
@@ -527,7 +543,15 @@ export const OrdersScreen = ({navigation}) => {
       ) : (
         <ScrollView
           contentContainerStyle={{padding: SPACING.lg, paddingBottom: 80}}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefreshOrders}
+              colors={[COLORS.primaryGreen]}
+              tintColor={COLORS.primaryGreen}
+            />
+          }>
           {activeTab === 'normal' ? (
             orders.length === 0 ? (
               <View style={S.emptyBox}>
