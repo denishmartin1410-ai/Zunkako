@@ -50,7 +50,7 @@ const STATUS_FLOW = {
   },
 };
 
-const DeliveryDashboard = () => {
+const DeliveryDashboard = ({navigation}) => {
   const {t} = useTranslation();
   const {user, logout} = useAuth();
   const [orders, setOrders] = useState([]);
@@ -594,11 +594,23 @@ const DeliveryDashboard = () => {
               {user?.name || 'Partner'}
             </Text>
           </View>
-          <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
-            <Text style={styles.logoutTxt}>
-              {t('settings.logout', {defaultValue: 'Logout'})}
-            </Text>
-          </TouchableOpacity>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Settings')}
+              style={{
+                padding: 6,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: 18,
+                alignSelf: 'center',
+              }}>
+              <Text style={{fontSize: 16}}>⚙️</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
+              <Text style={styles.logoutTxt}>
+                {t('settings.logout', {defaultValue: 'Logout'})}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
@@ -793,8 +805,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: RADIUS.full,
+    maxWidth: '65%',
+    flexShrink: 1,
   },
-  statusTxt: {fontSize: rs(FONTS.xs), fontWeight: 'bold'},
+  statusTxt: {
+    fontSize: rs(9.5),
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 
   // Location cards
   locationCard: {

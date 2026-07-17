@@ -410,16 +410,38 @@ const PreOrderScreen = ({navigation, route}) => {
   };
 
   const confirmAndSubmitPreOrder = async () => {
-    if (
-      !customerName.trim() ||
-      !phone.trim() ||
-      !address.trim() ||
-      !pincode.trim()
-    ) {
+    if (!customerName.trim() || !phone.trim()) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
         t('orders.fillDetails', {
           defaultValue: 'தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்',
+        }),
+      );
+      return;
+    }
+
+    const cleanAddress = address.trim();
+    const userLoc = (user?.location || '').trim();
+    if (
+      !cleanAddress ||
+      (userLoc && cleanAddress.toLowerCase() === userLoc.toLowerCase()) ||
+      cleanAddress.length < 15
+    ) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('checkout.fullAddressRequired', {
+          defaultValue:
+            'முழு முகவரியையும் உள்ளிடவும்! (தெரு பெயர், கதவு எண் போன்ற விவரங்களுடன்)',
+        }),
+      );
+      return;
+    }
+
+    if (!pincode.trim() || pincode.trim().length < 6) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('checkout.pincodeRequired', {
+          defaultValue: 'சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)',
         }),
       );
       return;

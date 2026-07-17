@@ -181,7 +181,82 @@ export const OrdersScreen = ({navigation, route}) => {
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
-  const [activeTab, setActiveTab] = useState(route.params?.initialTab || 'normal'); // 'normal' or 'pre'
+
+  const currentLang =
+    i18n.language === 'ml' ? 'ml' : i18n.language === 'ta' ? 'ta' : 'en';
+
+  const cancelReasonsList = [
+    {
+      id: 1,
+      label: {
+        en: 'Delivery date is too late',
+        ta: 'விநியோக தேதி மிகவும் தாமதமாக உள்ளது',
+        ml: 'ഡെലിവറി തീയതി വളരെ വൈകിയാണ്',
+      }[currentLang],
+    },
+    {
+      id: 2,
+      label: {
+        en: 'Found a better price elsewhere',
+        ta: 'வேறு இடத்தில் சிறந்த விலை கிடைத்துள்ளது',
+        ml: 'മറ്റൊരിടത്ത് മികച്ച വില കണ്ടെത്തി',
+      }[currentLang],
+    },
+    {
+      id: 3,
+      label: {
+        en: 'Ordered by mistake',
+        ta: 'தவறுதலாக ஆர்டர் செய்யப்பட்டது',
+        ml: 'അബദ്ധത്തിൽ ഓർഡർ ചെയ്തതാണ്',
+      }[currentLang],
+    },
+    {
+      id: 4,
+      label: {
+        en: 'No longer need this product',
+        ta: 'இந்த தயாரிப்பு இனி தேவையில்லை',
+        ml: 'ഈ ഉൽപ്പന്നം ഇനി ആവശ്യമില്ല',
+      }[currentLang],
+    },
+  ];
+
+  const refundReasonsList = [
+    {
+      id: 1,
+      label: {
+        en: 'Received damaged or spoiled crop',
+        ta: 'சேதமடைந்த அல்லது கெட்டுப்போன பயிர் பெறப்பட்டது',
+        ml: 'കേടുവന്നതോ ചീഞ്ഞതോ ആയ വിള ലഭിച്ചു',
+      }[currentLang],
+    },
+    {
+      id: 2,
+      label: {
+        en: 'Quantity delivered is less than ordered',
+        ta: 'ஆர்டர் செய்ததை விட குறைவான அளவே விநியோகிக்கப்பட்டது',
+        ml: 'ഓർഡർ ചെയ്തതിനേക്കാൾ കുറഞ്ഞ അളവിലാണ് ലഭിച്ചത്',
+      }[currentLang],
+    },
+    {
+      id: 3,
+      label: {
+        en: 'Harvest delivery delayed significantly',
+        ta: 'அறுவடை விநியோகம் மிகவும் தாமதமானது',
+        ml: 'വിളവെടുപ്പ് ഡെലിവറി വളരെ വൈകി',
+      }[currentLang],
+    },
+    {
+      id: 4,
+      label: {
+        en: 'Quality does not match expectation',
+        ta: 'தரம் எதிர்பார்த்தபடி இல்லை',
+        ml: 'ഗുണനിലവാരം പ്രതീക്ഷിച്ചതുപോലെയല്ല',
+      }[currentLang],
+    },
+  ];
+  const [activeTab, setActiveTab] = useState(
+    route.params?.initialTab || 'normal',
+  ); // 'normal' or 'pre'
 
   useEffect(() => {
     if (route.params?.initialTab) {
@@ -668,15 +743,21 @@ export const OrdersScreen = ({navigation, route}) => {
               );
               const fillPercent =
                 (order.totalPreOrders / order.targetPreOrders) * 100;
-              const dateLocale =
-                i18n.language === 'ta'
-                  ? 'ta-IN'
-                  : i18n.language === 'ml'
-                  ? 'ml-IN'
-                  : 'en-US';
-              const formattedDate =
-                order.createdAt?.toDate?.()?.toLocaleDateString(dateLocale) ||
-                '';
+              const orderDateObj =
+                order.createdAt?.toDate?.() ||
+                (order.createdAt?.seconds
+                  ? new Date(order.createdAt.seconds * 1000)
+                  : null);
+              let formattedDate = '';
+              if (orderDateObj) {
+                const day = String(orderDateObj.getDate()).padStart(2, '0');
+                const month = String(orderDateObj.getMonth() + 1).padStart(
+                  2,
+                  '0',
+                );
+                const year = orderDateObj.getFullYear();
+                formattedDate = `${day}/${month}/${year}`;
+              }
 
               const orderTime =
                 order.createdAt?.toDate?.() ||
@@ -854,12 +935,17 @@ export const OrdersScreen = ({navigation, route}) => {
                         borderTopWidth: 1,
                         borderTopColor: themeColors.border,
                         paddingTop: SPACING.md,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 8,
                       },
                     ]}>
-                    <View style={{flex: 1}}>
+                    <View style={{minWidth: 150, flex: 1}}>
                       <Text style={S.orderTotal}>
                         {t('orders.total', {defaultValue: 'Total'})}: ₹
-                        {order.totalPrice}
+                        {order.totalAmount || order.totalPrice}
                       </Text>
                       <View
                         style={{
@@ -1028,34 +1114,7 @@ export const OrdersScreen = ({navigation, route}) => {
                 defaultValue: 'ரத்து செய்வதற்கான காரணத்தைத் தேர்ந்தெடுக்கவும்',
               })}
             </Text>
-
-            {[
-              {
-                id: 1,
-                label: t('preOrder.cancelReason1', {
-                  defaultValue: 'Change of mind / என் முடிவை மாற்றிவிட்டேன்',
-                }),
-              },
-              {
-                id: 2,
-                label: t('preOrder.cancelReason2', {
-                  defaultValue:
-                    'Ordered by mistake / தவறுதலாக ஆர்டர் செய்துவிட்டேன்',
-                }),
-              },
-              {
-                id: 3,
-                label: t('preOrder.cancelReason3', {
-                  defaultValue: 'Price is too high / விலை அதிகமாக உள்ளது',
-                }),
-              },
-              {
-                id: 4,
-                label: t('preOrder.cancelReason4', {
-                  defaultValue: 'Not needed anymore / இப்போது தேவையில்லை',
-                }),
-              },
-            ].map(reason => (
+            {cancelReasonsList.map(reason => (
               <TouchableOpacity
                 key={reason.id}
                 style={[
@@ -1074,7 +1133,6 @@ export const OrdersScreen = ({navigation, route}) => {
                 </Text>
               </TouchableOpacity>
             ))}
-
             <View style={S.modalActions}>
               <TouchableOpacity
                 style={S.modalCancelBtn}
@@ -1106,36 +1164,7 @@ export const OrdersScreen = ({navigation, route}) => {
                   'பணம் திரும்பப் பெறுவதற்கான காரணத்தைத் தேர்ந்தெடுக்கவும்',
               })}
             </Text>
-
-            {[
-              {
-                id: 1,
-                label: t('preOrder.refundReason1', {
-                  defaultValue:
-                    'Bad quality or spoiled / பொருட்களின் தரம் சரியில்லை',
-                }),
-              },
-              {
-                id: 2,
-                label: t('preOrder.refundReason2', {
-                  defaultValue:
-                    'Wrong items delivered / தவறான பொருட்கள் வந்துள்ளது',
-                }),
-              },
-              {
-                id: 3,
-                label: t('preOrder.refundReason3', {
-                  defaultValue: 'Items damaged / பொருட்கள் சேதமடைந்துள்ளது',
-                }),
-              },
-              {
-                id: 4,
-                label: t('preOrder.refundReason4', {
-                  defaultValue:
-                    'Delivery was extremely delayed / டெலிவரி மிகவும் தாமதம்',
-                }),
-              },
-            ].map(reason => (
+            {refundReasonsList.map(reason => (
               <TouchableOpacity
                 key={reason.id}
                 style={[
@@ -1154,7 +1183,6 @@ export const OrdersScreen = ({navigation, route}) => {
                 </Text>
               </TouchableOpacity>
             ))}
-
             <View style={S.modalActions}>
               <TouchableOpacity
                 style={S.modalCancelBtn}
