@@ -120,7 +120,7 @@ const FormField = ({
 };
 
 // ── FARMER DASHBOARD ──
-export const FarmerDashboardScreen = ({navigation}) => {
+export const FarmerDashboardScreen = ({navigation, route}) => {
   const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
@@ -160,6 +160,16 @@ export const FarmerDashboardScreen = ({navigation}) => {
     }
     setPreOrdersLoading(false);
   };
+
+  useEffect(() => {
+    if (route.params?.openPreOrders) {
+      setPreOrdersModalVisible(true);
+      loadFarmerPreOrders();
+      // Clear route params so it doesn't open again on subsequent visits
+      navigation.setParams({openPreOrders: undefined});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params?.openPreOrders]);
 
   const handleUpdateFarmerPreOrderStatus = async (item, newStatus) => {
     try {
@@ -632,6 +642,7 @@ export const FarmerDashboardScreen = ({navigation}) => {
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
                         marginBottom: 8,
                       }}>
                       <Text
@@ -639,6 +650,7 @@ export const FarmerDashboardScreen = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 16,
                           color: themeColors.text,
+                          flexShrink: 1,
                         }}>
                         {getLocalProductName(
                           item.nameEn,
@@ -654,14 +666,19 @@ export const FarmerDashboardScreen = ({navigation}) => {
                               : item.status === 'harvested'
                               ? '#FFF3E0'
                               : item.status === 'Cancelled' ||
-                                item.status === 'Refund Requested'
+                                item.status === 'Refund Requested' ||
+                                item.status === 'Refunded'
                               ? '#FFEBEE'
                               : '#E3F2FD',
                           paddingHorizontal: 8,
                           paddingVertical: 4,
                           borderRadius: 6,
+                          maxWidth: '65%',
+                          marginLeft: 8,
+                          flexShrink: 1,
                         }}>
                         <Text
+                          numberOfLines={2}
                           style={{
                             color:
                               item.status === 'completed'
@@ -669,11 +686,13 @@ export const FarmerDashboardScreen = ({navigation}) => {
                                 : item.status === 'harvested'
                                 ? '#FF9800'
                                 : item.status === 'Cancelled' ||
-                                  item.status === 'Refund Requested'
+                                  item.status === 'Refund Requested' ||
+                                  item.status === 'Refunded'
                                 ? '#FF5252'
                                 : '#1565C0',
                             fontWeight: 'bold',
-                            fontSize: 12,
+                            fontSize: 10,
+                            textAlign: 'center',
                           }}>
                           {item.status === 'completed'
                             ? t('preOrder.statusCompleted', {
@@ -690,6 +709,10 @@ export const FarmerDashboardScreen = ({navigation}) => {
                             : item.status === 'Refund Requested'
                             ? t('orders.refundRequested', {
                                 defaultValue: 'Refund Requested',
+                              })
+                            : item.status === 'Refunded'
+                            ? t('orders.statusRefunded', {
+                                defaultValue: 'Refunded',
                               })
                             : t('preOrder.statusReserved', {
                                 defaultValue: 'Reserved',

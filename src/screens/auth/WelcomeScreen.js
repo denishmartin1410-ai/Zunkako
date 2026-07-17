@@ -135,7 +135,7 @@ const WelcomeScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.loginBtn}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('Login')}>
+          onPress={() => navigation.navigate('RoleSelection', {mode: 'login'})}>
           <LinearGradient
             colors={COLORS.gradientButton}
             style={styles.loginBtnGrad}
@@ -148,7 +148,9 @@ const WelcomeScreen = ({navigation}) => {
         <TouchableOpacity
           style={styles.registerBtn}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate('Register')}>
+          onPress={() =>
+            navigation.navigate('RoleSelection', {mode: 'register'})
+          }>
           <Text style={styles.registerBtnText}>{t('welcome.registerBtn')}</Text>
         </TouchableOpacity>
       </View>

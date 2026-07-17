@@ -153,6 +153,32 @@ const NotificationScreen = ({navigation}) => {
     if (!item.isRead && userId) {
       await markNotificationRead(userId, item.id);
     }
+
+    const type = item.type || '';
+    const title = item.title || '';
+    const message = item.message || '';
+    const isPreOrder =
+      type.includes('preorder') ||
+      title.toLowerCase().includes('pre-order') ||
+      title.includes('முன் ஆர்டர்') ||
+      message.toLowerCase().includes('pre-order') ||
+      message.includes('முன் ஆர்டர்') ||
+      title.includes('Refund Requested') ||
+      message.includes('Refund Requested');
+
+    if (user?.userType === 'consumer') {
+      if (isPreOrder) {
+        navigation.navigate('Orders', {initialTab: 'pre'});
+      } else {
+        navigation.navigate('Orders', {initialTab: 'normal'});
+      }
+    } else if (user?.userType === 'farmer') {
+      if (isPreOrder) {
+        navigation.navigate('Dashboard', {openPreOrders: true});
+      } else {
+        navigation.navigate('FarmerOrders');
+      }
+    }
   };
 
   const handleMarkAllRead = async () => {

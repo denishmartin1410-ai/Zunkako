@@ -7,12 +7,24 @@ import messaging from '@react-native-firebase/messaging';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert, Platform} from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 // ════════════════════════════════════════
 // STEP 1: App திறக்கும்போது Permission கேளு
 // ════════════════════════════════════════
 export const requestNotificationPermission = async () => {
   try {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+      const {PermissionsAndroid} = require('react-native');
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Android POST_NOTIFICATIONS permission denied');
+        return false;
+      }
+    }
+
     const authStatus = await messaging().requestPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -36,24 +48,45 @@ export const requestNotificationPermission = async () => {
 // STEP 2: FCM Token save பண்ணு
 // (இந்த token-ஐ வைத்துதான் specific user-க்கு notification அனுப்புவார்கள்)
 // ════════════════════════════════════════
-export const saveFCMToken = async () => {
+export const saveFCMToken = async userId => {
   try {
-    const userId = await AsyncStorage.getItem('@F2C_userId');
-    if (!userId) {
+    const finalUserId = userId || auth().currentUser?.uid;
+    if (!finalUserId) {
+      console.log('No user logged in, FCM token not saved');
       return;
     }
 
     const token = await messaging().getToken();
 
-    // Firestore-ல் user-ன் FCM token save
-    await firestore().collection('users').doc(userId).update({
-      fcmToken: token,
-      tokenUpdatedAt: firestore.FieldValue.serverTimestamp(),
-      platform: Platform.OS,
-    });
+    // Check users collection
+    const userDoc = await firestore()
+      .collection('users')
+      .doc(finalUserId)
+      .get();
+    if (userDoc.exists) {
+      await firestore().collection('users').doc(finalUserId).update({
+        fcmToken: token,
+        tokenUpdatedAt: firestore.FieldValue.serverTimestamp(),
+        platform: Platform.OS,
+      });
+      console.log('FCM Token saved in users collection:', token);
+    } else {
+      // Check deliveryBoys collection
+      const dbDoc = await firestore()
+        .collection('deliveryBoys')
+        .doc(finalUserId)
+        .get();
+      if (dbDoc.exists) {
+        await firestore().collection('deliveryBoys').doc(finalUserId).update({
+          fcmToken: token,
+          tokenUpdatedAt: firestore.FieldValue.serverTimestamp(),
+          platform: Platform.OS,
+        });
+        console.log('FCM Token saved in deliveryBoys collection:', token);
+      }
+    }
 
     await AsyncStorage.setItem('@F2C_fcmToken', token);
-    console.log('FCM Token saved:', token);
   } catch (error) {
     console.log('Token save error:', error);
   }

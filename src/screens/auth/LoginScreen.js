@@ -5,7 +5,7 @@
 // ✅ Auto-login via Firebase auth state
 // ============================================================
 
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useState, useRef, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -55,13 +55,19 @@ const InputField = ({
   </View>
 );
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({navigation, route}) => {
   const {t} = useTranslation();
   const {login, resendVerificationEmail} = useAuth();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('consumer');
+  const [userType, setUserType] = useState(route.params?.role || 'consumer');
+
+  useEffect(() => {
+    if (route.params?.role) {
+      setUserType(route.params.role);
+    }
+  }, [route.params?.role]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -96,22 +102,30 @@ const LoginScreen = ({navigation}) => {
     const e = {};
     if (!email.trim()) {
       e.email = t('validation.emailRequired');
-      Alert.alert(t('common.error'), t('validation.emailRequired'), [{text: t('common.ok')}]);
+      Alert.alert(t('common.error'), t('validation.emailRequired'), [
+        {text: t('common.ok')},
+      ]);
       return false;
     } else if (
       !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.trim())
     ) {
       e.email = t('validation.emailInvalid');
-      Alert.alert(t('common.error'), t('validation.emailInvalid'), [{text: t('common.ok')}]);
+      Alert.alert(t('common.error'), t('validation.emailInvalid'), [
+        {text: t('common.ok')},
+      ]);
       return false;
     }
     if (!password) {
       e.password = t('validation.passwordRequired');
-      Alert.alert(t('common.error'), t('validation.passwordRequired'), [{text: t('common.ok')}]);
+      Alert.alert(t('common.error'), t('validation.passwordRequired'), [
+        {text: t('common.ok')},
+      ]);
       return false;
     } else if (password.length < 6) {
       e.password = t('validation.passwordMin');
-      Alert.alert(t('common.error'), t('validation.passwordMin'), [{text: t('common.ok')}]);
+      Alert.alert(t('common.error'), t('validation.passwordMin'), [
+        {text: t('common.ok')},
+      ]);
       return false;
     }
     setErrors(e);

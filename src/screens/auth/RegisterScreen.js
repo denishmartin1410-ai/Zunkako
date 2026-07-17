@@ -4,7 +4,7 @@
 // இதனால் type பண்ணும்போது focus போகாது!
 // ============================================================
 
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -69,10 +69,16 @@ const Field = ({
 // ══════════════════════════════════════════════════════
 // RegisterScreen Component
 // ══════════════════════════════════════════════════════
-const RegisterScreen = ({navigation}) => {
+const RegisterScreen = ({navigation, route}) => {
   const {t} = useTranslation();
   const {register, logout} = useAuth();
-  const [userType, setUserType] = useState('consumer');
+  const [userType, setUserType] = useState(route.params?.role || 'consumer');
+
+  useEffect(() => {
+    if (route.params?.role) {
+      setUserType(route.params.role);
+    }
+  }, [route.params?.role]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

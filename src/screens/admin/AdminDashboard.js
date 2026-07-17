@@ -21,6 +21,7 @@ import {
   Modal,
   Image,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -68,6 +69,12 @@ const AdminDashboard = () => {
     consumers: 0,
     deliveryBoys: 0,
   });
+  const [farmersList, setFarmersList] = useState([]);
+  const [consumersList, setConsumersList] = useState([]);
+  const [deliveryBoysList, setDeliveryBoysList] = useState([]);
+  const [usersModalVisible, setUsersModalVisible] = useState(false);
+  const [usersModalType, setUsersModalType] = useState('farmer');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Live tracking modal states
   const [selectedOrderForTracking, setSelectedOrderForTracking] =
@@ -113,28 +120,58 @@ const AdminDashboard = () => {
     setSelectedOrderForTracking(null);
   };
 
+  const fetchUserStats = async () => {
+    try {
+      const usersSnap = await firestore().collection('users').get();
+      const farmers = [];
+      const consumers = [];
+      usersSnap.docs.forEach(doc => {
+        const userData = {id: doc.id, ...doc.data()};
+        if (userData.userType === 'farmer') {
+          farmers.push(userData);
+        } else if (userData.userType === 'consumer') {
+          consumers.push(userData);
+        }
+      });
+      const dbSnap = await firestore().collection('deliveryBoys').get();
+      const deliveryList = dbSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setUserStats({
+        farmers: farmers.length,
+        consumers: consumers.length,
+        deliveryBoys: deliveryList.length,
+      });
+      setFarmersList(farmers);
+      setConsumersList(consumers);
+      setDeliveryBoysList(deliveryList);
+    } catch (err) {
+      console.log('Stats error:', err);
+    }
+  };
+
   // Fetch total user counts
   useEffect(() => {
-    const fetchUserStats = async () => {
-      try {
-        const usersSnap = await firestore().collection('users').get();
-        let f = 0,
-          c = 0;
-        usersSnap.docs.forEach(doc => {
-          if (doc.data().userType === 'farmer') {
-            f++;
-          } else if (doc.data().userType === 'consumer') {
-            c++;
-          }
-        });
-        const dbSnap = await firestore().collection('deliveryBoys').get();
-        setUserStats({farmers: f, consumers: c, deliveryBoys: dbSnap.size});
-      } catch (err) {
-        console.log('Stats error:', err);
-      }
-    };
     fetchUserStats();
   }, []);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchUserStats();
+      const fbSnap = await firestore()
+        .collection('feedbacks')
+        .orderBy('createdAt', 'desc')
+        .get();
+      setFeedbacks(fbSnap.docs.map(doc => ({id: doc.id, ...doc.data()})));
+    } catch (err) {
+      console.log('Refresh error:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = firestore()
@@ -240,6 +277,22 @@ const AdminDashboard = () => {
     return unsub;
   }, []);
 
+  const handleRefundPreOrder = item => {
+    Alert.alert(
+      'Confirm Refund',
+      `Mark pre-order of ${item.nameEn || item.name} for ${
+        item.deliveryName || item.userName || 'User'
+      } as Refunded?\n\nAmount: ₹${item.totalAmount || item.totalPrice}`,
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Yes',
+          onPress: () => handleUpdatePreOrderStatus(item, 'Refunded'),
+        },
+      ],
+    );
+  };
+
   const handleUpdatePreOrderStatus = async (item, newStatus) => {
     try {
       const targetHarvestId = item.preOrderHarvestId || item.harvestId;
@@ -276,6 +329,33 @@ const AdminDashboard = () => {
         } has been successfully delivered and completed.`;
         emoji = '🎉';
         bgColor = '#E8F5E9';
+      } else if (newStatus === 'Refunded') {
+        title = '💜 Pre-Order Refunded';
+        message = `Your refund request for ${
+          item.nameEn || item.name || 'crop'
+        } pre-order has been approved and refunded.`;
+        emoji = '💜';
+        bgColor = '#F3E5F5';
+
+        // Notify the Farmer as well
+        if (item.farmerId) {
+          try {
+            await createNotification({
+              userId: item.farmerId,
+              title: '💜 Pre-Order Refunded',
+              message: `Pre-order for ${
+                item.nameEn || item.name || 'crop'
+              } by ${
+                item.deliveryName || item.userName || 'User'
+              } has been marked as refunded by admin.`,
+              emoji: '💜',
+              bgColor: '#F3E5F5',
+              type: 'preorder_refunded',
+            });
+          } catch (notifErr) {
+            console.log('Farmer preorder refund notification error:', notifErr);
+          }
+        }
       }
 
       await firestore()
@@ -666,6 +746,12 @@ const AdminDashboard = () => {
             return listData;
           })()}
           keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+            />
+          }
           renderItem={({item}) => {
             if (item.id === 'filters') {
               return (
@@ -709,21 +795,36 @@ const AdminDashboard = () => {
                   styles.statsContainer,
                   {marginHorizontal: 0, marginTop: 8},
                 ]}>
-                <View style={styles.statBox}>
+                <TouchableOpacity
+                  style={styles.statBox}
+                  onPress={() => {
+                    setUsersModalType('farmer');
+                    setUsersModalVisible(true);
+                  }}>
                   <Text style={styles.statEmoji}>👨‍🌾</Text>
                   <Text style={styles.statNum}>{userStats.farmers}</Text>
                   <Text style={styles.statLabel}>Farmers</Text>
-                </View>
-                <View style={styles.statBox}>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.statBox}
+                  onPress={() => {
+                    setUsersModalType('consumer');
+                    setUsersModalVisible(true);
+                  }}>
                   <Text style={styles.statEmoji}>🛒</Text>
                   <Text style={styles.statNum}>{userStats.consumers}</Text>
                   <Text style={styles.statLabel}>Customers</Text>
-                </View>
-                <View style={styles.statBox}>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.statBox}
+                  onPress={() => {
+                    setUsersModalType('delivery');
+                    setUsersModalVisible(true);
+                  }}>
                   <Text style={styles.statEmoji}>🚚</Text>
                   <Text style={styles.statNum}>{userStats.deliveryBoys}</Text>
                   <Text style={styles.statLabel}>Delivery</Text>
-                </View>
+                </TouchableOpacity>
               </View>
 
               {/* Feedbacks Banner */}
@@ -1329,6 +1430,25 @@ const AdminDashboard = () => {
                         Reason: {item.refundReason}
                       </Text>
                     )}
+                    {item.status === 'Refund Requested' && (
+                      <TouchableOpacity
+                        style={{
+                          marginTop: 10,
+                          backgroundColor: '#F3E5F5',
+                          borderColor: '#7B1FA2',
+                          borderWidth: 1,
+                          paddingVertical: 8,
+                          paddingHorizontal: 20,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        onPress={() => handleRefundPreOrder(item)}>
+                        <Text style={{color: '#7B1FA2', fontWeight: 'bold'}}>
+                          💜 Mark Refunded
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 ) : (
                   <View style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
@@ -1416,6 +1536,113 @@ const AdminDashboard = () => {
                 <Text style={{fontSize: 50, marginBottom: 12}}>📅</Text>
                 <Text style={{color: '#999', fontSize: 16}}>
                   No user pre-orders found
+                </Text>
+              </View>
+            }
+          />
+        </View>
+      </Modal>
+
+      {/* 👥 Users Details Modal */}
+      <Modal
+        visible={usersModalVisible}
+        transparent={false}
+        animationType="slide"
+        onRequestClose={() => setUsersModalVisible(false)}>
+        <View
+          style={{flex: 1, backgroundColor: COLORS.background || '#F5F7FA'}}>
+          {/* Header */}
+          <LinearGradient
+            colors={['#1565C0', '#1E88E5']}
+            style={styles.modalHeader}>
+            <TouchableOpacity
+              onPress={() => setUsersModalVisible(false)}
+              style={styles.modalCloseBtn}>
+              <Text style={styles.modalCloseTxt}>← Back</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>
+              {usersModalType === 'farmer'
+                ? '👨‍🌾 Farmers List'
+                : usersModalType === 'consumer'
+                ? '🛒 Customers List'
+                : '🚚 Delivery Partners'}
+            </Text>
+            <View style={{width: 60}} />
+          </LinearGradient>
+
+          <FlatList
+            data={
+              usersModalType === 'farmer'
+                ? farmersList
+                : usersModalType === 'consumer'
+                ? consumersList
+                : deliveryBoysList
+            }
+            keyExtractor={item => item.id}
+            contentContainerStyle={{padding: 16}}
+            renderItem={({item}) => (
+              <View
+                style={{
+                  backgroundColor: COLORS.white || '#FFF',
+                  borderRadius: 12,
+                  padding: 16,
+                  marginVertical: 8,
+                  shadowColor: '#000',
+                  shadowOffset: {width: 0, height: 2},
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    color: '#333',
+                    marginBottom: 6,
+                  }}>
+                  👤 Name: {item.name || 'User'}
+                </Text>
+                {item.phone || item.mobile ? (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📞 Phone: {item.phone || item.mobile}
+                  </Text>
+                ) : null}
+                {item.email ? (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    ✉️ Email: {item.email}
+                  </Text>
+                ) : null}
+                {item.address || item.location ? (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📍 Address: {item.address || item.location}
+                  </Text>
+                ) : null}
+                {item.pincode ? (
+                  <Text
+                    style={{color: '#666', fontSize: 14, marginVertical: 2}}>
+                    📮 PIN Code: {item.pincode}
+                  </Text>
+                ) : null}
+                {item.createdAt ? (
+                  <Text style={{color: '#888', fontSize: 12, marginTop: 8}}>
+                    📅 Registered on:{' '}
+                    {item.createdAt?.toDate
+                      ? item.createdAt.toDate().toLocaleDateString()
+                      : typeof item.createdAt === 'string'
+                      ? new Date(item.createdAt).toLocaleDateString()
+                      : new Date(item.createdAt).toLocaleDateString()}
+                  </Text>
+                ) : null}
+              </View>
+            )}
+            ListEmptyComponent={
+              <View style={{alignItems: 'center', paddingVertical: 100}}>
+                <Text style={{fontSize: 50, marginBottom: 12}}>👥</Text>
+                <Text style={{color: '#999', fontSize: 16}}>
+                  No users found
                 </Text>
               </View>
             }

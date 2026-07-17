@@ -176,12 +176,18 @@ const AvatarView = ({uri, name, size = 60, style}) => {
 };
 
 // ── ORDERS SCREEN ──
-export const OrdersScreen = ({navigation}) => {
+export const OrdersScreen = ({navigation, route}) => {
   const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
-  const [activeTab, setActiveTab] = useState('normal'); // 'normal' or 'pre'
+  const [activeTab, setActiveTab] = useState(route.params?.initialTab || 'normal'); // 'normal' or 'pre'
+
+  useEffect(() => {
+    if (route.params?.initialTab) {
+      setActiveTab(route.params.initialTab);
+    }
+  }, [route.params?.initialTab]);
   const [orders, setOrders] = useState([]);
   const [preOrders, setPreOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
