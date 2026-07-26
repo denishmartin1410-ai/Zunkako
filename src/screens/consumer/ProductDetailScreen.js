@@ -227,7 +227,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                     {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
                   ]}>
                   ₹{consumerPrice}
-                  <Text style={styles.unit}> / {product.unit}</Text>
+                  <Text style={styles.unit}> / 1{product.unit}</Text>
                 </Text>
                 {consumerOriginalPrice && (
                   <Text style={styles.originalPrice}>
@@ -501,7 +501,25 @@ const ProductDetailScreen = ({route, navigation}) => {
             borderTopColor: themeColors.border,
           },
         ]}>
-        {!inCart ? (
+        {product.isSoldOut ||
+        product.status === 'Sold Out' ||
+        (product.stock !== undefined &&
+          product.stock !== null &&
+          product.stock <= 0) ? (
+          <View
+            style={{
+              backgroundColor: '#FFEBEE',
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              borderRadius: 25,
+              width: '100%',
+              alignItems: 'center',
+            }}>
+            <Text style={{color: '#FF5252', fontWeight: 'bold', fontSize: 16}}>
+              🚫 {t('product.soldOut', {defaultValue: 'SOLD OUT (கையிருப்பு இல்லை)'})}
+            </Text>
+          </View>
+        ) : !inCart ? (
           <TouchableOpacity style={styles.addCartBtn} onPress={handleAddToCart}>
             <LinearGradient
               colors={COLORS.gradientButton}

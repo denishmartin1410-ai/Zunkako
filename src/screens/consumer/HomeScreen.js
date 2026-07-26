@@ -290,7 +290,7 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
               styles.unitText,
               {color: isDark ? '#81C784' : COLORS.primaryGreen},
             ]}>
-            {unit}
+            1{unit}
           </Text>
         </View>
 

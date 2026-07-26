@@ -35,7 +35,12 @@ import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {CATEGORIES} from '../../utils/dummyData';
 import {getCatName} from '../../utils/categoryHelper';
-import {getFarmerOrderTotal, getFarmerItemPrice} from '../../utils/priceHelper';
+import {
+  getFarmerOrderTotal,
+  getFarmerItemPrice,
+  formatUnitPrice,
+  validateUnitAndCategory,
+} from '../../utils/priceHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -1428,7 +1433,7 @@ export const MyProductsScreen = ({navigation}) => {
                   {getLocalProductName(item.name, item.nameTa, i18n.language)}
                 </Text>
                 <Text style={S.mpPrice}>
-                  ₹{item.price}/{item.unit}
+                  ₹{item.price} / 1{item.unit}
                 </Text>
                 <Text style={[S.mpStock, {color: themeColors.subText}]}>
                   {t('farmer.stock', {defaultValue: 'கையிருப்பு'})}:{' '}
@@ -1436,13 +1441,6 @@ export const MyProductsScreen = ({navigation}) => {
                 </Text>
               </View>
               <View style={S.mpActions}>
-                <TouchableOpacity
-                  style={S.editBtn}
-                  onPress={() =>
-                    navigation.navigate('EditProduct', {product: item})
-                  }>
-                  <Text style={S.editBtnTxt}>✏️</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                   style={S.delBtn}
                   onPress={() => handleDelete(item.id)}>
@@ -1659,6 +1657,15 @@ export const AddProductScreen = ({navigation}) => {
         t('farmer.fillAll', {
           defaultValue: 'பெயர், விலை, கையிருப்பு அனைத்தும் நிரப்பவும்',
         }),
+      );
+      return;
+    }
+
+    const valCheck = validateUnitAndCategory(unit, category, name, nameTa);
+    if (!valCheck.valid) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை / Validation Alert'}),
+        valCheck.msg,
       );
       return;
     }
@@ -3456,7 +3463,13 @@ const S = StyleSheet.create({
     marginBottom: SPACING.md,
     ...SHADOWS.small,
   },
-  mpImg: {width: rs(80), height: rs(80), borderRadius: RADIUS.lg},
+  mpImg: {
+    width: rs(80),
+    height: rs(80),
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    backgroundColor: '#F5F5F5',
+  },
   mpInfo: {flex: 1, marginLeft: SPACING.md},
   mpName: {
     fontSize: rs(FONTS.md),

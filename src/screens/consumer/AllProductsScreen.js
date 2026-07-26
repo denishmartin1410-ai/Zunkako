@@ -495,7 +495,7 @@ const AllProductsScreen = ({navigation}) => {
                                     : COLORS.primaryGreen,
                                 },
                               ]}>
-                              {unit}
+                              1{unit}
                             </Text>
                           </View>
                           <View

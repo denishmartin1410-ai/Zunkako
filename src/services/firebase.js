@@ -490,6 +490,34 @@ export const createOrder = async orderData => {
         createdAt: firestore.FieldValue.serverTimestamp(),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
+
+    // ✅ Automatic Stock Reduction for ordered products
+    if (orderData.items && Array.isArray(orderData.items)) {
+      for (const item of orderData.items) {
+        if (item.id) {
+          try {
+            const prodRef = firestore().collection('products').doc(item.id);
+            const prodDoc = await prodRef.get();
+            if (prodDoc.exists) {
+              const currentStock = parseFloat(prodDoc.data().stock || prodDoc.data().stockQuantity) || 0;
+              const orderQty = parseFloat(item.quantity) || 1;
+              const newStock = Math.max(0, currentStock - orderQty);
+              await prodRef.update({
+                stock: newStock,
+                stockQuantity: newStock,
+                isAvailable: newStock > 0,
+                isSoldOut: newStock <= 0,
+                status: newStock <= 0 ? 'Sold Out' : 'Available',
+                updatedAt: firestore.FieldValue.serverTimestamp(),
+              });
+            }
+          } catch (stErr) {
+            console.log('Stock reduction error for product', item.id, stErr.message);
+          }
+        }
+      }
+    }
+
     return {success: true, id: ref.id, orderId};
   } catch (error) {
     return {success: false, error: error.message};
