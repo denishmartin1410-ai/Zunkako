@@ -431,8 +431,74 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
     );
   };
 
-  const sendQuickReply = reply => {
-    setInputText(reply.ta);
+  const AI_CHATBOT_PRESETS = [
+    {
+      q: '📦 கையிருப்பு இருக்கா?',
+      a: 'பயிற்சி பெற்ற உழவர் பண்ணையில் போதிய கையிருப்பு (Stock) தயார் நிலையில் உள்ளது!',
+    },
+    {
+      q: '💵 தற்போதைய விலை என்ன?',
+      a: 'எங்கள் விவசாயி இடைத்தரகர் இன்றி குறைந்த மற்றும் நியாயமான நேரடிப் பண்ணை விலையில் வழங்குகிறார்.',
+    },
+    {
+      q: '🌿 இயற்கை முறையிலானதா?',
+      a: 'ஆம்! 100% தூய இயற்கை மற்றும் ஆர்கானிக் சான்றிதழ் பெற்ற முறைகளில் விளைவிக்கப்பட்டது.',
+    },
+    {
+      q: '🚚 எப்போது விநியோகம் செய்யப்படும்?',
+      a: 'அறுவடை செய்யப்பட்ட 24 மணி நேரத்திற்குள் உங்கள் வாசலிலேயே புத்துணர்ச்சியுடன் விநியோகிக்கப்படும்.',
+    },
+    {
+      q: '📍 பண்ணை முகவரி பெறலாமா?',
+      a: 'நிச்சயமாக! பண்ணை வருகை (Farm Visit) பகுதியில் எங்கள் பண்ணை அமைவிட விவரங்களைப் பெறலாம்.',
+    },
+    {
+      q: '🌾 அடுத்த புதிய அறுவடை எப்போது?',
+      a: 'அறுவடை நாள்காட்டி (Harvest Calendar) பகுதியில் நடப்பு வார அறுவடை தேதிகளைப் பார்க்கலாம்.',
+    },
+    {
+      q: '🧺 மொத்தமாக (Bulk Order) வாங்க முடியுமா?',
+      a: 'ஆம், மொத்த ஆணைக்கு (Group Buy / Bulk Order) சிறப்புத் தள்ளுபடி சலுகைகள் உண்டு.',
+    },
+    {
+      q: '📜 தர பரிசோதனை சான்றிதழ் உண்டா?',
+      a: 'ஆம்! QR code ஸ்கேன் செய்து பண்ணையின் தர சான்றிதழ் அறிக்கையைப் பார்க்கலாம்.',
+    },
+    {
+      q: '📅 முன்-ஆர்டர் செய்வது எப்படி?',
+      a: 'முன்-ஆர்டர் (Pre-Order) பக்கத்தில் உங்கள் அறுவடை தேவையை முன்பதிவு செய்ய முடியும்.',
+    },
+    {
+      q: '📞 விவசாயியுடன் நேரடித் தொடர்பு கொள்ளலாமா?',
+      a: 'ஆம், உங்கள் கேள்விக்கு விவசாயி நேரடிப் பதிலும் அனுப்புவார்!',
+    },
+  ];
+
+  const handleSelectPresetQuestion = async preset => {
+    if (isSending) return;
+    setIsSending(true);
+    try {
+      // 1. Send Consumer's selected question
+      await sendChatMessage(userId, farmer.id, preset.q, 'consumer');
+
+      // 2. AI Chatbot Auto-Reply after 700ms
+      setTimeout(async () => {
+        try {
+          await sendChatMessage(
+            farmer.id,
+            userId,
+            `🤖 AI உதவிக்குறிப்பு:\n${preset.a}`,
+            'farmer',
+          );
+        } catch (botErr) {
+          console.log('AI Auto-reply error:', botErr);
+        }
+      }, 700);
+    } catch (e) {
+      console.log('Preset send error:', e.message);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -459,7 +525,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
               <Text style={{fontSize: 13, marginLeft: 4}}>✅</Text>
             )}
           </View>
-          <Text style={styles.roomStatus}>🟢 Online</Text>
+          <Text style={styles.roomStatus}>🟢 Online (AI Assistant Active)</Text>
         </View>
       </LinearGradient>
 
@@ -483,91 +549,65 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
             <Text style={[styles.emptyChatTxt, {color: themeColors.subText}]}>
               {farmer.nameTa || farmer.name} -{' '}
               {t('chat.startConversation', {
-                defaultValue: 'அரட்டையை தொடங்குங்கள்!',
+                defaultValue: 'கேள்வியைத் தேர்ந்தெடுத்து அனுப்புங்கள்!',
               })}
             </Text>
           </View>
         }
       />
 
-      {/* Quick replies */}
+      {/* AI Chatbot Preset Questions Panel for Consumer */}
       <View
-        style={[
-          styles.quickRepliesWrap,
-          {
-            backgroundColor: themeColors.cardBg,
-            borderTopColor: themeColors.border,
-          },
-        ]}>
-        <FlatList
-          data={QUICK_REPLIES}
-          keyExtractor={(_, i) => String(i)}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: SPACING.md}}
-          renderItem={({item}) => (
+        style={{
+          paddingVertical: 12,
+          paddingHorizontal: 8,
+          backgroundColor: themeColors.cardBg,
+          borderTopWidth: 1,
+          borderTopColor: themeColors.border,
+          maxHeight: 180,
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: 'bold',
+            color: COLORS.primaryGreen,
+            marginBottom: 8,
+            paddingLeft: 8,
+          }}>
+          🤖 தானியங்கி கேள்விகள் (Automatic AI Questions) - தொட்டு அனுப்பவும்:
+        </Text>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 6,
+            paddingBottom: 4,
+          }}>
+          {AI_CHATBOT_PRESETS.map((preset, idx) => (
             <TouchableOpacity
-              style={[
-                styles.quickReplyChip,
-                {backgroundColor: isDark ? '#1A3028' : '#E8F5E9'},
-              ]}
-              onPress={() => sendQuickReply({ta: t(item)})}>
-              <Text style={styles.quickReplyTxt}>{t(item)}</Text>
+              key={idx}
+              disabled={isSending}
+              style={{
+                backgroundColor: isDark ? '#1A3028' : '#E8F5E9',
+                borderColor: COLORS.primaryGreen,
+                borderWidth: 1,
+                paddingHorizontal: 10,
+                paddingVertical: 7,
+                borderRadius: 18,
+              }}
+              onPress={() => handleSelectPresetQuestion(preset)}>
+              <Text
+                style={{
+                  color: isDark ? '#4CAF50' : COLORS.primaryGreen,
+                  fontSize: 12,
+                  fontWeight: '600',
+                }}>
+                {preset.q}
+              </Text>
             </TouchableOpacity>
-          )}
-        />
-      </View>
-
-      {/* Input bar */}
-      <View
-        style={[
-          styles.inputBar,
-          {
-            backgroundColor: themeColors.cardBg,
-            borderTopColor: themeColors.border,
-          },
-        ]}>
-        <TouchableOpacity
-          style={styles.locationPinBtn}
-          onPress={handleShareLocation}>
-          <Text style={{fontSize: 22}}>📍</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={[
-            styles.chatInput,
-            {
-              backgroundColor: themeColors.inputBg,
-              borderColor: themeColors.border,
-              color: themeColors.text,
-            },
-          ]}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder={t('chat.placeholder', {
-            defaultValue: 'செய்தி அனுப்புங்கள்...',
-          })}
-          placeholderTextColor={
-            isDark ? 'rgba(255,255,255,0.4)' : COLORS.textGray
-          }
-          multiline
-          maxLength={500}
-        />
-        <TouchableOpacity
-          style={[styles.sendBtn, inputText.trim() && styles.sendBtnActive]}
-          onPress={handleSendMessage}
-          disabled={!inputText.trim() || isSending}>
-          <LinearGradient
-            colors={
-              inputText.trim()
-                ? COLORS.gradientButton
-                : isDark
-                ? ['#333333', '#222222']
-                : ['#E0E0E0', '#BDBDBD']
-            }
-            style={styles.sendBtnGrad}>
-            <Text style={styles.sendBtnTxt}>➤</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       {/* WhatsApp style stacked delete message modal */}

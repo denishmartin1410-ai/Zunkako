@@ -501,38 +501,6 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
         }
       />
 
-      {/* Quick replies for farmer */}
-      <View
-        style={[
-          styles.quickRow,
-          {
-            backgroundColor: themeColors.cardBg,
-            borderTopColor: themeColors.border,
-          },
-        ]}>
-        {[
-          'chat.farmerReply1',
-          'chat.farmerReply2',
-          'chat.farmerReply3',
-          'chat.farmerReply4',
-        ].map((key, i) => (
-          <TouchableOpacity
-            key={i}
-            style={[
-              styles.quickChip,
-              {
-                backgroundColor: isDark ? '#1E3A2F' : '#E8F5E9',
-                borderColor: COLORS.primaryGreen,
-              },
-            ]}
-            onPress={() => setInputText(t(key))}>
-            <Text style={styles.quickTxt} numberOfLines={1}>
-              {t(key)}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
       {/* Input */}
       <View
         style={[

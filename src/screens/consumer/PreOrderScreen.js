@@ -475,27 +475,11 @@ const PreOrderScreen = ({navigation, route}) => {
     }
 
     const cleanAddress = address.trim();
-    const userLoc = (user?.location || '').trim();
-    if (
-      !cleanAddress ||
-      (userLoc && cleanAddress.toLowerCase() === userLoc.toLowerCase()) ||
-      cleanAddress.length < 15
-    ) {
+    if (!cleanAddress) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        t('checkout.fullAddressRequired', {
-          defaultValue:
-            'முழு முகவரியையும் உள்ளிடவும்! (தெரு பெயர், கதவு எண் போன்ற விவரங்களுடன்)',
-        }),
-      );
-      return;
-    }
-
-    if (!pincode.trim() || pincode.trim().length < 6) {
-      Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        t('checkout.pincodeRequired', {
-          defaultValue: 'சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)',
+        t('checkout.addressRequired', {
+          defaultValue: 'தயவுசெய்து விநியோக முகவரியை உள்ளிடவும்!',
         }),
       );
       return;
@@ -509,12 +493,18 @@ const PreOrderScreen = ({navigation, route}) => {
 
     setShowDetailsModal(false);
 
+    const gpsLocString = coords
+      ? `${coords.latitude},${coords.longitude}`
+      : user?.latitude && user?.longitude
+      ? `${user.latitude},${user.longitude}`
+      : '11.0168,76.9558';
+
     const deliveryDetails = {
       deliveryName: customerName,
       deliveryPhone: phone,
-      deliveryAddress: address,
-      deliveryPincode: pincode,
-      deliveryLocation: coords ? `${coords.latitude},${coords.longitude}` : '',
+      deliveryAddress: cleanAddress,
+      deliveryPincode: pincode.trim() || '641001',
+      deliveryLocation: gpsLocString,
       preOrderDate: new Date().toISOString(),
     };
 

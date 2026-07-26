@@ -483,6 +483,22 @@ const HomeScreen = ({navigation}) => {
     },
   ];
 
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+
+  useEffect(() => {
+    const uid = user?.id || user?.uid;
+    if (!uid) return;
+    const unsub = listenToNotifications(uid, res => {
+      if (res.success && res.data) {
+        const unread = res.data.filter(n => !n.isRead).length;
+        setUnreadNotifCount(unread);
+      }
+    });
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
+  }, [user]);
+
   return (
     <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <ScrollView
@@ -509,9 +525,29 @@ const HomeScreen = ({navigation}) => {
             </View>
             <View style={styles.headerIcons}>
               <TouchableOpacity
-                style={styles.iconBtn}
+                style={[styles.iconBtn, {position: 'relative'}]}
                 onPress={() => navigation.navigate('Notifications')}>
                 <Text style={styles.iconEmoji}>🔔</Text>
+                {unreadNotifCount > 0 && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                      backgroundColor: '#D32F2F',
+                      borderRadius: 10,
+                      minWidth: 18,
+                      height: 18,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      paddingHorizontal: 4,
+                    }}>
+                    <Text
+                      style={{color: '#FFF', fontSize: 10, fontWeight: 'bold'}}>
+                      {unreadNotifCount > 99 ? '99+' : unreadNotifCount}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconBtn}

@@ -386,9 +386,29 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
               gap: SPACING.sm,
             }}>
             <TouchableOpacity
-              style={S.notifBtn}
+              style={[S.notifBtn, {position: 'relative'}]}
               onPress={() => navigation.navigate('Notifications')}>
               <Text style={{fontSize: rs(24)}}>🔔</Text>
+              {unreadNotifCount > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    backgroundColor: '#D32F2F',
+                    borderRadius: 10,
+                    minWidth: 18,
+                    height: 18,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingHorizontal: 4,
+                  }}>
+                  <Text
+                    style={{color: '#FFF', fontSize: 10, fontWeight: 'bold'}}>
+                    {unreadNotifCount > 99 ? '99+' : unreadNotifCount}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.navigate('FarmerProfile')}>

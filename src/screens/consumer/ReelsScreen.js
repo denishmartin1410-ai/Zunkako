@@ -75,6 +75,7 @@ const ReelItem = ({
 }) => {
   const {t} = useTranslation();
   const isPlay = isScreenFocused && activeIndex === index;
+  const [isUserPaused, setIsUserPaused] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(
     item.storyLikes || item.likes || 0,
@@ -83,12 +84,12 @@ const ReelItem = ({
     item.storyViews || item.views || 0,
   );
   const videoRef = useRef(null);
+  const hasViewedRef = useRef(false);
 
   useEffect(() => {
-    if (isPlay) {
-      // Increment view count locally & database (simulated)
+    if (isPlay && !hasViewedRef.current) {
+      hasViewedRef.current = true;
       setViewCount(prev => prev + 1);
-      // Increment in Firestore silently if uid exists
       if (item.id) {
         firestore()
           .collection('users')
@@ -101,11 +102,14 @@ const ReelItem = ({
     }
   }, [isPlay, item.id]);
 
+  const toggleUserPause = () => {
+    setIsUserPaused(prev => !prev);
+  };
+
   const handleLike = () => {
     if (liked) {
       setLiked(false);
       setLikeCount(prev => prev - 1);
-      // Update Firestore
       if (item.id) {
         firestore()
           .collection('users')
@@ -118,7 +122,6 @@ const ReelItem = ({
     } else {
       setLiked(true);
       setLikeCount(prev => prev + 1);
-      // Update Firestore
       if (item.id) {
         firestore()
           .collection('users')
@@ -136,7 +139,7 @@ const ReelItem = ({
       await Share.share({
         message: `${t('reels.shareMsg', {
           defaultValue: 'உழவர் கதையை பாருங்கள்! / Watch this farmer story!',
-        })}\n🎥 ${item.storyVideo}`,
+        })}\n🎥 ${item.storyVideo || item.videoUrl}`,
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -144,31 +147,53 @@ const ReelItem = ({
   };
 
   const fName = item.nameTa || item.name || 'Farmer';
+  const videoUri = item.storyVideo || item.videoUrl || item.url;
 
   return (
     <View style={styles.reelContainer}>
-      {/* Video Component */}
-      {item.storyVideo ? (
-        <Video
-          ref={videoRef}
-          source={{uri: item.storyVideo}}
-          style={StyleSheet.absoluteFillObject}
-          resizeMode="cover"
-          repeat={true}
-          paused={!isPlay}
-          muted={isMuted}
-          playInBackground={false}
-          playWhenInactive={false}
-          ignoreSilentSwitch="ignore"
-        />
-      ) : (
-        <View style={[StyleSheet.absoluteFillObject, styles.errorVideo]}>
-          <Text style={{fontSize: 48}}>📹</Text>
-          <Text style={{color: COLORS.white, marginTop: 10}}>
-            Video unavailable
-          </Text>
-        </View>
-      )}
+      {/* Video Component with Instagram style Tap to Pause/Play */}
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={toggleUserPause}
+        style={StyleSheet.absoluteFillObject}>
+        {videoUri ? (
+          <Video
+            ref={videoRef}
+            source={{uri: videoUri}}
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            repeat={true}
+            paused={!isPlay || isUserPaused}
+            muted={isMuted}
+            playInBackground={false}
+            playWhenInactive={false}
+            ignoreSilentSwitch="ignore"
+          />
+        ) : (
+          <View style={[StyleSheet.absoluteFillObject, styles.errorVideo]}>
+            <Text style={{fontSize: 48}}>📹</Text>
+            <Text style={{color: COLORS.white, marginTop: 10}}>
+              Video unavailable
+            </Text>
+          </View>
+        )}
+        {isUserPaused && (
+          <View
+            style={{
+              position: 'absolute',
+              top: '45%',
+              left: '42%',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              borderRadius: 40,
+              width: 70,
+              height: 70,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={{fontSize: 34, color: '#FFF'}}>⏸️</Text>
+          </View>
+        )}
+      </TouchableOpacity>
 
       {/* Dark Gradients for Text visibility */}
       <LinearGradient
@@ -342,6 +367,8 @@ const ReelsScreen = () => {
           />
         )}
         pagingEnabled={true}
+        snapToInterval={SCREEN_HEIGHT}
+        snapToAlignment="start"
         showsVerticalScrollIndicator={false}
         decelerationRate="fast"
         onViewableItemsChanged={handleViewableItemsChanged}
