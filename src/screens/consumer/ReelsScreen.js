@@ -258,16 +258,11 @@ const ReelsScreen = () => {
 
   const fetchReels = async () => {
     try {
-      const snap = await firestore()
-        .collection('users')
-        .where('userType', '==', 'farmer')
-        .get();
-
-      const list = snap.docs
-        .map(doc => ({id: doc.id, ...doc.data()}))
-        .filter(item => item.storyVideo);
-
-      setFarmers(list);
+      const {getAllFarmStories} = require('../../services/firebase');
+      const res = await getAllFarmStories();
+      if (res.success && res.data) {
+        setFarmers(res.data);
+      }
     } catch (e) {
       console.log('Error fetching reels:', e);
     } finally {

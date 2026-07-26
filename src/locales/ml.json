@@ -233,6 +233,7 @@
     "invalidDateFormat": "തെറ്റായ തീയതി! ദയവായി DD/MM/YYYY ഫോർമാറ്റിൽ നൽകുക (ഉദാ: 24/05/2026).",
     "deleteBtn": "ഇല്ലാതാക്കുക",
     "fillAllHarvestDetails": "ദയവായി എല്ലാ ആവശ്യമായ വിളവെടുപ്പ് വിവരങ്ങളും പൂരിപ്പിക്കുക!",
+    "ratingAndReviews": "റേറ്റിംഗുകളും അവലോകനങ്ങളും",
     "totalCompletedEarnings": "ആകെ വരുമാനം (പൂർത്തിയായ ഓർഡറുകൾ)",
     "completedCount": "ആകെ ഓർഡറുകൾ",
     "salesList": "വില്പന ലിസ്റ്റ്",

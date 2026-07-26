@@ -3183,11 +3183,14 @@ export const FarmerProfileScreen = ({navigation}) => {
         <View style={S.modalOverlay}>
           <View
             style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
-            <View style={S.modalHeader}>
-              <Text style={[S.modalTitle, {color: themeColors.text}]}>
+            <View style={[S.modalHeader, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}]}>
+              <Text
+                style={[S.modalTitle, {color: themeColors.text, flex: 1, marginRight: 8}]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
                 ⭐{' '}
                 {t('farmer.ratingAndReviews', {
-                  defaultValue: 'மதிப்பீடுகள் & விமர்சனங்கள்',
+                  defaultValue: 'Ratings & Reviews',
                 })}
               </Text>
               <TouchableOpacity
@@ -3288,13 +3291,7 @@ export const FarmerProfileScreen = ({navigation}) => {
                 }}
                 ListEmptyComponent={
                   <View style={{alignItems: 'center', paddingVertical: 60}}>
-                    <Text style={{fontSize: 50, marginBottom: 12}}>⭐</Text>
-                    <Text style={{color: themeColors.textMuted, fontSize: 15}}>
-                      {t('farmer.noReviewsYet', {
-                        defaultValue:
-                          'மதிப்பீடுகள் இன்னும் இல்லை\nNo reviews yet',
-                      })}
-                    </Text>
+                    <Text style={{fontSize: 55}}>⭐</Text>
                   </View>
                 }
               />

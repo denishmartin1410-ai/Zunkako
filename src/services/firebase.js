@@ -887,6 +887,94 @@ export const submitProductRating = async (
   }
 };
 
+// ── FARM STORIES / REELS HELPERS ──
+
+export const addFarmStory = async (farmerId, farmerName, videoUrl) => {
+  try {
+    const ref = await firestore().collection('farm_stories').add({
+      farmerId,
+      farmerName: farmerName || 'Farmer',
+      storyVideo: videoUrl,
+      videoUrl,
+      createdAt: firestore.FieldValue.serverTimestamp(),
+    });
+    // Update user profile latest storyVideo for backwards compatibility
+    await firestore().collection('users').doc(farmerId).set(
+      {
+        storyVideo: videoUrl,
+      },
+      {merge: true},
+    );
+    return {success: true, id: ref.id};
+  } catch (e) {
+    return {success: false, error: e.message};
+  }
+};
+
+export const getFarmerStories = async farmerId => {
+  try {
+    const snap = await firestore()
+      .collection('farm_stories')
+      .where('farmerId', '==', farmerId)
+      .get();
+    const stories = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    stories.sort((a, b) => {
+      const t1 = a.createdAt?.toDate?.() || 0;
+      const t2 = b.createdAt?.toDate?.() || 0;
+      return t2 - t1;
+    });
+    return {success: true, data: stories};
+  } catch (e) {
+    return {success: false, error: e.message, data: []};
+  }
+};
+
+export const deleteFarmStory = async (storyId, farmerId) => {
+  try {
+    await firestore().collection('farm_stories').doc(storyId).delete();
+    // Check if remaining stories exist for farmer
+    if (farmerId) {
+      const res = await getFarmerStories(farmerId);
+      const remaining = res.data || [];
+      const latestUrl = remaining.length > 0 ? remaining[0].videoUrl : null;
+      await firestore().collection('users').doc(farmerId).set(
+        {
+          storyVideo: latestUrl,
+        },
+        {merge: true},
+      );
+    }
+    return {success: true};
+  } catch (e) {
+    return {success: false, error: e.message};
+  }
+};
+
+export const getAllFarmStories = async () => {
+  try {
+    const snap = await firestore().collection('farm_stories').get();
+    let stories = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    stories.sort((a, b) => {
+      const t1 = a.createdAt?.toDate?.() || 0;
+      const t2 = b.createdAt?.toDate?.() || 0;
+      return t2 - t1;
+    });
+    // Fallback if farm_stories is empty
+    if (stories.length === 0) {
+      const userSnap = await firestore()
+        .collection('users')
+        .where('userType', '==', 'farmer')
+        .get();
+      stories = userSnap.docs
+        .map(doc => ({id: doc.id, ...doc.data()}))
+        .filter(item => item.storyVideo);
+    }
+    return {success: true, data: stories};
+  } catch (e) {
+    return {success: false, error: e.message, data: []};
+  }
+};
+
 export const getFarmerProductReviews = async farmerId => {
   try {
     const productsSnap = await firestore()

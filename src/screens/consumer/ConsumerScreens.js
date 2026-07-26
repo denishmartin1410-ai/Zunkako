@@ -1409,6 +1409,39 @@ export const FarmerProfileScreen = ({route, navigation}) => {
     })();
   }, [routeFarmer]);
 
+  const [reviewsModalVisible, setReviewsModalVisible] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [farmerRating, setFarmerRating] = useState(farmer?.rating || 0);
+
+  const loadFarmerReviews = useCallback(async () => {
+    const fId = farmer?.id || routeFarmer?.id;
+    if (!fId) return;
+    setReviewsLoading(true);
+    try {
+      const {getFarmerProductReviews} = require('../../services/firebase');
+      const res = await getFarmerProductReviews(fId);
+      if (res.success && res.data) {
+        setReviews(res.data);
+        if (res.data.length > 0) {
+          const total = res.data.reduce(
+            (sum, item) => sum + (item.rating || 0),
+            0,
+          );
+          const avg = Math.round((total / res.data.length) * 10) / 10;
+          setFarmerRating(avg);
+        }
+      }
+    } catch (e) {
+      console.log('loadFarmerReviews error:', e);
+    }
+    setReviewsLoading(false);
+  }, [farmer, routeFarmer]);
+
+  useEffect(() => {
+    loadFarmerReviews();
+  }, [loadFarmerReviews]);
+
   if (!farmer) {
     return (
       <View
@@ -1461,7 +1494,11 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         {[
           {
             label: `⭐ ${t('farmer.rating', {defaultValue: 'மதிப்பீடு'})}`,
-            val: `${parseFloat(farmer.rating || 0).toFixed(1)} / 5.0`,
+            val: `${parseFloat(farmerRating || farmer.rating || 0).toFixed(1)} / 5.0`,
+            onPress: () => {
+              setReviewsModalVisible(true);
+              loadFarmerReviews();
+            },
           },
           {
             label: `🏡 ${t('farmer.farm', {defaultValue: 'பண்ணை'})}`,
@@ -1471,25 +1508,30 @@ export const FarmerProfileScreen = ({route, navigation}) => {
             label: `📍 ${t('farmer.location', {defaultValue: 'இடம்'})}`,
             val: farmer.location || '-',
           },
-        ].map((s, i) => (
-          <View
-            key={i}
-            style={[
-              S.farmerStatRow,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor: themeColors.border,
-                borderWidth: 1,
-              },
-            ]}>
-            <Text style={[S.farmerStatLabel, {color: themeColors.subText}]}>
-              {s.label}
-            </Text>
-            <Text style={[S.farmerStatVal, {color: themeColors.text}]}>
-              {s.val}
-            </Text>
-          </View>
-        ))}
+        ].map((s, i) => {
+          const Comp = s.onPress ? TouchableOpacity : View;
+          return (
+            <Comp
+              key={i}
+              onPress={s.onPress}
+              activeOpacity={0.7}
+              style={[
+                S.farmerStatRow,
+                {
+                  backgroundColor: themeColors.cardBg,
+                  borderColor: themeColors.border,
+                  borderWidth: 1,
+                },
+              ]}>
+              <Text style={[S.farmerStatLabel, {color: themeColors.subText}]}>
+                {s.label}
+              </Text>
+              <Text style={[S.farmerStatVal, {color: themeColors.text}]}>
+                {s.val} {s.onPress ? ' ➔' : ''}
+              </Text>
+            </Comp>
+          );
+        })}
         <Text
           style={{
             fontSize: rs(FONTS.md),
@@ -1649,6 +1691,146 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         )}
         <View style={{height: 80}} />
       </ScrollView>
+
+      {/* ⭐ Product Reviews Modal */}
+      <Modal
+        visible={reviewsModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setReviewsModalVisible(false)}>
+        <View style={S.modalOverlay}>
+          <View
+            style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
+            <View
+              style={[
+                S.modalHeader,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                },
+              ]}>
+              <Text
+                style={[
+                  S.modalTitle,
+                  {color: themeColors.text, flex: 1, marginRight: 8},
+                ]}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                ⭐{' '}
+                {t('farmer.ratingAndReviews', {
+                  defaultValue: 'Ratings & Reviews',
+                })}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setReviewsModalVisible(false)}
+                style={S.modalCloseBtn}>
+                <Text style={{fontSize: 20, color: themeColors.text}}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {reviewsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={COLORS.primaryGreen}
+                style={{marginVertical: 40}}
+              />
+            ) : (
+              <FlatList
+                data={reviews}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({item}) => {
+                  const localProdName =
+                    i18n.language === 'ta'
+                      ? item.productName
+                      : item.productNameEn || item.productName;
+                  return (
+                    <View
+                      style={[
+                        S.detailOrderCard || S.farmerProductCard,
+                        {
+                          backgroundColor: themeColors.bg,
+                          borderColor: themeColors.border,
+                          borderWidth: 1,
+                          padding: 12,
+                          borderRadius: 12,
+                          marginBottom: 8,
+                        },
+                      ]}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: themeColors.text,
+                            fontSize: 14,
+                          }}>
+                          🥬 {localProdName}
+                        </Text>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            color: '#FFB300',
+                            fontSize: 14,
+                          }}>
+                          ⭐ {item.rating} / 5
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginTop: 6,
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: themeColors.subText,
+                            fontWeight: '500',
+                          }}>
+                          👤 {item.userName || 'Customer'}
+                        </Text>
+                        <Text
+                          style={{fontSize: 11, color: themeColors.subText}}>
+                          {item.createdAt
+                            ?.toDate?.()
+                            ?.toLocaleDateString('ta-IN') || ''}
+                        </Text>
+                      </View>
+                      {item.review ? (
+                        <Text
+                          style={{
+                            color: themeColors.text,
+                            fontSize: 13,
+                            marginTop: 6,
+                            fontStyle: 'italic',
+                            backgroundColor: isDark
+                              ? 'rgba(255,255,255,0.05)'
+                              : '#F5F5F5',
+                            padding: 8,
+                            borderRadius: 4,
+                          }}>
+                          "{item.review}"
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                }}
+                ListEmptyComponent={
+                  <View style={{alignItems: 'center', paddingVertical: 60}}>
+                    <Text style={{fontSize: 55}}>⭐</Text>
+                  </View>
+                }
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

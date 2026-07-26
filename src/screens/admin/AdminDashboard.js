@@ -63,6 +63,7 @@ const AdminDashboard = () => {
   const [zoomModalVisible, setZoomModalVisible] = useState(false);
   const [zoomImageUri, setZoomImageUri] = useState('');
   const [playingAudioUrl, setPlayingAudioUrl] = useState(null);
+  const [playingAudioId, setPlayingAudioId] = useState(null);
   const [audioPaused, setAudioPaused] = useState(true);
   const [userStats, setUserStats] = useState({
     farmers: 0,
@@ -1155,11 +1156,7 @@ const AdminDashboard = () => {
                         <TouchableOpacity
                           style={{
                             backgroundColor:
-                              playingAudioUrl ===
-                                (item.audioUrl ||
-                                  item.attachmentUrl ||
-                                  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3') &&
-                              !audioPaused
+                              playingAudioId === item.id && !audioPaused
                                 ? '#D32F2F'
                                 : '#2E7D32',
                             paddingVertical: 4,
@@ -1170,10 +1167,18 @@ const AdminDashboard = () => {
                             const url =
                               item.audioUrl ||
                               item.attachmentUrl ||
-                              'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-                            if (playingAudioUrl === url) {
+                              item.voiceUrl;
+                            if (!url) {
+                              Alert.alert(
+                                'Voice Feedback',
+                                'வகுக்கப்பட்ட ஒலிப்பதிவு கோப்பு எதுவும் இல்லை (No audio recording file found for this feedback)',
+                              );
+                              return;
+                            }
+                            if (playingAudioId === item.id) {
                               setAudioPaused(!audioPaused);
                             } else {
+                              setPlayingAudioId(item.id);
                               setPlayingAudioUrl(url);
                               setAudioPaused(false);
                             }
@@ -1184,11 +1189,7 @@ const AdminDashboard = () => {
                               fontSize: 12,
                               fontWeight: 'bold',
                             }}>
-                            {playingAudioUrl ===
-                              (item.audioUrl ||
-                                item.attachmentUrl ||
-                                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3') &&
-                            !audioPaused
+                            {playingAudioId === item.id && !audioPaused
                               ? '⏸️ Pause'
                               : '▶️ Play'}
                           </Text>

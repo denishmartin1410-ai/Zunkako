@@ -32,12 +32,34 @@ const rs = size => Math.round(size * scale);
 
 const StoryVideoScreen = ({navigation}) => {
   const {t} = useTranslation();
-  const {user, updateUser} = useAuth();
+  const {user} = useAuth();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
-  const [videoUri, setVideoUri] = useState(user?.storyVideo || null);
+  const [farmStories, setFarmStories] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const uid = user?.id || user?.uid;
+
+  const loadStories = useCallback(async () => {
+    if (!uid) return;
+    setIsLoading(true);
+    try {
+      const {getFarmerStories} = require('../../services/firebase');
+      const res = await getFarmerStories(uid);
+      if (res.success && res.data) {
+        setFarmStories(res.data);
+      }
+    } catch (e) {
+      console.log('Error loading farm stories:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [uid]);
+
+  React.useEffect(() => {
+    loadStories();
+  }, [loadStories]);
 
   const handlePickVideo = async () => {
     try {
@@ -65,22 +87,19 @@ const StoryVideoScreen = ({navigation}) => {
         return;
       }
 
-      setVideoUri(asset.uri);
       setIsUploading(true);
-      setUploadProgress(0);
 
       // Cloudinary video upload
       const {
         uploadVideoToCloudinary,
       } = require('../../services/cloudinaryServices');
       const uploadResult = await uploadVideoToCloudinary(asset.uri);
-      setIsUploading(false);
 
       if (uploadResult.success) {
-        // Save to Firestore
-        const {saveUserProfile} = require('../../services/firebase');
-        const uid = user?.id || user?.uid;
-        await saveUserProfile(uid, {storyVideo: uploadResult.url});
+        const {addFarmStory} = require('../../services/firebase');
+        await addFarmStory(uid, user?.name, uploadResult.url);
+        setIsUploading(false);
+        await loadStories();
         Alert.alert(
           '✅',
           t('story.videoUploaded', {
@@ -89,7 +108,7 @@ const StoryVideoScreen = ({navigation}) => {
           }),
         );
       } else {
-        setVideoUri(null);
+        setIsUploading(false);
         Alert.alert(
           t('common.error', {defaultValue: 'பிழை'}),
           uploadResult.error || 'Video upload failed',
@@ -102,7 +121,7 @@ const StoryVideoScreen = ({navigation}) => {
     }
   };
 
-  const handleDeleteVideo = async () => {
+  const handleDeleteVideo = async storyId => {
     Alert.alert(
       t('common.confirm', {defaultValue: 'உறுதிப்படுத்து'}),
       t('story.deleteConfirm', {defaultValue: 'வீடியோவை நீக்க வேண்டுமா?'}),
@@ -113,9 +132,10 @@ const StoryVideoScreen = ({navigation}) => {
           onPress: async () => {
             try {
               setIsUploading(true);
-              const res = await updateUser({storyVideo: null});
+              const {deleteFarmStory} = require('../../services/firebase');
+              const res = await deleteFarmStory(storyId, uid);
               if (res.success) {
-                setVideoUri(null);
+                await loadStories();
                 Alert.alert(
                   '✅',
                   t('story.videoDeleted', {
@@ -182,17 +202,16 @@ const StoryVideoScreen = ({navigation}) => {
           </Text>
         </View>
 
-        {/* Video Status */}
-        <View
-          style={[
-            styles.videoCard,
-            {
-              backgroundColor: themeColors.cardBg,
-              borderColor: themeColors.border,
-              borderWidth: 1,
-            },
-          ]}>
-          {isUploading ? (
+        {isUploading ? (
+          <View
+            style={[
+              styles.videoCard,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+                borderWidth: 1,
+              },
+            ]}>
             <View style={styles.uploadingBox}>
               <ActivityIndicator color={COLORS.primaryGreen} size="large" />
               <Text
@@ -203,61 +222,70 @@ const StoryVideoScreen = ({navigation}) => {
                 })}
               </Text>
             </View>
-          ) : videoUri ? (
-            <View style={styles.videoPreview}>
-              <Text style={styles.videoEmoji}>🎬</Text>
-              <Text
+          </View>
+        ) : farmStories.length > 0 ? (
+          farmStories.map((item, index) => {
+            const dateStr = item.createdAt?.toDate?.()
+              ? item.createdAt.toDate().toLocaleDateString('ta-IN')
+              : '';
+            return (
+              <View
+                key={item.id || index}
                 style={[
-                  styles.videoText,
-                  {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+                  styles.videoCard,
+                  {
+                    backgroundColor: themeColors.cardBg,
+                    borderColor: themeColors.border,
+                    borderWidth: 1,
+                    marginBottom: 14,
+                  },
                 ]}>
-                {t('story.videoReady', {defaultValue: 'Video ready!'})}
-              </Text>
-              <Text style={[styles.videoSub, {color: themeColors.textMuted}]}>
-                {t('story.customersCanWatch', {
-                  defaultValue: 'வாடிக்கையாளர்கள் இப்போது பார்க்கலாம்',
-                })}
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.changeBtn,
-                  {
-                    backgroundColor: isDark ? '#1E3A2E' : '#E8F5E9',
-                    borderColor: isDark ? '#4CAF50' : COLORS.primaryGreen,
-                  },
-                ]}
-                onPress={handlePickVideo}>
-                <Text
-                  style={[
-                    styles.changeBtnTxt,
-                    {color: isDark ? '#A1E9C5' : COLORS.primaryGreen},
-                  ]}>
-                  🔄{' '}
-                  {t('story.changeVideo', {defaultValue: 'வீடியோ மாற்றவும்'})}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.deleteBtn,
-                  {
-                    backgroundColor: isDark ? '#3D1C1F' : '#FFEBEE',
-                    borderColor: isDark ? '#EF5350' : COLORS.accentRed,
-                    marginTop: 10,
-                  },
-                ]}
-                onPress={handleDeleteVideo}>
-                <Text
-                  style={[
-                    styles.deleteBtnTxt,
-                    {color: isDark ? '#FF9E9E' : COLORS.accentRed},
-                  ]}>
-                  🗑️{' '}
-                  {t('story.deleteVideo', {defaultValue: 'வீடியோவை நீக்கவும்'})}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
+                <View style={styles.videoPreview}>
+                  <Text style={styles.videoEmoji}>🎬</Text>
+                  <Text
+                    style={[
+                      styles.videoText,
+                      {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
+                    ]}>
+                    {t('story.videoReady', {defaultValue: 'Video ready!'})} #{index + 1}
+                  </Text>
+                  {dateStr ? (
+                    <Text style={{fontSize: 12, color: themeColors.subText, marginVertical: 2}}>
+                      📅 {dateStr}
+                    </Text>
+                  ) : null}
+                  <TouchableOpacity
+                    style={[
+                      styles.deleteBtn,
+                      {
+                        backgroundColor: isDark ? '#3D1C1F' : '#FFEBEE',
+                        borderColor: isDark ? '#EF5350' : COLORS.accentRed,
+                        marginTop: 10,
+                      },
+                    ]}
+                    onPress={() => handleDeleteVideo(item.id)}>
+                    <Text
+                      style={[
+                        styles.deleteBtnTxt,
+                        {color: isDark ? '#FF9E9E' : COLORS.accentRed},
+                      ]}>
+                      🗑️ {t('story.deleteVideo', {defaultValue: 'வீடியோவை நீக்கவும்'})}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          })
+        ) : (
+          <View
+            style={[
+              styles.videoCard,
+              {
+                backgroundColor: themeColors.cardBg,
+                borderColor: themeColors.border,
+                borderWidth: 1,
+              },
+            ]}>
             <View style={styles.noVideoBox}>
               <Text style={styles.noVideoEmoji}>📹</Text>
               <Text
@@ -267,8 +295,8 @@ const StoryVideoScreen = ({navigation}) => {
                 })}
               </Text>
             </View>
-          )}
-        </View>
+          </View>
+        )}
 
         {/* Upload Button */}
         {!isUploading && (
@@ -286,8 +314,6 @@ const StoryVideoScreen = ({navigation}) => {
               </Text>
             </LinearGradient>
           </TouchableOpacity>
-        )}
-
         {/* Tips */}
         <View
           style={[
