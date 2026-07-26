@@ -30,6 +30,7 @@ import {
   getThemeColors,
 } from '../../utils/theme';
 import {useAuth} from '../../context/AuthContext';
+import firestore from '@react-native-firebase/firestore';
 import {getAllFarmers} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 

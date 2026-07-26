@@ -2,7 +2,7 @@
 // ✅ default export - FarmerNavigator crash fix!
 // ✅ Video upload via Cloudinary
 
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,

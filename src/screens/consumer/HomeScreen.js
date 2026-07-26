@@ -28,9 +28,15 @@ import {
 } from '../../utils/theme';
 import {useTheme} from '../../context/ThemeContext';
 import {useIsFocused} from '@react-navigation/native';
-import {listenToProducts, getAllFarmers, getAllProducts} from '../../services/firebase';
+import {
+  listenToProducts,
+  getAllFarmers,
+  getAllProducts,
+  listenToNotifications,
+} from '../../services/firebase';
 import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
 import {getLocalProductName} from '../../utils/translationHelper';
+import {CATEGORIES} from '../../utils/dummyData';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = width * 0.44;

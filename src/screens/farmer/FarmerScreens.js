@@ -144,6 +144,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
   const [monthlyModalVisible, setMonthlyModalVisible] = useState(false);
   const [detailsOrders, setDetailsOrders] = useState([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
   const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
   const [preOrders, setPreOrders] = useState([]);
@@ -283,6 +284,26 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
   useEffect(() => {
     loadDashboardData();
   }, [loadDashboardData]);
+
+  useEffect(() => {
+    const uid = user?.id || user?.uid;
+    if (!uid) return;
+    let unsub;
+    try {
+      const {listenToNotifications} = require('../../services/firebase');
+      unsub = listenToNotifications(uid, res => {
+        if (res.success && res.data) {
+          const unread = res.data.filter(n => !n.isRead).length;
+          setUnreadNotifCount(unread);
+        }
+      });
+    } catch (e) {
+      console.log('Farmer dashboard notification listener error:', e);
+    }
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
+  }, [user]);
 
   const onRefreshDashboard = () => {
     loadDashboardData(true);
