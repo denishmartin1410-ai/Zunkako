@@ -73,7 +73,6 @@ export const AuthProvider = ({children}) => {
 
   const login = async (email, password, selectedType) => {
     try {
-      const authModule = require('@react-native-firebase/auth').default;
       const formattedEmail = email.trim().toLowerCase();
 
       const r = await firebaseEmailLogin(formattedEmail, password);
@@ -104,9 +103,9 @@ export const AuthProvider = ({children}) => {
         console.log('User reload error:', e.message);
       }
 
-      const currentUser = authModule().currentUser || fbUser;
+      const currentUser = auth().currentUser || fbUser;
       if (!currentUser.emailVerified) {
-        await authModule().signOut(); // Don't keep unverified user logged in
+        await auth().signOut(); // Don't keep unverified user logged in
         return {
           success: false,
           error: i18n.t('authAlerts.emailNotVerifiedMsg', {
@@ -130,7 +129,7 @@ export const AuthProvider = ({children}) => {
           storedType !== selectedType
         ) {
           // ❌ User tried to login to the WRONG dashboard!
-          await authModule().signOut(); // Immediately sign them out
+          await auth().signOut(); // Immediately sign them out
 
           const typeLabel = i18n.t(`login.${storedType}`, {
             defaultValue: storedType,
@@ -234,14 +233,14 @@ export const AuthProvider = ({children}) => {
   // ✅ Resend Email Verification
   const resendVerificationEmail = async (userEmail, userPassword) => {
     try {
-      let currentUser = authModule().currentUser;
+      let currentUser = auth().currentUser;
       if (!currentUser && userEmail && userPassword) {
-        const r = await authModule().signInWithEmailAndPassword(userEmail, userPassword);
+        const r = await auth().signInWithEmailAndPassword(userEmail, userPassword);
         currentUser = r.user;
       }
       if (currentUser) {
         await currentUser.sendEmailVerification();
-        await authModule().signOut();
+        await auth().signOut();
         return {success: true};
       }
       return {success: false, error: 'User not found'};
@@ -366,7 +365,7 @@ export const AuthProvider = ({children}) => {
           });
       }
       // ✅ Sign out unverified user immediately so they must verify email before logging in
-      await authModule().signOut();
+      await auth().signOut();
       setUser(null);
       setUserType(null);
       setFirebaseUser(null);
