@@ -97,14 +97,24 @@ export const AuthProvider = ({children}) => {
       }
       const fbUser = r.user;
 
-      // ✅ Email Verification Check
-      if (!fbUser.emailVerified) {
+      // ✅ Email Verification Check - Reload to fetch latest verification status
+      try {
+        await fbUser.reload();
+      } catch (e) {
+        console.log('User reload error:', e.message);
+      }
+
+      const currentUser = authModule().currentUser || fbUser;
+      if (!currentUser.emailVerified) {
         await authModule().signOut(); // Don't keep unverified user logged in
         return {
           success: false,
-          error: i18n.t('authAlerts.emailNotVerifiedMsg'),
+          error: i18n.t('authAlerts.emailNotVerifiedMsg', {
+            defaultValue:
+              '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nஉங்கள் மின்னஞ்சல் (Inbox அல்லது Spam Folder) சரிபார்த்து உறுதிப்படுத்தல் லிங்கை கிளிக் செய்யவும்.',
+          }),
           errorType: 'email-not-verified',
-          fbUser: fbUser,
+          email: formattedEmail,
         };
       }
 
@@ -222,14 +232,19 @@ export const AuthProvider = ({children}) => {
   };
 
   // ✅ Resend Email Verification
-  const resendVerificationEmail = async () => {
+  const resendVerificationEmail = async (userEmail, userPassword) => {
     try {
-      const currentUser = auth().currentUser;
-      if (currentUser && !currentUser.emailVerified) {
+      let currentUser = authModule().currentUser;
+      if (!currentUser && userEmail && userPassword) {
+        const r = await authModule().signInWithEmailAndPassword(userEmail, userPassword);
+        currentUser = r.user;
+      }
+      if (currentUser) {
         await currentUser.sendEmailVerification();
+        await authModule().signOut();
         return {success: true};
       }
-      return {success: false, error: 'User not found or already verified'};
+      return {success: false, error: 'User not found'};
     } catch (e) {
       return {success: false, error: e.message};
     }
@@ -350,12 +365,12 @@ export const AuthProvider = ({children}) => {
             createdAt: firestore.FieldValue.serverTimestamp(),
           });
       }
-      await AsyncStorage.setItem('@F2C_user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@F2C_userType', type);
-      setUser(userData);
-      setUserType(type);
-      setFirebaseUser(fbUser);
-      saveFCMToken(fbUser.uid);
+      // ✅ Sign out unverified user immediately so they must verify email before logging in
+      await authModule().signOut();
+      setUser(null);
+      setUserType(null);
+      setFirebaseUser(null);
+      await AsyncStorage.multiRemove(['@F2C_user', '@F2C_userType']);
       return {success: true, emailVerificationSent: true};
     } catch (e) {
       return {success: false, error: e.message};

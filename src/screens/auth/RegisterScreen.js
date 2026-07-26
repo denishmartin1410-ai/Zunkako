@@ -206,21 +206,28 @@ const RegisterScreen = ({navigation, route}) => {
         );
       }
     } else {
-      // ✅ Registration successful - Show email verification alert
+      // ✅ Registration successful - Show email verification alert with Spam note
       Alert.alert(
-        t('authAlerts.regSuccessTitle'),
-        t('authAlerts.regSuccessMsg'),
+        t('authAlerts.regSuccessTitle', {
+          defaultValue: '✅ பதிவு வெற்றிகரமாக முடிந்தது!',
+        }),
+        t('authAlerts.regSuccessMsg', {
+          defaultValue:
+            `📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\n` +
+            `உங்கள் மின்னஞ்சல் முகவரிக்கு (${email.trim()}) சரிபார்ப்பு லிங்க் (Verification Link) அனுப்பப்பட்டுள்ளது.\n\n` +
+            `👉 குறிப்பு: இந்த சரிபார்ப்பு லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் இருக்கும்.\n` +
+            `👉 அந்த லிங்கை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்!`,
+        }),
         [
           {
-            text: t('authAlerts.goToLoginBtnMain'),
-            onPress: async () => {
-              // Logout so user must verify email before accessing app
-              try {
-                await logout();
-              } catch (e) {
-                console.log('Auto signout after register:', e);
-              }
-              navigation.navigate('Login', {role: userType});
+            text: t('authAlerts.goToLoginBtnMain', {
+              defaultValue: 'உள்நுழைவுப் பக்கத்திற்குச் செல் ➔',
+            }),
+            onPress: () => {
+              navigation.navigate('Login', {
+                role: userType,
+                registeredEmail: email.trim(),
+              });
             },
           },
         ],

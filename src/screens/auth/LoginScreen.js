@@ -67,7 +67,10 @@ const LoginScreen = ({navigation, route}) => {
     if (route.params?.role) {
       setUserType(route.params.role);
     }
-  }, [route.params?.role]);
+    if (route.params?.registeredEmail) {
+      setEmail(route.params.registeredEmail);
+    }
+  }, [route.params?.role, route.params?.registeredEmail]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -199,23 +202,36 @@ const LoginScreen = ({navigation, route}) => {
         } else if (errorType === 'email-not-verified') {
           // Email not verified - offer to resend
           Alert.alert(
-            t('authAlerts.emailNotVerifiedTitle'),
-            t('authAlerts.emailNotVerifiedMsg'),
+            t('authAlerts.emailNotVerifiedTitle', {
+              defaultValue: '📧 மின்னஞ்சல் சரிபார்ப்பு தேவை!',
+            }),
+            t('authAlerts.emailNotVerifiedMsg', {
+              defaultValue:
+                `உங்கள் மின்னஞ்சல் (${email.trim()}) இன்னும் உறுதிப்படுத்தப்படவில்லை.\n\n` +
+                `👉 குறிப்பு: உறுதிப்படுத்தல் லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் அனுப்பப்பட்டுள்ளது. அதை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்.`,
+            }),
             [
-              {text: t('common.ok'), style: 'cancel'},
+              {text: t('common.ok', {defaultValue: 'சரி'}), style: 'cancel'},
               {
-                text: t('authAlerts.resendLinkBtn'),
+                text: t('authAlerts.resendLinkBtn', {
+                  defaultValue: '📩 லிங்க் மீண்டும் அனுப்பு',
+                }),
                 onPress: async () => {
-                  const res = await resendVerificationEmail();
+                  const res = await resendVerificationEmail(email.trim(), password);
                   if (res.success) {
                     Alert.alert(
-                      t('authAlerts.linkSentTitle'),
-                      t('authAlerts.linkSentMsg'),
+                      t('authAlerts.linkSentTitle', {
+                        defaultValue: '✅ லிங்க் அனுப்பப்பட்டது!',
+                      }),
+                      t('authAlerts.linkSentMsg', {
+                        defaultValue:
+                          'மின்னஞ்சல் உறுதிப்படுத்தல் லிங்க் மீண்டும் அனுப்பப்பட்டது! தயவுசெய்து உங்கள் Inbox மற்றும் Spam Folder-ஐ சரிபார்க்கவும்.',
+                      }),
                     );
                   } else {
                     Alert.alert(
-                      t('common.error'),
-                      t('authAlerts.resendErrorMsg'),
+                      t('common.error', {defaultValue: 'பிழை'}),
+                      res.error || t('authAlerts.resendErrorMsg'),
                     );
                   }
                 },
