@@ -27,6 +27,7 @@ import {
 import {useTranslation} from 'react-i18next';
 import BackButton from '../../utils/BackButton';
 import {useCart} from '../../context/CartContext';
+import {getConsumerPrice} from '../../utils/priceHelper';
 import {listenToFreshProducts} from '../../services/firebase';
 import {useTheme} from '../../context/ThemeContext';
 
@@ -183,7 +184,7 @@ const FreshnessCard = ({product, onAddToCart}) => {
           </View>
           <View style={styles.priceBox}>
             <Text style={[styles.price, {color: themeColors.text}]}>
-              ₹{product.price}
+              ₹{getConsumerPrice(product.price)}
             </Text>
             <Text style={[styles.unit, {color: themeColors.textMuted}]}>
               /{product.unit}

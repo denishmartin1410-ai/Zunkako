@@ -527,20 +527,36 @@ const DeliveryDashboard = ({navigation}) => {
                   ✅ Delivered to Consumer
                 </Text>
               ) : item.status === 'Shipped' ? (
-                <TouchableOpacity
-                  style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
-                  onPress={() =>
-                    navigateToLocation(
-                      item.consumerCoords?.lat || item.consumerCoords?.latitude,
-                      item.consumerCoords?.lng ||
-                        item.consumerCoords?.longitude,
-                      'Customer',
-                    )
-                  }>
-                  <Text style={[styles.navBtnTxt, {color: '#2E7D32'}]}>
-                    🗺️ Navigate to Customer
-                  </Text>
-                </TouchableOpacity>
+                <View style={{gap: 8, marginTop: 4}}>
+                  <TouchableOpacity
+                    style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
+                    onPress={() =>
+                      navigateToLocation(
+                        item.consumerCoords?.lat || item.consumerCoords?.latitude,
+                        item.consumerCoords?.lng ||
+                          item.consumerCoords?.longitude,
+                        'Customer',
+                      )
+                    }>
+                    <Text style={[styles.navBtnTxt, {color: '#2E7D32'}]}>
+                      🗺️ Navigate to Customer
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.navBtn,
+                      {backgroundColor: COLORS.primaryGreen, paddingVertical: 10},
+                    ]}
+                    onPress={() => handleStatusUpdate(item, 'Delivered')}>
+                    <Text
+                      style={[
+                        styles.navBtnTxt,
+                        {color: '#FFFFFF', fontWeight: 'bold'},
+                      ]}>
+                      ✅ Delivered to Customer
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               ) : (
                 <Text style={styles.stepLockedLabel}>
                   🔒 Available after product pickup
@@ -614,12 +630,19 @@ const DeliveryDashboard = ({navigation}) => {
             <TouchableOpacity
               onPress={() => navigation.navigate('Settings')}
               style={{
-                padding: 6,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                paddingHorizontal: 12,
+                paddingVertical: 7,
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
                 borderRadius: 18,
                 alignSelf: 'center',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
               }}>
-              <Text style={{fontSize: 16}}>⚙️</Text>
+              <Text style={{fontSize: 14}}>⚙️</Text>
+              <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 12}}>
+                அமைப்புகள்
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
               <Text style={styles.logoutTxt}>
@@ -632,19 +655,19 @@ const DeliveryDashboard = ({navigation}) => {
           <View style={styles.statBox}>
             <Text style={styles.statNum}>{activeOrders.length}</Text>
             <Text style={styles.statLabel}>
-              {t('delivery.active', {defaultValue: 'Active'})}
+              {t('delivery.active', {defaultValue: 'செயலில்'})}
             </Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statNum}>{completedOrders.length}</Text>
             <Text style={styles.statLabel}>
-              {t('delivery.completed', {defaultValue: 'Completed'})}
+              {t('delivery.completed', {defaultValue: 'முடிந்தது'})}
             </Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statNum}>{availableOrders.length}</Text>
             <Text style={styles.statLabel}>
-              {t('delivery.available', {defaultValue: 'Available'})}
+              {t('delivery.available', {defaultValue: 'இருப்பில்'})}
             </Text>
           </View>
         </View>
@@ -818,14 +841,15 @@ const styles = StyleSheet.create({
   },
   orderDate: {fontSize: rs(FONTS.xs), color: COLORS.textMuted, marginTop: 2},
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: RADIUS.full,
-    maxWidth: '65%',
+    maxWidth: '70%',
     flexShrink: 1,
+    alignSelf: 'flex-start',
   },
   statusTxt: {
-    fontSize: rs(9.5),
+    fontSize: rs(9),
     fontWeight: 'bold',
     textAlign: 'center',
   },

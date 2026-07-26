@@ -722,10 +722,17 @@ const HomeScreen = ({navigation}) => {
                     defaultValue: 'All Products',
                   })}`}
             </Text>
-            <Text
-              style={{fontSize: rs(FONTS.sm), color: themeColors.textMuted}}>
-              {filteredProducts.length} items
-            </Text>
+            <TouchableOpacity
+              style={{flexDirection: 'row', alignItems: 'center'}}
+              onPress={() => navigation.navigate('AllProducts')}>
+              <Text
+                style={[
+                  styles.seeAll,
+                  {color: COLORS.primaryGreen, fontWeight: 'bold', fontSize: rs(13)},
+                ]}>
+                🎯🎯 All ➔
+              </Text>
+            </TouchableOpacity>
           </View>
           {isLoadingProducts ? (
             <ActivityIndicator
