@@ -1576,6 +1576,11 @@ export const AddProductScreen = ({navigation}) => {
       const {
         uploadImageToCloudinary,
       } = require('../../services/cloudinaryServices');
+      const {
+        validateProductImageWithAI,
+        showAISecurityAlert,
+      } = require('../../services/imageSecurityService');
+
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
@@ -1586,6 +1591,14 @@ export const AddProductScreen = ({navigation}) => {
         return;
       }
       const uri = result.assets[0].uri;
+
+      // 🛡️ AI Image Security & Content Moderation Check
+      const aiCheck = await validateProductImageWithAI(uri, name, category);
+      if (!aiCheck.safe) {
+        showAISecurityAlert(aiCheck.reason);
+        return;
+      }
+
       setImageUri(uri);
       imageUrlRef.current = '';
       setIsUploading(true);
@@ -1597,7 +1610,7 @@ export const AddProductScreen = ({navigation}) => {
         Alert.alert(
           '✅',
           t('farmer.photoUploaded', {
-            defaultValue: 'புகைப்படம் பதிவேற்றம் செய்யப்பட்டது!',
+            defaultValue: 'புகைப்படம் பதிவேற்றம் செய்யப்பட்டது! (AI Verified)',
           }),
         );
       } else {

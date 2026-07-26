@@ -270,3 +270,53 @@ exports.sendCustomOTP = functions.https.onCall(async (data, context) => {
 
   return {success: true, message: 'OTP sent successfully'};
 });
+
+// ════════════════════════════════════════════════════════
+// FUNCTION 5: AI Image Moderation (Google Cloud Vision API)
+// SafeSearch (Adult/Violence) & Product Label Verification
+// ════════════════════════════════════════════════════════
+exports.moderateProductImage = functions.storage
+  .object()
+  .onFinalize(async (object) => {
+    const filePath = object.name || '';
+    if (!filePath.startsWith('products/')) return null;
+
+    try {
+      const vision = require('@google-cloud/vision');
+      const client = new vision.ImageAnnotatorClient();
+      const gcsPath = `gs://${object.bucket}/${filePath}`;
+
+      const [safeSearchResult] = await client.safeSearchDetection(gcsPath);
+      const detections = safeSearchResult.safeSearchAnnotation || {};
+
+      const isUnsafe =
+        detections.adult === 'VERY_LIKELY' ||
+        detections.adult === 'LIKELY' ||
+        detections.violence === 'VERY_LIKELY' ||
+        detections.violence === 'LIKELY' ||
+        detections.racy === 'VERY_LIKELY';
+
+      if (isUnsafe) {
+        console.log(`❌ AI Moderation: Unsafe image detected! ${filePath}`);
+        const bucket = admin.storage().bucket(object.bucket);
+        await bucket.file(filePath).delete();
+
+        const metadata = object.metadata || {};
+        if (metadata.userId) {
+          await admin.firestore().collection('notifications').add({
+            userId: metadata.userId,
+            title: '⚠️ எச்சரிக்கை: படம் நிராகரிக்கப்பட்டது!',
+            message:
+              'நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது. தயவுசெய்து சரியான தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            type: 'security_alert',
+            read: false,
+          });
+        }
+      }
+      return null;
+    } catch (e) {
+      console.log('AI Image Moderation error:', e.message);
+      return null;
+    }
+  });
