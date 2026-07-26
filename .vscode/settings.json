@@ -24,5 +24,10 @@
   "search.exclude": {
     "**/node_modules": true,
     "**/android/build": true
-  }
+  },
+  "gradle.autoDetect": "off",
+  "gradle.nestedProjects": false,
+  "gradle.customBuildFiles": [
+    "android/build.gradle"
+  ]
 }
