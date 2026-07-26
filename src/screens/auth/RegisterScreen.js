@@ -187,7 +187,7 @@ const RegisterScreen = ({navigation, route}) => {
             {text: t('common.ok'), style: 'cancel'},
             {
               text: t('authAlerts.goToLoginBtn'),
-              onPress: () => navigation.navigate('Login'),
+              onPress: () => navigation.navigate('Login', {role: userType}),
             },
           ],
         );
@@ -196,7 +196,7 @@ const RegisterScreen = ({navigation, route}) => {
           {text: t('common.ok'), style: 'cancel'},
           {
             text: t('authAlerts.goToLoginBtn'),
-            onPress: () => navigation.navigate('Login'),
+            onPress: () => navigation.navigate('Login', {role: userType}),
           },
         ]);
       } else {
@@ -220,7 +220,7 @@ const RegisterScreen = ({navigation, route}) => {
               } catch (e) {
                 console.log('Auto signout after register:', e);
               }
-              navigation.navigate('Login');
+              navigation.navigate('Login', {role: userType});
             },
           },
         ],
@@ -250,59 +250,75 @@ const RegisterScreen = ({navigation, route}) => {
 
       {/* ════ WHITE CARD ════ */}
       <View style={styles.card}>
-        {/* User type selector */}
+        {/* User type selector - Single wide card for selected role */}
         <Text style={styles.sLabel}>
           {t('login.whoAreYou', {defaultValue: 'Who are you?'})}
         </Text>
-        <View style={styles.typeRow}>
-          {[
-            {
-              type: 'consumer',
-              emoji: '🛒',
-              ta: t('login.consumer', {defaultValue: 'நுகர்வோர்'}),
-              sub: t('login.buyFresh', {defaultValue: 'Buy fresh vegetables'}),
-            },
-            {
-              type: 'farmer',
+
+        {(() => {
+          const roleConfig = {
+            farmer: {
+              label: t('login.farmer', {defaultValue: 'Farmer'}),
+              taLabel: t('login.farmer', {defaultValue: 'விவசாயி'}),
+              sub: t('login.sellProducts', {defaultValue: 'Sell your products'}),
               emoji: '👨‍🌾',
-              ta: t('login.farmer', {defaultValue: 'விவசாயி'}),
-              sub: t('login.sellProducts', {
-                defaultValue: 'Sell your products',
-              }),
+              colors: ['#E8F5E9', '#C8E6C9'],
+              borderColor: '#A5D6A7',
+              textColor: '#1B5E20',
             },
-            {
-              type: 'delivery',
-              emoji: '🚚',
-              ta: t('login.delivery', {defaultValue: 'டெலிவரி'}),
+            consumer: {
+              label: t('login.consumer', {defaultValue: 'Consumer'}),
+              taLabel: t('login.consumer', {defaultValue: 'நுகர்வோர்'}),
+              sub: t('login.buyFresh', {defaultValue: 'Buy fresh vegetables'}),
+              emoji: '🛒',
+              colors: ['#E3F2FD', '#BBDEFB'],
+              borderColor: '#90CAF9',
+              textColor: '#0D47A1',
+            },
+            delivery: {
+              label: t('login.delivery', {defaultValue: 'Delivery'}),
+              taLabel: t('login.delivery', {defaultValue: 'டெலிவரி'}),
               sub: t('login.deliverOrders', {defaultValue: 'Deliver orders'}),
+              emoji: '🚚',
+              colors: ['#FFF3E0', '#FFE0B2'],
+              borderColor: '#FFCC80',
+              textColor: '#E65100',
             },
-          ].map(item => (
-            <TouchableOpacity
-              key={item.type}
-              style={[
-                styles.typeCard,
-                userType === item.type && styles.typeCardActive,
-              ]}
-              onPress={() => setUserType(item.type)}>
-              <Text style={styles.typeEmoji}>{item.emoji}</Text>
-              <Text
+          };
+          const currentRole = roleConfig[userType] || roleConfig.consumer;
+
+          return (
+            <View style={styles.singleRoleCardWrapper}>
+              <LinearGradient
+                colors={currentRole.colors}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
                 style={[
-                  styles.typeLabel,
-                  userType === item.type && styles.typeLabelActive,
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit>
-                {item.ta}
-              </Text>
-              <Text style={styles.typeSub}>{item.sub}</Text>
-              {userType === item.type && (
-                <View style={styles.checkBadge}>
-                  <Text style={styles.checkText}>✓</Text>
+                  styles.singleRoleCard,
+                  {borderColor: currentRole.borderColor},
+                ]}>
+                <Text style={styles.singleRoleEmoji}>{currentRole.emoji}</Text>
+                <View style={styles.singleRoleTextWrap}>
+                  <Text
+                    style={[
+                      styles.singleRoleLabel,
+                      {color: currentRole.textColor},
+                    ]}>
+                    {currentRole.label} ({currentRole.taLabel})
+                  </Text>
+                  <Text style={styles.singleRoleSub}>{currentRole.sub}</Text>
                 </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+                <View
+                  style={[
+                    styles.selectedBadge,
+                    {backgroundColor: currentRole.textColor},
+                  ]}>
+                  <Text style={styles.selectedBadgeText}>✓</Text>
+                </View>
+              </LinearGradient>
+            </View>
+          );
+        })()}
 
         {/* ── Form Fields (state-ஐ individual set functions use பண்றோம்) ── */}
         <Field
@@ -423,7 +439,8 @@ const RegisterScreen = ({navigation, route}) => {
           <Text style={styles.loginPrompt}>
             {t('login.haveAccount', {defaultValue: 'கணக்கு இருக்கிறதா? '})}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Login', {role: userType})}>
             <Text style={styles.loginLink}>
               {t('login.loginLink', {defaultValue: 'உள்நுழைக'})}
             </Text>
@@ -465,45 +482,48 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
 
-  typeRow: {flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.xl},
-  typeCard: {
-    flex: 1,
+  singleRoleCardWrapper: {
+    marginBottom: SPACING.xl,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+  },
+  singleRoleCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.md,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     borderRadius: RADIUS.lg,
     borderWidth: 2,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.background,
   },
-  typeCardActive: {
-    borderColor: COLORS.primaryGreen,
-    backgroundColor: '#E8F5E9',
+  singleRoleEmoji: {
+    fontSize: 32,
+    marginRight: 14,
   },
-  typeEmoji: {fontSize: 30, marginBottom: 4},
-  typeLabel: {
+  singleRoleTextWrap: {
+    flex: 1,
+  },
+  singleRoleLabel: {
     fontSize: FONTS.md,
-    fontWeight: FONTS.semiBold,
-    color: COLORS.textSecondary,
+    fontWeight: FONTS.bold,
   },
-  typeLabelActive: {color: COLORS.primaryGreen},
-  typeSub: {
-    fontSize: 9,
+  singleRoleSub: {
+    fontSize: 11,
     color: COLORS.textMuted,
     marginTop: 2,
-    textAlign: 'center',
   },
-  checkBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: COLORS.primaryGreen,
-    alignItems: 'center',
+  selectedBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
-  checkText: {color: COLORS.white, fontSize: 10, fontWeight: FONTS.bold},
+  selectedBadgeText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: FONTS.bold,
+  },
 
   fieldWrap: {marginBottom: SPACING.lg},
   fieldLabel: {

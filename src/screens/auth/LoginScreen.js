@@ -156,7 +156,7 @@ const LoginScreen = ({navigation, route}) => {
               },
               {
                 text: t('authAlerts.createAccountBtn'),
-                onPress: () => navigation.navigate('Register'),
+                onPress: () => navigation.navigate('Register', {role: userType}),
               },
             ],
           );
@@ -245,7 +245,7 @@ const LoginScreen = ({navigation, route}) => {
               },
               {
                 text: t('authAlerts.createAccountBtn'),
-                onPress: () => navigation.navigate('Register'),
+                onPress: () => navigation.navigate('Register', {role: userType}),
               },
             ],
           );
@@ -292,53 +292,68 @@ const LoginScreen = ({navigation, route}) => {
       {/* Card */}
       <Animated.View
         style={[styles.card, {transform: [{translateX: shakeAnim}]}]}>
-        {/* User type toggle */}
+        {/* User type display - Single wide card for selected role */}
         <Text style={styles.sectionLabel}>
           {t('login.whoAreYou', {defaultValue: 'Who are you?'})}
         </Text>
-        <View style={styles.toggleRow}>
-          {[
-            {
-              type: 'consumer',
-              emoji: '🛒',
-              label: t('login.consumer', {defaultValue: 'Consumer'}),
-            },
-            {
-              type: 'farmer',
-              emoji: '👨‍🌾',
+        
+        {(() => {
+          const roleConfig = {
+            farmer: {
               label: t('login.farmer', {defaultValue: 'Farmer'}),
+              emoji: '👨‍🌾',
+              colors: ['#E8F5E9', '#C8E6C9'],
+              borderColor: '#A5D6A7',
+              textColor: '#1B5E20',
             },
-            {
-              type: 'delivery',
-              emoji: '🚚',
+            consumer: {
+              label: t('login.consumer', {defaultValue: 'Consumer'}),
+              emoji: '🛒',
+              colors: ['#E3F2FD', '#BBDEFB'],
+              borderColor: '#90CAF9',
+              textColor: '#0D47A1',
+            },
+            delivery: {
               label: t('login.delivery', {defaultValue: 'Delivery'}),
+              emoji: '🚚',
+              colors: ['#FFF3E0', '#FFE0B2'],
+              borderColor: '#FFCC80',
+              textColor: '#E65100',
             },
-          ].map(item => (
-            <TouchableOpacity
-              key={item.type}
-              style={[
-                styles.toggleBtn,
-                userType === item.type && styles.toggleBtnActive,
-              ]}
-              onPress={() => setUserType(item.type)}>
-              {userType === item.type ? (
-                <LinearGradient
-                  colors={COLORS.gradientButton}
-                  style={styles.toggleGrad}>
-                  <Text style={styles.toggleEmoji}>{item.emoji}</Text>
-                  <Text style={styles.toggleLabelActive}>{item.label}</Text>
-                </LinearGradient>
-              ) : (
-                <View style={styles.toggleInactive}>
-                  <Text style={styles.toggleEmoji}>{item.emoji}</Text>
-                  <Text style={styles.toggleLabel}>{item.label}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
+          };
+          const currentRole = roleConfig[userType] || roleConfig.consumer;
 
-        {/* Email */}
+          return (
+            <View style={styles.singleRoleCardWrapper}>
+              <LinearGradient
+                colors={currentRole.colors}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+                style={[
+                  styles.singleRoleCard,
+                  {borderColor: currentRole.borderColor},
+                ]}>
+                <Text style={styles.singleRoleEmoji}>{currentRole.emoji}</Text>
+                <Text
+                  style={[
+                    styles.singleRoleLabel,
+                    {color: currentRole.textColor},
+                  ]}>
+                  {currentRole.label}
+                </Text>
+                <View
+                  style={[
+                    styles.selectedBadge,
+                    {backgroundColor: currentRole.textColor},
+                  ]}>
+                  <Text style={styles.selectedBadgeText}>✓</Text>
+                </View>
+              </LinearGradient>
+            </View>
+          );
+        })()}
+
+        {/* 1. Email */}
         <InputField
           label={t('login.emailLabel', {defaultValue: 'Email'})}
           value={email}
@@ -347,7 +362,7 @@ const LoginScreen = ({navigation, route}) => {
           keyboardType="email-address"
         />
 
-        {/* Password */}
+        {/* 2. Password */}
         <InputField
           label={t('login.passwordLabel', {defaultValue: 'Password'})}
           value={password}
@@ -361,21 +376,7 @@ const LoginScreen = ({navigation, route}) => {
           }
         />
 
-        {/* Phone (for OTP) */}
-        <InputField
-          label={t('login.phoneLabel', {
-            defaultValue: 'Phone Number (For OTP Login)',
-          })}
-          onChangeText={text => {
-            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
-              return;
-            }
-            setPhone(text.replace(/[^0-9]/g, ''));
-          }}
-          keyboardType="phone-pad"
-        />
-
-        {/* Forgot password */}
+        {/* 3. Forgot password */}
         <TouchableOpacity
           style={styles.forgotBtn}
           onPress={() => navigation.navigate('ForgotPassword')}>
@@ -384,9 +385,7 @@ const LoginScreen = ({navigation, route}) => {
           </Text>
         </TouchableOpacity>
 
-        {/* ✅ Demo box REMOVED - no dummy login */}
-
-        {/* Login Button */}
+        {/* 4. Login Button */}
         <TouchableOpacity
           style={styles.loginBtn}
           onPress={handleLogin}
@@ -409,7 +408,7 @@ const LoginScreen = ({navigation, route}) => {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Divider */}
+        {/* 5. Divider */}
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
           <Text style={styles.dividerText}>
@@ -418,7 +417,22 @@ const LoginScreen = ({navigation, route}) => {
           <View style={styles.divider} />
         </View>
 
-        {/* OTP Login */}
+        {/* 6. Phone (for OTP) - Under OR divider */}
+        <InputField
+          label={t('login.phoneLabel', {
+            defaultValue: 'Phone Number (For OTP)',
+          })}
+          value={phone}
+          onChangeText={text => {
+            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+              return;
+            }
+            setPhone(text.replace(/[^0-9]/g, ''));
+          }}
+          keyboardType="phone-pad"
+        />
+
+        {/* 7. OTP Login Button */}
         <TouchableOpacity style={styles.otpBtn} onPress={handleOTPLogin}>
           <Text style={styles.otpBtnText}>
             📱 {t('login.otpLogin', {defaultValue: 'OTP Login'})}
@@ -454,7 +468,8 @@ const LoginScreen = ({navigation, route}) => {
           <Text style={styles.registerPrompt}>
             {t('login.noAccount', {defaultValue: 'No account? '})}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Register', {role: userType})}>
             <Text style={styles.registerLink}>
               {t('login.registerLink', {defaultValue: 'Register'})}
             </Text>
@@ -495,28 +510,38 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     marginBottom: SPACING.md,
   },
-  toggleRow: {flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.xl},
-  toggleBtn: {flex: 1, borderRadius: RADIUS.md, overflow: 'hidden'},
-  toggleGrad: {alignItems: 'center', paddingVertical: 14},
-  toggleInactive: {
+  singleRoleCardWrapper: {
+    marginBottom: SPACING.xl,
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+  },
+  singleRoleCard: {
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
-    backgroundColor: COLORS.background,
-    borderRadius: RADIUS.md,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
+    paddingHorizontal: 20,
+    borderRadius: RADIUS.lg,
+    borderWidth: 2,
   },
-  toggleEmoji: {fontSize: 24},
-  toggleLabel: {
-    fontSize: FONTS.sm,
-    color: COLORS.textSecondary,
-    marginTop: 4,
-    fontWeight: FONTS.medium,
+  singleRoleEmoji: {
+    fontSize: 28,
+    marginRight: 14,
   },
-  toggleLabelActive: {
-    fontSize: FONTS.sm,
+  singleRoleLabel: {
+    flex: 1,
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+  },
+  selectedBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedBadgeText: {
     color: COLORS.white,
-    marginTop: 4,
+    fontSize: 14,
     fontWeight: FONTS.bold,
   },
   inputWrapper: {marginBottom: SPACING.lg},
