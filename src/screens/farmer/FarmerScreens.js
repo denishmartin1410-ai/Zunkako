@@ -800,7 +800,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                       {t('orders.preOrderedOn', {defaultValue: 'Ordered On'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
-                        {formattedDate}
+                        {formattedDate ? formattedDate.split('/').map(p => p.padStart(2, '0')).join('/') : '-'}
                       </Text>
                     </Text>
                     <Text
@@ -836,7 +836,13 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                       🌾 {t('product.harvest', {defaultValue: 'Harvest'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
-                        {item.harvestDate || '-'}
+                        {item.harvestDate
+                          ? item.harvestDate.includes('-')
+                            ? item.harvestDate.split('-').length === 3 && item.harvestDate.split('-')[0].length === 4
+                              ? `${item.harvestDate.split('-')[2]}-${item.harvestDate.split('-')[1]}-${item.harvestDate.split('-')[0]}`
+                              : item.harvestDate
+                            : item.harvestDate
+                          : item.harvestDeliveredDate || '-'}
                       </Text>
                     </Text>
 
@@ -883,104 +889,41 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                       </View>
                     ) : (
                       <View
-                        style={{flexDirection: 'row', gap: 8, marginTop: 12}}>
-                        {/* Harvest Process */}
-                        {item.status === 'pending' ||
-                        item.status === 'Reserved' ||
-                        !item.status ? (
-                          <TouchableOpacity
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#FFF3E0',
-                              borderColor: '#FF9800',
-                              borderWidth: 1,
-                              paddingVertical: 8,
-                              borderRadius: 6,
-                              alignItems: 'center',
-                            }}
-                            onPress={() =>
-                              handleUpdateFarmerPreOrderStatus(
-                                item,
-                                'harvested',
-                              )
-                            }>
-                            <Text
-                              style={{color: '#FF9800', fontWeight: 'bold'}}>
-                              🚜{' '}
-                              {t('farmer.markHarvest', {
-                                defaultValue: 'Mark Harvest',
-                              })}
-                            </Text>
-                          </TouchableOpacity>
-                        ) : (
-                          <View
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#E8F5E9',
-                              borderColor: '#4CAF50',
-                              borderWidth: 1,
-                              paddingVertical: 8,
-                              borderRadius: 6,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text
-                              style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                              🚜{' '}
-                              {t('preOrder.statusHarvested', {
-                                defaultValue: 'Harvested ✓',
-                              })}
-                            </Text>
-                          </View>
-                        )}
-
-                        {/* Deliver Process */}
-                        {item.status !== 'completed' ? (
-                          <TouchableOpacity
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#FFF3E0',
-                              borderColor: '#FF9800',
-                              borderWidth: 1,
-                              paddingVertical: 8,
-                              borderRadius: 6,
-                              alignItems: 'center',
-                            }}
-                            onPress={() =>
-                              handleUpdateFarmerPreOrderStatus(
-                                item,
-                                'completed',
-                              )
-                            }>
-                            <Text
-                              style={{color: '#FF9800', fontWeight: 'bold'}}>
-                              ✅{' '}
-                              {t('farmer.markDeliver', {
-                                defaultValue: 'Mark Deliver',
-                              })}
-                            </Text>
-                          </TouchableOpacity>
-                        ) : (
-                          <View
-                            style={{
-                              flex: 1,
-                              backgroundColor: '#E8F5E9',
-                              borderColor: '#4CAF50',
-                              borderWidth: 1,
-                              paddingVertical: 8,
-                              borderRadius: 6,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}>
-                            <Text
-                              style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                              ✅{' '}
-                              {t('preOrder.statusCompleted', {
-                                defaultValue: 'Delivered ✓',
-                              })}
-                            </Text>
-                          </View>
-                        )}
+                        style={{
+                          marginTop: 12,
+                          paddingVertical: 8,
+                          backgroundColor:
+                            item.status === 'completed'
+                              ? '#E8F5E9'
+                              : item.status === 'harvested'
+                              ? '#FFF3E0'
+                              : '#E3F2FD',
+                          borderColor:
+                            item.status === 'completed'
+                              ? '#4CAF50'
+                              : item.status === 'harvested'
+                              ? '#FF9800'
+                              : '#1565C0',
+                          borderWidth: 1,
+                          borderRadius: 6,
+                          alignItems: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color:
+                              item.status === 'completed'
+                                ? '#4CAF50'
+                                : item.status === 'harvested'
+                                ? '#FF9800'
+                                : '#1565C0',
+                            fontWeight: 'bold',
+                          }}>
+                          {item.status === 'completed'
+                            ? '✅ Delivered / Completed'
+                            : item.status === 'harvested'
+                            ? '🚜 Harvested'
+                            : '⏳ Reserved / Pending Admin Action'}
+                        </Text>
                       </View>
                     )}
                   </View>

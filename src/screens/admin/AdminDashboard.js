@@ -238,23 +238,27 @@ const AdminDashboard = () => {
       .collectionGroup('preOrders')
       .onSnapshot(
         async snap => {
-          if (snap) {
+          if (snap && snap.docs) {
             const list = [];
             const promises = snap.docs.map(async doc => {
               const preOrderData = doc.data();
-              const pathParts = doc.ref.path.split('/');
+              const docPath = doc.ref.path;
+              const pathParts = docPath.split('/');
               const harvestId = pathParts[1];
-              const userId = pathParts[3];
+              const userId = pathParts[3] || doc.id;
               const harvestRef = doc.ref.parent.parent;
               let harvestData = {};
               if (harvestRef) {
-                const hDoc = await harvestRef.get();
-                if (hDoc.exists) {
-                  harvestData = hDoc.data();
-                }
+                try {
+                  const hDoc = await harvestRef.get();
+                  if (hDoc.exists) {
+                    harvestData = hDoc.data();
+                  }
+                } catch (e) {}
               }
               list.push({
                 id: doc.id,
+                docPath: docPath,
                 harvestId: harvestId,
                 ...harvestData,
                 ...preOrderData,
@@ -271,9 +275,14 @@ const AdminDashboard = () => {
               return tB - tA;
             });
             setPreOrders(list);
+          } else {
+            setPreOrders([]);
           }
         },
-        err => console.log('Admin pre-orders fetch error:', err.message),
+        err => {
+          console.log('Admin pre-orders fetch error:', err.message);
+          setPreOrders([]);
+        },
       );
     return unsub;
   }, []);
@@ -296,17 +305,37 @@ const AdminDashboard = () => {
 
   const handleUpdatePreOrderStatus = async (item, newStatus) => {
     try {
-      const targetHarvestId = item.preOrderHarvestId || item.harvestId;
+      const todayStr = new Date().toLocaleDateString('en-GB');
       const targetUserId = item.preOrderUserId || item.userId || item.id;
-      await firestore()
-        .collection('harvests')
-        .doc(targetHarvestId)
-        .collection('preOrders')
-        .doc(targetUserId)
-        .update({
-          status: newStatus,
-          updatedAt: firestore.FieldValue.serverTimestamp(),
-        });
+      const extraPayload = {
+        status: newStatus,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+      };
+      if (newStatus === 'completed' || newStatus === 'harvested') {
+        extraPayload.harvestDeliveredDate = todayStr;
+        extraPayload.deliveredAt = firestore.FieldValue.serverTimestamp();
+      }
+
+      let docRef = null;
+      if (item.docPath) {
+        docRef = firestore().doc(item.docPath);
+      } else if (item.preOrderHarvestId && item.preOrderUserId) {
+        docRef = firestore()
+          .collection('harvests')
+          .doc(item.preOrderHarvestId)
+          .collection('preOrders')
+          .doc(item.preOrderUserId);
+      } else if (item.harvestId && (item.userId || item.id)) {
+        docRef = firestore()
+          .collection('harvests')
+          .doc(item.harvestId)
+          .collection('preOrders')
+          .doc(item.userId || item.id);
+      } else {
+        docRef = firestore().collection('preOrders').doc(item.id);
+      }
+
+      await docRef.set(extraPayload, {merge: true});
 
       // Send a notification to the Consumer about status change
       let title = '📅 Pre-Order Update';
@@ -1382,7 +1411,11 @@ const AdminDashboard = () => {
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
                   📅 Harvest Date:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
-                    {item.harvestDate || '-'}
+                    {item.harvestDate
+                      ? item.harvestDate.includes('-') && item.harvestDate.split('-').length === 3 && item.harvestDate.split('-')[0].length === 4
+                        ? `${item.harvestDate.split('-')[2]}-${item.harvestDate.split('-')[1]}-${item.harvestDate.split('-')[0]}`
+                        : item.harvestDate
+                      : item.harvestDeliveredDate || '-'}
                   </Text>
                 </Text>
 

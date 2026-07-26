@@ -27,8 +27,8 @@ import {
   getThemeColors,
 } from '../../utils/theme';
 import {useTheme} from '../../context/ThemeContext';
-import {CATEGORIES} from '../../utils/dummyData';
-import {listenToProducts, getAllFarmers} from '../../services/firebase';
+import {useIsFocused} from '@react-navigation/native';
+import {listenToProducts, getAllFarmers, getAllProducts} from '../../services/firebase';
 import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
 import {getLocalProductName} from '../../utils/translationHelper';
 
@@ -383,6 +383,7 @@ const HomeScreen = ({navigation}) => {
   const [realProducts, setRealProducts] = useState([]);
   const [realFarmers, setRealFarmers] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     setIsLoadingProducts(true);
@@ -398,10 +399,17 @@ const HomeScreen = ({navigation}) => {
   }, []);
 
   useEffect(() => {
-    getAllFarmers()
-      .then(r => setRealFarmers(Array.isArray(r?.data) ? r.data : []))
-      .catch(() => setRealFarmers([]));
-  }, []);
+    if (isFocused) {
+      getAllProducts().then(r => {
+        if (r.success && Array.isArray(r.data)) {
+          setRealProducts(r.data);
+        }
+      });
+      getAllFarmers()
+        .then(r => setRealFarmers(Array.isArray(r?.data) ? r.data : []))
+        .catch(() => setRealFarmers([]));
+    }
+  }, [isFocused]);
 
   const filteredProducts = realProducts.filter(p => {
     const matchCat =

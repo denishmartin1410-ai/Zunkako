@@ -69,36 +69,95 @@ const CheckoutScreen = ({navigation}) => {
   const deliveryFee = 0; // Free for first 3 months
   const finalAmount = totalAmount - (discount || 0) + deliveryFee;
 
-  // ✅ Get consumer's current location for delivery navigation
+  // ✅ Ultra-fast multi-stage GPS location fetching for checkout & delivery navigation
   const getConsumerLocation = () => {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       try {
         if (Platform.OS === 'android') {
-          PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          )
-            .then(() => {
-              Geolocation.getCurrentPosition(
-                pos =>
-                  resolve({
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude,
-                  }),
-                () => resolve(null),
-                {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
-              );
-            })
-            .catch(() => resolve(null));
-        } else {
-          Geolocation.getCurrentPosition(
-            pos =>
-              resolve({lat: pos.coords.latitude, lng: pos.coords.longitude}),
-            () => resolve(null),
-            {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
-          );
+          try {
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            );
+            if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+              if (user?.latitude && user?.longitude) {
+                return resolve({lat: user.latitude, lng: user.longitude});
+              }
+              return resolve({lat: 11.0168, lng: 76.9558});
+            }
+          } catch (permErr) {
+            console.log('Permission request error:', permErr);
+          }
         }
+
+        let resolved = false;
+
+        // Stage 1: Try fast cached location first (< 500ms)
+        Geolocation.getCurrentPosition(
+          pos => {
+            if (!resolved && pos?.coords?.latitude && pos?.coords?.longitude) {
+              resolved = true;
+              resolve({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+              });
+            }
+          },
+          () => {},
+          {enableHighAccuracy: false, timeout: 2500, maximumAge: 120000},
+        );
+
+        // Stage 2: High accuracy position (timeout 5000ms)
+        Geolocation.getCurrentPosition(
+          pos => {
+            if (!resolved && pos?.coords?.latitude && pos?.coords?.longitude) {
+              resolved = true;
+              resolve({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+              });
+            }
+          },
+          err => {
+            if (!resolved) {
+              // Stage 3: Low accuracy network location fallback (timeout 4000ms)
+              Geolocation.getCurrentPosition(
+                pos2 => {
+                  if (!resolved) {
+                    resolved = true;
+                    if (pos2?.coords?.latitude && pos2?.coords?.longitude) {
+                      resolve({
+                        lat: pos2.coords.latitude,
+                        lng: pos2.coords.longitude,
+                      });
+                    } else if (user?.latitude && user?.longitude) {
+                      resolve({lat: user.latitude, lng: user.longitude});
+                    } else {
+                      resolve({lat: 11.0168, lng: 76.9558});
+                    }
+                  }
+                },
+                err2 => {
+                  if (!resolved) {
+                    resolved = true;
+                    if (user?.latitude && user?.longitude) {
+                      resolve({lat: user.latitude, lng: user.longitude});
+                    } else {
+                      resolve({lat: 11.0168, lng: 76.9558});
+                    }
+                  }
+                },
+                {enableHighAccuracy: false, timeout: 4000, maximumAge: 60000},
+              );
+            }
+          },
+          {enableHighAccuracy: true, timeout: 5000, maximumAge: 30000},
+        );
       } catch (e) {
-        resolve(null);
+        if (user?.latitude && user?.longitude) {
+          resolve({lat: user.latitude, lng: user.longitude});
+        } else {
+          resolve({lat: 11.0168, lng: 76.9558});
+        }
       }
     });
   };

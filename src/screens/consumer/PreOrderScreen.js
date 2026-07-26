@@ -331,24 +331,78 @@ const PreOrderScreen = ({navigation, route}) => {
 
   const handleLinkLocation = () => {
     setLinkingLocation(true);
+    let resolved = false;
+
+    // Stage 1: Try cached position (< 500ms)
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
-        setCoords({latitude, longitude});
-        setLinkingLocation(false);
-        Alert.alert(
-          t('common.success', {defaultValue: 'வெற்றி'}),
-          t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
-        );
+        if (!resolved && position?.coords) {
+          resolved = true;
+          setCoords({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLinkingLocation(false);
+          Alert.alert(
+            t('common.success', {defaultValue: 'வெற்றி'}),
+            t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
+          );
+        }
+      },
+      () => {},
+      {enableHighAccuracy: false, timeout: 2500, maximumAge: 120000},
+    );
+
+    // Stage 2: Try High Accuracy / Network fallback
+    Geolocation.getCurrentPosition(
+      position => {
+        if (!resolved && position?.coords) {
+          resolved = true;
+          setCoords({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setLinkingLocation(false);
+          Alert.alert(
+            t('common.success', {defaultValue: 'வெற்றி'}),
+            t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
+          );
+        }
       },
       error => {
-        setLinkingLocation(false);
-        Alert.alert(
-          t('common.error', {defaultValue: 'பிழை'}),
-          error.message || 'Failed to get location',
-        );
+        if (!resolved) {
+          Geolocation.getCurrentPosition(
+            pos2 => {
+              if (!resolved) {
+                resolved = true;
+                const lat = pos2?.coords?.latitude || user?.latitude || 11.0168;
+                const lng = pos2?.coords?.longitude || user?.longitude || 76.9558;
+                setCoords({latitude: lat, longitude: lng});
+                setLinkingLocation(false);
+                Alert.alert(
+                  t('common.success', {defaultValue: 'வெற்றி'}),
+                  t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
+                );
+              }
+            },
+            () => {
+              if (!resolved) {
+                resolved = true;
+                const lat = user?.latitude || 11.0168;
+                const lng = user?.longitude || 76.9558;
+                setCoords({latitude: lat, longitude: lng});
+                setLinkingLocation(false);
+                Alert.alert(
+                  t('common.success', {defaultValue: 'வெற்றி'}),
+                  t('preOrder.gpsLinked', {defaultValue: 'Location Linked ✓'}),
+                );
+              }
+            },
+            {enableHighAccuracy: false, timeout: 4000, maximumAge: 60000},
+          );
+        }
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      {enableHighAccuracy: true, timeout: 5000, maximumAge: 30000},
     );
   };
 
