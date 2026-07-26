@@ -38,7 +38,7 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     const unsub = auth().onAuthStateChanged(async fbUser => {
       try {
-        if (fbUser) {
+        if (fbUser && (fbUser.emailVerified || fbUser.phoneNumber)) {
           setFirebaseUser(fbUser);
           const storedUser = await AsyncStorage.getItem('@F2C_user');
           const storedType = await AsyncStorage.getItem('@F2C_userType');
@@ -507,7 +507,7 @@ export const AuthProvider = ({children}) => {
         userType,
         firebaseUser,
         isLoading,
-        isAuthenticated: !!firebaseUser,
+        isAuthenticated: !!user && !!userType,
         isFarmer: userType === 'farmer',
         isConsumer: userType === 'consumer',
         isDelivery: userType === 'delivery',
