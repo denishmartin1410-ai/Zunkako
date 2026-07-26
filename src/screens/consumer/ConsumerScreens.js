@@ -928,174 +928,179 @@ export const OrdersScreen = ({navigation, route}) => {
                   </View>
 
                   <View
-                    style={[
-                      S.orderBottom,
-                      {
-                        marginTop: SPACING.md,
-                        borderTopWidth: 1,
-                        borderTopColor: themeColors.border,
-                        paddingTop: SPACING.md,
+                    style={{
+                      marginTop: SPACING.md,
+                      borderTopWidth: 1,
+                      borderTopColor: themeColors.border,
+                      paddingTop: SPACING.md,
+                    }}>
+                    {/* Top Row: Total Amount & Status Badge */}
+                    <View
+                      style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: 8,
-                      },
-                    ]}>
-                    <View style={{minWidth: 150, flex: 1}}>
-                      <Text style={S.orderTotal}>
-                        {t('orders.total', {defaultValue: 'Total'})}: ₹
+                        marginBottom: 10,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 'bold',
+                          color: themeColors.text,
+                        }}>
+                        {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
                         {order.totalAmount || order.totalPrice}
                       </Text>
+
                       <View
                         style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          marginTop: 4,
-                        }}>
-                        <View
-                          style={[
-                            S.statusBadge,
-                            {
-                              backgroundColor:
-                                order.status === 'completed'
-                                  ? '#E8F5E9'
-                                  : order.status === 'harvested'
-                                  ? '#FFF3E0'
-                                  : order.status === 'Cancelled' ||
-                                    order.status === 'Refund Requested'
-                                  ? '#FFEBEE'
-                                  : order.status === 'Refunded'
-                                  ? '#F3E5F5'
-                                  : '#E3F2FD',
-                              marginRight: 8,
-                            },
-                          ]}>
-                          <Text
-                            style={[
-                              S.statusText,
-                              {
-                                color:
-                                  order.status === 'completed' ||
-                                  order.status === 'Refunded'
-                                    ? '#4CAF50'
-                                    : order.status === 'harvested'
-                                    ? '#FF9800'
-                                    : order.status === 'Cancelled' ||
-                                      order.status === 'Refund Requested'
-                                    ? '#FF5252'
-                                    : '#1565C0',
-                              },
-                            ]}>
-                            {order.status === 'completed'
-                              ? t('preOrder.statusCompleted', {
-                                  defaultValue: 'Completed',
-                                })
+                          paddingHorizontal: 12,
+                          paddingVertical: 5,
+                          borderRadius: 14,
+                          backgroundColor:
+                            order.status === 'completed'
+                              ? '#E8F5E9'
                               : order.status === 'harvested'
-                              ? t('preOrder.statusHarvested', {
-                                  defaultValue: 'Harvested',
-                                })
-                              : order.status === 'Cancelled'
-                              ? t('orders.statusCancelled', {
-                                  defaultValue: 'Cancelled',
-                                })
-                              : order.status === 'Refund Requested'
-                              ? t('orders.refundRequested', {
-                                  defaultValue: 'Refund Requested',
-                                })
+                              ? '#FFF3E0'
+                              : order.status === 'Cancelled' ||
+                                order.status === 'Refund Requested'
+                              ? '#FFEBEE'
                               : order.status === 'Refunded'
-                              ? t('orders.statusRefunded', {
-                                  defaultValue: 'Refunded',
-                                })
-                              : t('preOrder.statusReserved', {
-                                  defaultValue: 'Reserved',
-                                })}
-                          </Text>
-                        </View>
+                              ? '#F3E5F5'
+                              : '#E3F2FD',
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            color:
+                              order.status === 'completed' ||
+                              order.status === 'Refunded'
+                                ? '#4CAF50'
+                                : order.status === 'harvested'
+                                ? '#FF9800'
+                                : order.status === 'Cancelled' ||
+                                  order.status === 'Refund Requested'
+                                ? '#FF5252'
+                                : '#1565C0',
+                          }}>
+                          {order.status === 'completed'
+                            ? t('preOrder.statusCompleted', {
+                                defaultValue: 'முடிந்தது',
+                              })
+                            : order.status === 'harvested'
+                            ? t('preOrder.statusHarvested', {
+                                defaultValue: 'அறுவடை செய்யப்பட்டது',
+                              })
+                            : order.status === 'Cancelled'
+                            ? t('orders.statusCancelled', {
+                                defaultValue: 'ரத்து செய்யப்பட்டது',
+                              })
+                            : order.status === 'Refund Requested'
+                            ? t('orders.refundRequested', {
+                                defaultValue: 'பணம் திரும்ப கோரப்பட்டது',
+                              })
+                            : order.status === 'Refunded'
+                            ? t('orders.statusRefunded', {
+                                defaultValue: 'பணம் திரும்ப செலுத்தப்பட்டது',
+                              })
+                            : t('preOrder.statusReserved', {
+                                defaultValue: 'முன்பதிவு செய்யப்பட்டது',
+                              })}
+                        </Text>
                       </View>
                     </View>
 
-                    {/* Mark Received */}
-                    {order.status === 'harvested' && (
-                      <TouchableOpacity
+                    {/* Bottom Centered Action Buttons */}
+                    {(isCancellable || isRefundable || order.status === 'harvested') && (
+                      <View
                         style={{
-                          backgroundColor: COLORS.primaryGreen,
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          borderRadius: RADIUS.md,
-                          justifyContent: 'center',
                           alignItems: 'center',
-                        }}
-                        onPress={() => handleConfirmReceipt(order)}>
-                        <Text
-                          style={{
-                            color: COLORS.white,
-                            fontWeight: 'bold',
-                            fontSize: rs(12),
-                          }}>
-                          {t('preOrder.confirmReceipt', {
-                            defaultValue: 'Mark Received',
-                          })}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                          justifyContent: 'center',
+                          marginTop: 6,
+                          width: '100%',
+                        }}>
+                        {order.status === 'harvested' && (
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: COLORS.primaryGreen,
+                              paddingVertical: 9,
+                              paddingHorizontal: 20,
+                              borderRadius: RADIUS.md,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minWidth: '75%',
+                            }}
+                            onPress={() => handleConfirmReceipt(order)}>
+                            <Text
+                              style={{
+                                color: COLORS.white,
+                                fontWeight: 'bold',
+                                fontSize: rs(13),
+                              }}>
+                              {t('preOrder.confirmReceipt', {
+                                defaultValue: 'Mark Received',
+                              })}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
 
-                    {/* Cancel Pre-Order Button */}
-                    {isCancellable && (
-                      <TouchableOpacity
-                        style={{
-                          backgroundColor: '#FFEBEE',
-                          borderColor: '#FF5252',
-                          borderWidth: 1,
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          borderRadius: RADIUS.md,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          marginLeft: 8,
-                        }}
-                        onPress={() => handleCancelPreOrder(order)}>
-                        <Text
-                          style={{
-                            color: '#FF5252',
-                            fontWeight: 'bold',
-                            fontSize: rs(12),
-                          }}>
-                          ❌{' '}
-                          {t('preOrder.cancelPreOrderBtn', {
-                            defaultValue: 'Cancel Pre-Order',
-                          })}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                        {isCancellable && (
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#FFEBEE',
+                              borderColor: '#FF5252',
+                              borderWidth: 1,
+                              paddingVertical: 9,
+                              paddingHorizontal: 20,
+                              borderRadius: RADIUS.md,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minWidth: '75%',
+                            }}
+                            onPress={() => handleCancelPreOrder(order)}>
+                            <Text
+                              style={{
+                                color: '#FF5252',
+                                fontWeight: 'bold',
+                                fontSize: rs(13),
+                              }}>
+                              ❌{' '}
+                              {t('preOrder.cancelPreOrderBtn', {
+                                defaultValue: 'முன் ஆர்டரை ரத்து செய்',
+                              })}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
 
-                    {/* Request Refund Button */}
-                    {isRefundable && (
-                      <TouchableOpacity
-                        style={{
-                          backgroundColor: '#FFF3E0',
-                          borderColor: '#FF9800',
-                          borderWidth: 1,
-                          paddingVertical: 8,
-                          paddingHorizontal: 12,
-                          borderRadius: RADIUS.md,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          marginLeft: 8,
-                        }}
-                        onPress={() => handleRefundPreOrder(order)}>
-                        <Text
-                          style={{
-                            color: '#FF9800',
-                            fontWeight: 'bold',
-                            fontSize: rs(12),
-                          }}>
-                          💸{' '}
-                          {t('preOrder.refundPreOrderBtn', {
-                            defaultValue: 'Request Refund',
-                          })}
-                        </Text>
-                      </TouchableOpacity>
+                        {isRefundable && (
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#FFF3E0',
+                              borderColor: '#FF9800',
+                              borderWidth: 1,
+                              paddingVertical: 9,
+                              paddingHorizontal: 20,
+                              borderRadius: RADIUS.md,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minWidth: '75%',
+                            }}
+                            onPress={() => handleRefundPreOrder(order)}>
+                            <Text
+                              style={{
+                                color: '#FF9800',
+                                fontWeight: 'bold',
+                                fontSize: rs(13),
+                              }}>
+                              💸{' '}
+                              {t('preOrder.refundPreOrderBtn', {
+                                defaultValue: 'பணத்தை திரும்பப் பெறக் கோரு',
+                              })}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     )}
                   </View>
                 </View>

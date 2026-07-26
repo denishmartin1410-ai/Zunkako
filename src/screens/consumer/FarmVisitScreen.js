@@ -311,13 +311,6 @@ const FarmVisitScreen = ({navigation}) => {
           <Text style={[styles.farmRating, {color: themeColors.text}]}>
             ⭐ {parseFloat(farm.rating || 4.0).toFixed(1)}
           </Text>
-          <Text style={[styles.farmVisitors, {color: themeColors.subText}]}>
-            👥{' '}
-            {t('farmVisit.visitorsCount', {
-              count: farm.totalVisitors,
-              defaultValue: `${farm.totalVisitors} பேர் வருகை தந்துள்ளனர்`,
-            })}
-          </Text>
         </View>
 
         {/* Highlights */}

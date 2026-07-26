@@ -65,20 +65,26 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
   const themeColors = getThemeColors(isDark);
   const chipBg = isDark ? '#1C3024' : '#E8F5E9';
 
-  const creatorCount = 1;
-  const invitedCount = Math.max(0, group.currentMembers - 1);
-  const targetInvited = 5;
-  const neededCount = Math.max(0, targetInvited - invitedCount);
-
-  const fillPercent = Math.min((invitedCount / targetInvited) * 100, 100);
+  const currentCount = group.currentMembers || (group.members ? group.members.length : 1);
+  const neededCount = Math.max(0, 5 - currentCount);
+  const fillPercent = Math.min((currentCount / 5) * 100, 100);
   const statusKey =
-    neededCount === 0 ? 'full' : neededCount <= 2 ? 'almostFull' : 'open';
+    currentCount >= 5 ? 'full' : neededCount <= 2 ? 'almostFull' : 'open';
   const status = STATUS_CONFIG[statusKey];
 
   const isMember =
     group.members && group.members.includes(user?.uid || user?.id);
 
   const handleInvite = async () => {
+    if (currentCount >= 5) {
+      Alert.alert(
+        t('common.info', {defaultValue: 'தகவல்'}),
+        t('groupBuy.maxMembersReached', {
+          defaultValue: 'குழு நிறைவடைந்தது! (5/5) இனிமேல் உறுப்பினர்களை சேர்க்க இயலாது.',
+        }),
+      );
+      return;
+    }
     const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: https://f2capp-e6c1d.web.app/groupbuy/${group.id}`;
     try {
       await Share.share({message: shareMsg});
@@ -140,10 +146,10 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
         <View style={styles.membersSection}>
           <View style={styles.membersHeader}>
             <Text style={[styles.membersLabel, {color: themeColors.text}]}>
-              👥 {t('groupBuy.members')}:
+              👥 {t('groupBuy.members', {defaultValue: 'உறுப்பினர்கள்'})}:
             </Text>
             <Text style={[styles.membersCount, {color: themeColors.text}]}>
-              1 / {invitedCount}
+              {currentCount} / 5
             </Text>
           </View>
           <View
@@ -262,39 +268,17 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
         {/* Join or Invite button */}
         {group.status !== 'full' ? (
           isMember ? (
-            <View style={{gap: 8}}>
-              <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
-                <LinearGradient
-                  colors={COLORS.gradientButton}
-                  style={styles.joinBtnGrad}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 0}}>
-                  <Text style={styles.joinBtnTxt}>
-                    📢 {t('groupBuy.inviteFriends')}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              {group.organizerId === (user?.uid || user?.id) && (
-                <TouchableOpacity
-                  style={styles.joinBtn}
-                  onPress={() => onDirectAdd(group)}>
-                  <LinearGradient
-                    colors={['#1565C0', '#1E88E5']}
-                    style={styles.joinBtnGrad}
-                    start={{x: 0, y: 0}}
-                    end={{x: 1, y: 0}}>
-                    <Text style={styles.joinBtnTxt}>
-                      👥{' '}
-                      {t('groupBuy.directAddBtn', {
-                        defaultValue:
-                          'உறுப்பினர்களை நேரடியாக சேர் / Add Member',
-                      })}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )}
-            </View>
+            <TouchableOpacity style={styles.joinBtn} onPress={handleInvite}>
+              <LinearGradient
+                colors={COLORS.gradientButton}
+                style={styles.joinBtnGrad}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}>
+                <Text style={styles.joinBtnTxt}>
+                  📢 {t('groupBuy.inviteFriends', {defaultValue: 'நண்பர்களை அழைக்கவும்'})}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={styles.joinBtn}
@@ -305,14 +289,14 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}>
                 <Text style={styles.joinBtnTxt}>
-                  ✅ {t('groupBuy.joinGroup')}
+                  ✅ {t('groupBuy.joinGroup', {defaultValue: 'குழுவில் சேர்'})}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
           )
         ) : (
           <View style={styles.fullBtn}>
-            <Text style={styles.fullBtnTxt}>🔴 {t('groupBuy.groupFull')}</Text>
+            <Text style={styles.fullBtnTxt}>🔴 {t('groupBuy.groupFull', {defaultValue: 'குழு நிறைவடைந்தது (5/5)'})}</Text>
           </View>
         )}
       </View>
@@ -707,13 +691,17 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
                       },
                       isTargetMembers && {
                         backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5',
-                        color: themeColors.subText,
+                        color: themeColors.text,
+                        fontSize: 13,
+                        fontWeight: '600',
+                        paddingHorizontal: 12,
+                        height: 48,
                       },
                     ]}
                     value={
                       isTargetMembers
                         ? t('groupBuy.mustInclude5', {
-                            defaultValue: 'Must include 5 people',
+                            defaultValue: '5 உறுப்பினர்கள் சேர்க்கப்பட வேண்டும்',
                           })
                         : newGroup[field.key]
                     }
