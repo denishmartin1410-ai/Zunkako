@@ -314,6 +314,7 @@ const StoryVideoScreen = ({navigation}) => {
               </Text>
             </LinearGradient>
           </TouchableOpacity>
+        )}
         {/* Tips */}
         <View
           style={[
