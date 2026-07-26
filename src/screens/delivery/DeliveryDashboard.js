@@ -30,6 +30,7 @@ import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
 import {createNotification} from '../../services/firebase';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {getFarmerOrderTotal, getFarmerItemPrice} from '../../utils/priceHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -469,6 +470,9 @@ const DeliveryDashboard = ({navigation}) => {
               <Text style={styles.locationAddr}>
                 {item.farmerLocation || 'No address'}
               </Text>
+              <Text style={{fontWeight: 'bold', color: '#1B5E20', marginTop: 4, fontSize: rs(13)}}>
+                💵 Pay to Farmer: ₹{getFarmerOrderTotal(item)}
+              </Text>
 
               {item.status === 'Confirmed' ? (
                 <TouchableOpacity
@@ -514,6 +518,9 @@ const DeliveryDashboard = ({navigation}) => {
                   PIN: {item.deliveryPincode}
                 </Text>
               )}
+              <Text style={{fontWeight: 'bold', color: '#0D47A1', marginTop: 4, fontSize: rs(13)}}>
+                💵 Collect from Customer: ₹{item.total}
+              </Text>
 
               {item.status === 'Delivered' ? (
                 <Text style={styles.stepCompletedLabel}>
@@ -547,14 +554,23 @@ const DeliveryDashboard = ({navigation}) => {
                 📋 {t('delivery.items', {defaultValue: 'Items'})} (
                 {(item.items || []).length})
               </Text>
-              {(item.items || []).map((itm, idx) => (
-                <Text key={idx} style={styles.itemLine}>
-                  • {itm.nameTa || itm.name} x{itm.quantity}
-                </Text>
-              ))}
+              {(item.items || []).map((itm, idx) => {
+                const itemPrice =
+                  item.status === 'Confirmed'
+                    ? getFarmerItemPrice(itm)
+                    : (itm.price || 0);
+                return (
+                  <Text key={idx} style={styles.itemLine}>
+                    • {itm.nameTa || itm.name} x{itm.quantity} — ₹
+                    {itemPrice * itm.quantity}
+                  </Text>
+                );
+              })}
               <Text style={styles.totalLine}>
-                💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
-                {item.total}
+                💰 {item.status === 'Confirmed' ? 'Pay to Farmer' : 'Collect from Customer'}: ₹
+                {item.status === 'Confirmed'
+                  ? getFarmerOrderTotal(item)
+                  : item.total}
               </Text>
             </View>
 

@@ -68,6 +68,7 @@
     "details": "വിശദാംശങ്ങൾ",
     "order": "ഓർഡർ",
     "orderDetails": "ഓർഡർ വിശദാംശങ്ങൾ",
+    "customerDetails": "ഉപഭോക്താവിന്റെ വിവരങ്ങൾ",
     "orderId": "ഓർഡർ നമ്പർ",
     "orderStatus": "ഓർഡർ നില",
     "noOrderInfo": "ഓർഡർ വിവരം ഇല്ല",
@@ -231,7 +232,13 @@
     "deleteHarvestSuccess": "വിളവെടുപ്പ് വിജയകരമായി ഇല്ലാതാക്കി!",
     "invalidDateFormat": "തെറ്റായ തീയതി! ദയവായി DD/MM/YYYY ഫോർമാറ്റിൽ നൽകുക (ഉദാ: 24/05/2026).",
     "deleteBtn": "ഇല്ലാതാക്കുക",
-    "fillAllHarvestDetails": "ദയവായി എല്ലാ ആവശ്യമായ വിളവെടുപ്പ് വിവരങ്ങളും പൂരിപ്പിക്കുക!"
+    "fillAllHarvestDetails": "ദയവായി എല്ലാ ആവശ്യമായ വിളവെടുപ്പ് വിവരങ്ങളും പൂരിപ്പിക്കുക!",
+    "totalCompletedEarnings": "ആകെ വരുമാനം (പൂർത്തിയായ ഓർഡറുകൾ)",
+    "completedCount": "ആകെ ഓർഡറുകൾ",
+    "salesList": "വില്പന ലിസ്റ്റ്",
+    "thisMonthEarnings": "ഈ മാസത്തെ വരുമാനം",
+    "thisMonthOrders": "ഈ മാസത്തെ ഓർഡറുകൾ",
+    "thisMonthOrdersList": "ഈ മാസത്തെ ഓർഡറുകളുടെ ലിസ്റ്റ്"
   },
   "language": {
     "select": "ഭാഷ തിരഞ്ഞെടുക്കുക"

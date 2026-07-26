@@ -425,8 +425,10 @@ export const getFarmerStats = async farmerId => {
         .get(),
     ]);
 
+    const {getFarmerOrderTotal} = require('../utils/priceHelper');
+
     const totalSales = deliveredSnap.docs.reduce(
-      (sum, doc) => sum + (doc.data().farmerAmount || doc.data().total || 0),
+      (sum, doc) => sum + getFarmerOrderTotal({id: doc.id, ...doc.data()}),
       0,
     );
 
@@ -443,7 +445,7 @@ export const getFarmerStats = async farmerId => {
       );
     });
     const thisMonthRevenue = thisMonthDocs.reduce(
-      (sum, doc) => sum + (doc.data().farmerAmount || 0),
+      (sum, doc) => sum + getFarmerOrderTotal({id: doc.id, ...doc.data()}),
       0,
     );
 

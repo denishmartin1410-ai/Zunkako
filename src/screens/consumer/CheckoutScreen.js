@@ -196,6 +196,10 @@ const CheckoutScreen = ({navigation}) => {
       const orderPromises = Object.entries(farmerGroups).map(
         ([farmerId, items]) => {
           const farmerProfile = farmerProfiles[farmerId] || {};
+          const farmerSubtotal = items.reduce(
+            (s, i) => s + (i.price || 0) * i.quantity,
+            0,
+          );
           const subtotal = items.reduce(
             (s, i) => s + (i.consumerPrice || i.price) * i.quantity,
             0,
@@ -223,8 +227,8 @@ const CheckoutScreen = ({navigation}) => {
               id: i.id,
               name: i.name,
               nameTa: i.nameTa || i.name,
-              price: i.consumerPrice || i.price, // Store consumer price
-              basePrice: i.price, // Store base price for farmer visibility separately if needed
+              price: i.consumerPrice || i.price, // Store consumer price (e.g. 42)
+              basePrice: i.price, // Store base price for farmer visibility (e.g. 40)
               quantity: i.quantity,
               unit: i.unit,
               image: i.image,
@@ -233,6 +237,7 @@ const CheckoutScreen = ({navigation}) => {
             discount: orderDiscount,
             deliveryFee: deliveryFee,
             total: orderTotal,
+            farmerAmount: farmerSubtotal, // Farmer fixed amount without platform fees
             deliveryAddress: address.trim(),
             deliveryPincode: pincode.trim(),
             paymentMethod: 'COD',

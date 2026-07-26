@@ -35,6 +35,7 @@ import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {CATEGORIES} from '../../utils/dummyData';
 import {getCatName} from '../../utils/categoryHelper';
+import {getFarmerOrderTotal, getFarmerItemPrice} from '../../utils/priceHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -1126,7 +1127,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                             .join(', ')}
                         </Text>
                         <Text style={{fontWeight: 'bold', color: '#4CAF50'}}>
-                          ₹{order.total}
+                          ₹{getFarmerOrderTotal(order)}
                         </Text>
                       </View>
                     </View>
@@ -1305,7 +1306,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                             .join(', ')}
                         </Text>
                         <Text style={{fontWeight: 'bold', color: '#2196F3'}}>
-                          ₹{order.total}
+                          ₹{getFarmerOrderTotal(order)}
                         </Text>
                       </View>
                     </View>
@@ -2420,7 +2421,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                       key={i}
                       style={[S.foItem, {color: themeColors.subText}]}>
                       • {item.nameTa || item.name} x{item.quantity} — ₹
-                      {(item.price || 0) * item.quantity}
+                      {getFarmerItemPrice(item) * item.quantity}
                     </Text>
                   ))}
                   <View style={S.foBottom}>
@@ -2434,7 +2435,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                         },
                       ]}>
                       {t('orders.total', {defaultValue: 'மொத்தம்'})}: ₹
-                      {order.total}
+                      {getFarmerOrderTotal(order)}
                     </Text>
                     <View
                       style={[
@@ -2866,7 +2867,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontWeight: '600',
                           fontSize: 13,
                         }}>
-                        ₹{(item.price || 0) * item.quantity}
+                        ₹{getFarmerItemPrice(item) * item.quantity}
                       </Text>
                     </View>
                   ))}
@@ -2895,7 +2896,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                         fontSize: 18,
                         color: COLORS.primaryGreen,
                       }}>
-                      ₹{selectedOrder.total}
+                      ₹{getFarmerOrderTotal(selectedOrder)}
                     </Text>
                   </View>
 

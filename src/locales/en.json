@@ -68,6 +68,7 @@
     "details": "Details",
     "order": "Order",
     "orderDetails": "Order Details",
+    "customerDetails": "Customer Details",
     "orderId": "Order Number",
     "orderStatus": "Order Status",
     "noOrderInfo": "Order info not available",
@@ -243,7 +244,13 @@
     "deleteHarvestSuccess": "Harvest deleted successfully!",
     "invalidDateFormat": "Invalid Date! Please enter date in DD/MM/YYYY format (e.g. 24/05/2026).",
     "deleteBtn": "Delete",
-    "fillAllHarvestDetails": "Please fill in all required harvest details!"
+    "fillAllHarvestDetails": "Please fill in all required harvest details!",
+    "totalCompletedEarnings": "Total Revenue (Completed Orders)",
+    "completedCount": "Total Orders",
+    "salesList": "Sales List",
+    "thisMonthEarnings": "This Month's Revenue",
+    "thisMonthOrders": "This Month's Orders",
+    "thisMonthOrdersList": "This Month's Orders List"
   },
   "language": {
     "select": "Select Language"

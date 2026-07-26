@@ -68,6 +68,7 @@
     "details": "விவரங்கள்",
     "order": "ஆர்டர்",
     "orderDetails": "ஆர்டர் விவரங்கள்",
+    "customerDetails": "வாடிக்கையாளர் விவரங்கள்",
     "orderId": "ஆர்டர் எண்",
     "orderStatus": "ஆர்டர் நிலை",
     "noOrderInfo": "ஆர்டர் தகவல் இல்லை",
@@ -242,7 +243,13 @@
     "deleteHarvestSuccess": "அறுவடை வெற்றிகரமாக நீக்கப்பட்டது!",
     "invalidDateFormat": "தவறான தேதி! தயவுசெய்து DD/MM/YYYY வடிவத்தில் தேதியை உள்ளிடவும் (எ.கா: 24/05/2026).",
     "deleteBtn": "நீக்கு",
-    "fillAllHarvestDetails": "தயவுசெய்து அனைத்து முக்கிய விவரங்களையும் நிரப்பவும்!"
+    "fillAllHarvestDetails": "தயவுசெய்து அனைத்து முக்கிய விவரங்களையும் நிரப்பவும்!",
+    "totalCompletedEarnings": "மொத்த வருவாய் (பூர்த்தி செய்யப்பட்ட ஆர்டர்கள்)",
+    "completedCount": "மொத்த ஆர்டர்கள்",
+    "salesList": "விற்பனைப் பட்டியல்",
+    "thisMonthEarnings": "இந்த மாத வருவாய்",
+    "thisMonthOrders": "இந்த மாத ஆர்டர்கள்",
+    "thisMonthOrdersList": "இந்த மாத ஆர்டர்கள் பட்டியல்"
   },
   "language": {
     "select": "மொழி தேர்வு"
