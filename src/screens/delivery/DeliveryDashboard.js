@@ -28,8 +28,16 @@ import firestore from '@react-native-firebase/firestore';
 import database from '@react-native-firebase/database';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../context/ThemeContext';
 import {createNotification} from '../../services/firebase';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import {
+  COLORS,
+  FONTS,
+  SPACING,
+  RADIUS,
+  SHADOWS,
+  getThemeColors,
+} from '../../utils/theme';
 import {getFarmerOrderTotal, getFarmerItemPrice} from '../../utils/priceHelper';
 
 const {width} = Dimensions.get('window');
@@ -53,6 +61,8 @@ const STATUS_FLOW = {
 
 const DeliveryDashboard = ({navigation}) => {
   const {t} = useTranslation();
+  const {isDark} = useTheme();
+  const themeColors = getThemeColors(isDark);
   const {user, logout} = useAuth();
   const [orders, setOrders] = useState([]);
   const [availableOrders, setAvailableOrders] = useState([]);
@@ -382,14 +392,22 @@ const DeliveryDashboard = ({navigation}) => {
     const isAvailableTab = activeTab === 'available';
 
     return (
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderColor: themeColors.border,
+            borderWidth: isDark ? 1 : 0,
+          },
+        ]}>
         {/* Header */}
         <View style={styles.cardHeader}>
           <View>
-            <Text style={styles.orderId}>
+            <Text style={[styles.orderId, {color: themeColors.text}]}>
               📦 #{item.orderId || item.id?.slice(-4)}
             </Text>
-            <Text style={styles.orderDate}>
+            <Text style={[styles.orderDate, {color: themeColors.textMuted}]}>
               {item.createdAt?.toDate?.()?.toLocaleDateString() || ''}
             </Text>
           </View>
@@ -399,13 +417,15 @@ const DeliveryDashboard = ({navigation}) => {
               {
                 backgroundColor: statusConfig?.color
                   ? statusConfig.color + '22'
+                  : isDark
+                  ? '#333'
                   : '#F5F5F5',
               },
             ]}>
             <Text
               style={[
                 styles.statusTxt,
-                {color: statusConfig?.color || '#999'},
+                {color: statusConfig?.color || (isDark ? '#BBB' : '#999')},
               ]}>
               {localizedStatus}
             </Text>
@@ -415,44 +435,87 @@ const DeliveryDashboard = ({navigation}) => {
         {isAvailableTab ? (
           // AVAILABLE TAB: Accept Delivery card
           <View>
-            <View style={styles.locationCard}>
-              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP AREA (FARMER)</Text>
-              <Text style={styles.locationName}>
+            <View
+              style={[
+                styles.locationCard,
+                {
+                  backgroundColor: isDark ? '#1A3028' : '#FAFAFA',
+                  borderLeftColor: isDark ? '#4CAF50' : '#E0E0E0',
+                },
+              ]}>
+              <Text
+                style={[styles.locationLabel, {color: themeColors.textMuted}]}>
+                🧑‍🌾 PICKUP AREA (FARMER)
+              </Text>
+              <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.farmerName || 'Farmer'}
               </Text>
-              <Text style={styles.locationAddr}>
+              <Text
+                style={[
+                  styles.locationAddr,
+                  {color: themeColors.textSecondary},
+                ]}>
                 {item.farmerLocation || 'Farmer location not specified'}
               </Text>
             </View>
 
-            <View style={styles.locationCard}>
-              <Text style={styles.locationLabel}>
+            <View
+              style={[
+                styles.locationCard,
+                {
+                  backgroundColor: isDark ? '#1A3028' : '#FAFAFA',
+                  borderLeftColor: isDark ? '#4CAF50' : '#E0E0E0',
+                },
+              ]}>
+              <Text
+                style={[styles.locationLabel, {color: themeColors.textMuted}]}>
                 🏠 DELIVER AREA (CUSTOMER)
               </Text>
-              <Text style={styles.locationName}>
+              <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.consumerName || 'Customer'}
               </Text>
-              <Text style={styles.locationAddr}>
+              <Text
+                style={[
+                  styles.locationAddr,
+                  {color: themeColors.textSecondary},
+                ]}>
                 {item.deliveryAddress || 'Delivery address not specified'}
               </Text>
               {item.deliveryPincode ? (
-                <Text style={styles.locationAddr}>
+                <Text
+                  style={[
+                    styles.locationAddr,
+                    {color: themeColors.textSecondary},
+                  ]}>
                   PIN: {item.deliveryPincode}
                 </Text>
               ) : null}
             </View>
 
-            <View style={styles.itemsBox}>
-              <Text style={styles.itemsTitle}>
+            <View
+              style={[
+                styles.itemsBox,
+                {backgroundColor: isDark ? '#262626' : '#F8F9FA'},
+              ]}>
+              <Text style={[styles.itemsTitle, {color: themeColors.text}]}>
                 📋 {t('delivery.items', {defaultValue: 'Items'})} (
                 {(item.items || []).length})
               </Text>
               {(item.items || []).map((itm, idx) => (
-                <Text key={idx} style={styles.itemLine}>
+                <Text
+                  key={idx}
+                  style={[styles.itemLine, {color: themeColors.textSecondary}]}>
                   • {itm.nameTa || itm.name} x{itm.quantity}
                 </Text>
               ))}
-              <Text style={styles.totalLine}>
+              <Text
+                style={[
+                  styles.totalLine,
+                  {
+                    color: isDark ? '#81C784' : COLORS.primaryGreen,
+                    borderTopColor: themeColors.border,
+                  },
+                ]}>
                 💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
                 {item.total}
               </Text>
@@ -475,22 +538,35 @@ const DeliveryDashboard = ({navigation}) => {
             <View
               style={[
                 styles.locationCard,
+                {
+                  backgroundColor: isDark ? '#1A3028' : '#FAFAFA',
+                  borderLeftColor: isDark ? '#4CAF50' : '#E0E0E0',
+                },
                 item.status !== 'Confirmed' && {opacity: 0.7},
               ]}>
-              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP FROM (FARMER)</Text>
-              <Text style={styles.locationName}>
+              <Text
+                style={[styles.locationLabel, {color: themeColors.textMuted}]}>
+                🧑‍🌾 PICKUP FROM (FARMER)
+              </Text>
+              <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.farmerName || 'Farmer'}
               </Text>
               {item.farmerPhone ? (
-                <Text style={styles.locationPhone}>📞 {item.farmerPhone}</Text>
+                <Text style={[styles.locationPhone, {color: themeColors.text}]}>
+                  📞 {item.farmerPhone}
+                </Text>
               ) : null}
-              <Text style={styles.locationAddr}>
+              <Text
+                style={[
+                  styles.locationAddr,
+                  {color: themeColors.textSecondary},
+                ]}>
                 {item.farmerLocation || 'No address'}
               </Text>
               <Text
                 style={{
                   fontWeight: 'bold',
-                  color: '#1B5E20',
+                  color: isDark ? '#81C784' : '#1B5E20',
                   marginTop: 4,
                   fontSize: rs(13),
                 }}>
@@ -499,7 +575,10 @@ const DeliveryDashboard = ({navigation}) => {
 
               {item.status === 'Confirmed' ? (
                 <TouchableOpacity
-                  style={[styles.navBtn, {backgroundColor: '#E3F2FD'}]}
+                  style={[
+                    styles.navBtn,
+                    {backgroundColor: isDark ? '#1E3A5F' : '#E3F2FD'},
+                  ]}
                   onPress={() =>
                     navigateToLocation(
                       item.farmerCoords?.lat || item.farmerCoords?.latitude,
@@ -507,12 +586,20 @@ const DeliveryDashboard = ({navigation}) => {
                       'Farmer',
                     )
                   }>
-                  <Text style={[styles.navBtnTxt, {color: '#1565C0'}]}>
+                  <Text
+                    style={[
+                      styles.navBtnTxt,
+                      {color: isDark ? '#90CAF9' : '#1565C0'},
+                    ]}>
                     🗺️ Navigate to Farmer
                   </Text>
                 </TouchableOpacity>
               ) : (
-                <Text style={styles.stepCompletedLabel}>
+                <Text
+                  style={[
+                    styles.stepCompletedLabel,
+                    isDark && {backgroundColor: '#1B3E24', color: '#81C784'},
+                  ]}>
                   ✅ Picked Up from Farmer
                 </Text>
               )}
@@ -522,29 +609,44 @@ const DeliveryDashboard = ({navigation}) => {
             <View
               style={[
                 styles.locationCard,
+                {
+                  backgroundColor: isDark ? '#1A3028' : '#FAFAFA',
+                  borderLeftColor: isDark ? '#4CAF50' : '#E0E0E0',
+                },
                 item.status === 'Confirmed' && {opacity: 0.7},
               ]}>
-              <Text style={styles.locationLabel}>🏠 DELIVER TO (CUSTOMER)</Text>
-              <Text style={styles.locationName}>
+              <Text
+                style={[styles.locationLabel, {color: themeColors.textMuted}]}>
+                🏠 DELIVER TO (CUSTOMER)
+              </Text>
+              <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.consumerName || 'Customer'}
               </Text>
               {item.consumerPhone ? (
-                <Text style={styles.locationPhone}>
+                <Text style={[styles.locationPhone, {color: themeColors.text}]}>
                   📞 {item.consumerPhone}
                 </Text>
               ) : null}
-              <Text style={styles.locationAddr}>
+              <Text
+                style={[
+                  styles.locationAddr,
+                  {color: themeColors.textSecondary},
+                ]}>
                 {item.deliveryAddress || 'No address'}
               </Text>
               {item.deliveryPincode && (
-                <Text style={styles.locationAddr}>
+                <Text
+                  style={[
+                    styles.locationAddr,
+                    {color: themeColors.textSecondary},
+                  ]}>
                   PIN: {item.deliveryPincode}
                 </Text>
               )}
               <Text
                 style={{
                   fontWeight: 'bold',
-                  color: '#0D47A1',
+                  color: isDark ? '#90CAF9' : '#0D47A1',
                   marginTop: 4,
                   fontSize: rs(13),
                 }}>
@@ -552,13 +654,20 @@ const DeliveryDashboard = ({navigation}) => {
               </Text>
 
               {item.status === 'Delivered' ? (
-                <Text style={styles.stepCompletedLabel}>
+                <Text
+                  style={[
+                    styles.stepCompletedLabel,
+                    isDark && {backgroundColor: '#1B3E24', color: '#81C784'},
+                  ]}>
                   ✅ Delivered to Consumer
                 </Text>
               ) : item.status === 'Shipped' ? (
                 <View style={{gap: 8, marginTop: 4}}>
                   <TouchableOpacity
-                    style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
+                    style={[
+                      styles.navBtn,
+                      {backgroundColor: isDark ? '#1B3E24' : '#E8F5E9'},
+                    ]}
                     onPress={() =>
                       navigateToLocation(
                         item.consumerCoords?.lat ||
@@ -568,7 +677,11 @@ const DeliveryDashboard = ({navigation}) => {
                         'Customer',
                       )
                     }>
-                    <Text style={[styles.navBtnTxt, {color: '#2E7D32'}]}>
+                    <Text
+                      style={[
+                        styles.navBtnTxt,
+                        {color: isDark ? '#81C784' : '#2E7D32'},
+                      ]}>
                       🗺️ Navigate to Customer
                     </Text>
                   </TouchableOpacity>
@@ -591,15 +704,23 @@ const DeliveryDashboard = ({navigation}) => {
                   </TouchableOpacity>
                 </View>
               ) : (
-                <Text style={styles.stepLockedLabel}>
+                <Text
+                  style={[
+                    styles.stepLockedLabel,
+                    isDark && {backgroundColor: '#2E2E2E', color: '#888'},
+                  ]}>
                   🔒 Available after product pickup
                 </Text>
               )}
             </View>
 
             {/* Items */}
-            <View style={styles.itemsBox}>
-              <Text style={styles.itemsTitle}>
+            <View
+              style={[
+                styles.itemsBox,
+                {backgroundColor: isDark ? '#262626' : '#F8F9FA'},
+              ]}>
+              <Text style={[styles.itemsTitle, {color: themeColors.text}]}>
                 📋 {t('delivery.items', {defaultValue: 'Items'})} (
                 {(item.items || []).length})
               </Text>
@@ -609,13 +730,25 @@ const DeliveryDashboard = ({navigation}) => {
                     ? getFarmerItemPrice(itm)
                     : itm.price || 0;
                 return (
-                  <Text key={idx} style={styles.itemLine}>
+                  <Text
+                    key={idx}
+                    style={[
+                      styles.itemLine,
+                      {color: themeColors.textSecondary},
+                    ]}>
                     • {itm.nameTa || itm.name} x{itm.quantity} — ₹
                     {itemPrice * itm.quantity}
                   </Text>
                 );
               })}
-              <Text style={styles.totalLine}>
+              <Text
+                style={[
+                  styles.totalLine,
+                  {
+                    color: isDark ? '#81C784' : COLORS.primaryGreen,
+                    borderTopColor: themeColors.border,
+                  },
+                ]}>
                 💰{' '}
                 {item.status === 'Confirmed'
                   ? 'Pay to Farmer'
@@ -649,7 +782,7 @@ const DeliveryDashboard = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       {/* Header */}
       <LinearGradient
         colors={['#1565C0', '#1976D2', '#2196F3']}
@@ -664,23 +797,34 @@ const DeliveryDashboard = ({navigation}) => {
             </Text>
           </View>
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
+            {/* Profile Button */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('EditProfile')}
+              style={{
+                width: 36,
+                height: 36,
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                borderRadius: 18,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{fontSize: 18}}>👤</Text>
+            </TouchableOpacity>
+
+            {/* Settings Button */}
             <TouchableOpacity
               onPress={() => navigation.navigate('Settings')}
               style={{
-                paddingHorizontal: 12,
-                paddingVertical: 7,
+                width: 36,
+                height: 36,
                 backgroundColor: 'rgba(255, 255, 255, 0.25)',
                 borderRadius: 18,
-                alignSelf: 'center',
-                flexDirection: 'row',
                 alignItems: 'center',
-                gap: 4,
+                justifyContent: 'center',
               }}>
-              <Text style={{fontSize: 14}}>⚙️</Text>
-              <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 12}}>
-                அமைப்புகள்
-              </Text>
+              <Text style={{fontSize: 18}}>⚙️</Text>
             </TouchableOpacity>
+
             <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
               <Text style={styles.logoutTxt}>
                 {t('settings.logout', {defaultValue: 'Logout'})}
@@ -711,7 +855,14 @@ const DeliveryDashboard = ({navigation}) => {
       </LinearGradient>
 
       {/* Tabs */}
-      <View style={styles.tabRow}>
+      <View
+        style={[
+          styles.tabRow,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderBottomColor: themeColors.border,
+          },
+        ]}>
         {[
           {
             key: 'available',
@@ -734,12 +885,25 @@ const DeliveryDashboard = ({navigation}) => {
         ].map(tab => (
           <TouchableOpacity
             key={tab.key}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+            style={[
+              styles.tab,
+              {borderBottomColor: 'transparent'},
+              activeTab === tab.key && {
+                borderBottomColor: isDark ? '#64B5F6' : '#1565C0',
+              },
+            ]}
             onPress={() => setActiveTab(tab.key)}>
             <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumScaleFactor={0.7}
               style={[
                 styles.tabTxt,
-                activeTab === tab.key && styles.tabTxtActive,
+                {color: isDark ? 'rgba(255,255,255,0.7)' : COLORS.textMuted},
+                activeTab === tab.key && {
+                  color: isDark ? '#64B5F6' : '#1565C0',
+                  fontWeight: 'bold',
+                },
               ]}>
               {tab.label}
             </Text>
@@ -772,7 +936,7 @@ const DeliveryDashboard = ({navigation}) => {
                   ? '🚚'
                   : '📦'}
               </Text>
-              <Text style={styles.emptyTitle}>
+              <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
                 {activeTab === 'available'
                   ? t('delivery.noAvailable', {
                       defaultValue: 'No available orders',
@@ -783,7 +947,7 @@ const DeliveryDashboard = ({navigation}) => {
                       defaultValue: 'No completed deliveries',
                     })}
               </Text>
-              <Text style={styles.emptyMsg}>
+              <Text style={[styles.emptyMsg, {color: themeColors.textMuted}]}>
                 {activeTab === 'available'
                   ? 'Confirmed orders waiting for delivery will appear here'
                   : activeTab === 'active'

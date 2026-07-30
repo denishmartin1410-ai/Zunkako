@@ -41,67 +41,10 @@ const FeedbackScreen = ({navigation}) => {
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
 
-  const [activeTab, setActiveTab] = useState(null); // 'voice' | 'write' | null
   const [writtenText, setWrittenText] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordDuration, setRecordDuration] = useState(0);
-  const [hasVoiceRecorded, setHasVoiceRecorded] = useState(false);
   const [hasAttachment, setHasAttachment] = useState(false);
   const [attachmentUri, setAttachmentUri] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const timerRef = useRef(null);
-
-  // Pulsing animation for active recording
-  useEffect(() => {
-    if (isRecording) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.3,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-
-      timerRef.current = setInterval(() => {
-        setRecordDuration(prev => prev + 1);
-      }, 1000);
-    } else {
-      pulseAnim.setValue(1);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [isRecording, pulseAnim]);
-
-  const handleRecordPress = () => {
-    if (!isRecording) {
-      // Start recording simulation
-      setIsRecording(true);
-      setRecordDuration(0);
-      setHasVoiceRecorded(false);
-    } else {
-      // Stop recording simulation
-      setIsRecording(false);
-      if (recordDuration > 0) {
-        setHasVoiceRecorded(true);
-      }
-    }
-  };
 
   const handleAttachmentToggle = () => {
     if (hasAttachment) {
@@ -168,12 +111,6 @@ const FeedbackScreen = ({navigation}) => {
     }
   };
 
-  const formatDuration = sec => {
-    const minutes = Math.floor(sec / 60);
-    const seconds = sec % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -213,9 +150,8 @@ const FeedbackScreen = ({navigation}) => {
           userEmail: user?.email || '',
           userPhone: user?.phone || '',
           userType: user?.userType || 'consumer',
-          type: activeTab, // 'voice' | 'write'
-          content: activeTab === 'write' ? writtenText : 'Voice Feedback',
-          voiceDuration: activeTab === 'voice' ? recordDuration : null,
+          type: 'write',
+          content: writtenText,
           attachmentUrl: fileUrl || null,
           createdAt: firestore.FieldValue.serverTimestamp(),
         });
@@ -243,7 +179,7 @@ const FeedbackScreen = ({navigation}) => {
     }
   };
 
-  const isSubmitDisabled = !writtenText.trim() && !hasVoiceRecorded;
+  const isSubmitDisabled = !writtenText.trim();
 
   return (
     <KeyboardAvoidingView
@@ -267,194 +203,85 @@ const FeedbackScreen = ({navigation}) => {
           })}
         </Text>
         <Text style={[styles.subtitle, {color: themeColors.subText || '#666'}]}>
-          {t('feedback.subtitle', {
-            defaultValue: 'Tell us more by recording or writing your feedback',
+          {t('feedback.subtitle_write_only', {
+            defaultValue: 'Tell us more by writing your feedback below',
           })}
         </Text>
 
-        {/* Tab Selection */}
-        <View style={styles.tabsRow}>
-          {/* Voice Feedback Tab */}
-          <TouchableOpacity
+        <View
+          style={[
+            styles.contentCard,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+            },
+          ]}>
+          <TextInput
             style={[
-              styles.tabCard,
+              styles.textInput,
               {
-                backgroundColor: themeColors.cardBg,
-                borderColor:
-                  activeTab === 'voice'
-                    ? COLORS.primaryGreen
-                    : themeColors.border,
+                color: themeColors.text,
+                backgroundColor: isDark ? '#222' : '#F9F9F9',
+                borderColor: themeColors.border,
               },
             ]}
-            onPress={() => {
-              setActiveTab('voice');
-              setIsRecording(false);
-            }}>
-            <Text style={styles.tabIcon}>🎙️</Text>
-            <Text style={[styles.tabLabel, {color: themeColors.text}]}>
-              {t('feedback.record', {defaultValue: 'Record Your Feedback'})}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Write Feedback Tab */}
-          <TouchableOpacity
-            style={[
-              styles.tabCard,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor:
-                  activeTab === 'write'
-                    ? COLORS.primaryGreen
-                    : themeColors.border,
-              },
-            ]}
-            onPress={() => {
-              setActiveTab('write');
-              setIsRecording(false);
-            }}>
-            <Text style={styles.tabIcon}>📝</Text>
-            <Text style={[styles.tabLabel, {color: themeColors.text}]}>
-              {t('feedback.write', {defaultValue: 'Write Your Feedback'})}
-            </Text>
-          </TouchableOpacity>
+            multiline
+            numberOfLines={8}
+            placeholder={t('feedback.placeholder', {
+              defaultValue: 'Write your feedback here...',
+            })}
+            placeholderTextColor={isDark ? '#777' : '#999'}
+            value={writtenText}
+            onChangeText={setWrittenText}
+          />
         </View>
 
-        {/* TAB CONTENTS */}
-        {activeTab === 'voice' && (
-          <View
-            style={[
-              styles.contentCard,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor: themeColors.border,
-              },
-            ]}>
-            <View style={styles.recordSection}>
-              {isRecording ? (
-                <Animated.View
-                  style={[
-                    styles.pulseCircle,
-                    {transform: [{scale: pulseAnim}]},
-                  ]}
-                />
-              ) : null}
-              <TouchableOpacity
-                style={[
-                  styles.recordBtn,
-                  {
-                    backgroundColor: isRecording
-                      ? '#E57373'
-                      : COLORS.primaryGreen,
-                  },
-                ]}
-                onPress={handleRecordPress}>
-                <Text style={styles.recordBtnText}>
-                  {isRecording ? '⏹️' : '🎙️'}
-                </Text>
-              </TouchableOpacity>
-
-              <Text style={[styles.durationText, {color: themeColors.text}]}>
-                {isRecording
-                  ? formatDuration(recordDuration)
-                  : hasVoiceRecorded
-                  ? '✅ ' + t('common.success')
-                  : '0:00'}
-              </Text>
-              <Text style={[styles.statusText, {color: themeColors.subText}]}>
-                {isRecording
-                  ? t('feedback.recording', {defaultValue: 'Recording...'})
-                  : hasVoiceRecorded
-                  ? t('feedback.recordedSuccess', {
-                      defaultValue: 'Voice recording captured.',
-                    })
-                  : t('feedback.tapToRecord', {
-                      defaultValue: 'Tap to start recording',
-                    })}
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {activeTab === 'write' && (
-          <View
-            style={[
-              styles.contentCard,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor: themeColors.border,
-              },
-            ]}>
-            <TextInput
-              style={[
-                styles.textInput,
-                {
-                  color: themeColors.text,
-                  backgroundColor: isDark ? '#222' : '#F9F9F9',
-                  borderColor: themeColors.border,
-                },
-              ]}
-              multiline
-              numberOfLines={6}
-              placeholder={t('feedback.placeholder', {
-                defaultValue: 'Write your feedback here...',
-              })}
-              placeholderTextColor={isDark ? '#777' : '#999'}
-              value={writtenText}
-              onChangeText={setWrittenText}
-            />
-          </View>
-        )}
-
-        {/* Attachment Optional (Available if a tab is chosen) */}
-        {activeTab && (
-          <TouchableOpacity
-            style={[
-              styles.attachmentRow,
-              {
-                backgroundColor: themeColors.cardBg,
-                borderColor: hasAttachment
-                  ? COLORS.primaryGreen
-                  : themeColors.border,
-              },
-            ]}
-            onPress={handleAttachmentToggle}>
-            <Text style={styles.attachmentIcon}>
-              {hasAttachment ? '✅' : '📎'}
-            </Text>
-            <Text style={[styles.attachmentText, {color: themeColors.text}]}>
-              {t('feedback.attach', {
-                defaultValue: 'Attach Screenshot / Document (Optional)',
-              })}
-            </Text>
-          </TouchableOpacity>
-        )}
+        {/* Attachment Optional */}
+        <TouchableOpacity
+          style={[
+            styles.attachmentRow,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: hasAttachment
+                ? COLORS.primaryGreen
+                : themeColors.border,
+            },
+          ]}
+          onPress={handleAttachmentToggle}>
+          <Text style={styles.attachmentIcon}>
+            {hasAttachment ? '✅' : '📎'}
+          </Text>
+          <Text style={[styles.attachmentText, {color: themeColors.text}]}>
+            {t('feedback.attach', {
+              defaultValue: 'Attach Screenshot / Document (Optional)',
+            })}
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Submit Button */}
-      {activeTab && (
-        <View
+      <View
+        style={[
+          styles.footer,
+          {
+            backgroundColor: themeColors.cardBg,
+            borderTopColor: themeColors.border,
+          },
+        ]}>
+        <TouchableOpacity
           style={[
-            styles.footer,
-            {
-              backgroundColor: themeColors.cardBg,
-              borderTopColor: themeColors.border,
-            },
-          ]}>
-          <TouchableOpacity
-            style={[
-              styles.submitBtn,
-              isSubmitDisabled && styles.submitBtnDisabled,
-            ]}
-            onPress={handleSubmit}
-            disabled={isSubmitDisabled || isSubmitting}>
-            <Text style={styles.submitBtnText}>
-              {isSubmitting
-                ? t('common.loading', {defaultValue: 'Loading...'})
-                : t('feedback.submit', {defaultValue: 'Submit Feedback'})}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+            styles.submitBtn,
+            isSubmitDisabled && styles.submitBtnDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={isSubmitDisabled || isSubmitting}>
+          <Text style={styles.submitBtnText}>
+            {isSubmitting
+              ? t('common.loading', {defaultValue: 'Loading...'})
+              : t('feedback.submit', {defaultValue: 'Submit Feedback'})}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 };
