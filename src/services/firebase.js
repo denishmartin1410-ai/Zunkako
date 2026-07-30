@@ -672,15 +672,35 @@ export const sendChatMessage = async (
   }
 };
 
-export const deleteChatMessage = async (farmerId, consumerId, messageId) => {
+export const deleteChatMessage = async (
+  farmerId,
+  consumerId,
+  messageId,
+  userId,
+) => {
   try {
     const chatRoomId = getChatRoomId(farmerId, consumerId);
-    await firestore()
+    const docRef = firestore()
       .collection('chats')
       .doc(chatRoomId)
       .collection('messages')
-      .doc(messageId)
-      .delete();
+      .doc(messageId);
+
+    const docSnapshot = await docRef.get();
+    if (docSnapshot.exists) {
+      const data = docSnapshot.data() || {};
+      const deletedFor = data.deletedFor || [];
+      if (userId && !deletedFor.includes(userId)) {
+        deletedFor.push(userId);
+      }
+      if (deletedFor.includes(farmerId) && deletedFor.includes(consumerId)) {
+        await docRef.delete();
+      } else {
+        await docRef.update({
+          deletedFor: firestore.FieldValue.arrayUnion(userId),
+        });
+      }
+    }
     return {success: true};
   } catch (error) {
     console.log('deleteChatMessage error:', error);
@@ -730,15 +750,28 @@ export const listenToChatMessages = (
     .onSnapshot(
       snap => {
         const messages = snap.docs
-          .map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            time:
-              doc.data().createdAt?.toDate?.()?.toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit',
-              }) || 'now',
-          }))
+          .map(doc => {
+            const d = doc.data();
+            return {
+              id: doc.id,
+              ...d,
+              time:
+                d.createdAt?.toDate?.()?.toLocaleTimeString('en-IN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                }) || 'now',
+            };
+          })
+          .filter(msg => {
+            if (
+              msg.deletedFor &&
+              Array.isArray(msg.deletedFor) &&
+              msg.deletedFor.includes(userId1)
+            ) {
+              return false;
+            }
+            return true;
+          })
           .sort((a, b) => {
             const tA = a.createdAt?.toMillis?.() || 0;
             const tB = b.createdAt?.toMillis?.() || 0;

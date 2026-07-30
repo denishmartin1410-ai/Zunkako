@@ -226,15 +226,18 @@ const CheckoutScreen = ({navigation}) => {
     }
     const cleanAddress = address.trim();
     const userLoc = (user?.location || '').trim();
+    const words = cleanAddress.split(/\s+/).filter(w => w.length > 0);
+    const hasNumber = /\d+/.test(cleanAddress);
     if (
       !cleanAddress ||
       cleanAddress.toLowerCase() === userLoc.toLowerCase() ||
-      cleanAddress.length < 15 ||
-      !/\d/.test(cleanAddress)
+      cleanAddress.length < 25 ||
+      !hasNumber ||
+      words.length < 5
     ) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        'வாடிக்கையாளர் கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி மற்றும் மாவட்டத்துடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nCustomer must enter a complete address including Door Number, Street Name, Area, and District!',
+        'வாடிக்கையாளர் கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி மற்றும் மாவட்டத்துடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nCustomer must enter a complete address including Door Number, Street, Area, and District!',
       );
       return;
     }

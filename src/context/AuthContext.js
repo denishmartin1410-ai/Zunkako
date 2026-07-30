@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import i18n from '../locales/i18n';
+import {AppState} from 'react-native';
 import {
   firebaseEmailLogin,
   firebaseEmailRegister,
@@ -70,6 +71,43 @@ export const AuthProvider = ({children}) => {
     });
     return () => unsub();
   }, []);
+
+  // Track user online status
+  useEffect(() => {
+    let currentUserUid = firebaseUser?.uid || user?.id || user?.uid;
+    if (!currentUserUid) {
+      return;
+    }
+
+    const updateStatus = async online => {
+      try {
+        const firestoreModule =
+          require('@react-native-firebase/firestore').default;
+        await firestoreModule().collection('users').doc(currentUserUid).update({
+          isOnline: online,
+          lastSeen: firestoreModule.FieldValue.serverTimestamp(),
+        });
+      } catch (err) {
+        console.log('Update online status error:', err.message);
+      }
+    };
+
+    // Update status to online immediately on component mount/user login
+    updateStatus(true);
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        updateStatus(true);
+      } else {
+        updateStatus(false);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+      updateStatus(false);
+    };
+  }, [firebaseUser?.uid, user?.id, user?.uid]);
 
   const login = async (email, password, selectedType) => {
     try {

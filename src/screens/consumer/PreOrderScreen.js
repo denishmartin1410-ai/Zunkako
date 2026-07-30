@@ -465,22 +465,45 @@ const PreOrderScreen = ({navigation, route}) => {
   };
 
   const confirmAndSubmitPreOrder = async () => {
-    if (!customerName.trim() || !phone.trim()) {
+    if (!customerName.trim()) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        t('orders.fillDetails', {
-          defaultValue: 'தயவுசெய்து அனைத்து விவரங்களையும் நிரப்பவும்',
-        }),
+        t('checkout.nameRequired', {defaultValue: 'பெயர் நிரப்பவும்'}),
       );
       return;
     }
 
     const cleanAddress = address.trim();
-    if (!cleanAddress) {
+    const words = cleanAddress.split(/\s+/).filter(w => w.length > 0);
+    const hasNumber = /\d+/.test(cleanAddress);
+    if (
+      !cleanAddress ||
+      cleanAddress.length < 25 ||
+      !hasNumber ||
+      words.length < 5
+    ) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        t('checkout.addressRequired', {
-          defaultValue: 'தயவுசெய்து விநியோக முகவரியை உள்ளிடவும்!',
+        'வாடிக்கையாளர் கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி மற்றும் மாவட்டத்துடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nCustomer must enter a complete address including Door Number, Street, Area, and District!',
+      );
+      return;
+    }
+
+    if (!pincode.trim() || pincode.trim().length < 6) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('checkout.pincodeRequired', {
+          defaultValue: 'சரியான PIN கோடு நிரப்பவும் (6 இலக்கம்)',
+        }),
+      );
+      return;
+    }
+
+    if (!phone.trim() || phone.trim().length < 10) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('checkout.phoneRequired', {
+          defaultValue: 'Please enter a valid phone number (10 digits)',
         }),
       );
       return;

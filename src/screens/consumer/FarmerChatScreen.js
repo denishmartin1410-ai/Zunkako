@@ -23,6 +23,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
+import firestore from '@react-native-firebase/firestore';
 import {useAuth} from '../../context/AuthContext';
 import {
   COLORS,
@@ -43,6 +44,68 @@ import {
 import {getAllFarmers} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
+
+const formatLastSeen = (lastSeenValue, locale = 'ta') => {
+  if (!lastSeenValue) {
+    return '';
+  }
+  let date;
+  if (typeof lastSeenValue.toDate === 'function') {
+    date = lastSeenValue.toDate();
+  } else {
+    date = new Date(lastSeenValue);
+  }
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const timeString = date.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const isToday = now.toDateString() === date.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = yesterday.toDateString() === date.toDateString();
+
+  if (locale === 'ta') {
+    if (isToday) {
+      return `கடைசியாக பார்த்தது இன்று ${timeString}`;
+    } else if (isYesterday) {
+      return `கடைசியாக பார்த்தது நேற்று ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `கடைசியாக பார்த்தது ${dateString} அன்று ${timeString}`;
+    }
+  } else if (locale === 'ml') {
+    if (isToday) {
+      return `അവസാനമായി കണ്ടത് ഇന്ന് ${timeString}`;
+    } else if (isYesterday) {
+      return `അവസാനമായി കണ്ടത് ഇന്നലെ ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `അവസാനമായി കണ്ടത് ${dateString} ${timeString}`;
+    }
+  } else {
+    if (isToday) {
+      return `Last seen today at ${timeString}`;
+    } else if (isYesterday) {
+      return `Last seen yesterday at ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `Last seen on ${dateString} at ${timeString}`;
+    }
+  }
+};
 
 const AvatarView = ({uri, name, size = 58, style}) => {
   const [err, setErr] = useState(false);
@@ -168,6 +231,10 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
             style={[
               styles.bubbleText,
               isMe ? styles.bubbleTextMe : {color: themeColors.text},
+              message.isDeleted && {
+                fontStyle: 'italic',
+                color: isDark ? 'rgba(255,255,255,0.5)' : COLORS.textGray,
+              },
             ]}>
             {message.text}
           </Text>
@@ -298,7 +365,7 @@ export const ChatListScreen = ({navigation}) => {
 
 // ── Chat Room Screen (Individual Conversation) ──
 const FarmerChatRoomScreen = ({route, navigation}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {farmer} = route.params;
@@ -310,9 +377,38 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
   const [isSending, setIsSending] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [partnerStatus, setPartnerStatus] = useState({
+    isOnline: false,
+    lastSeen: null,
+  });
   const flatListRef = useRef(null);
 
   const userId = user?.id || user?.uid || '';
+
+  // Real-time listener for partner online/offline status
+  useEffect(() => {
+    if (!farmer?.id) {
+      return;
+    }
+    const unsub = firestore()
+      .collection('users')
+      .doc(farmer.id)
+      .onSnapshot(
+        docSnapshot => {
+          if (docSnapshot.exists) {
+            const data = docSnapshot.data() || {};
+            setPartnerStatus({
+              isOnline: !!data.isOnline,
+              lastSeen: data.lastSeen || null,
+            });
+          }
+        },
+        err => {
+          console.log('Partner status listen error:', err.message);
+        },
+      );
+    return () => unsub();
+  }, [farmer?.id]);
 
   // ✅ Real-time Firestore listener for messages (consumer role)
   useEffect(() => {
@@ -366,9 +462,6 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
   };
 
   const handleDeleteMessage = message => {
-    if (message.isDeleted) {
-      return;
-    }
     setSelectedMessage(message);
     setDeleteModalVisible(true);
   };
@@ -434,44 +527,80 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
 
   const AI_CHATBOT_PRESETS = [
     {
-      q: '📦 கையிருப்பு இருக்கா?',
-      a: 'பயிற்சி பெற்ற உழவர் பண்ணையில் போதிய கையிருப்பு (Stock) தயார் நிலையில் உள்ளது!',
+      q: t('chat.presetQ1', {defaultValue: '📦 கையிருப்பு இருக்கா?'}),
+      a: t('chat.presetA1', {
+        defaultValue:
+          'பயிற்சி பெற்ற உழவர் பண்ணையில் போதிய கையிருப்பு (Stock) தயார் நிலையில் உள்ளது!',
+      }),
     },
     {
-      q: '💵 தற்போதைய விலை என்ன?',
-      a: 'எங்கள் விவசாயி இடைத்தரகர் இன்றி குறைந்த மற்றும் நியாயமான நேரடிப் பண்ணை விலையில் வழங்குகிறார்.',
+      q: t('chat.presetQ2', {defaultValue: '💵 தற்போதைய விலை என்ன?'}),
+      a: t('chat.presetA2', {
+        defaultValue:
+          'எங்கள் விவசாயி இடைத்தரகர் இன்றி குறைந்த மற்றும் நியாயமான நேரடிப் பண்ணை விலையில் வழங்குகிறார்.',
+      }),
     },
     {
-      q: '🌿 இயற்கை முறையிலானதா?',
-      a: 'ஆம்! 100% தூய இயற்கை மற்றும் ஆர்கானிக் சான்றிதழ் பெற்ற முறைகளில் விளைவிக்கப்பட்டது.',
+      q: t('chat.presetQ3', {defaultValue: '🌿 இயற்கை முறையிலானதா?'}),
+      a: t('chat.presetA3', {
+        defaultValue:
+          'ஆம்! 100% தூய இயற்கை மற்றும் ஆர்கானிக் சான்றிதழ் பெற்ற முறைகளில் விளைவிக்கப்பட்டது.',
+      }),
     },
     {
-      q: '🚚 எப்போது விநியோகம் செய்யப்படும்?',
-      a: 'அறுவடை செய்யப்பட்ட 24 மணி நேரத்திற்குள் உங்கள் வாசலிலேயே புத்துணர்ச்சியுடன் விநியோகிக்கப்படும்.',
+      q: t('chat.presetQ4', {
+        defaultValue: '🚚 எப்போது விநியோகம் செய்யப்படும்?',
+      }),
+      a: t('chat.presetA4', {
+        defaultValue:
+          'அறுவடை செய்யப்பட்ட 24 மணி நேரத்திற்குள் உங்கள் வாசலிலேயே புத்துணர்ச்சியுடன் விநியோகிக்கப்படும்.',
+      }),
     },
     {
-      q: '📍 பண்ணை முகவரி பெறலாமா?',
-      a: 'நிச்சயமாக! பண்ணை வருகை (Farm Visit) பகுதியில் எங்கள் பண்ணை அமைவிட விவரங்களைப் பெறலாம்.',
+      q: t('chat.presetQ5', {defaultValue: '📍 பண்ணை முகவரி பெறலாமா?'}),
+      a: t('chat.presetA5', {
+        defaultValue:
+          'நிச்சயமாக! பண்ணை வருகை (Farm Visit) பகுதியில் எங்கள் பண்ணை அமைவிட விவரங்களைப் பெறலாம்.',
+      }),
     },
     {
-      q: '🌾 அடுத்த புதிய அறுவடை எப்போது?',
-      a: 'அறுவடை நாள்காட்டி (Harvest Calendar) பகுதியில் நடப்பு வார அறுவடை தேதிகளைப் பார்க்கலாம்.',
+      q: t('chat.presetQ6', {defaultValue: '🌾 அடுத்த புதிய அறுவடை எப்போது?'}),
+      a: t('chat.presetA6', {
+        defaultValue:
+          'அறுவடை நாள்காட்டி (Harvest Calendar) பகுதியில் நடப்பு வார அறுவடை தேதிகளைப் பார்க்கலாம்.',
+      }),
     },
     {
-      q: '🧺 மொத்தமாக (Bulk Order) வாங்க முடியுமா?',
-      a: 'ஆம், மொத்த ஆணைக்கு (Group Buy / Bulk Order) சிறப்புத் தள்ளுபடி சலுகைகள் உண்டு.',
+      q: t('chat.presetQ7', {
+        defaultValue: '🧺 மொத்தமாக (Bulk Order) வாங்க முடியுமா?',
+      }),
+      a: t('chat.presetA7', {
+        defaultValue:
+          'ஆம், மொத்த ஆணைக்கு (Group Buy / Bulk Order) சிறப்புத் தள்ளுபடி சലுகைகள் உண்டு.',
+      }),
     },
     {
-      q: '📜 தர பரிசோதனை சான்றிதழ் உண்டா?',
-      a: 'ஆம்! QR code ஸ்கேன் செய்து பண்ணையின் தர சான்றிதழ் அறிக்கையைப் பார்க்கலாம்.',
+      q: t('chat.presetQ8', {defaultValue: '📜 தர பரிசோதனை சான்றிதழ் உண்டா?'}),
+      a: t('chat.presetA8', {
+        defaultValue:
+          'ஆம்! QR code ஸ்கேன் செய்து பண்ணையின் தர சான்றிதழ் அறிக்கையைப் பார்க்கலாம்.',
+      }),
     },
     {
-      q: '📅 முன்-ஆர்டர் செய்வது எப்படி?',
-      a: 'முன்-ஆர்டர் (Pre-Order) பக்கத்தில் உங்கள் அறுவடை தேவையை முன்பதிவு செய்ய முடியும்.',
+      q: t('chat.presetQ9', {defaultValue: '📅 முன்-ஆர்டர் செய்வது எப்படி?'}),
+      a: t('chat.presetA9', {
+        defaultValue:
+          'முன்-ஆர்டர் (Pre-Order) பக்கத்தில் உங்கள் அறுவடை தேவையை முன்பதிவு செய்ய முடியும்.',
+      }),
     },
     {
-      q: '📞 விவசாயியுடன் நேரடித் தொடர்பு கொள்ளலாமா?',
-      a: 'ஆம், உங்கள் கேள்விக்கு விவசாயி நேரடிப் பதிலும் அனுப்புவார்!',
+      q: t('chat.presetQ10', {
+        defaultValue: '📞 விவசாயியுடன் நேரடித் தொடர்பு கொள்ளலாமா?',
+      }),
+      a: t('chat.presetA10', {
+        defaultValue:
+          'ஆம், உங்கள் கேள்விக்கு விவசாயி நேரடிப் பதிலும் அனுப்புவார்!',
+      }),
     },
   ];
 
@@ -487,10 +616,13 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
       // 2. AI Chatbot Auto-Reply after 700ms
       setTimeout(async () => {
         try {
+          const prefix = t('chat.aiTipPrefix', {
+            defaultValue: '🤖 AI உதவிக்குறிப்பு: \n',
+          });
           await sendChatMessage(
             farmer.id,
             userId,
-            `🤖 AI உதவிக்குறிப்பு:\n${preset.a}`,
+            `${prefix}${preset.a}`,
             'farmer',
           );
         } catch (botErr) {
@@ -502,6 +634,17 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const getOnlineStatusText = () => {
+    const lang = i18n.language || 'ta';
+    if (lang === 'ta') {
+      return '🟢 ஆன்லைன் (AI அசிஸ்டண்ட் ஆக்டிவ்)';
+    }
+    if (lang === 'ml') {
+      return '🟢 ഓൺലൈൻ (AI അസിസ്റ്റന്റ് സജീവം)';
+    }
+    return '🟢 Online (AI Assistant Active)';
   };
 
   return (
@@ -528,7 +671,11 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
               <Text style={{fontSize: 13, marginLeft: 4}}>✅</Text>
             )}
           </View>
-          <Text style={styles.roomStatus}>🟢 Online (AI Assistant Active)</Text>
+          <Text style={styles.roomStatus}>
+            {partnerStatus.isOnline
+              ? getOnlineStatusText()
+              : formatLastSeen(partnerStatus.lastSeen, i18n.language || 'ta')}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -577,7 +724,10 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
             marginBottom: 8,
             paddingLeft: 8,
           }}>
-          🤖 தானியங்கி கேள்விகள் (Automatic AI Questions) - தொட்டு அனுப்பவும்:
+          {t('chat.aiQuestionsHeader', {
+            defaultValue:
+              '🤖 தானியங்கி கேள்விகள் (Automatic AI Questions) - தொட்டு அனுப்பவும்:',
+          })}
         </Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -634,33 +784,34 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
 
             <View style={styles.modalButtonContainer}>
               {/* Delete for everyone - ONLY if current user is the sender */}
-              {selectedMessage?.senderId === userId && (
-                <TouchableOpacity
-                  style={[
-                    styles.modalButton,
-                    {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
-                  ]}
-                  onPress={async () => {
-                    setDeleteModalVisible(false);
-                    const deletedText = t('chat.messageDeletedEveryone', {
-                      defaultValue: '🚫 This message was deleted',
-                    });
-                    await deleteChatMessageForEveryone(
-                      farmer.id,
-                      userId,
-                      selectedMessage.id,
-                      deletedText,
-                    );
-                    setSelectedMessage(null);
-                  }}>
-                  <Text
-                    style={[styles.modalButtonText, styles.textDestructive]}>
-                    {t('chat.deleteForEveryone', {
-                      defaultValue: 'Delete for everyone',
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              {selectedMessage?.senderId === userId &&
+                !selectedMessage?.isDeleted && (
+                  <TouchableOpacity
+                    style={[
+                      styles.modalButton,
+                      {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
+                    ]}
+                    onPress={async () => {
+                      setDeleteModalVisible(false);
+                      const deletedText = t('chat.messageDeletedEveryone', {
+                        defaultValue: '🚫 This message was deleted',
+                      });
+                      await deleteChatMessageForEveryone(
+                        farmer.id,
+                        userId,
+                        selectedMessage.id,
+                        deletedText,
+                      );
+                      setSelectedMessage(null);
+                    }}>
+                    <Text
+                      style={[styles.modalButtonText, styles.textDestructive]}>
+                      {t('chat.deleteForEveryone', {
+                        defaultValue: 'Delete for everyone',
+                      })}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
               <TouchableOpacity
                 style={[
@@ -673,6 +824,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
                     farmer.id,
                     userId,
                     selectedMessage.id,
+                    userId,
                   );
                   setSelectedMessage(null);
                 }}>

@@ -23,6 +23,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {useTranslation} from 'react-i18next';
+import firestore from '@react-native-firebase/firestore';
 import {useAuth} from '../../context/AuthContext';
 import {
   COLORS,
@@ -43,6 +44,68 @@ import {
 } from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
+
+const formatLastSeen = (lastSeenValue, locale = 'ta') => {
+  if (!lastSeenValue) {
+    return '';
+  }
+  let date;
+  if (typeof lastSeenValue.toDate === 'function') {
+    date = lastSeenValue.toDate();
+  } else {
+    date = new Date(lastSeenValue);
+  }
+  if (isNaN(date.getTime())) {
+    return '';
+  }
+
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const timeString = date.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const isToday = now.toDateString() === date.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = yesterday.toDateString() === date.toDateString();
+
+  if (locale === 'ta') {
+    if (isToday) {
+      return `கடைசியாக பார்த்தது இன்று ${timeString}`;
+    } else if (isYesterday) {
+      return `கடைசியாக பார்த்தது நேற்று ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `கடைசியாக பார்த்தது ${dateString} அன்று ${timeString}`;
+    }
+  } else if (locale === 'ml') {
+    if (isToday) {
+      return `അവസാനമായി കണ്ടത് ഇന്ന് ${timeString}`;
+    } else if (isYesterday) {
+      return `അവസാനമായി കണ്ടത് ഇന്നലെ ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `അവസാനമായി കണ്ടത് ${dateString} ${timeString}`;
+    }
+  } else {
+    if (isToday) {
+      return `Last seen today at ${timeString}`;
+    } else if (isYesterday) {
+      return `Last seen yesterday at ${timeString}`;
+    } else {
+      const dateString = `${date.getDate()}/${
+        date.getMonth() + 1
+      }/${date.getFullYear()}`;
+      return `Last seen on ${dateString} at ${timeString}`;
+    }
+  }
+};
 
 const AvatarView = ({uri, name, size = 52, style}) => {
   const [err, setErr] = useState(false);
@@ -160,6 +223,10 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
             style={[
               styles.bubbleText,
               isMe ? styles.bubbleTextMe : {color: themeColors.text},
+              message.isDeleted && {
+                fontStyle: 'italic',
+                color: isDark ? 'rgba(255,255,255,0.5)' : COLORS.textGray,
+              },
             ]}>
             {message.text}
           </Text>
@@ -332,7 +399,7 @@ export const FarmerChatListScreen = ({navigation}) => {
 
 // ── Farmer Chat Room (Individual conversation with a customer) ──
 export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
-  const {t} = useTranslation();
+  const {t, i18n} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const {user} = useAuth();
@@ -342,9 +409,38 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
   const [isSending, setIsSending] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [partnerStatus, setPartnerStatus] = useState({
+    isOnline: false,
+    lastSeen: null,
+  });
   const flatListRef = useRef(null);
 
   const farmerId = user?.id || user?.uid || '';
+
+  // Real-time listener for partner online/offline status
+  useEffect(() => {
+    if (!consumerId) {
+      return;
+    }
+    const unsub = firestore()
+      .collection('users')
+      .doc(consumerId)
+      .onSnapshot(
+        docSnapshot => {
+          if (docSnapshot.exists) {
+            const data = docSnapshot.data() || {};
+            setPartnerStatus({
+              isOnline: !!data.isOnline,
+              lastSeen: data.lastSeen || null,
+            });
+          }
+        },
+        err => {
+          console.log('Partner status listen error:', err.message);
+        },
+      );
+    return () => unsub();
+  }, [consumerId]);
 
   // ✅ Real-time listener - farmer role
   useEffect(() => {
@@ -388,9 +484,6 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
   };
 
   const handleDeleteMessage = message => {
-    if (message.isDeleted) {
-      return;
-    }
     setSelectedMessage(message);
     setDeleteModalVisible(true);
   };
@@ -473,7 +566,15 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
           <Text style={styles.roomName} numberOfLines={1}>
             {consumerName}
           </Text>
-          <Text style={styles.roomSub}>👤 Customer</Text>
+          <Text style={styles.roomSub}>
+            {partnerStatus.isOnline
+              ? i18n.language === 'ta'
+                ? '🟢 ஆன்லைன்'
+                : i18n.language === 'ml'
+                ? '🟢 ഓൺലൈൻ'
+                : '🟢 Online'
+              : formatLastSeen(partnerStatus.lastSeen, i18n.language || 'ta')}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -574,33 +675,34 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
 
             <View style={styles.modalButtonContainer}>
               {/* Delete for everyone - ONLY if current user is the sender */}
-              {selectedMessage?.senderId === farmerId && (
-                <TouchableOpacity
-                  style={[
-                    styles.modalButton,
-                    {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
-                  ]}
-                  onPress={async () => {
-                    setDeleteModalVisible(false);
-                    const deletedText = t('chat.messageDeletedEveryone', {
-                      defaultValue: '🚫 This message was deleted',
-                    });
-                    await deleteChatMessageForEveryone(
-                      farmerId,
-                      consumerId,
-                      selectedMessage.id,
-                      deletedText,
-                    );
-                    setSelectedMessage(null);
-                  }}>
-                  <Text
-                    style={[styles.modalButtonText, styles.textDestructive]}>
-                    {t('chat.deleteForEveryone', {
-                      defaultValue: 'Delete for everyone',
-                    })}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              {selectedMessage?.senderId === farmerId &&
+                !selectedMessage?.isDeleted && (
+                  <TouchableOpacity
+                    style={[
+                      styles.modalButton,
+                      {backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5'},
+                    ]}
+                    onPress={async () => {
+                      setDeleteModalVisible(false);
+                      const deletedText = t('chat.messageDeletedEveryone', {
+                        defaultValue: '🚫 This message was deleted',
+                      });
+                      await deleteChatMessageForEveryone(
+                        farmerId,
+                        consumerId,
+                        selectedMessage.id,
+                        deletedText,
+                      );
+                      setSelectedMessage(null);
+                    }}>
+                    <Text
+                      style={[styles.modalButtonText, styles.textDestructive]}>
+                      {t('chat.deleteForEveryone', {
+                        defaultValue: 'Delete for everyone',
+                      })}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
               <TouchableOpacity
                 style={[
@@ -613,6 +715,7 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
                     farmerId,
                     consumerId,
                     selectedMessage.id,
+                    farmerId,
                   );
                   setSelectedMessage(null);
                 }}>
