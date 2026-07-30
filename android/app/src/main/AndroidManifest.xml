@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -26,6 +27,6 @@
     </activity>
     <meta-data android:name="com.google.firebase.appcheck.debug.DEBUG_TOKEN" android:value="11811025-7A91-4EE2-9796-9D5FD5F49BA2"/>
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAC0JvmRAajANb3BoBCBVwdatpO8U9idA8"/>
-    <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="f2c_default_channel"/>
+    <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="f2c_default_channel" tools:replace="android:value"/>
   </application>
 </manifest>
