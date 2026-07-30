@@ -106,7 +106,6 @@ export const AuthProvider = ({children}) => {
 
       const currentUser = auth().currentUser || fbUser;
       if (!currentUser.emailVerified) {
-        await auth().signOut(); // Don't keep unverified user logged in
         return {
           success: false,
           error: i18n.t('authAlerts.emailNotVerifiedMsg', {
@@ -244,7 +243,6 @@ export const AuthProvider = ({children}) => {
       }
       if (currentUser) {
         await currentUser.sendEmailVerification();
-        await auth().signOut();
         return {success: true};
       }
       return {success: false, error: 'User not found'};
@@ -368,8 +366,7 @@ export const AuthProvider = ({children}) => {
             createdAt: firestore.FieldValue.serverTimestamp(),
           });
       }
-      // ✅ Sign out unverified user immediately so they must verify email before logging in
-      await auth().signOut();
+      // Do not sign out unverified user immediately so they can resend verification link easily
       setUser(null);
       setUserType(null);
       setFirebaseUser(null);

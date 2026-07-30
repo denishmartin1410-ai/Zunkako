@@ -17,6 +17,7 @@ import {
   TextInput,
   Platform,
   PermissionsAndroid,
+  Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useCart} from '../../context/CartContext';
@@ -56,8 +57,35 @@ const CheckoutScreen = ({navigation}) => {
 
   const fetchGPSLocation = async () => {
     setFetchingLocation(true);
-    const loc = await getConsumerLocation();
-    setConsumerLocation(loc);
+    const res = await getConsumerLocation();
+    if (res.success) {
+      setConsumerLocation({lat: res.lat, lng: res.lng});
+    } else {
+      setConsumerLocation({lat: res.lat, lng: res.lng});
+      Alert.alert(
+        t('location.turnOnGpsTitle', {defaultValue: 'GPS இயக்கவும்'}),
+        t('location.turnOnGpsMsg', {
+          defaultValue:
+            'ஆர்டர் செய்ய ஜிபிஎஸ் இருப்பிடத்தை இயக்க வேண்டும். தயவுசெய்து அமைப்புகளில் அதனை இயக்கவும்.\nTo place orders, GPS location services must be enabled. Please turn it on in settings.',
+        }),
+        [
+          {
+            text: t('common.cancel', {defaultValue: 'No, thanks'}),
+            style: 'cancel',
+          },
+          {
+            text: t('location.turnOn', {defaultValue: 'Turn on'}),
+            onPress: () => {
+              if (Platform.OS === 'android') {
+                Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS');
+              } else {
+                Linking.openURL('app-settings:');
+              }
+            },
+          },
+        ],
+      );
+    }
     setFetchingLocation(false);
   };
 
@@ -80,9 +108,13 @@ const CheckoutScreen = ({navigation}) => {
             );
             if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
               if (user?.latitude && user?.longitude) {
-                return resolve({lat: user.latitude, lng: user.longitude});
+                return resolve({
+                  success: false,
+                  lat: user.latitude,
+                  lng: user.longitude,
+                });
               }
-              return resolve({lat: 11.0168, lng: 76.9558});
+              return resolve({success: false, lat: 11.0168, lng: 76.9558});
             }
           } catch (permErr) {
             console.log('Permission request error:', permErr);
@@ -97,6 +129,7 @@ const CheckoutScreen = ({navigation}) => {
             if (!resolved && pos?.coords?.latitude && pos?.coords?.longitude) {
               resolved = true;
               resolve({
+                success: true,
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
               });
@@ -112,6 +145,7 @@ const CheckoutScreen = ({navigation}) => {
             if (!resolved && pos?.coords?.latitude && pos?.coords?.longitude) {
               resolved = true;
               resolve({
+                success: true,
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
               });
@@ -126,13 +160,18 @@ const CheckoutScreen = ({navigation}) => {
                     resolved = true;
                     if (pos2?.coords?.latitude && pos2?.coords?.longitude) {
                       resolve({
+                        success: true,
                         lat: pos2.coords.latitude,
                         lng: pos2.coords.longitude,
                       });
                     } else if (user?.latitude && user?.longitude) {
-                      resolve({lat: user.latitude, lng: user.longitude});
+                      resolve({
+                        success: false,
+                        lat: user.latitude,
+                        lng: user.longitude,
+                      });
                     } else {
-                      resolve({lat: 11.0168, lng: 76.9558});
+                      resolve({success: false, lat: 11.0168, lng: 76.9558});
                     }
                   }
                 },
@@ -140,9 +179,13 @@ const CheckoutScreen = ({navigation}) => {
                   if (!resolved) {
                     resolved = true;
                     if (user?.latitude && user?.longitude) {
-                      resolve({lat: user.latitude, lng: user.longitude});
+                      resolve({
+                        success: false,
+                        lat: user.latitude,
+                        lng: user.longitude,
+                      });
                     } else {
-                      resolve({lat: 11.0168, lng: 76.9558});
+                      resolve({success: false, lat: 11.0168, lng: 76.9558});
                     }
                   }
                 },
@@ -154,9 +197,9 @@ const CheckoutScreen = ({navigation}) => {
         );
       } catch (e) {
         if (user?.latitude && user?.longitude) {
-          resolve({lat: user.latitude, lng: user.longitude});
+          resolve({success: false, lat: user.latitude, lng: user.longitude});
         } else {
-          resolve({lat: 11.0168, lng: 76.9558});
+          resolve({success: false, lat: 11.0168, lng: 76.9558});
         }
       }
     });

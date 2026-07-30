@@ -352,7 +352,37 @@ const FarmerAddHarvestScreen = ({navigation}) => {
           />
 
           <TouchableOpacity
-            onPress={fetchLocation}
+            onPress={() => {
+              if (locStatus === 'error') {
+                Alert.alert(
+                  t('location.turnOnGpsTitle', {defaultValue: 'GPS இயக்கவும்'}),
+                  t('location.turnOnGpsMsg', {
+                    defaultValue:
+                      'விளைபொருளை சேர்க்க ஜிபிஎஸ் இருப்பிடத்தை இயக்க வேண்டும். தயவுசெய்து அமைப்புகளில் அதனை இயக்கவும்.\nTo add harvests, GPS location services must be enabled. Please turn it on in settings.',
+                  }),
+                  [
+                    {
+                      text: t('common.cancel', {defaultValue: 'No, thanks'}),
+                      style: 'cancel',
+                    },
+                    {
+                      text: t('location.turnOn', {defaultValue: 'Turn on'}),
+                      onPress: () => {
+                        if (Platform.OS === 'android') {
+                          Linking.sendIntent(
+                            'android.settings.LOCATION_SOURCE_SETTINGS',
+                          );
+                        } else {
+                          Linking.openURL('app-settings:');
+                        }
+                      },
+                    },
+                  ],
+                );
+              } else {
+                fetchLocation();
+              }
+            }}
             style={{
               marginBottom: SPACING.md,
               padding: SPACING.md,

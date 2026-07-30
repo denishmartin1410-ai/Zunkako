@@ -60,6 +60,7 @@ const AdminDashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [preOrders, setPreOrders] = useState([]);
   const [preOrdersModalVisible, setPreOrdersModalVisible] = useState(false);
+  const [refreshingPreOrders, setRefreshingPreOrders] = useState(false);
   const [zoomModalVisible, setZoomModalVisible] = useState(false);
   const [zoomImageUri, setZoomImageUri] = useState('');
   const [playingAudioUrl, setPlayingAudioUrl] = useState(null);
@@ -286,6 +287,54 @@ const AdminDashboard = () => {
       );
     return unsub;
   }, []);
+
+  const handleRefreshPreOrders = async () => {
+    setRefreshingPreOrders(true);
+    try {
+      const snap = await firestore().collectionGroup('preOrders').get();
+      if (snap && snap.docs) {
+        const list = [];
+        const promises = snap.docs.map(async doc => {
+          const preOrderData = doc.data();
+          const docPath = doc.ref.path;
+          const pathParts = docPath.split('/');
+          const harvestId = pathParts[1];
+          const userId = pathParts[3] || doc.id;
+          const harvestRef = doc.ref.parent.parent;
+          let harvestData = {};
+          if (harvestRef) {
+            try {
+              const hDoc = await harvestRef.get();
+              if (hDoc.exists) {
+                harvestData = hDoc.data();
+              }
+            } catch (e) {}
+          }
+          list.push({
+            id: doc.id,
+            docPath: docPath,
+            harvestId: harvestId,
+            ...harvestData,
+            ...preOrderData,
+            userId: userId,
+            preOrderId: doc.id,
+            preOrderHarvestId: harvestId,
+            preOrderUserId: userId,
+          });
+        });
+        await Promise.all(promises);
+        list.sort((a, b) => {
+          const tA = a.createdAt?.toMillis?.() || a.createdAt || 0;
+          const tB = b.createdAt?.toMillis?.() || b.createdAt || 0;
+          return tB - tA;
+        });
+        setPreOrders(list);
+      }
+    } catch (e) {
+      console.log('Manual pre-orders refresh error:', e.message);
+    }
+    setRefreshingPreOrders(false);
+  };
 
   const handleRefundPreOrder = item => {
     Alert.alert(
@@ -1284,6 +1333,8 @@ const AdminDashboard = () => {
               item.harvestId + '_' + item.userId + '_' + index
             }
             contentContainerStyle={{padding: 16}}
+            refreshing={refreshingPreOrders}
+            onRefresh={handleRefreshPreOrders}
             renderItem={({item}) => (
               <View
                 style={{

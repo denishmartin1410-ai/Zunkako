@@ -1035,8 +1035,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                   </Text>
                   <Text style={[S.summaryLbl, {color: themeColors.text}]}>
                     {t('farmer.totalCompletedEarnings', {
-                      defaultValue:
-                        'மொத்த வருவாய் (பூர்த்தி செய்யப்பட்ட ஆர்டர்கள்)',
+                      defaultValue: 'மொத்த வருவாய்',
                     })}
                   </Text>
                   <Text
@@ -2064,7 +2063,37 @@ export const AddProductScreen = ({navigation}) => {
         </ScrollView>
 
         <TouchableOpacity
-          onPress={fetchLocation}
+          onPress={() => {
+            if (locStatus === 'error') {
+              Alert.alert(
+                t('location.turnOnGpsTitle', {defaultValue: 'GPS இயக்கவும்'}),
+                t('location.turnOnGpsMsg', {
+                  defaultValue:
+                    'தயாரிப்பை சேர்க்க ஜிபிஎஸ் இருப்பிடத்தை இயக்க வேண்டும். தயவுசெய்து அமைப்புகளில் அதனை இயக்கவும்.\nTo add products, GPS location services must be enabled. Please turn it on in settings.',
+                }),
+                [
+                  {
+                    text: t('common.cancel', {defaultValue: 'No, thanks'}),
+                    style: 'cancel',
+                  },
+                  {
+                    text: t('location.turnOn', {defaultValue: 'Turn on'}),
+                    onPress: () => {
+                      if (Platform.OS === 'android') {
+                        Linking.sendIntent(
+                          'android.settings.LOCATION_SOURCE_SETTINGS',
+                        );
+                      } else {
+                        Linking.openURL('app-settings:');
+                      }
+                    },
+                  },
+                ],
+              );
+            } else {
+              fetchLocation();
+            }
+          }}
           style={{
             marginBottom: SPACING.xl,
             padding: SPACING.md,
@@ -3792,6 +3821,7 @@ const S = StyleSheet.create({
     fontSize: rs(14),
     fontWeight: '600',
     marginTop: 4,
+    textAlign: 'center',
   },
   summarySub: {
     fontSize: rs(12),
