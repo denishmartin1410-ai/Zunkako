@@ -186,14 +186,12 @@ const CheckoutScreen = ({navigation}) => {
     if (
       !cleanAddress ||
       cleanAddress.toLowerCase() === userLoc.toLowerCase() ||
-      cleanAddress.length < 15
+      cleanAddress.length < 15 ||
+      !/\d/.test(cleanAddress)
     ) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        t('checkout.fullAddressRequired', {
-          defaultValue:
-            'முழு முகவரியையும் உள்ளிடவும்! (தெரு பெயர், கதவு எண் போன்ற விவரங்களுடன்)',
-        }),
+        'வாடிக்கையாளர் கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி மற்றும் மாவட்டத்துடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nCustomer must enter a complete address including Door Number, Street Name, Area, and District!',
       );
       return;
     }
@@ -229,6 +227,39 @@ const CheckoutScreen = ({navigation}) => {
 
     setIsLoading(true);
     try {
+      const firestore = require('@react-native-firebase/firestore').default;
+
+      // Heuristic double-check: Verify stock in Firestore before proceeding with order placement
+      for (const item of cartItems) {
+        if (item.id) {
+          const prodRef = firestore().collection('products').doc(item.id);
+          const prodDoc = await prodRef.get();
+          if (prodDoc.exists) {
+            const dbStock = parseFloat(
+              prodDoc.data().stock || prodDoc.data().stockQuantity || 0,
+            );
+            const reqQty = parseFloat(item.quantity) || 1;
+            if (dbStock < reqQty) {
+              const displayName = getLocalProductName(
+                item.name,
+                item.nameTa,
+                i18n.language,
+              );
+              Alert.alert(
+                t('common.error', {defaultValue: 'பிழை'}),
+                `மன்னிக்கவும், '${displayName}' தேவையான அளவு கையிருப்பு இல்லை! (இருப்பு: ${dbStock} ${
+                  item.unit || 'kg'
+                }).\n\nSorry, '${displayName}' does not have enough stock available! (Available: ${dbStock} ${
+                  item.unit || 'kg'
+                }).`,
+              );
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      }
+
       // Group by farmer
       const farmerGroups = {};
       cartItems.forEach(item => {
@@ -263,9 +294,8 @@ const CheckoutScreen = ({navigation}) => {
             (s, i) => s + (i.consumerPrice || i.price) * i.quantity,
             0,
           );
-          const orderDiscount =
-            totalAmount >= 299 ? Math.round(subtotal * 0.05) : 0;
-          const orderTotal = subtotal - orderDiscount + deliveryFee;
+          const orderDiscount = 0; // Forced to 0 to disable discount
+          const orderTotal = subtotal + deliveryFee;
 
           return createOrder({
             consumerId: user?.id || user?.uid,
@@ -275,7 +305,10 @@ const CheckoutScreen = ({navigation}) => {
             farmerName: items[0]?.farmerName || farmerProfile.name || '',
             farmerPhone: farmerProfile.phone || '',
             farmerLocation:
-              farmerProfile.address || farmerProfile.location || '',
+              items[0]?.farmerAddress ||
+              farmerProfile.address ||
+              farmerProfile.location ||
+              '',
             farmerCoords:
               items[0]?.coordinates ||
               items[0]?.locationCoords ||

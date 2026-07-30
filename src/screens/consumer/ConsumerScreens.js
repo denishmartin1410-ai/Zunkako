@@ -286,7 +286,9 @@ export const OrdersScreen = ({navigation, route}) => {
       return;
     }
     const order = selectedPreOrder;
-    if (!order) return;
+    if (!order) {
+      return;
+    }
 
     setCancelModalVisible(false);
     setIsLoading(true);
@@ -379,7 +381,9 @@ export const OrdersScreen = ({navigation, route}) => {
       return;
     }
     const order = selectedPreOrder;
-    if (!order) return;
+    if (!order) {
+      return;
+    }
 
     setRefundModalVisible(false);
     setIsLoading(true);
@@ -1012,7 +1016,9 @@ export const OrdersScreen = ({navigation, route}) => {
                     </View>
 
                     {/* Bottom Centered Action Buttons */}
-                    {(isCancellable || isRefundable || order.status === 'harvested') && (
+                    {(isCancellable ||
+                      isRefundable ||
+                      order.status === 'harvested') && (
                       <View
                         style={{
                           alignItems: 'center',
@@ -1421,7 +1427,9 @@ export const FarmerProfileScreen = ({route, navigation}) => {
 
   const loadFarmerReviews = useCallback(async () => {
     const fId = farmer?.id || routeFarmer?.id;
-    if (!fId) return;
+    if (!fId) {
+      return;
+    }
     setReviewsLoading(true);
     try {
       const {getFarmerProductReviews} = require('../../services/firebase');
@@ -1499,7 +1507,9 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         {[
           {
             label: `⭐ ${t('farmer.rating', {defaultValue: 'மதிப்பீடு'})}`,
-            val: `${parseFloat(farmerRating || farmer.rating || 0).toFixed(1)} / 5.0`,
+            val: `${parseFloat(farmerRating || farmer.rating || 0).toFixed(
+              1,
+            )} / 5.0`,
             onPress: () => {
               setReviewsModalVisible(true);
               loadFarmerReviews();
@@ -1644,6 +1654,20 @@ export const FarmerProfileScreen = ({route, navigation}) => {
                           {color: isDark ? '#81C784' : COLORS.primaryGreen},
                         ]}>
                         {unit}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        S.unitBadgeCompact,
+                        {backgroundColor: isDark ? '#2D3748' : '#EDF2F7'},
+                      ]}>
+                      <Text
+                        style={[
+                          S.unitTextCompact,
+                          {color: isDark ? '#CBD5E0' : '#4A5568'},
+                        ]}>
+                        {t('farmer.stock', {defaultValue: 'இருப்பு'})}:{' '}
+                        {p.stock || 0}
                       </Text>
                     </View>
                     <Text

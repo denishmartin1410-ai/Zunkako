@@ -499,7 +499,10 @@ export const createOrder = async orderData => {
             const prodRef = firestore().collection('products').doc(item.id);
             const prodDoc = await prodRef.get();
             if (prodDoc.exists) {
-              const currentStock = parseFloat(prodDoc.data().stock || prodDoc.data().stockQuantity) || 0;
+              const currentStock =
+                parseFloat(
+                  prodDoc.data().stock || prodDoc.data().stockQuantity,
+                ) || 0;
               const orderQty = parseFloat(item.quantity) || 1;
               const newStock = Math.max(0, currentStock - orderQty);
               await prodRef.update({
@@ -512,7 +515,11 @@ export const createOrder = async orderData => {
               });
             }
           } catch (stErr) {
-            console.log('Stock reduction error for product', item.id, stErr.message);
+            console.log(
+              'Stock reduction error for product',
+              item.id,
+              stErr.message,
+            );
           }
         }
       }
@@ -891,13 +898,15 @@ export const submitProductRating = async (
 
 export const addFarmStory = async (farmerId, farmerName, videoUrl) => {
   try {
-    const ref = await firestore().collection('farm_stories').add({
-      farmerId,
-      farmerName: farmerName || 'Farmer',
-      storyVideo: videoUrl,
-      videoUrl,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-    });
+    const ref = await firestore()
+      .collection('farm_stories')
+      .add({
+        farmerId,
+        farmerName: farmerName || 'Farmer',
+        storyVideo: videoUrl,
+        videoUrl,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
     // Update user profile latest storyVideo for backwards compatibility
     await firestore().collection('users').doc(farmerId).set(
       {

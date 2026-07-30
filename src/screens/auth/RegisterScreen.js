@@ -213,10 +213,10 @@ const RegisterScreen = ({navigation, route}) => {
         }),
         t('authAlerts.regSuccessMsg', {
           defaultValue:
-            `📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\n` +
+            '📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\n' +
             `உங்கள் மின்னஞ்சல் முகவரிக்கு (${email.trim()}) சரிபார்ப்பு லிங்க் (Verification Link) அனுப்பப்பட்டுள்ளது.\n\n` +
-            `👉 குறிப்பு: இந்த சரிபார்ப்பு லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் இருக்கும்.\n` +
-            `👉 அந்த லிங்கை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்!`,
+            '👉 குறிப்பு: இந்த சரிபார்ப்பு லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் இருக்கும்.\n' +
+            '👉 அந்த லிங்கை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்!',
         }),
         [
           {
@@ -267,7 +267,9 @@ const RegisterScreen = ({navigation, route}) => {
             farmer: {
               label: t('login.farmer', {defaultValue: 'Farmer'}),
               taLabel: t('login.farmer', {defaultValue: 'விவசாயி'}),
-              sub: t('login.sellProducts', {defaultValue: 'Sell your products'}),
+              sub: t('login.sellProducts', {
+                defaultValue: 'Sell your products',
+              }),
               emoji: '👨‍🌾',
               colors: ['#E8F5E9', '#C8E6C9'],
               borderColor: '#A5D6A7',

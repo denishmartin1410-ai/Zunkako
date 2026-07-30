@@ -272,7 +272,9 @@ const HarvestCalendarScreen = ({navigation}) => {
                       colors={COLORS.gradientButton}
                       style={styles.preOrderGrad}>
                       <Text style={styles.preOrderTxt}>
-                        {t('harvestCalendar.preOrderBtn', {defaultValue: 'Pre-Order'})}
+                        {t('harvestCalendar.preOrderBtn', {
+                          defaultValue: 'Pre-Order',
+                        })}
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>

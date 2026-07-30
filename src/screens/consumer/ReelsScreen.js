@@ -258,8 +258,7 @@ const ReelItem = ({
           <Text style={styles.reelDesc} numberOfLines={2}>
             {item.farmName ? `${item.farmName} - ` : ''}
             {t('reels.slogan', {
-              defaultValue:
-                'Fresh from our farm straight to your table!',
+              defaultValue: 'Fresh from our farm straight to your table!',
             })}
           </Text>
         </View>

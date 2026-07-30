@@ -416,13 +416,30 @@ const DeliveryDashboard = ({navigation}) => {
           // AVAILABLE TAB: Accept Delivery card
           <View>
             <View style={styles.locationCard}>
-              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP AREA</Text>
+              <Text style={styles.locationLabel}>🧑‍🌾 PICKUP AREA (FARMER)</Text>
               <Text style={styles.locationName}>
                 {item.farmerName || 'Farmer'}
               </Text>
               <Text style={styles.locationAddr}>
                 {item.farmerLocation || 'Farmer location not specified'}
               </Text>
+            </View>
+
+            <View style={styles.locationCard}>
+              <Text style={styles.locationLabel}>
+                🏠 DELIVER AREA (CUSTOMER)
+              </Text>
+              <Text style={styles.locationName}>
+                {item.consumerName || 'Customer'}
+              </Text>
+              <Text style={styles.locationAddr}>
+                {item.deliveryAddress || 'Delivery address not specified'}
+              </Text>
+              {item.deliveryPincode ? (
+                <Text style={styles.locationAddr}>
+                  PIN: {item.deliveryPincode}
+                </Text>
+              ) : null}
             </View>
 
             <View style={styles.itemsBox}>
@@ -470,7 +487,13 @@ const DeliveryDashboard = ({navigation}) => {
               <Text style={styles.locationAddr}>
                 {item.farmerLocation || 'No address'}
               </Text>
-              <Text style={{fontWeight: 'bold', color: '#1B5E20', marginTop: 4, fontSize: rs(13)}}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: '#1B5E20',
+                  marginTop: 4,
+                  fontSize: rs(13),
+                }}>
                 💵 Pay to Farmer: ₹{getFarmerOrderTotal(item)}
               </Text>
 
@@ -518,7 +541,13 @@ const DeliveryDashboard = ({navigation}) => {
                   PIN: {item.deliveryPincode}
                 </Text>
               )}
-              <Text style={{fontWeight: 'bold', color: '#0D47A1', marginTop: 4, fontSize: rs(13)}}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  color: '#0D47A1',
+                  marginTop: 4,
+                  fontSize: rs(13),
+                }}>
                 💵 Collect from Customer: ₹{item.total}
               </Text>
 
@@ -532,7 +561,8 @@ const DeliveryDashboard = ({navigation}) => {
                     style={[styles.navBtn, {backgroundColor: '#E8F5E9'}]}
                     onPress={() =>
                       navigateToLocation(
-                        item.consumerCoords?.lat || item.consumerCoords?.latitude,
+                        item.consumerCoords?.lat ||
+                          item.consumerCoords?.latitude,
                         item.consumerCoords?.lng ||
                           item.consumerCoords?.longitude,
                         'Customer',
@@ -545,7 +575,10 @@ const DeliveryDashboard = ({navigation}) => {
                   <TouchableOpacity
                     style={[
                       styles.navBtn,
-                      {backgroundColor: COLORS.primaryGreen, paddingVertical: 10},
+                      {
+                        backgroundColor: COLORS.primaryGreen,
+                        paddingVertical: 10,
+                      },
                     ]}
                     onPress={() => handleStatusUpdate(item, 'Delivered')}>
                     <Text
@@ -574,7 +607,7 @@ const DeliveryDashboard = ({navigation}) => {
                 const itemPrice =
                   item.status === 'Confirmed'
                     ? getFarmerItemPrice(itm)
-                    : (itm.price || 0);
+                    : itm.price || 0;
                 return (
                   <Text key={idx} style={styles.itemLine}>
                     • {itm.nameTa || itm.name} x{itm.quantity} — ₹
@@ -583,7 +616,11 @@ const DeliveryDashboard = ({navigation}) => {
                 );
               })}
               <Text style={styles.totalLine}>
-                💰 {item.status === 'Confirmed' ? 'Pay to Farmer' : 'Collect from Customer'}: ₹
+                💰{' '}
+                {item.status === 'Confirmed'
+                  ? 'Pay to Farmer'
+                  : 'Collect from Customer'}
+                : ₹
                 {item.status === 'Confirmed'
                   ? getFarmerOrderTotal(item)
                   : item.total}

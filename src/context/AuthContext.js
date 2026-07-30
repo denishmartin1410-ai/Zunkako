@@ -80,7 +80,8 @@ export const AuthProvider = ({children}) => {
         let errorType = r.errorType;
         if (errorType === 'wrong-password') {
           try {
-            const firestoreModule = require('@react-native-firebase/firestore').default;
+            const firestoreModule =
+              require('@react-native-firebase/firestore').default;
             const userQuery = await firestoreModule()
               .collection('users')
               .where('email', '==', formattedEmail)
@@ -235,7 +236,10 @@ export const AuthProvider = ({children}) => {
     try {
       let currentUser = auth().currentUser;
       if (!currentUser && userEmail && userPassword) {
-        const r = await auth().signInWithEmailAndPassword(userEmail, userPassword);
+        const r = await auth().signInWithEmailAndPassword(
+          userEmail,
+          userPassword,
+        );
         currentUser = r.user;
       }
       if (currentUser) {

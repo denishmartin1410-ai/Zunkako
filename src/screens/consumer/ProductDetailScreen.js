@@ -516,7 +516,10 @@ const ProductDetailScreen = ({route, navigation}) => {
               alignItems: 'center',
             }}>
             <Text style={{color: '#FF5252', fontWeight: 'bold', fontSize: 16}}>
-              🚫 {t('product.soldOut', {defaultValue: 'SOLD OUT (கையிருப்பு இல்லை)'})}
+              🚫{' '}
+              {t('product.soldOut', {
+                defaultValue: 'SOLD OUT (கையிருப்பு இல்லை)',
+              })}
             </Text>
           </View>
         ) : !inCart ? (

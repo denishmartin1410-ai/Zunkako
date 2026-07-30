@@ -69,8 +69,8 @@ service cloud.firestore {
       allow read: if true;
       // Only farmer who owns the product can create
       allow create: if isFarmer() && request.resource.data.farmerId == request.auth.uid;
-      // Only owner or admin can update, but any logged in user can update ratings
-      allow update: if isOwner(resource.data.farmerId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'reviews', 'updatedAt']));
+      // Only owner or admin can update, but any logged in user can update ratings and stock fields
+      allow update: if isOwner(resource.data.farmerId) || isAdmin() || (isLoggedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'reviews', 'updatedAt', 'stock', 'stockQuantity', 'isAvailable', 'isSoldOut', 'status']));
       allow delete: if isOwner(resource.data.farmerId) || isAdmin();
 
       // RATINGS (Subcollection)

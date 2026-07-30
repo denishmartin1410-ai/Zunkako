@@ -287,7 +287,9 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
 
   useEffect(() => {
     const uid = user?.id || user?.uid;
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
     let unsub;
     try {
       const {listenToNotifications} = require('../../services/firebase');
@@ -301,7 +303,9 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
       console.log('Farmer dashboard notification listener error:', e);
     }
     return () => {
-      if (typeof unsub === 'function') unsub();
+      if (typeof unsub === 'function') {
+        unsub();
+      }
     };
   }, [user]);
 
@@ -841,7 +845,12 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                       {t('orders.preOrderedOn', {defaultValue: 'Ordered On'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
-                        {formattedDate ? formattedDate.split('/').map(p => p.padStart(2, '0')).join('/') : '-'}
+                        {formattedDate
+                          ? formattedDate
+                              .split('/')
+                              .map(p => p.padStart(2, '0'))
+                              .join('/')
+                          : '-'}
                       </Text>
                     </Text>
                     <Text
@@ -879,8 +888,11 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                         style={{fontWeight: '600', color: themeColors.text}}>
                         {item.harvestDate
                           ? item.harvestDate.includes('-')
-                            ? item.harvestDate.split('-').length === 3 && item.harvestDate.split('-')[0].length === 4
-                              ? `${item.harvestDate.split('-')[2]}-${item.harvestDate.split('-')[1]}-${item.harvestDate.split('-')[0]}`
+                            ? item.harvestDate.split('-').length === 3 &&
+                              item.harvestDate.split('-')[0].length === 4
+                              ? `${item.harvestDate.split('-')[2]}-${
+                                  item.harvestDate.split('-')[1]
+                                }-${item.harvestDate.split('-')[0]}`
                               : item.harvestDate
                             : item.harvestDate
                           : item.harvestDeliveredDate || '-'}
@@ -1485,6 +1497,9 @@ export const AddProductScreen = ({navigation}) => {
   const [imageUri, setImageUri] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [farmerAddress, setFarmerAddress] = useState(
+    user?.address || user?.location || '',
+  );
   const imageUrlRef = useRef('');
 
   const [latitude, setLatitude] = useState(null);
@@ -1607,14 +1622,21 @@ export const AddProductScreen = ({navigation}) => {
         quality: 0.8,
         maxWidth: 800,
         maxHeight: 800,
+        includeBase64: true, // Request base64 representation for Cloud Vision API
       });
       if (result.didCancel || !result.assets?.[0]) {
         return;
       }
       const uri = result.assets[0].uri;
+      const base64 = result.assets[0].base64;
 
       // 🛡️ AI Image Security & Content Moderation Check
-      const aiCheck = await validateProductImageWithAI(uri, name, category);
+      const aiCheck = await validateProductImageWithAI(
+        uri,
+        name,
+        category,
+        base64,
+      );
       if (!aiCheck.safe) {
         showAISecurityAlert(aiCheck.reason);
         return;
@@ -1719,6 +1741,15 @@ export const AddProductScreen = ({navigation}) => {
       }
     }
 
+    const cleanAddr = farmerAddress.trim();
+    if (!cleanAddr || cleanAddr.length < 15 || !/\d/.test(cleanAddr)) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        'விவசாயி கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி, மாவட்டம் மற்றும் PIN code ஆகியவற்றுடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nFarmer must enter a complete address including Door Number, Street Name, Area, District, and PIN code!',
+      );
+      return;
+    }
+
     if (!imageUrlRef.current) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
@@ -1746,6 +1777,7 @@ export const AddProductScreen = ({navigation}) => {
         farmerId: user?.id || user?.uid || '',
         farmerName: user?.name || '',
         farmerNameTa: user?.name || '',
+        farmerAddress: cleanAddr,
         location: user?.location || '',
         coordinates:
           latitude && longitude ? {lat: latitude, lng: longitude} : null,
@@ -1952,6 +1984,18 @@ export const AddProductScreen = ({navigation}) => {
             />
           </>
         )}
+
+        <FormField
+          label={`📍 ${t('farmer.fullAddress', {
+            defaultValue:
+              'விவசாயி முகவரி (Door No, Street, Area, District, Pincode)',
+          })}`}
+          value={farmerAddress}
+          onChangeText={setFarmerAddress}
+          placeholder="கதவு எண், தெரு பெயர், பகுதி, மாவட்டம், பின்கோடு"
+          multiline={true}
+          numberOfLines={2}
+        />
 
         <Text style={[S.fieldLabel, {color: themeColors.text}]}>
           ⚖️ {t('farmer.unit', {defaultValue: 'அளவு வகை'})}
@@ -2982,7 +3026,9 @@ export const FarmerProfileScreen = ({navigation}) => {
 
   const loadFarmerReviews = useCallback(async () => {
     const farmerId = user?.id || user?.uid;
-    if (!farmerId) return;
+    if (!farmerId) {
+      return;
+    }
     setReviewsLoading(true);
     try {
       const {getFarmerProductReviews} = require('../../services/firebase');
@@ -3180,9 +3226,20 @@ export const FarmerProfileScreen = ({navigation}) => {
         <View style={S.modalOverlay}>
           <View
             style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
-            <View style={[S.modalHeader, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}]}>
+            <View
+              style={[
+                S.modalHeader,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                },
+              ]}>
               <Text
-                style={[S.modalTitle, {color: themeColors.text, flex: 1, marginRight: 8}]}
+                style={[
+                  S.modalTitle,
+                  {color: themeColors.text, flex: 1, marginRight: 8},
+                ]}
                 numberOfLines={1}
                 ellipsizeMode="tail">
                 ⭐{' '}

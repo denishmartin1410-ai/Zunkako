@@ -480,23 +480,53 @@ const AllProductsScreen = ({navigation}) => {
                             numberOfLines={1}>
                             {localProdName}
                           </Text>
-                          {/* Quantity/Unit badge */}
+                          {/* Quantity/Unit & Stock Badges */}
                           <View
-                            style={[
-                              styles.unitBadge,
-                              {backgroundColor: isDark ? '#1C3A27' : '#E8F5E9'},
-                            ]}>
-                            <Text
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginBottom: 4,
+                            }}>
+                            <View
                               style={[
-                                styles.unitText,
+                                styles.unitBadge,
                                 {
-                                  color: isDark
-                                    ? '#81C784'
-                                    : COLORS.primaryGreen,
+                                  backgroundColor: isDark
+                                    ? '#1C3A27'
+                                    : '#E8F5E9',
                                 },
                               ]}>
-                              1{unit}
-                            </Text>
+                              <Text
+                                style={[
+                                  styles.unitText,
+                                  {
+                                    color: isDark
+                                      ? '#81C784'
+                                      : COLORS.primaryGreen,
+                                  },
+                                ]}>
+                                1{unit}
+                              </Text>
+                            </View>
+                            <View
+                              style={[
+                                styles.unitBadge,
+                                {
+                                  backgroundColor: isDark
+                                    ? '#2D3748'
+                                    : '#EDF2F7',
+                                },
+                              ]}>
+                              <Text
+                                style={[
+                                  styles.unitText,
+                                  {color: isDark ? '#CBD5E0' : '#4A5568'},
+                                ]}>
+                                {t('farmer.stock', {defaultValue: 'இருப்பு'})}:{' '}
+                                {p.stock || 0} {unit}
+                              </Text>
+                            </View>
                           </View>
                           <View
                             style={{

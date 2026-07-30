@@ -476,7 +476,9 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
   ];
 
   const handleSelectPresetQuestion = async preset => {
-    if (isSending) return;
+    if (isSending) {
+      return;
+    }
     setIsSending(true);
     try {
       // 1. Send Consumer's selected question

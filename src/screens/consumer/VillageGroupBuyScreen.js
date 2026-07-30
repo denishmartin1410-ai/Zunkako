@@ -65,7 +65,8 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
   const themeColors = getThemeColors(isDark);
   const chipBg = isDark ? '#1C3024' : '#E8F5E9';
 
-  const currentCount = group.currentMembers || (group.members ? group.members.length : 1);
+  const currentCount =
+    group.currentMembers || (group.members ? group.members.length : 1);
   const neededCount = Math.max(0, 5 - currentCount);
   const fillPercent = Math.min((currentCount / 5) * 100, 100);
   const statusKey =
@@ -80,7 +81,8 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
       Alert.alert(
         t('common.info', {defaultValue: 'தகவல்'}),
         t('groupBuy.maxMembersReached', {
-          defaultValue: 'குழு நிறைவடைந்தது! (5/5) இனிமேல் உறுப்பினர்களை சேர்க்க இயலாது.',
+          defaultValue:
+            'குழு நிறைவடைந்தது! (5/5) இனிமேல் உறுப்பினர்களை சேர்க்க இயலாது.',
         }),
       );
       return;
@@ -275,7 +277,10 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}>
                 <Text style={styles.joinBtnTxt}>
-                  📢 {t('groupBuy.inviteFriends', {defaultValue: 'நண்பர்களை அழைக்கவும்'})}
+                  📢{' '}
+                  {t('groupBuy.inviteFriends', {
+                    defaultValue: 'நண்பர்களை அழைக்கவும்',
+                  })}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -296,7 +301,12 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
           )
         ) : (
           <View style={styles.fullBtn}>
-            <Text style={styles.fullBtnTxt}>🔴 {t('groupBuy.groupFull', {defaultValue: 'குழு நிறைவடைந்தது (5/5)'})}</Text>
+            <Text style={styles.fullBtnTxt}>
+              🔴{' '}
+              {t('groupBuy.groupFull', {
+                defaultValue: 'குழு நிறைவடைந்தது (5/5)',
+              })}
+            </Text>
           </View>
         )}
       </View>
@@ -701,7 +711,8 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
                     value={
                       isTargetMembers
                         ? t('groupBuy.mustInclude5', {
-                            defaultValue: '5 உறுப்பினர்கள் சேர்க்கப்பட வேண்டும்',
+                            defaultValue:
+                              '5 உறுப்பினர்கள் சேர்க்கப்பட வேண்டும்',
                           })
                         : newGroup[field.key]
                     }

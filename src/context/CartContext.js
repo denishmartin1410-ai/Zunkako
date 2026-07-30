@@ -165,14 +165,13 @@ export const CartProvider = ({children}) => {
   );
   const totalAmount = subtotal; // ✅ alias used by CartScreen & CheckoutScreen
 
-  const BULK_DISCOUNT_THRESHOLD = 299;
-  const discount =
-    subtotal >= BULK_DISCOUNT_THRESHOLD ? Math.round(subtotal * 0.05) : 0;
+  const BULK_DISCOUNT_THRESHOLD = 999999; // Disable threshold
+  const discount = 0; // Forced to 0 to disable bulk/cooperative discount
 
   const deliveryFee =
     subtotal === 0 ? 0 : subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
 
-  const total = subtotal - discount + deliveryFee;
+  const total = subtotal + deliveryFee;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
 

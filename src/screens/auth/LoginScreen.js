@@ -159,7 +159,8 @@ const LoginScreen = ({navigation, route}) => {
               },
               {
                 text: t('authAlerts.createAccountBtn'),
-                onPress: () => navigation.navigate('Register', {role: userType}),
+                onPress: () =>
+                  navigation.navigate('Register', {role: userType}),
               },
             ],
           );
@@ -208,7 +209,7 @@ const LoginScreen = ({navigation, route}) => {
             t('authAlerts.emailNotVerifiedMsg', {
               defaultValue:
                 `உங்கள் மின்னஞ்சல் (${email.trim()}) இன்னும் உறுதிப்படுத்தப்படவில்லை.\n\n` +
-                `👉 குறிப்பு: உறுதிப்படுத்தல் லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் அனுப்பப்பட்டுள்ளது. அதை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்.`,
+                '👉 குறிப்பு: உறுதிப்படுத்தல் லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் அனுப்பப்பட்டுள்ளது. அதை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்.',
             }),
             [
               {text: t('common.ok', {defaultValue: 'சரி'}), style: 'cancel'},
@@ -217,7 +218,10 @@ const LoginScreen = ({navigation, route}) => {
                   defaultValue: '📩 லிங்க் மீண்டும் அனுப்பு',
                 }),
                 onPress: async () => {
-                  const res = await resendVerificationEmail(email.trim(), password);
+                  const res = await resendVerificationEmail(
+                    email.trim(),
+                    password,
+                  );
                   if (res.success) {
                     Alert.alert(
                       t('authAlerts.linkSentTitle', {
@@ -261,7 +265,8 @@ const LoginScreen = ({navigation, route}) => {
               },
               {
                 text: t('authAlerts.createAccountBtn'),
-                onPress: () => navigation.navigate('Register', {role: userType}),
+                onPress: () =>
+                  navigation.navigate('Register', {role: userType}),
               },
             ],
           );
@@ -312,7 +317,7 @@ const LoginScreen = ({navigation, route}) => {
         <Text style={styles.sectionLabel}>
           {t('login.whoAreYou', {defaultValue: 'Who are you?'})}
         </Text>
-        
+
         {(() => {
           const roleConfig = {
             farmer: {

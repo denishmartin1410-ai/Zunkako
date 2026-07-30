@@ -376,7 +376,8 @@ const PreOrderScreen = ({navigation, route}) => {
               if (!resolved) {
                 resolved = true;
                 const lat = pos2?.coords?.latitude || user?.latitude || 11.0168;
-                const lng = pos2?.coords?.longitude || user?.longitude || 76.9558;
+                const lng =
+                  pos2?.coords?.longitude || user?.longitude || 76.9558;
                 setCoords({latitude: lat, longitude: lng});
                 setLinkingLocation(false);
                 Alert.alert(

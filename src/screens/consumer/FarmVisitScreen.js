@@ -213,26 +213,40 @@ const FarmVisitScreen = ({navigation}) => {
     (async () => {
       try {
         const batch = firestore().batch();
-        const farmerRef = firestore().collection('farmers').doc(selectedFarm.farmerId);
-        const userRef = firestore().collection('users').doc(selectedFarm.farmerId);
-        batch.set(farmerRef, {
-          visitorsCount: firestore.FieldValue.increment(visitorsIncrement)
-        }, { merge: true });
-        batch.set(userRef, {
-          visitorsCount: firestore.FieldValue.increment(visitorsIncrement)
-        }, { merge: true });
+        const farmerRef = firestore()
+          .collection('farmers')
+          .doc(selectedFarm.farmerId);
+        const userRef = firestore()
+          .collection('users')
+          .doc(selectedFarm.farmerId);
+        batch.set(
+          farmerRef,
+          {
+            visitorsCount: firestore.FieldValue.increment(visitorsIncrement),
+          },
+          {merge: true},
+        );
+        batch.set(
+          userRef,
+          {
+            visitorsCount: firestore.FieldValue.increment(visitorsIncrement),
+          },
+          {merge: true},
+        );
         await batch.commit();
 
         // Update local state
-        setFarms(prev => prev.map(f => {
-          if (f.id === selectedFarm.id) {
-            return {
-              ...f,
-              totalVisitors: (f.totalVisitors || 0) + visitorsIncrement
-            };
-          }
-          return f;
-        }));
+        setFarms(prev =>
+          prev.map(f => {
+            if (f.id === selectedFarm.id) {
+              return {
+                ...f,
+                totalVisitors: (f.totalVisitors || 0) + visitorsIncrement,
+              };
+            }
+            return f;
+          }),
+        );
       } catch (err) {
         console.log('Error updating visitor count:', err.message);
       }
@@ -636,7 +650,8 @@ const FarmVisitScreen = ({navigation}) => {
               color: themeColors.textMuted,
             }}>
             {t('farmVisit.noFarms', {
-              defaultValue: 'தற்போது பண்ணை வருகைகள் எதுவும் இல்லை. / No farm visits available at the moment.',
+              defaultValue:
+                'தற்போது பண்ணை வருகைகள் எதுவும் இல்லை. / No farm visits available at the moment.',
             })}
           </Text>
         ) : (

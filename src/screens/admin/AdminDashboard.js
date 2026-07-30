@@ -1412,8 +1412,12 @@ const AdminDashboard = () => {
                   📅 Harvest Date:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     {item.harvestDate
-                      ? item.harvestDate.includes('-') && item.harvestDate.split('-').length === 3 && item.harvestDate.split('-')[0].length === 4
-                        ? `${item.harvestDate.split('-')[2]}-${item.harvestDate.split('-')[1]}-${item.harvestDate.split('-')[0]}`
+                      ? item.harvestDate.includes('-') &&
+                        item.harvestDate.split('-').length === 3 &&
+                        item.harvestDate.split('-')[0].length === 4
+                        ? `${item.harvestDate.split('-')[2]}-${
+                            item.harvestDate.split('-')[1]
+                          }-${item.harvestDate.split('-')[0]}`
                         : item.harvestDate
                       : item.harvestDeliveredDate || '-'}
                   </Text>

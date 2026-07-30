@@ -42,7 +42,9 @@ const StoryVideoScreen = ({navigation}) => {
   const uid = user?.id || user?.uid;
 
   const loadStories = useCallback(async () => {
-    if (!uid) return;
+    if (!uid) {
+      return;
+    }
     setIsLoading(true);
     try {
       const {getFarmerStories} = require('../../services/firebase');
@@ -247,10 +249,16 @@ const StoryVideoScreen = ({navigation}) => {
                       styles.videoText,
                       {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
                     ]}>
-                    {t('story.videoReady', {defaultValue: 'Video ready!'})} #{index + 1}
+                    {t('story.videoReady', {defaultValue: 'Video ready!'})} #
+                    {index + 1}
                   </Text>
                   {dateStr ? (
-                    <Text style={{fontSize: 12, color: themeColors.subText, marginVertical: 2}}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: themeColors.subText,
+                        marginVertical: 2,
+                      }}>
                       📅 {dateStr}
                     </Text>
                   ) : null}
@@ -269,7 +277,10 @@ const StoryVideoScreen = ({navigation}) => {
                         styles.deleteBtnTxt,
                         {color: isDark ? '#FF9E9E' : COLORS.accentRed},
                       ]}>
-                      🗑️ {t('story.deleteVideo', {defaultValue: 'வீடியோவை நீக்கவும்'})}
+                      🗑️{' '}
+                      {t('story.deleteVideo', {
+                        defaultValue: 'வீடியோவை நீக்கவும்',
+                      })}
                     </Text>
                   </TouchableOpacity>
                 </View>
