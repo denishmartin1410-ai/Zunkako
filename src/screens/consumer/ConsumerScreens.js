@@ -290,6 +290,22 @@ export const OrdersScreen = ({navigation, route}) => {
       return;
     }
 
+    const orderTime =
+      order.createdAt?.toDate?.() ||
+      (order.createdAt?.seconds
+        ? new Date(order.createdAt.seconds * 1000)
+        : null);
+    const hoursSinceOrder = orderTime
+      ? (Date.now() - orderTime.getTime()) / (1000 * 60 * 60)
+      : 0;
+    if (hoursSinceOrder > 24) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        'முன்பதிவு செய்து 24 மணி நேரம் கடந்துவிட்டதால் இந்த முன்பதிவை ரத்து செய்ய முடியாது!\n\nThis pre-order cannot be cancelled as 24 hours have already passed!',
+      );
+      return;
+    }
+
     setCancelModalVisible(false);
     setIsLoading(true);
     try {
@@ -382,6 +398,22 @@ export const OrdersScreen = ({navigation, route}) => {
     }
     const order = selectedPreOrder;
     if (!order) {
+      return;
+    }
+
+    const completedTime =
+      order.completedAt?.toDate?.() ||
+      (order.completedAt?.seconds
+        ? new Date(order.completedAt.seconds * 1000)
+        : null);
+    const hoursSinceCompleted = completedTime
+      ? (Date.now() - completedTime.getTime()) / (1000 * 60 * 60)
+      : 0;
+    if (hoursSinceCompleted > 24) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        'பொருள் வழங்கப்பட்ட 24 மணி நேரத்திற்குள் மட்டுமே திரும்பக் கோர (Refund) முடியும்!\n\nRefund can only be requested within 24 hours of delivery!',
+      );
       return;
     }
 
@@ -775,7 +807,7 @@ export const OrdersScreen = ({navigation, route}) => {
                 (order.status === 'pending' ||
                   order.status === 'Reserved' ||
                   !order.status) &&
-                hoursSinceOrder <= 3;
+                hoursSinceOrder <= 24;
 
               const completedTime =
                 order.completedAt?.toDate?.() ||

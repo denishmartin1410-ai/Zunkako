@@ -41,6 +41,7 @@ async function createNotification(userId, data) {
           priority: 'high',
           notification: {
             sound: 'default',
+            channelId: 'f2c_default_channel',
           },
         },
       });

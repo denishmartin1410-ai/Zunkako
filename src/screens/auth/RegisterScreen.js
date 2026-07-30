@@ -89,6 +89,7 @@ const RegisterScreen = ({navigation, route}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [agree, setAgree] = useState(false);
+  const [otpPhone, setOtpPhone] = useState('');
 
   const togglePass = useCallback(() => setShowPass(p => !p), []);
 
@@ -148,6 +149,29 @@ const RegisterScreen = ({navigation, route}) => {
 
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  const handleOTPRegister = () => {
+    if (!otpPhone || otpPhone.length !== 10 || !/^[6-9]\d{9}$/.test(otpPhone)) {
+      Alert.alert(
+        t('common.error', {defaultValue: 'பிழை'}),
+        t('validation.phoneInvalid', {
+          defaultValue: 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்!',
+        }),
+      );
+      return;
+    }
+    if (!agree) {
+      Alert.alert(
+        t('common.error'),
+        t('legal.mustAgree', {
+          defaultValue:
+            'விதிமுறைகள் மற்றும் தனியுரிமைக் கொள்கையை ஒப்புக்கொள்ள வேண்டும்!',
+        }),
+      );
+      return;
+    }
+    navigation.navigate('OTP', {phone: otpPhone, userType, name: 'F2C User'});
   };
 
   const handleRegister = async () => {
@@ -443,6 +467,43 @@ const RegisterScreen = ({navigation, route}) => {
           </LinearGradient>
         </TouchableOpacity>
 
+        {/* OR Divider */}
+        <View style={styles.dividerRow}>
+          <View style={styles.divider} />
+          <Text style={styles.dividerText}>
+            {t('login.or', {defaultValue: 'OR'})}
+          </Text>
+          <View style={styles.divider} />
+        </View>
+
+        {/* Phone Input for OTP */}
+        <Field
+          label={
+            '📱 ' +
+            t('register.otpPhoneLabel', {
+              defaultValue: 'Mobile Number (For OTP)',
+            })
+          }
+          value={otpPhone}
+          onChangeText={text => {
+            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
+              return;
+            }
+            setOtpPhone(text.replace(/[^0-9]/g, ''));
+          }}
+          keyboardType="phone-pad"
+          autoCompleteType="off"
+          textContentType="none"
+          importantForAutofill="no"
+        />
+
+        {/* OTP Register Button */}
+        <TouchableOpacity style={styles.otpBtn} onPress={handleOTPRegister}>
+          <Text style={styles.otpBtnText}>
+            📱 {t('register.otpBtn', {defaultValue: 'OTP Register'})}
+          </Text>
+        </TouchableOpacity>
+
         {/* Login link */}
         <View style={styles.loginRow}>
           <Text style={styles.loginPrompt}>
@@ -616,6 +677,31 @@ const styles = StyleSheet.create({
   agreeLink: {
     fontSize: 12,
     color: COLORS.primaryGreen,
+    fontWeight: FONTS.semiBold,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: SPACING.md,
+  },
+  divider: {flex: 1, height: 1, backgroundColor: COLORS.borderLight},
+  dividerText: {
+    marginHorizontal: SPACING.md,
+    fontSize: FONTS.xs,
+    color: COLORS.textMuted,
+  },
+  otpBtn: {
+    borderWidth: 2,
+    borderColor: COLORS.primaryBlue,
+    borderRadius: RADIUS.md,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+    backgroundColor: '#EDF4FF',
+  },
+  otpBtnText: {
+    color: COLORS.primaryBlue,
+    fontSize: FONTS.md,
     fontWeight: FONTS.semiBold,
   },
 });

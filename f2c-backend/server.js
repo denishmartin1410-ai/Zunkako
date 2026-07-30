@@ -80,7 +80,10 @@ app.listen(PORT, () => {
                 },
                 android: {
                   priority: 'high',
-                  notification: {sound: 'default'},
+                  notification: {
+                    sound: 'default',
+                    channelId: 'f2c_default_channel',
+                  },
                 },
               });
               console.log(`✅ Push sent to ${data.userId} for: ${data.title}`);

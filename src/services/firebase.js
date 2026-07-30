@@ -905,6 +905,8 @@ export const addFarmStory = async (farmerId, farmerName, videoUrl) => {
         farmerName: farmerName || 'Farmer',
         storyVideo: videoUrl,
         videoUrl,
+        storyViews: 0,
+        storyLikes: 0,
         createdAt: firestore.FieldValue.serverTimestamp(),
       });
     // Update user profile latest storyVideo for backwards compatibility
@@ -962,21 +964,53 @@ export const deleteFarmStory = async (storyId, farmerId) => {
 export const getAllFarmStories = async () => {
   try {
     const snap = await firestore().collection('farm_stories').get();
-    let stories = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    const storyDocs = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+
+    // Fetch all farmers to attach metadata
+    const userSnap = await firestore()
+      .collection('users')
+      .where('userType', '==', 'farmer')
+      .get();
+
+    const farmersMap = {};
+    userSnap.docs.forEach(doc => {
+      farmersMap[doc.id] = doc.data();
+    });
+
+    let stories = storyDocs.map(story => {
+      const farmerInfo = farmersMap[story.farmerId] || {};
+      return {
+        ...story,
+        name: farmerInfo.name || story.farmerName || 'Farmer',
+        nameTa: farmerInfo.nameTa || story.farmerName || 'Farmer',
+        avatar: farmerInfo.avatar || farmerInfo.photoURL || null,
+        location: farmerInfo.location || 'Tamil Nadu',
+        farmName: farmerInfo.farmName || '',
+      };
+    });
+
     stories.sort((a, b) => {
       const t1 = a.createdAt?.toDate?.() || 0;
       const t2 = b.createdAt?.toDate?.() || 0;
       return t2 - t1;
     });
+
     // Fallback if farm_stories is empty
     if (stories.length === 0) {
-      const userSnap = await firestore()
-        .collection('users')
-        .where('userType', '==', 'farmer')
-        .get();
-      stories = userSnap.docs
-        .map(doc => ({id: doc.id, ...doc.data()}))
-        .filter(item => item.storyVideo);
+      stories = Object.entries(farmersMap)
+        .map(([id, item]) => ({id, ...item}))
+        .filter(item => item.storyVideo)
+        .map(item => ({
+          id: item.id,
+          farmerId: item.id,
+          storyVideo: item.storyVideo,
+          videoUrl: item.storyVideo,
+          name: item.name || 'Farmer',
+          nameTa: item.nameTa || item.name || 'Farmer',
+          avatar: item.avatar || item.photoURL || null,
+          location: item.location || 'Tamil Nadu',
+          farmName: item.farmName || '',
+        }));
     }
     return {success: true, data: stories};
   } catch (e) {

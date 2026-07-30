@@ -92,7 +92,7 @@ const ReelItem = ({
       setViewCount(prev => prev + 1);
       if (item.id) {
         firestore()
-          .collection('users')
+          .collection('farm_stories')
           .doc(item.id)
           .update({
             storyViews: firestore.FieldValue.increment(1),
@@ -112,7 +112,7 @@ const ReelItem = ({
       setLikeCount(prev => prev - 1);
       if (item.id) {
         firestore()
-          .collection('users')
+          .collection('farm_stories')
           .doc(item.id)
           .update({
             storyLikes: firestore.FieldValue.increment(-1),
@@ -124,7 +124,7 @@ const ReelItem = ({
       setLikeCount(prev => prev + 1);
       if (item.id) {
         firestore()
-          .collection('users')
+          .collection('farm_stories')
           .doc(item.id)
           .update({
             storyLikes: firestore.FieldValue.increment(1),

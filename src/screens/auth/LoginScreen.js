@@ -136,6 +136,11 @@ const LoginScreen = ({navigation, route}) => {
   };
 
   const handleLogin = async () => {
+    if (phone.trim()) {
+      handleOTPLogin();
+      return;
+    }
+
     if (!validate()) {
       shake();
       return;
@@ -452,13 +457,6 @@ const LoginScreen = ({navigation, route}) => {
           }}
           keyboardType="phone-pad"
         />
-
-        {/* 7. OTP Login Button */}
-        <TouchableOpacity style={styles.otpBtn} onPress={handleOTPLogin}>
-          <Text style={styles.otpBtnText}>
-            📱 {t('login.otpLogin', {defaultValue: 'OTP Login'})}
-          </Text>
-        </TouchableOpacity>
 
         {/* Footnote Agreement */}
         <View style={styles.footnoteRow}>
