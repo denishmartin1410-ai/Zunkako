@@ -337,7 +337,7 @@ const RegisterScreen = ({navigation, route}) => {
                       styles.singleRoleLabel,
                       {color: currentRole.textColor},
                     ]}>
-                    {currentRole.label} ({currentRole.taLabel})
+                    {currentRole.label}
                   </Text>
                   <Text style={styles.singleRoleSub}>{currentRole.sub}</Text>
                 </View>

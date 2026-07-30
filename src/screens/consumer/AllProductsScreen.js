@@ -359,6 +359,9 @@ const AllProductsScreen = ({navigation}) => {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.horizontalList}
+                  bounces={false}
+                  overScrollMode="never"
+                  scrollEnabled={farmerProds.length > 1}
                   renderItem={({item: p}) => {
                     const localProdName = getLocalProductName(
                       p.name,
