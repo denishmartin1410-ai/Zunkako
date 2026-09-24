@@ -8,15 +8,17 @@
 // ✅ Premium BackButton integrated
 // ============================================================
 
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   Linking,
   Dimensions,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTranslation} from 'react-i18next';
@@ -42,21 +44,89 @@ const CONTACT_PHONE_1 = '9360425423';
 const CONTACT_PHONE_2 = '9585475247';
 const CONTACT_EMAIL = 'f2cnow@gmail.com';
 
+const FAQ_CATEGORIES = [
+  {id: 'all', key: 'faqCategoryAll'},
+  {id: 'orders', key: 'faqCategoryOrders'},
+  {id: 'delivery', key: 'faqCategoryDelivery'},
+  {id: 'price', key: 'faqCategoryPrice'},
+  {id: 'quality', key: 'faqCategoryQuality'},
+  {id: 'preorder', key: 'faqCategoryPreOrder'},
+  {id: 'trust', key: 'faqCategoryTrust'},
+  {id: 'farmers', key: 'faqCategoryFarmers'},
+  {id: 'support', key: 'faqCategorySupport'},
+];
+
+const FAQ_ITEMS = [
+  {id: 1, category: 'orders', icon: '🌿'},
+  {id: 2, category: 'orders', icon: '🛒'},
+  {id: 3, category: 'orders', icon: '❌'},
+  {id: 4, category: 'orders', icon: '⏳'},
+  {id: 5, category: 'farmers', icon: '🏪'},
+  {id: 6, category: 'delivery', icon: '🚚'},
+  {id: 7, category: 'delivery', icon: '⚡'},
+  {id: 8, category: 'delivery', icon: '⏰'},
+  {id: 9, category: 'delivery', icon: '🛵'},
+  {id: 10, category: 'delivery', icon: '🗺️'},
+  {id: 11, category: 'delivery', icon: '📍'},
+  {id: 12, category: 'price', icon: '💵'},
+  {id: 13, category: 'price', icon: '💳'},
+  {id: 14, category: 'price', icon: '🔄'},
+  {id: 15, category: 'quality', icon: '✨'},
+  {id: 16, category: 'quality', icon: '⏱️'},
+  {id: 17, category: 'quality', icon: '🌾'},
+  {id: 18, category: 'quality', icon: '📸'},
+  {id: 19, category: 'quality', icon: '🌱'},
+  {id: 20, category: 'quality', icon: '🥗'},
+  {id: 21, category: 'preorder', icon: '📅'},
+  {id: 22, category: 'preorder', icon: '🌦️'},
+  {id: 23, category: 'preorder', icon: '👨‍👩‍👧'},
+  {id: 24, category: 'preorder', icon: '👥'},
+  {id: 25, category: 'trust', icon: '🔒'},
+  {id: 26, category: 'trust', icon: '✅'},
+  {id: 27, category: 'trust', icon: '📷'},
+  {id: 28, category: 'trust', icon: '💬'},
+  {id: 29, category: 'trust', icon: '🤖'},
+  {id: 30, category: 'farmers', icon: '🎬'},
+  {id: 31, category: 'farmers', icon: '🚜'},
+  {id: 32, category: 'farmers', icon: '🧑‍🌾'},
+  {id: 33, category: 'support', icon: '📞'},
+  {id: 34, category: 'support', icon: '🕒'},
+  {id: 35, category: 'support', icon: '✍️'},
+];
+
 const HelpAboutScreen = ({navigation, route}) => {
   const {t} = useTranslation();
   const {isDark} = useTheme();
   const themeColors = getThemeColors(isDark);
   const [openFaq, setOpenFaq] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const mode = route.params?.mode || 'help';
 
-  const faqs = Array.from({length: 14}, (_, i) => {
-    const num = i + 1;
-    return {
-      q: t(`help.faq${num}q`),
-      a: t(`help.faq${num}a`),
-    };
-  });
+  const allFaqs = useMemo(() => {
+    return FAQ_ITEMS.map(item => ({
+      id: item.id,
+      category: item.category,
+      icon: item.icon,
+      q: t(`help.faq${item.id}q`),
+      a: t(`help.faq${item.id}a`),
+    }));
+  }, [t]);
+
+  const filteredFaqs = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return allFaqs.filter(faq => {
+      const matchesCategory =
+        selectedCategory === 'all' || faq.category === selectedCategory;
+      if (!matchesCategory) return false;
+      if (!query) return true;
+      return (
+        faq.q.toLowerCase().includes(query) ||
+        faq.a.toLowerCase().includes(query)
+      );
+    });
+  }, [allFaqs, selectedCategory, searchQuery]);
 
   return (
     <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
@@ -105,50 +175,169 @@ const HelpAboutScreen = ({navigation, route}) => {
                   borderWidth: isDark ? 1 : 0,
                 },
               ]}>
-              <Text style={[styles.cardTitle, {color: themeColors.text}]}>
-                💬{' '}
-                {t('help.faqTitle', {
-                  defaultValue: 'அடிக்கடி கேட்கப்படும் கேள்விகள்',
-                })}
-              </Text>
-              {faqs.map((faq, idx) => (
-                <TouchableOpacity
-                  key={idx}
+              <View style={styles.faqTitleRow}>
+                <Text style={[styles.cardTitle, {color: themeColors.text, marginBottom: 0}]}>
+                  💬{' '}
+                  {t('help.faqTitle', {
+                    defaultValue: 'அடிக்கடி கேட்கப்படும் கேள்விகள்',
+                  })}
+                </Text>
+                <View
                   style={[
-                    styles.faqItem,
-                    idx < faqs.length - 1 && {
-                      borderBottomWidth: 1,
-                      borderBottomColor: themeColors.border,
-                    },
-                  ]}
-                  onPress={() => setOpenFaq(openFaq === idx ? null : idx)}>
-                  <View style={styles.faqHeader}>
-                    <Text
-                      style={[styles.faqQ, {color: themeColors.text}]}
-                      numberOfLines={openFaq === idx ? 10 : 2}>
-                      {faq.q}
-                    </Text>
-                    <Text
-                      style={[styles.faqArrow, {color: themeColors.textMuted}]}>
-                      {openFaq === idx ? '▲' : '▼'}
-                    </Text>
-                  </View>
-                  {openFaq === idx && (
-                    <Text
+                    styles.countBadge,
+                    {backgroundColor: isDark ? '#1E3A24' : '#E8F5E9'},
+                  ]}>
+                  <Text
+                    style={[styles.countBadgeTxt, {color: COLORS.primaryGreen}]}>
+                    {filteredFaqs.length}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Live Search Bar */}
+              <View
+                style={[
+                  styles.searchBar,
+                  {
+                    backgroundColor: isDark ? '#1A2923' : '#F5F7F6',
+                    borderColor: themeColors.border,
+                  },
+                ]}>
+                <Text style={styles.searchIcon}>🔍</Text>
+                <TextInput
+                  style={[styles.searchInput, {color: themeColors.text}]}
+                  placeholder={t('help.faqSearchPlaceholder', {
+                    defaultValue: 'Search questions & answers...',
+                  })}
+                  placeholderTextColor={isDark ? '#777' : '#999'}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  returnKeyType="search"
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setSearchQuery('')}
+                    hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                    <Text style={styles.clearIcon}>✖️</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Category Filter Chips */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoryScroll}>
+                {FAQ_CATEGORIES.map(cat => {
+                  const isSelected = selectedCategory === cat.id;
+                  return (
+                    <TouchableOpacity
+                      key={cat.id}
                       style={[
-                        styles.faqA,
+                        styles.categoryChip,
                         {
-                          color: themeColors.subText,
-                          borderLeftColor: isDark
-                            ? '#4CAF50'
-                            : COLORS.primaryGreen,
+                          backgroundColor: isSelected
+                            ? COLORS.primaryGreen
+                            : isDark
+                            ? '#24382E'
+                            : '#F0F4F2',
+                          borderColor: isSelected
+                            ? COLORS.primaryGreen
+                            : themeColors.border,
                         },
-                      ]}>
-                      {faq.a}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))}
+                      ]}
+                      onPress={() => setSelectedCategory(cat.id)}>
+                      <Text
+                        style={[
+                          styles.categoryChipTxt,
+                          {
+                            color: isSelected
+                              ? COLORS.white
+                              : themeColors.subText,
+                            fontWeight: isSelected ? '700' : '500',
+                          },
+                        ]}>
+                        {t(`help.${cat.key}`)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {/* FAQ Accordion List */}
+              {filteredFaqs.length === 0 ? (
+                <View style={styles.noResultsBox}>
+                  <Text style={styles.noResultsIcon}>🧐</Text>
+                  <Text
+                    style={[styles.noResultsTitle, {color: themeColors.text}]}>
+                    {t('help.noFaqFound', {
+                      defaultValue: 'No matching questions found',
+                    })}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.noResultsSub,
+                      {color: themeColors.subText},
+                    ]}>
+                    {t('help.noFaqFoundSub', {
+                      defaultValue:
+                        'Try searching with different keywords or contact our support below.',
+                    })}
+                  </Text>
+                </View>
+              ) : (
+                filteredFaqs.map((faq, idx) => (
+                  <TouchableOpacity
+                    key={faq.id}
+                    style={[
+                      styles.faqItem,
+                      idx < filteredFaqs.length - 1 && {
+                        borderBottomWidth: 1,
+                        borderBottomColor: themeColors.border,
+                      },
+                    ]}
+                    onPress={() =>
+                      setOpenFaq(openFaq === faq.id ? null : faq.id)
+                    }>
+                    <View style={styles.faqHeader}>
+                      <Text style={styles.faqIcon}>{faq.icon}</Text>
+                      <Text
+                        style={[styles.faqQ, {color: themeColors.text}]}
+                        numberOfLines={openFaq === faq.id ? 10 : 2}>
+                        {faq.id}. {faq.q}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.faqArrow,
+                          {color: themeColors.textMuted},
+                        ]}>
+                        {openFaq === faq.id ? '▲' : '▼'}
+                      </Text>
+                    </View>
+                    {openFaq === faq.id && (
+                      <View
+                        style={[
+                          styles.faqAnswerContainer,
+                          {
+                            borderLeftColor: isDark
+                              ? '#4CAF50'
+                              : COLORS.primaryGreen,
+                          },
+                        ]}>
+                        <Text
+                          style={[
+                            styles.faqA,
+                            {
+                              color: themeColors.subText,
+                            },
+                          ]}>
+                          {faq.a}
+                        </Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
             </View>
 
             {/* Contact */}
@@ -414,9 +603,65 @@ const styles = StyleSheet.create({
     lineHeight: rs(22),
   },
 
+  faqTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.md,
+  },
+  countBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+  },
+  countBadgeTxt: {
+    fontSize: rs(12),
+    fontWeight: 'bold',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: Platform.OS === 'ios' ? 8 : 4,
+    marginBottom: SPACING.md,
+  },
+  searchIcon: {
+    fontSize: rs(14),
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: rs(FONTS.sm),
+    paddingVertical: 6,
+  },
+  clearIcon: {
+    fontSize: rs(12),
+    padding: 4,
+  },
+  categoryScroll: {
+    paddingVertical: 4,
+    paddingBottom: SPACING.md,
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+  },
+  categoryChipTxt: {
+    fontSize: rs(12),
+  },
   faqItem: {paddingVertical: SPACING.md},
   faqBorder: {borderBottomWidth: 1, borderBottomColor: COLORS.borderLight},
   faqHeader: {flexDirection: 'row', alignItems: 'flex-start'},
+  faqIcon: {
+    fontSize: rs(16),
+    marginRight: 8,
+    marginTop: 2,
+  },
   faqQ: {
     flex: 1,
     fontSize: rs(FONTS.md),
@@ -430,14 +675,36 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
     marginTop: 4,
   },
+  faqAnswerContainer: {
+    marginTop: SPACING.sm,
+    paddingLeft: SPACING.md,
+    borderLeftWidth: 3,
+    paddingVertical: 2,
+  },
   faqA: {
     fontSize: rs(FONTS.sm),
     color: COLORS.textSecondary,
-    lineHeight: rs(20),
-    marginTop: SPACING.sm,
-    paddingLeft: SPACING.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.primaryGreen,
+    lineHeight: rs(22),
+  },
+  noResultsBox: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xxl,
+  },
+  noResultsIcon: {
+    fontSize: rs(36),
+    marginBottom: SPACING.sm,
+  },
+  noResultsTitle: {
+    fontSize: rs(FONTS.md),
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  noResultsSub: {
+    fontSize: rs(FONTS.xs),
+    textAlign: 'center',
+    lineHeight: rs(18),
+    paddingHorizontal: SPACING.md,
   },
 
   // ✅ Contact rows - proper padding
