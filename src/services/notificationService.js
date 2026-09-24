@@ -86,7 +86,7 @@ export const saveFCMToken = async userId => {
       }
     }
 
-    await AsyncStorage.setItem('@F2C_fcmToken', token);
+    await AsyncStorage.setItem('@Zunkako_fcmToken', token);
   } catch (error) {
     console.log('Token save error:', error);
   }
@@ -102,7 +102,7 @@ export const setupForegroundNotifications = () => {
     const {title, body} = remoteMessage.notification || {};
 
     // Alert-ஆக காட்டு (Toast message பயன்படுத்தலாம்)
-    Alert.alert(title || 'F2C அறிவிப்பு', body || 'புதிய செய்தி வந்தது!', [
+    Alert.alert(title || 'Zunkako அறிவிப்பு', body || 'புதிய செய்தி வந்தது!', [
       {text: 'சரி'},
     ]);
   });

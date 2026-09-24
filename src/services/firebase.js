@@ -365,7 +365,7 @@ export const getAllFarmers = async () => {
           ...u,
           isActive: true,
           farmName: u.farmName || (u.name ? `${u.name}'s Farm` : 'Farm'),
-          qrCode: u.qrCode || `F2C-FARMER-${u.id.slice(0, 8).toUpperCase()}`,
+          qrCode: u.qrCode || `ZUNKAKO-FARMER-${u.id.slice(0, 8).toUpperCase()}`,
         });
       }
     });
@@ -480,7 +480,7 @@ export const getFarmerStats = async farmerId => {
 
 export const createOrder = async orderData => {
   try {
-    const orderId = 'F2C' + Date.now().toString().slice(-6);
+    const orderId = 'ZNK' + Date.now().toString().slice(-6);
     const ref = await firestore()
       .collection('orders')
       .add({
@@ -1201,7 +1201,7 @@ export const markNotificationRead = async (userId, notifId) => {
 
 // ════════════════════════════════════════════════
 // 🌾 HARVEST CALENDAR & PRE-ORDER FUNCTIONS
-// Phase 1 implementation for F2C App Real Build
+// Phase 1 implementation for Zunkako App Real Build
 // ════════════════════════════════════════════════
 
 export const addHarvest = async harvestData => {

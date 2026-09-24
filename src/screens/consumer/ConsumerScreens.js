@@ -1285,7 +1285,7 @@ export const ConsumerProfileScreen = ({navigation}) => {
           size={rs(80)}
           style={{borderWidth: 3, borderColor: COLORS.white, marginBottom: 10}}
         />
-        <Text style={S.profileName}>{user?.name || 'F2C User'}</Text>
+        <Text style={S.profileName}>{user?.name || 'Zunkako User'}</Text>
         <Text style={S.profileEmail}>{user?.email || ''}</Text>
         <View style={S.statsRow}>
           {[

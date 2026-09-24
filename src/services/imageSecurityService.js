@@ -1,5 +1,5 @@
 // ============================================================
-// 🛡️ F2C AI IMAGE SECURITY & CONTENT MODERATION SERVICE
+// 🛡️ Zunkako AI IMAGE SECURITY & CONTENT MODERATION SERVICE
 // ✅ Google Cloud Vision API Integration
 // ✅ Client-Side Instant AI Safety & Product Label Pre-Check
 // ✅ Adult/NSFW/Violence Content Filtering

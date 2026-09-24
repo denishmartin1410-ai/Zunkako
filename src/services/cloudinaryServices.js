@@ -18,7 +18,7 @@ export const uploadImageToCloudinary = async (
     formData.append('file', {
       uri: imageUri,
       type: 'image/jpeg',
-      name: `f2c_${Date.now()}.jpg`,
+      name: `zunkako_${Date.now()}.jpg`,
     });
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
     formData.append('folder', `f2c/${folder}`);
@@ -66,7 +66,7 @@ export const uploadVideoToCloudinary = async videoUri => {
     formData.append('file', {
       uri: videoUri,
       type: 'video/mp4',
-      name: `f2c_story_${Date.now()}.mp4`,
+      name: `zunkako_story_${Date.now()}.mp4`,
     });
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
     formData.append('folder', 'f2c/farmer_stories');

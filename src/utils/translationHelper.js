@@ -1,5 +1,5 @@
 /**
- * Dynamic Translation and Visual mapping for F2C agricultural products.
+ * Dynamic Translation and Visual mapping for Zunkako agricultural products.
  * Automatically maps product names across English, Tamil, and Malayalam,
  * and assigns specific vibrant visual gradient styles and emojis to represent
  * crops premiumly in the app without fake images.

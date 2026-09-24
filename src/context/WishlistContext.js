@@ -19,14 +19,17 @@ export const WishlistProvider = ({children}) => {
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem('@F2C_wishlist', JSON.stringify(wishlistItems)).catch(
-      console.log,
-    );
+    AsyncStorage.setItem(
+      '@Zunkako_wishlist',
+      JSON.stringify(wishlistItems),
+    ).catch(console.log);
   }, [wishlistItems]);
 
   const loadWishlist = async () => {
     try {
-      const saved = await AsyncStorage.getItem('@F2C_wishlist');
+      const saved =
+        (await AsyncStorage.getItem('@Zunkako_wishlist')) ||
+        (await AsyncStorage.getItem('@F2C_wishlist'));
       if (saved) {
         setWishlistItems(JSON.parse(saved));
       }

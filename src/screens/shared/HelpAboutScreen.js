@@ -42,7 +42,7 @@ const CONTACT_WHATSAPP_1 = '919360425423';
 const CONTACT_WHATSAPP_2 = '919585475247';
 const CONTACT_PHONE_1 = '9360425423';
 const CONTACT_PHONE_2 = '9585475247';
-const CONTACT_EMAIL = 'f2cnow@gmail.com';
+const CONTACT_EMAIL = 'zunkakoapp@gmail.com';
 
 const FAQ_CATEGORIES = [
   {id: 'all', key: 'faqCategoryAll'},
@@ -156,7 +156,7 @@ const HelpAboutScreen = ({navigation, route}) => {
               },
             ]}>
             <Text style={[styles.cardTitle, {color: themeColors.text}]}>
-              {t('help.aboutF2C', {defaultValue: '🌿 F2C பற்றி'})}
+              {t('help.aboutZunkako', {defaultValue: '🌿 Zunkako பற்றி'})}
             </Text>
             <Text style={[styles.cardBody, {color: themeColors.subText}]}>
               {t('help.aboutDesc')}
@@ -370,7 +370,7 @@ const HelpAboutScreen = ({navigation, route}) => {
                 ]}
                 onPress={() =>
                   Linking.openURL(
-                    `https://wa.me/${CONTACT_WHATSAPP_1}?text=Hi F2C Support`,
+                    `https://wa.me/${CONTACT_WHATSAPP_1}?text=Hi Zunkako Support`,
                   )
                 }>
                 <View
@@ -404,7 +404,7 @@ const HelpAboutScreen = ({navigation, route}) => {
                 ]}
                 onPress={() =>
                   Linking.openURL(
-                    `https://wa.me/${CONTACT_WHATSAPP_2}?text=Hi F2C Support`,
+                    `https://wa.me/${CONTACT_WHATSAPP_2}?text=Hi Zunkako Support`,
                   )
                 }>
                 <View
@@ -495,7 +495,7 @@ const HelpAboutScreen = ({navigation, route}) => {
                 style={[styles.contactRow, {borderBottomWidth: 0}]}
                 onPress={() =>
                   Linking.openURL(
-                    `mailto:${CONTACT_EMAIL}?subject=F2C App Support`,
+                    `mailto:${CONTACT_EMAIL}?subject=Zunkako App Support`,
                   )
                 }>
                 <View

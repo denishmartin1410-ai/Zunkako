@@ -460,7 +460,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
           </View>
         </View>
 
-        {/* F2C Harvest Field Guide */}
+        {/* Zunkako Harvest Field Guide */}
         <View
           style={[
             styles.guideCard,
@@ -475,7 +475,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
               {color: isDark ? '#4CAF50' : '#0D5C32'},
             ]}>
             {t('farmer.explanationsTitle', {
-              defaultValue: '🌾 F2C Harvest Field Guide',
+              defaultValue: '🌾 Zunkako Harvest Field Guide',
             })}
           </Text>
           <View style={styles.guideItem}>

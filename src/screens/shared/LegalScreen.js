@@ -134,7 +134,7 @@ const LegalScreen = ({route, navigation}) => {
                   : currentLang === 'ml'
                   ? '✉️ ഞങ്ങളെ ബന്ധപ്പെടാൻ'
                   : '✉️ CONTACT US',
-              body: 'f2cnow@gmail.com\nPhone: 9360425423, 9585475247',
+              body: 'zunkakoapp@gmail.com\nPhone: 9360425423, 9585475247',
             },
           ],
         };
@@ -220,10 +220,10 @@ const LegalScreen = ({route, navigation}) => {
                   : '✓ FARMER RESPONSIBILITIES',
               body:
                 currentLang === 'ta'
-                  ? '• தயாரிப்புகளின் தரம், அளவு மற்றும் துல்லியமான விவரங்களுக்கு விவசாயியே முழுப் பொறுப்பு.\n• விவசாயி தனது அடையாளத்தை உறுதிப்படுத்த செல்லுபடியாகும் அடையாள அட்டையை (ID Proof) சமர்ப்பிக்க வேண்டும்.\n• விவசாயியின் தயாரிப்பு தரம் தொடர்பான புகார்களுக்கு F2C தளம் பொறுப்பேற்காது.'
+                  ? '• தயாரிப்புகளின் தரம், அளவு மற்றும் துல்லியமான விவரங்களுக்கு விவசாயியே முழுப் பொறுப்பு.\n• விவசாயி தனது அடையாளத்தை உறுதிப்படுத்த செல்லுபடியாகும் அடையாள அட்டையை (ID Proof) சமர்ப்பிக்க வேண்டும்.\n• விவசாயியின் தயாரிப்பு தரம் தொடர்பான புகார்களுக்கு Zunkako தளம் பொறுப்பேற்காது.'
                   : currentLang === 'ml'
-                  ? '• ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാരം, അളവ്, വിവരണം എന്നിവയ്ക്ക് കർഷകൻ മാത്രമായിരിക്കും ഉത്തരവാദി.\n• ഐഡന്റിറ്റി സ്ഥിരീകരിക്കാൻ സാധുവായ തിരിച്ചറിയൽ രേഖ നൽകേണ്ടതുണ്ട്.\n• ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാര തർക്കങ്ങളിൽ F2C ഉത്തരവാദിയല്ല.'
-                  : "• Farmer is fully responsible for product quality, quantity, and accurate description.\n• Farmer must provide valid ID proof for identity verification.\n• F2C is not liable for farmer's product quality disputes.",
+                  ? '• ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാരം, അളവ്, വിവരണം എന്നിവയ്ക്ക് കർഷകൻ മാത്രമായിരിക്കും ഉത്തരവാദി.\n• ഐഡന്റിറ്റി സ്ഥിരീകരിക്കാൻ സാധുവായ തിരിച്ചറിയൽ രേഖ നൽകേണ്ടതുണ്ട്.\n• ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാര തർക്കങ്ങളിൽ Zunkako ഉത്തരവാദിയല്ല.'
+                  : "• Farmer is fully responsible for product quality, quantity, and accurate description.\n• Farmer must provide valid ID proof for identity verification.\n• Zunkako is not liable for farmer's product quality disputes.",
             },
             {
               title:
@@ -234,10 +234,10 @@ const LegalScreen = ({route, navigation}) => {
                   : '✓ COMMISSION & SETTLEMENT',
               body:
                 currentLang === 'ta'
-                  ? '• F2C தளம் ஒவ்வொரு விற்பனையிலிருந்தும் 8% கமிஷன் கட்டணமாக வசூலிக்கும்.\n• விற்பனைத் தொகை நுகர்வோருக்கு டெலிவரி செய்யப்பட்ட 7 நாட்களுக்குள் விவசாயியின் கணக்கில் செட்டில் செய்யப்பட வேண்டும்.'
+                  ? '• Zunkako தளம் ஒவ்வொரு விற்பனையிலிருந்தும் 8% கமிஷன் கட்டணமாக வசூலிக்கும்.\n• விற்பனைத் தொகை நுகர்வோருக்கு டெலிவரி செய்யப்பட்ட 7 நாட்களுக்குள் விவசாயியின் கணக்கில் செட்டில் செய்யப்பட வேண்டும்.'
                   : currentLang === 'ml'
-                  ? '• F2C ഓരോ വിൽപ്പനയിൽ നിന്നും 8% കമ്മീഷൻ ഈടാക്കും.\n• ഡെലിവറി കഴിഞ്ഞ് 7 ദിവസത്തിനുള്ളിൽ പേയ്‌മെന്റ് തീർപ്പാക്കും.'
-                  : '• F2C charges 8% commission per successful sale.\n• Payment settlement will be completed within 7 days after successful delivery.',
+                  ? '• Zunkako ഓരോ വിൽപ്പനയിൽ നിന്നും 8% കമ്മീഷൻ ഈടാക്കും.\n• ഡെലിവറി കഴിഞ്ഞ് 7 ദിവസത്തിനുള്ളിൽ പേയ്‌മെന്റ് തീർപ്പാക്കും.'
+                  : '• Zunkako charges 8% commission per successful sale.\n• Payment settlement will be completed within 7 days after successful delivery.',
             },
           ],
         };
@@ -256,10 +256,10 @@ const LegalScreen = ({route, navigation}) => {
                   : '✓ ACCEPTANCE',
               body:
                 currentLang === 'ta'
-                  ? 'F2C செயலியைப் பயன்படுத்துவதன் மூலம், இந்த விதிமுறைகளை நீங்கள் ஏற்றுக்கொள்கிறீர்கள்.'
+                  ? 'Zunkako செயலியைப் பயன்படுத்துவதன் மூலம், இந்த விதிமுறைகளை நீங்கள் ஏற்றுக்கொள்கிறீர்கள்.'
                   : currentLang === 'ml'
-                  ? 'F2C ആപ്ലിക്കേഷൻ ഉപയോഗിക്കുന്നതിലൂടെ, നിങ്ങൾ ഈ നിബന്ധനകൾ അംഗീകരിക്കുന്നു.'
-                  : 'By using the F2C application, you agree to these terms.',
+                  ? 'Zunkako ആപ്ലിക്കേഷൻ ഉപയോഗിക്കുന്നതിലൂടെ, നിങ്ങൾ ഈ നിബന്ധനകൾ അംഗീകരിക്കുന്നു.'
+                  : 'By using the Zunkako application, you agree to these terms.',
             },
             {
               title:
@@ -312,10 +312,10 @@ const LegalScreen = ({route, navigation}) => {
                   : '✓ COMMISSION & DELIVERY FEES',
               body:
                 currentLang === 'ta'
-                  ? '• F2C தளம் ஒரு விற்பனைக்கு 8% கமிஷன் வசூலிக்கும்.\n• டெலிவரி கட்டணம்: முதல் 3 மாதங்கள் முற்றிலும் இலவசம் (எந்தவொரு சந்தா அல்லது டெலிவரி கட்டணமும் கிடையாது). இந்த 3 மாத காலத்திற்குப் பிறகு, ஒவ்வொரு ஆர்டர் அல்லது பொருளுக்கும் ₹20 விநியோகக் கட்டணம் வசூலிக்கப்படும் (₹500க்குக் கீழ் உள்ள ஆர்டர்களுக்கு).\n• ₹500க்கு மேல் உள்ள ஆர்டர்களுக்கு டெலிவரி முற்றிலும் இலவசம்.'
+                  ? '• Zunkako தளம் ஒரு விற்பனைக்கு 8% கமிஷன் வசூலிக்கும்.\n• டெலிவரி கட்டணம்: முதல் 3 மாதங்கள் முற்றிலும் இலவசம் (எந்தவொரு சந்தா அல்லது டெலிவரி கட்டணமும் கிடையாது). இந்த 3 மாத காலத்திற்குப் பிறகு, ஒவ்வொரு ஆர்டர் அல்லது பொருளுக்கும் ₹20 விநியோகக் கட்டணம் வசூலிக்கப்படும் (₹500க்குக் கீழ் உள்ள ஆர்டர்களுக்கு).\n• ₹500க்கு மேல் உள்ள ஆர்டர்களுக்கு டெலிவரி முற்றிலும் இலவசம்.'
                   : currentLang === 'ml'
-                  ? '• F2C ഓരോ വിൽപ്പനയ്ക്കും 8% കമ്മീഷൻ ഈടാക്കും.\n• ഡെലിവറി ഫീസ്: ആദ്യ മൂന്ന് മാസം പൂർണ്ണമായും സൌജന്യമാണ്. ഈ 3 മാസത്തിന് ശേഷം, ₹500-ൽ താഴെയുള്ള ഓർഡറുകൾക്ക് ₹20 ഡെലിവറി ഫീസ് ഈടാക്കും.\n• ₹500-ന് മുകളിലുള്ള ഓർഡറുകൾക്ക് സൌജന്യ ഡെലിവറി.'
-                  : '• F2C charges 8% commission per sale.\n• Delivery fee: First three months, the service is completely free (no subscription or delivery charges). After this 3-month period ends, you will be charged ₹20 for the delivery of each order or item (for orders below ₹500).\n• Free delivery above ₹500.',
+                  ? '• Zunkako ഓരോ വിൽപ്പനയ്ക്കും 8% കമ്മീഷൻ ഈടാക്കും.\n• ഡെലിവറി ഫീസ്: ആദ്യ മൂന്ന് മാസം പൂർണ്ണമായും സൌജന്യമാണ്. ഈ 3 മാസത്തിന് ശേഷം, ₹500-ൽ താഴെയുള്ള ഓർഡറുകൾക്ക് ₹20 ഡെലിവറി ഫീസ് ഈടാക്കും.\n• ₹500-ന് മുകളിലുള്ള ഓർഡറുകൾക്ക് സൌജന്യ ഡെലിവറി.'
+                  : '• Zunkako charges 8% commission per sale.\n• Delivery fee: First three months, the service is completely free (no subscription or delivery charges). After this 3-month period ends, you will be charged ₹20 for the delivery of each order or item (for orders below ₹500).\n• Free delivery above ₹500.',
             },
             {
               title:
@@ -343,7 +343,7 @@ const LegalScreen = ({route, navigation}) => {
                   ? '• பயனர் பதிவேற்றும் படங்கள் மற்றும் வீடியோக்கள் சொந்தமானதாகவோ அல்லது அனுமதி பெற்றதாகவோ இருக்க வேண்டும்.\n• ஏதேனும் பதிப்புரிமை மீறல் இருந்தால், புகார் அளித்தவுடன் அது அகற்றப்படும்.\n• மீண்டும் மீண்டும் பதிப்புரிமை மீறுபவர்களின் கணக்கு இடைநீக்கம் செய்யப்படும்.'
                   : currentLang === 'ml'
                   ? '• ഉപയോക്താക്കൾ അപ്‌ലോഡ് ചെയ്യുന്ന ഫോട്ടോകൾ/വീഡിയോകൾ സ്വന്തം ഉത്തരവാദിത്തത്തിലായിരിക്കണം.\n• പകർപ്പവകാശ ലംഘനം ഉണ്ടായാൽ ആ വിവരങ്ങൾ നീക്കം ചെയ്യും.\n• നിയമലംഘനം തുടരുന്നവരുടെ അക്കൗണ്ടുകൾ റദ്ദാക്കും.'
-                  : '• Users must own uploaded content or have permission.\n• F2C will remove infringing content upon receiving valid notice.\n• Repeat infringers will have their accounts terminated.',
+                  : '• Users must own uploaded content or have permission.\n• Zunkako will remove infringing content upon receiving valid notice.\n• Repeat infringers will have their accounts terminated.',
             },
             {
               title:
@@ -354,10 +354,10 @@ const LegalScreen = ({route, navigation}) => {
                   : '✓ DISCLAIMER OF WARRANTIES',
               body:
                 currentLang === 'ta'
-                  ? 'F2C என்பது விவசாயிகளையும் நுகர்வோரையும் இணைக்கும் ஒரு சந்தை (Marketplace) மட்டுமே. விவசாயிகள் பட்டியலிடும் தயாரிப்புகளின் தரம், புத்துணர்ச்சி அல்லது பாதுகாப்பிற்கு நாங்கள் பொறுப்பேற்க மாட்டோம். பயனர்கள் தங்கள் சொந்த பொறுப்பில் வாங்குகின்றனர்.'
+                  ? 'Zunkako என்பது விவசாயிகளையும் நுகர்வோரையும் இணைக்கும் ஒரு சந்தை (Marketplace) மட்டுமே. விவசாயிகள் பட்டியலிடும் தயாரிப்புகளின் தரம், புத்துணர்ச்சி அல்லது பாதுகாப்பிற்கு நாங்கள் பொறுப்பேற்க மாட்டோம். பயனர்கள் தங்கள் சொந்த பொறுப்பில் வாங்குகின்றனர்.'
                   : currentLang === 'ml'
-                  ? 'F2C എന്നത് കർഷകരെയും ഉപഭോക്താക്കളെയും ബന്ധിപ്പിക്കുന്ന ഒരു പ്ലാറ്റ്ഫോം മാത്രമാണ്. ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാരം അല്ലെങ്കിൽ സുരക്ഷയ്ക്ക് ഞങ്ങൾ ഉത്തരവാദികളല്ല.'
-                  : 'F2C acts as a marketplace connecting farmers and consumers. We do not guarantee the quality, freshness, or safety of products listed by farmers. Users purchase at their own risk.',
+                  ? 'Zunkako എന്നത് കർഷകരെയും ഉപഭോക്താക്കളെയും ബന്ധിപ്പിക്കുന്ന ഒരു പ്ലാറ്റ്ഫോം മാത്രമാണ്. ഉൽപ്പന്നങ്ങളുടെ ഗുണനിലവാരം അല്ലെങ്കിൽ സുരക്ഷയ്ക്ക് ഞങ്ങൾ ഉത്തരവാദികളല്ല.'
+                  : 'Zunkako acts as a marketplace connecting farmers and consumers. We do not guarantee the quality, freshness, or safety of products listed by farmers. Users purchase at their own risk.',
             },
             {
               title:
@@ -380,7 +380,7 @@ const LegalScreen = ({route, navigation}) => {
                   : currentLang === 'ml'
                   ? '✉️ ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ'
                   : '✉️ CONTACT DETAILS',
-              body: 'Email: f2cnow@gmail.com\nPhone: 9360425423, 9585475247\nOwner: Denish J',
+              body: 'Email: zunkakoapp@gmail.com\nPhone: 9360425423, 9585475247\nOwner: Denish J',
             },
           ],
         };

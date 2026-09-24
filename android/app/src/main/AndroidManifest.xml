@@ -10,11 +10,11 @@
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
-      <intent-filter android:label="filter_view_f2c">
+      <intent-filter android:label="filter_view_zunkako">
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="f2capp"/>
+        <data android:scheme="zunkako"/>
       </intent-filter>
       <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW"/>
@@ -27,6 +27,6 @@
     </activity>
     <meta-data android:name="com.google.firebase.appcheck.debug.DEBUG_TOKEN" android:value="11811025-7A91-4EE2-9796-9D5FD5F49BA2"/>
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAC0JvmRAajANb3BoBCBVwdatpO8U9idA8"/>
-    <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="f2c_default_channel" tools:replace="android:value"/>
+    <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="zunkako_default_channel" tools:replace="android:value"/>
   </application>
 </manifest>

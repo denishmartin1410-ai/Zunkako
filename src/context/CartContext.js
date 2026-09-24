@@ -33,7 +33,9 @@ export const CartProvider = ({children}) => {
 
   const loadCart = async () => {
     try {
-      const savedCart = await AsyncStorage.getItem('@F2C_cart');
+      const savedCart =
+        (await AsyncStorage.getItem('@Zunkako_cart')) ||
+        (await AsyncStorage.getItem('@F2C_cart'));
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
       }
@@ -46,7 +48,7 @@ export const CartProvider = ({children}) => {
 
   const saveCart = async items => {
     try {
-      await AsyncStorage.setItem('@F2C_cart', JSON.stringify(items));
+      await AsyncStorage.setItem('@Zunkako_cart', JSON.stringify(items));
     } catch (error) {
       console.log('Error saving cart:', error);
     }

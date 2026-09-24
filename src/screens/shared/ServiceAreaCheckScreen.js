@@ -96,7 +96,7 @@ const ServiceAreaCheckScreen = ({onServiceAreaConfirmed, onSkip}) => {
 
         <View style={styles.content}>
           {/* Logo */}
-          <Text style={styles.logo}>🌿 F2C</Text>
+          <Text style={styles.logo}>🌿 Zunkako</Text>
           <Text style={styles.title}>உங்கள் இடம் சரிபார்க்கிறோம்</Text>
           <Text style={styles.subtitle}>Checking your location</Text>
 

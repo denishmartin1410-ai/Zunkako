@@ -486,7 +486,7 @@ const NutritionReportScreen = ({navigation}) => {
           <Text style={styles.headerDesc}>
             {t('nutrition.desc', {
               defaultValue:
-                'நீங்கள் வாங்கிய F2C தயாரிப்புகளில் இருந்து\nஉங்கள் வார ஊட்டச்சத்து பார்க்கலாம்!',
+                'நீங்கள் வாங்கிய Zunkako தயாரிப்புகளில் இருந்து\nஉங்கள் வார ஊட்டச்சத்து பார்க்கலாம்!',
             })}
           </Text>
         </View>
@@ -673,16 +673,16 @@ const NutritionReportScreen = ({navigation}) => {
               ))}
             </View>
 
-            {/* F2C advantage */}
-            <View style={styles.f2cAdvantage}>
+            {/* Zunkako advantage */}
+            <View style={styles.zunkakoAdvantage}>
               <LinearGradient
                 colors={COLORS.gradientSoft}
-                style={styles.f2cGrad}>
-                <Text style={styles.f2cEmoji}>🌿</Text>
-                <Text style={styles.f2cTitle}>
+                style={styles.zunkakoGrad}>
+                <Text style={styles.zunkakoEmoji}>🌿</Text>
+                <Text style={styles.zunkakoTitle}>
                   {t('nutrition.organicAdvantage')}
                 </Text>
-                <Text style={styles.f2cDesc}>{t('nutrition.organicDesc')}</Text>
+                <Text style={styles.zunkakoDesc}>{t('nutrition.organicDesc')}</Text>
               </LinearGradient>
             </View>
           </>
@@ -879,16 +879,16 @@ const styles = StyleSheet.create({
   tipText: {fontSize: FONTS.md, color: COLORS.textPrimary, lineHeight: 22},
   tipTextEn: {fontSize: FONTS.sm, color: COLORS.textMuted, marginTop: 2},
 
-  f2cAdvantage: {borderRadius: RADIUS.xl, overflow: 'hidden', ...SHADOWS.small},
-  f2cGrad: {padding: SPACING.xl, alignItems: 'center'},
-  f2cEmoji: {fontSize: 40, marginBottom: SPACING.sm},
-  f2cTitle: {
+  zunkakoAdvantage: {borderRadius: RADIUS.xl, overflow: 'hidden', ...SHADOWS.small},
+  zunkakoGrad: {padding: SPACING.xl, alignItems: 'center'},
+  zunkakoEmoji: {fontSize: 40, marginBottom: SPACING.sm},
+  zunkakoTitle: {
     fontSize: FONTS.lg,
     fontWeight: FONTS.bold,
     color: COLORS.primaryGreen,
     marginBottom: SPACING.sm,
   },
-  f2cDesc: {
+  zunkakoDesc: {
     fontSize: FONTS.sm,
     color: COLORS.textSecondary,
     textAlign: 'center',

@@ -171,7 +171,7 @@ const RegisterScreen = ({navigation, route}) => {
       );
       return;
     }
-    navigation.navigate('OTP', {phone: otpPhone, userType, name: 'F2C User'});
+    navigation.navigate('OTP', {phone: otpPhone, userType, name: 'Zunkako User'});
   };
 
   const handleRegister = async () => {
@@ -275,7 +275,7 @@ const RegisterScreen = ({navigation, route}) => {
           {t('register.title', {defaultValue: 'Create Account'})}
         </Text>
         <Text style={styles.hSub}>
-          {t('register.subtitle', {defaultValue: 'Join F2C Today'})}
+          {t('register.subtitle', {defaultValue: 'Join Zunkako Today'})}
         </Text>
       </LinearGradient>
 

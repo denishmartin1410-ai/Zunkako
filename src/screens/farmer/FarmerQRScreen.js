@@ -87,7 +87,7 @@ const FarmerQRScreen = ({navigation}) => {
   // QR value - unique per farmer
   const qrValue =
     user?.qrCode ||
-    `F2C-FARMER-${(user?.id || user?.uid || 'UNKNOWN')
+    `ZUNKAKO-FARMER-${(user?.id || user?.uid || 'UNKNOWN')
       .slice(0, 8)
       .toUpperCase()}`;
 
@@ -200,7 +200,7 @@ const FarmerQRScreen = ({navigation}) => {
           {/* Badge */}
           <View style={styles.badge}>
             <Text style={styles.badgeTxt}>
-              🏆 {t('farmer.f2cFarmer', {defaultValue: 'F2C விவசாயி'})}
+              🏆 {t('farmer.zunkakoFarmer', {defaultValue: 'Zunkako விவசாயி'})}
             </Text>
           </View>
         </LinearGradient>

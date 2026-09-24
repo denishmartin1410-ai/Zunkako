@@ -311,7 +311,7 @@ const LoginScreen = ({navigation, route}) => {
           {t('login.welcome', {defaultValue: 'Welcome Back!'})}
         </Text>
         <Text style={styles.headerSub}>
-          {t('login.subtitle', {defaultValue: 'Login to your F2C account'})}
+          {t('login.subtitle', {defaultValue: 'Login to your Zunkako account'})}
         </Text>
       </LinearGradient>
 

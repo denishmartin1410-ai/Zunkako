@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ====================================================
-// F2C App - API Service
+// Zunkako App - API Service
 // Replace BASE_URL with your actual backend URL
 // ====================================================
 
@@ -21,7 +21,9 @@ const api = axios.create({
 api.interceptors.request.use(
   async config => {
     try {
-      const token = await AsyncStorage.getItem('@F2C_token');
+      const token =
+        (await AsyncStorage.getItem('@Zunkako_token')) ||
+        (await AsyncStorage.getItem('@F2C_token'));
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -40,6 +42,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired - logout user
       await AsyncStorage.multiRemove([
+        '@Zunkako_token',
+        '@Zunkako_user',
+        '@Zunkako_userType',
         '@F2C_token',
         '@F2C_user',
         '@F2C_userType',

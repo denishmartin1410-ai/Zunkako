@@ -21,7 +21,7 @@ import DeliveryNavigator from './DeliveryNavigator';
 const Stack = createNativeStackNavigator();
 
 const linking = {
-  prefixes: ['f2capp://', 'https://f2capp-e6c1d.web.app'],
+  prefixes: ['zunkako://', 'f2capp://', 'https://f2capp-e6c1d.web.app'],
   config: {
     screens: {
       Consumer: {

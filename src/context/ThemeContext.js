@@ -18,9 +18,15 @@ export const ThemeProvider = ({children}) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem('@F2C_darkMode').then(value => {
+    AsyncStorage.getItem('@Zunkako_darkMode').then(value => {
       if (value !== null) {
         setIsDarkMode(JSON.parse(value));
+      } else {
+        AsyncStorage.getItem('@F2C_darkMode').then(oldValue => {
+          if (oldValue !== null) {
+            setIsDarkMode(JSON.parse(oldValue));
+          }
+        });
       }
     });
   }, []);
@@ -28,7 +34,7 @@ export const ThemeProvider = ({children}) => {
   const toggleDarkMode = () => {
     const newValue = !isDarkMode;
     setIsDarkMode(newValue);
-    AsyncStorage.setItem('@F2C_darkMode', JSON.stringify(newValue));
+    AsyncStorage.setItem('@Zunkako_darkMode', JSON.stringify(newValue));
   };
 
   return (

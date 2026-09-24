@@ -1,5 +1,5 @@
 // ====================================================
-// F2C App - Global Theme & Colors
+// Zunkako App - Global Theme & Colors
 // Premium Green + Blue Gradient Theme
 // ====================================================
 

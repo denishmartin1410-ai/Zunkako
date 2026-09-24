@@ -82,11 +82,11 @@ const CommunityJoinScreen = ({userType, userName, onContinue}) => {
           </View>
 
           <Text style={styles.title}>வரவேற்கிறோம், {userName}!</Text>
-          <Text style={styles.titleEn}>Welcome to F2C!</Text>
+          <Text style={styles.titleEn}>Welcome to Zunkako!</Text>
 
           <Text style={styles.subtitle}>
-            நீங்கள் F2C-யில் சேர்ந்துவிட்டீர்கள்!{'\n'}
-            You've successfully joined F2C!
+            நீங்கள் Zunkako-வில் சேர்ந்துவிட்டீர்கள்!{'\n'}
+            You've successfully joined Zunkako!
           </Text>
 
           {/* Community join card */}
@@ -94,13 +94,13 @@ const CommunityJoinScreen = ({userType, userName, onContinue}) => {
             <Text style={styles.communityEmoji}>{isFarmer ? '👨‍🌾' : '🛒'}</Text>
             <Text style={styles.communityTitle}>
               {isFarmer
-                ? 'F2C விவசாயிகள் குழுவில் சேரவும்!'
-                : 'F2C நுகர்வோர் குழுவில் சேரவும்!'}
+                ? 'Zunkako விவசாயிகள் குழுவில் சேரவும்!'
+                : 'Zunkako நுகர்வோர் குழுவில் சேரவும்!'}
             </Text>
             <Text style={styles.communitySubtitle}>
               {isFarmer
-                ? 'Join F2C Farmers WhatsApp Group'
-                : 'Join F2C Consumers WhatsApp Group'}
+                ? 'Join Zunkako Farmers WhatsApp Group'
+                : 'Join Zunkako Consumers WhatsApp Group'}
             </Text>
 
             {/* Benefits */}

@@ -20,6 +20,11 @@ import {
   saveFCMToken,
 } from '../services/firebase';
 
+const STORAGE_USER_KEY = '@Zunkako_user';
+const STORAGE_USER_TYPE_KEY = '@Zunkako_userType';
+const LEGACY_USER_KEY = '@F2C_user';
+const LEGACY_USER_TYPE_KEY = '@F2C_userType';
+
 const AuthContext = createContext(null);
 export const useAuth = () => {
   const c = useContext(AuthContext);
@@ -41,8 +46,12 @@ export const AuthProvider = ({children}) => {
       try {
         if (fbUser && (fbUser.emailVerified || fbUser.phoneNumber)) {
           setFirebaseUser(fbUser);
-          const storedUser = await AsyncStorage.getItem('@F2C_user');
-          const storedType = await AsyncStorage.getItem('@F2C_userType');
+          const storedUser =
+            (await AsyncStorage.getItem(STORAGE_USER_KEY)) ||
+            (await AsyncStorage.getItem(LEGACY_USER_KEY));
+          const storedType =
+            (await AsyncStorage.getItem(STORAGE_USER_TYPE_KEY)) ||
+            (await AsyncStorage.getItem(LEGACY_USER_TYPE_KEY));
           if (storedUser && storedType) {
             setUser(JSON.parse(storedUser));
             setUserType(storedType);
@@ -54,8 +63,11 @@ export const AuthProvider = ({children}) => {
               setUser(r.data);
               setUserType(t);
               saveFCMToken(fbUser.uid);
-              await AsyncStorage.setItem('@F2C_user', JSON.stringify(r.data));
-              await AsyncStorage.setItem('@F2C_userType', t);
+              await AsyncStorage.setItem(
+                STORAGE_USER_KEY,
+                JSON.stringify(r.data),
+              );
+              await AsyncStorage.setItem(STORAGE_USER_TYPE_KEY, t);
             }
           }
         } else {
@@ -256,8 +268,8 @@ export const AuthProvider = ({children}) => {
           );
       }
 
-      await AsyncStorage.setItem('@F2C_user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@F2C_userType', finalUserType);
+      await AsyncStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userData));
+      await AsyncStorage.setItem(STORAGE_USER_TYPE_KEY, finalUserType);
       setUser(userData);
       setUserType(finalUserType); // ✅ This drives RootNavigator
       setFirebaseUser(fbUser);
@@ -377,7 +389,7 @@ export const AuthProvider = ({children}) => {
         createdAt: new Date().toISOString(),
         ...(type === 'farmer' && {
           farmName: formData.name + "'s Farm",
-          qrCode: `F2C-FARMER-${fbUser.uid.slice(0, 8).toUpperCase()}`,
+          qrCode: `ZUNKAKO-FARMER-${fbUser.uid.slice(0, 8).toUpperCase()}`,
           rating: 0,
           isActive: true,
         }),
@@ -408,7 +420,12 @@ export const AuthProvider = ({children}) => {
       setUser(null);
       setUserType(null);
       setFirebaseUser(null);
-      await AsyncStorage.multiRemove(['@F2C_user', '@F2C_userType']);
+      await AsyncStorage.multiRemove([
+        STORAGE_USER_KEY,
+        STORAGE_USER_TYPE_KEY,
+        LEGACY_USER_KEY,
+        LEGACY_USER_TYPE_KEY,
+      ]);
       return {success: true, emailVerificationSent: true};
     } catch (e) {
       return {success: false, error: e.message};
@@ -437,7 +454,7 @@ export const AuthProvider = ({children}) => {
         userData = {
           id: fbUser.uid,
           uid: fbUser.uid,
-          name: name || 'F2C User',
+          name: name || 'Zunkako User',
           phone: fbUser.phoneNumber?.replace('+91', '') || '',
           email: '',
           userType: actualType,
@@ -483,8 +500,8 @@ export const AuthProvider = ({children}) => {
             {merge: true},
           );
       }
-      await AsyncStorage.setItem('@F2C_user', JSON.stringify(userData));
-      await AsyncStorage.setItem('@F2C_userType', actualType);
+      await AsyncStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userData));
+      await AsyncStorage.setItem(STORAGE_USER_TYPE_KEY, actualType);
       setUser(userData);
       setUserType(actualType);
       setFirebaseUser(fbUser);
@@ -498,7 +515,12 @@ export const AuthProvider = ({children}) => {
   const logout = async () => {
     try {
       await firebaseLogout();
-      await AsyncStorage.multiRemove(['@F2C_user', '@F2C_userType']);
+      await AsyncStorage.multiRemove([
+        STORAGE_USER_KEY,
+        STORAGE_USER_TYPE_KEY,
+        LEGACY_USER_KEY,
+        LEGACY_USER_TYPE_KEY,
+      ]);
       setUser(null);
       setUserType(null);
       setFirebaseUser(null);
@@ -531,7 +553,7 @@ export const AuthProvider = ({children}) => {
       }
 
       const newUser = {...user, ...updated};
-      await AsyncStorage.setItem('@F2C_user', JSON.stringify(newUser));
+      await AsyncStorage.setItem(STORAGE_USER_KEY, JSON.stringify(newUser));
       setUser(newUser);
       return {success: true};
     } catch (e) {

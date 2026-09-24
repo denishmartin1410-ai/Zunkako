@@ -81,7 +81,7 @@ const WelcomeScreen = ({navigation}) => {
             {opacity: fadeAnim, transform: [{translateY: slideAnim}]},
           ]}>
           <Text style={styles.heroEmoji}>🌿</Text>
-          <Text style={styles.heroTitle}>F2C</Text>
+          <Text style={styles.heroTitle}>Zunkako</Text>
           <Text style={styles.heroSubtitle}>{t('welcome.heroSubtitle')}</Text>
 
           <View style={styles.tagRow}>

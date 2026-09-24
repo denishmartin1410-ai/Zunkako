@@ -120,8 +120,14 @@ const QRScanScreen = ({navigation}) => {
 
       // Strategy 3: Direct doc lookup by extracted ID
       let farmerResult = null;
-      if (snap.empty && trimmed.startsWith('F2C-FARMER-')) {
-        const farmerId = trimmed.replace('F2C-FARMER-', '');
+      if (
+        snap.empty &&
+        (trimmed.startsWith('ZUNKAKO-FARMER-') ||
+          trimmed.startsWith('F2C-FARMER-'))
+      ) {
+        const farmerId = trimmed
+          .replace('ZUNKAKO-FARMER-', '')
+          .replace('F2C-FARMER-', '');
 
         // Try full ID first
         const docRef = await firestore()
@@ -194,7 +200,7 @@ const QRScanScreen = ({navigation}) => {
           '❌ ' + t('qr.notFound', {defaultValue: 'Not Found'}),
           t('qr.notFoundMsg', {
             defaultValue:
-              'This QR Code is not registered in F2C. Please verify with the farmer.',
+              'This QR Code is not registered in Zunkako. Please verify with the farmer.',
           }),
           [{text: 'OK', onPress: () => setScanned(false)}],
         );

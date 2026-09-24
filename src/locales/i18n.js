@@ -6,14 +6,17 @@ import ta from './ta.json';
 import en from './en.json';
 import ml from './ml.json';
 
-const LANGUAGE_STORAGE_KEY = '@F2C_language';
+const LANGUAGE_STORAGE_KEY = '@Zunkako_language';
+const LEGACY_LANGUAGE_STORAGE_KEY = '@F2C_language';
 
 const languageDetector = {
   type: 'languageDetector',
   async: true,
   detect: async callback => {
     try {
-      const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+      const savedLanguage =
+        (await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY)) ||
+        (await AsyncStorage.getItem(LEGACY_LANGUAGE_STORAGE_KEY));
       callback(savedLanguage || 'ta');
     } catch {
       callback('ta');
