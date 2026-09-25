@@ -9,6 +9,25 @@
       "client_info": {
         "mobilesdk_app_id": "1:276073454656:android:aeab88f12203102c9793a5",
         "android_client_info": {
+          "package_name": "com.f2capp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVzoho4YbUpEvl8GO1xoj_i8rYEdkC7qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276073454656:android:dffc1382612c39de9793a5",
+        "android_client_info": {
           "package_name": "com.zunkako.app"
         }
       },
