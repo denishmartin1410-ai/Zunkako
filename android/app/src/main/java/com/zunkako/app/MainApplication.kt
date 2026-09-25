@@ -1,4 +1,4 @@
-package com.f2capp
+package com.zunkako.app
 import android.content.res.Configuration
 
 import android.app.Application

@@ -21,7 +21,7 @@ export const uploadImageToCloudinary = async (
       name: `zunkako_${Date.now()}.jpg`,
     });
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-    formData.append('folder', `f2c/${folder}`);
+    formData.append('folder', `zunkako/${folder}`);
     formData.append('cloud_name', CLOUDINARY_CONFIG.cloudName);
 
     // Cloudinary API-ல் upload
@@ -69,7 +69,7 @@ export const uploadVideoToCloudinary = async videoUri => {
       name: `zunkako_story_${Date.now()}.mp4`,
     });
     formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-    formData.append('folder', 'f2c/farmer_stories');
+    formData.append('folder', 'zunkako/farmer_stories');
     formData.append('resource_type', 'video');
 
     const response = await fetch(

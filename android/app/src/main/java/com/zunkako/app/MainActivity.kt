@@ -1,4 +1,4 @@
-package com.f2capp
+package com.zunkako.app
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -19,10 +19,10 @@ class MainActivity : ReactActivity() {
 
   private fun createNotificationChannel() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      val name = "F2C Notifications"
-      val descriptionText = "Default channel for F2C notifications"
+      val name = "Zunkako Notifications"
+      val descriptionText = "Default channel for Zunkako notifications"
       val importance = NotificationManager.IMPORTANCE_HIGH
-      val channel = NotificationChannel("f2c_default_channel", name, importance).apply {
+      val channel = NotificationChannel("zunkako_default_channel", name, importance).apply {
         description = descriptionText
       }
       val notificationManager: NotificationManager =
@@ -35,7 +35,7 @@ class MainActivity : ReactActivity() {
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
    */
-  override fun getMainComponentName(): String = "F2C"
+  override fun getMainComponentName(): String = "Zunkako"
 
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]

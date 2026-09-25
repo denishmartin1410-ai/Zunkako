@@ -576,7 +576,7 @@
     "presetA5": "Certainly! You can get our farm location details in the Farm Visit section.",
     "presetQ6": "🌾 When is the next fresh harvest?",
     "presetA6": "You can check this week's harvest dates in the Harvest Calendar section.",
-    "presetQ7": "🧺 Can I buy in bulk (Bulk Order)?",
+    "presetQ7": "🧺 Can I buy in bulk?",
     "presetA7": "Yes, special discount offers are available for bulk orders (Group Buy / Bulk Order).",
     "presetQ8": "📜 Is there a quality test certificate?",
     "presetA8": "Yes! Scan the QR code to view the farm's quality test report.",
@@ -729,7 +729,7 @@
   },
   "help": {
     "aboutZunkako": "🌿 About Zunkako",
-    "aboutDesc": "✅ Zunkako (Farm to Consumer) - directly from farmers to you.\n\n✅ 100% Fresh - Direct from local farms\n🌾 Harvest Calendar - Weekly harvesting calendar\n💵 Fair Price - No middlemen, better rates\n⏱ Freshness Tracker - Real-time hours since harvest\n👨‍👩‍👧 Group Buy - Group shopping discounts\n📅 Pre-Order - Reserve crop harvests early\n🥗 Nutrition Report - Weekly health report card\n🗺️ Farm Visit - Experience farming in-person\n💬 Farmer Chat - Direct text chat with grower\n📷 QR Verification - Verify farmer audit data\n🌍 3 Languages - Tamil, English, Malayalam\n✅ 100% Natural & Organic options\n\nVersion 1.0.0 | Made with ❤️ for Tamil Nadu Farmers",
+    "aboutDesc": "✅ Zunkako - directly from farmers to you.\n\n✅ 100% Fresh - Direct from local farms\n🌾 Harvest Calendar - Weekly harvesting calendar\n💵 Fair Price - No middlemen, better rates\n⏱ Freshness Tracker - Real-time hours since harvest\n👨‍👩‍👧 Group Buy - Group shopping discounts\n📅 Pre-Order - Reserve crop harvests early\n🥗 Nutrition Report - Weekly health report card\n🗺️ Farm Visit - Experience farming in-person\n💬 Farmer Chat - Direct text chat with grower\n📷 QR Verification - Verify farmer audit data\n🌍 3 Languages - Tamil, English, Malayalam\n✅ 100% Natural & Organic options\n\nVersion 1.0.0 | Made with ❤️ for Tamil Nadu Farmers",
     "faqTitle": "Frequently Asked Questions",
     "faqSearchPlaceholder": "🔍 Search questions (e.g. cancel, refund, delivery...)",
     "faqCategoryAll": "🌟 All",
