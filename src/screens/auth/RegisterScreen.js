@@ -111,13 +111,6 @@ const RegisterScreen = ({navigation, route}) => {
       e.email = t('validation.emailInvalid');
     }
 
-    // Phone validation
-    if (!phone.trim()) {
-      e.phone = t('validation.phoneRequired');
-    } else if (phone.length !== 10) {
-      e.phone = t('validation.phoneLength');
-    } else if (!/^[6-9]\d{9}$/.test(phone)) {
-      e.phone = t('validation.phoneInvalid');
     }
 
     // Location validation - mandatory
@@ -373,21 +366,6 @@ const RegisterScreen = ({navigation, route}) => {
           autoCorrect={false}
         />
         <Field
-          label={'📱 ' + t('farmer.phone')}
-          value={phone}
-          onChangeText={text => {
-            if (text.includes('@') || /[a-zA-Z]/.test(text)) {
-              return;
-            }
-            setPhone(text.replace(/[^0-9]/g, ''));
-          }}
-          keyboardType="phone-pad"
-          error={errors.phone}
-          autoCompleteType="off"
-          textContentType="none"
-          importantForAutofill="no"
-        />
-        <Field
           label={'📍 ' + t('farmer.location')}
           value={location}
           onChangeText={setLocation}
@@ -481,7 +459,7 @@ const RegisterScreen = ({navigation, route}) => {
           label={
             '📱 ' +
             t('register.otpPhoneLabel', {
-              defaultValue: 'Mobile Number (For OTP)',
+              defaultValue: 'Mobile Number for OTP',
             })
           }
           value={otpPhone}

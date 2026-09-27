@@ -295,8 +295,10 @@ const ReelsScreen = () => {
   };
 
   useEffect(() => {
-    fetchReels();
-  }, []);
+    if (isScreenFocused) {
+      fetchReels();
+    }
+  }, [isScreenFocused]);
 
   const handleViewableItemsChanged = useRef(({viewableItems}) => {
     if (viewableItems.length > 0) {

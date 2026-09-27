@@ -446,7 +446,7 @@ const LoginScreen = ({navigation, route}) => {
         {/* 6. Phone (for OTP) - Under OR divider */}
         <InputField
           label={t('login.phoneLabel', {
-            defaultValue: 'Phone Number (For OTP)',
+            defaultValue: 'Phone Number',
           })}
           value={phone}
           onChangeText={text => {

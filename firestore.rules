@@ -184,6 +184,13 @@ service cloud.firestore {
       allow read: if isAdmin();
     }
     
+    // FARM STORIES / REELS
+    match /farm_stories/{storyId} {
+      allow read: if true;
+      allow create, update: if isLoggedIn();
+      allow delete: if isLoggedIn() && (resource == null || resource.data.farmerId == request.auth.uid || isAdmin());
+    }
+
     // Default Deny Rule
     match /{document=**} {
       allow read, write: if false;
