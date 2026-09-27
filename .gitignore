@@ -69,3 +69,11 @@ yarn-error.log
 .expo
 dist/
 web-build/
+
+# Secrets & Firebase Service Keys
+serviceAccount.json
+serviceAccountKey.json
+f2c-backend/serviceAccount.json
+f2c-backend/serviceAccountKey.json
+.env
+.env.local
