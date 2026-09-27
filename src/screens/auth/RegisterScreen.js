@@ -111,8 +111,6 @@ const RegisterScreen = ({navigation, route}) => {
       e.email = t('validation.emailInvalid');
     }
 
-    }
-
     // Location validation - mandatory
     if (!location.trim()) {
       e.location = t('validation.locationRequired');
