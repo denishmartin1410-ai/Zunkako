@@ -52,14 +52,14 @@ const SettingsScreen = ({navigation}) => {
       onPress: () => navigation.navigate('Feedback'),
     },
     {
-      icon: '?',
+      icon: '❓',
       label: t('settings.help', {defaultValue: 'Help & FAQ'}),
       onPress: () => navigation.navigate('HelpAbout', {mode: 'help'}),
     },
     {
-      icon: 'i',
-      label: t('settings.about', {defaultValue: 'About App'}),
-      onPress: () => navigation.navigate('HelpAbout', {mode: 'about'}),
+      icon: 'ℹ️',
+      label: t('legal.about', {defaultValue: 'About Us'}),
+      onPress: () => navigation.navigate('Legal', {type: 'about'}),
     },
     {
       icon: '📜',
@@ -72,9 +72,19 @@ const SettingsScreen = ({navigation}) => {
       onPress: () => navigation.navigate('Legal', {type: 'privacy'}),
     },
     {
+      icon: '🔰',
+      label: t('legal.community', {defaultValue: 'Community Guidelines'}),
+      onPress: () => navigation.navigate('Legal', {type: 'community'}),
+    },
+    {
       icon: '🪙',
       label: t('legal.refund', {defaultValue: 'Refund Policy'}),
       onPress: () => navigation.navigate('Legal', {type: 'refund'}),
+    },
+    {
+      icon: '🚚',
+      label: t('legal.delivery', {defaultValue: 'Delivery Policy'}),
+      onPress: () => navigation.navigate('Legal', {type: 'delivery'}),
     },
     {
       icon: '📦',

@@ -23,6 +23,7 @@ import {useTranslation} from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import FastImage from 'react-native-fast-image';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import ContentReportModal from '../../components/ContentReportModal';
 
 const {width, height} = Dimensions.get('window');
 // Standard Tab Bar Height is 70, StatusBar is ~40 on Android
@@ -72,6 +73,7 @@ const ReelItem = ({
   isMuted,
   toggleMute,
   isScreenFocused,
+  onReportItem,
 }) => {
   const {t} = useTranslation();
   const isPlay = isScreenFocused && activeIndex === index;
@@ -236,6 +238,15 @@ const ReelItem = ({
             {t('common.share', {defaultValue: 'பகிர்'})}
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionBtn} onPress={() => onReportItem && onReportItem(item)}>
+          <View style={styles.iconCircle}>
+            <Text style={{fontSize: 22}}>🛡️</Text>
+          </View>
+          <Text style={styles.actionText}>
+            {t('moderation.report', {defaultValue: 'புகார்'})}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Bottom overlay (Farmer Name, Location, Description, Mute Toggle) */}
@@ -278,7 +289,14 @@ const ReelsScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [selectedReportTarget, setSelectedReportTarget] = useState(null);
   const isScreenFocused = useIsFocused();
+
+  const handleReportItem = item => {
+    setSelectedReportTarget(item);
+    setReportModalVisible(true);
+  };
 
   const fetchReels = async () => {
     try {
@@ -365,6 +383,7 @@ const ReelsScreen = () => {
             isMuted={isMuted}
             toggleMute={toggleMute}
             isScreenFocused={isScreenFocused}
+            onReportItem={handleReportItem}
           />
         )}
         pagingEnabled={true}
@@ -379,6 +398,14 @@ const ReelsScreen = () => {
           offset: SCREEN_HEIGHT * index,
           index,
         })}
+      />
+
+      <ContentReportModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        contentType="reel"
+        targetId={selectedReportTarget?.id}
+        targetTitle={selectedReportTarget?.title || selectedReportTarget?.farmerName || 'Farm Reel Video'}
       />
     </View>
   );
