@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Replace BASE_URL with your actual backend URL
 // ====================================================
 
-const BASE_URL = 'https://api.zunkako.com/v1'; // Replace with your API URL
+const BASE_URL = 'https://zunkako-backend.onrender.com/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
