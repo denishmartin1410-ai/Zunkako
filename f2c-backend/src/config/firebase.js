@@ -1,29 +1,50 @@
 const admin = require('firebase-admin');
-const path = require('path');
 require('dotenv').config();
 
-// Try loading serviceAccountKey.json or serviceAccount.json
 let serviceAccount;
-try {
-  serviceAccount = require('../../serviceAccountKey.json');
-} catch (e) {
+
+// 1. Check Environment Variable (for Cloud Hosting like Render)
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
-    serviceAccount = require('../../serviceAccount.json');
-  } catch (err) {
-    console.error('❌ Service Account Key file not found!');
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } catch (e) {
+    console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e.message);
   }
 }
 
-if (!admin.apps.length && serviceAccount) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log('🔥 Firebase Admin SDK initialized successfully!');
+// 2. Fallback to local serviceAccountKey.json if env var is missing
+if (!serviceAccount) {
+  try {
+    serviceAccount = require('../../serviceAccountKey.json');
+  } catch (e) {
+    try {
+      serviceAccount = require('../../serviceAccount.json');
+    } catch (err) {
+      console.log('⚠️ Service Account Key file not found locally.');
+    }
+  }
 }
 
-const db = admin.firestore();
-const auth = admin.auth();
-const messaging = admin.messaging();
+// 3. Initialize Firebase Admin
+if (!admin.apps.length) {
+  try {
+    if (serviceAccount) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('🔥 Firebase Admin SDK initialized successfully!');
+    } else {
+      console.log('⚠️ Firebase Admin running without service account key.');
+      admin.initializeApp();
+    }
+  } catch (err) {
+    console.error('Firebase Admin init error:', err.message);
+  }
+}
+
+const db = admin.apps.length ? admin.firestore() : null;
+const auth = admin.apps.length ? admin.auth() : null;
+const messaging = admin.apps.length ? admin.messaging() : null;
 
 module.exports = {
   admin,
