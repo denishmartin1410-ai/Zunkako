@@ -187,8 +187,14 @@ service cloud.firestore {
     // FARM STORIES / REELS
     match /farm_stories/{storyId} {
       allow read: if true;
-      allow create, update: if isLoggedIn();
+      allow create, update: if isFarmer() || isAdmin();
       allow delete: if isLoggedIn() && (resource == null || resource.data.farmerId == request.auth.uid || isAdmin());
+    }
+
+    // CONTENT MODERATION REPORTS
+    match /content_reports/{reportId} {
+      allow create: if isLoggedIn();
+      allow read, update, delete: if isAdmin();
     }
 
     // Default Deny Rule
