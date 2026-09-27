@@ -452,6 +452,27 @@ const AdminDashboard = () => {
           createdAt: firestore.FieldValue.serverTimestamp(),
         });
 
+      setPreOrders(prev =>
+        prev.map(p => {
+          const pTargetId = p.preOrderUserId || p.userId || p.id;
+          const match =
+            (p.id && p.id === item.id) ||
+            (pTargetId === targetUserId &&
+              (p.harvestId === item.harvestId || p.preOrderHarvestId === item.preOrderHarvestId));
+          if (match) {
+            return {
+              ...p,
+              status: newStatus,
+              harvestDeliveredDate:
+                newStatus === 'completed' || newStatus === 'harvested'
+                  ? todayStr
+                  : p.harvestDeliveredDate,
+            };
+          }
+          return p;
+        }),
+      );
+
       Alert.alert('✅ Success', `Pre-Order marked as ${newStatus}`);
     } catch (err) {
       Alert.alert('❌ Error', err.message);

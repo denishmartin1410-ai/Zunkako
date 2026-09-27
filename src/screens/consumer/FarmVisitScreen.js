@@ -208,10 +208,25 @@ const FarmVisitScreen = ({navigation}) => {
       )}\nCan we visit?`;
     }
 
-    // Asynchronously increment the visitor count in database
+    // Asynchronously increment the visitor count in database & send chat message + notification
     const visitorsIncrement = parseInt(visitors) || 1;
+    const currentUserId = user?.uid || user?.id;
+    const farmerId = selectedFarm.farmerId;
     (async () => {
       try {
+        if (currentUserId && farmerId) {
+          const {sendChatMessage, createNotification} = require('../../services/firebase');
+          await sendChatMessage(currentUserId, farmerId, formattedMessage, 'consumer');
+          await createNotification({
+            userId: farmerId,
+            title: '🗺️ புதிய பண்ணை விஜய கோரிக்கை!',
+            message: `${user?.name || 'Customer'} பண்ணை விஜயம் செய்ய அனுமதி கோரியுள்ளார் (${formattedDate} - ${selectedSlot}).`,
+            emoji: '🗺️',
+            bgColor: '#E8F5E9',
+            type: 'farm_visit_request',
+          });
+        }
+
         const batch = firestore().batch();
         const farmerRef = firestore()
           .collection('farmers')

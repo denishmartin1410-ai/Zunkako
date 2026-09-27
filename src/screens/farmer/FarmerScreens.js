@@ -975,7 +975,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                             ? '✅ Delivered / Completed'
                             : item.status === 'harvested'
                             ? '🚜 Harvested'
-                            : '⏳ Reserved / Pending Admin Action'}
+                            : '⏳ Reserved'}
                         </Text>
                       </View>
                     )}

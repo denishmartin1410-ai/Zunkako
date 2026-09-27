@@ -785,14 +785,26 @@ export const OrdersScreen = ({navigation, route}) => {
                   ? new Date(order.createdAt.seconds * 1000)
                   : null);
               let formattedDate = '';
-              if (orderDateObj) {
-                const day = String(orderDateObj.getDate()).padStart(2, '0');
-                const month = String(orderDateObj.getMonth() + 1).padStart(
-                  2,
-                  '0',
-                );
-                const year = orderDateObj.getFullYear();
-                formattedDate = `${day}/${month}/${year}`;
+              const dateVal = orderDateObj || order.preOrderDate || order.createdAt;
+              if (dateVal) {
+                const d = new Date(dateVal);
+                if (!isNaN(d.getTime())) {
+                  const day = String(d.getDate()).padStart(2, '0');
+                  const month = String(d.getMonth() + 1).padStart(2, '0');
+                  const year = d.getFullYear();
+                  formattedDate = `${day}/${month}/${year}`;
+                } else if (typeof dateVal === 'string' && dateVal.includes('/')) {
+                  const parts = dateVal.split('/');
+                  if (parts.length === 3) {
+                    formattedDate =
+                      parseInt(parts[0]) > 12
+                        ? dateVal
+                        : `${parts[1].padStart(2, '0')}/${parts[0].padStart(2, '0')}/${parts[2]}`;
+                  }
+                }
+              }
+              if (!formattedDate) {
+                formattedDate = order.preOrderDate || '';
               }
 
               const orderTime =
