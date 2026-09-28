@@ -17,9 +17,16 @@ const verifyToken = async (req, res, next) => {
     const decodedToken = await auth.verifyIdToken(token);
     req.user = decodedToken;
 
-    // Attach user profile info
-    const userDoc = await db.collection('users').doc(decodedToken.uid).get();
-    req.userProfile = userDoc.exists ? userDoc.data() : null;
+    // Attach user profile info & check for banned status
+    if (db) {
+      const userDoc = await db.collection('users').doc(decodedToken.uid).get();
+      const profile = userDoc.exists ? userDoc.data() : null;
+      req.userProfile = profile;
+
+      if (profile && (profile.accountStatus === 'banned' || profile.accountStatus === 'suspended' || profile.isBanned === true)) {
+        return res.status(403).json({ success: false, error: 'Access denied: Your account has been suspended or banned.' });
+      }
+    }
 
     next();
   } catch (error) {
@@ -29,11 +36,24 @@ const verifyToken = async (req, res, next) => {
 };
 
 /**
- * Middleware to require Admin role
+ * Middleware to require Admin role (checks custom claims or DB userType/role)
  */
 const requireAdmin = async (req, res, next) => {
-  if (!req.userProfile || req.userProfile.userType !== 'admin') {
+  const role = req.user?.role || req.userProfile?.userType || req.userProfile?.role;
+  if (role !== 'admin' && role !== 'super_admin' && !req.user?.admin && !req.user?.super_admin) {
     return res.status(403).json({success: false, error: 'Access denied: Admin role required'});
+  }
+  next();
+};
+
+/**
+ * Middleware to require Super Admin role
+ */
+const requireSuperAdmin = async (req, res, next) => {
+  const role = req.user?.role || req.userProfile?.userType || req.userProfile?.role;
+  const isSuperAdmin = req.user?.super_admin === true || role === 'super_admin';
+  if (!isSuperAdmin) {
+    return res.status(403).json({success: false, error: 'Access denied: Super Admin role required'});
   }
   next();
 };
@@ -42,7 +62,8 @@ const requireAdmin = async (req, res, next) => {
  * Middleware to require Farmer role
  */
 const requireFarmer = async (req, res, next) => {
-  if (!req.userProfile || (req.userProfile.userType !== 'farmer' && req.userProfile.userType !== 'admin')) {
+  const role = req.user?.role || req.userProfile?.userType || req.userProfile?.role;
+  if (role !== 'farmer' && role !== 'admin' && role !== 'super_admin') {
     return res.status(403).json({success: false, error: 'Access denied: Farmer role required'});
   }
   next();
@@ -51,5 +72,6 @@ const requireFarmer = async (req, res, next) => {
 module.exports = {
   verifyToken,
   requireAdmin,
+  requireSuperAdmin,
   requireFarmer,
 };
