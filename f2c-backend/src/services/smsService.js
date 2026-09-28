@@ -2,7 +2,7 @@ const twilio = require('twilio');
 
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+18559012345';
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+17372508034';
 
 let client = null;
 try {

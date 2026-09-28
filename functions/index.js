@@ -12,7 +12,7 @@ admin.initializeApp();
 
 // ── Twilio Credentials (Firebase Environment Variables) ──
 // Terminal-ல் இதை run பண்ணு (one-time setup):
-// firebase functions:config:set twilio.sid="YOUR_SID" twilio.token="YOUR_TOKEN" twilio.phone="+1234567890"
+// firebase functions:config:set twilio.sid="YOUR_SID" twilio.token="YOUR_TOKEN" twilio.phone="+17372508034"
 
 const getTwilioClient = () => {
   const sid = functions.config().twilio?.sid || 'YOUR_TWILIO_SID';
@@ -37,7 +37,7 @@ exports.sendOrderStatusSMS = functions.firestore
     }
 
     const client = getTwilioClient();
-    const twilioPhone = functions.config().twilio?.phone || '+1234567890';
+    const twilioPhone = functions.config().twilio?.phone || '+17372508034';
 
     // ── Status-க்கு ஏற்ற Tamil message ──
     const statusMessages = {
@@ -126,7 +126,7 @@ exports.sendNewOrderSMS = functions.firestore
     const orderId = context.params.orderId;
 
     const client = getTwilioClient();
-    const twilioPhone = functions.config().twilio?.phone || '+1234567890';
+    const twilioPhone = functions.config().twilio?.phone || '+17372508034';
 
     // Farmer-க்கு new order SMS
     if (orderData.farmerPhone) {
@@ -260,7 +260,7 @@ exports.sendCustomOTP = functions.https.onCall(async (data, context) => {
 
   // SMS அனுப்பு
   const client = getTwilioClient();
-  const twilioPhone = functions.config().twilio?.phone || '+1234567890';
+  const twilioPhone = functions.config().twilio?.phone || '+17372508034';
 
   await client.messages.create({
     body: `உங்கள் F2C OTP: ${otp}\n5 நிமிடத்தில் expire ஆகும்.\nYour F2C OTP: ${otp}`,
