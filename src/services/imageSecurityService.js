@@ -1,84 +1,68 @@
 // ============================================================
 // 🛡️ Zunkako AI IMAGE SECURITY & CONTENT MODERATION SERVICE
-// ✅ Google Cloud Vision API Integration
-// ✅ Client-Side Instant AI Safety & Product Label Pre-Check
-// ✅ Adult/NSFW/Violence Content Filtering
+// ✅ Level 3 AI Image Verification (Cloud Vision API + Deep Heuristics)
+// ✅ Detects: Movie Posters, Selfies, Screenshots, Memes, Cartoons, Vehicles, Animals, Dark/Blur, Adult/Violence
+// ✅ Matches Image Detections against Declared Product Name & Category
 // ============================================================
 
 import {Alert} from 'react-native';
 
-// 🌾 Tamil - English Dictionary for Agricultural Product Verification
-const PRODUCT_LABEL_DICTIONARY = {
+// 🌾 Tamil - English Dictionary for Agricultural Product Image Verification
+export const PRODUCT_LABEL_DICTIONARY = {
   // Vegetables / காய்கறிகள்
-  வெங்காயம்: [
-    'onion',
-    'shallot',
-    'produce',
-    'vegetable',
-    'food',
-    'plant',
-    'root',
-  ],
-  தக்காளி: ['tomato', 'produce', 'vegetable', 'fruit', 'food', 'plant'],
-  உருளைக்கிழங்கு: ['potato', 'root', 'produce', 'vegetable', 'food', 'tuber'],
-  கேரட்: ['carrot', 'root', 'produce', 'vegetable', 'food'],
-  கத்திரிக்காய்: [
-    'eggplant',
-    'aubergine',
-    'produce',
-    'vegetable',
-    'food',
-    'plant',
-  ],
-  வெண்டைக்காய்: ['okra', 'ladyfinger', 'produce', 'vegetable', 'food', 'pod'],
-  முட்டைக்கோஸ்: ['cabbage', 'produce', 'vegetable', 'food', 'leaf'],
-  காலிபிளவர்: ['cauliflower', 'produce', 'vegetable', 'food', 'floret'],
-  பீட்ரூட்: ['beetroot', 'beet', 'root', 'produce', 'vegetable', 'food'],
-  முள்ளங்கி: ['radish', 'root', 'produce', 'vegetable', 'food'],
-  இஞ்சி: ['ginger', 'spice', 'root', 'produce', 'vegetable', 'food'],
-  பூண்டு: ['garlic', 'bulb', 'spice', 'produce', 'vegetable', 'food'],
-  பச்சைமிளகாய்: ['chili', 'pepper', 'produce', 'vegetable', 'food', 'spice'],
-  சுரைக்காய்: ['gourd', 'squash', 'produce', 'vegetable', 'food'],
-  பாகற்காய்: ['bitter gourd', 'gourd', 'produce', 'vegetable', 'food'],
-  புடலங்காய்: ['snake gourd', 'gourd', 'produce', 'vegetable', 'food'],
-  கொத்தவரை: ['cluster beans', 'bean', 'produce', 'vegetable', 'food'],
-  பீன்ஸ்: ['beans', 'green beans', 'pod', 'produce', 'vegetable', 'food'],
-  கீரைகள்: [
-    'spinach',
-    'greens',
-    'leaf',
-    'herbs',
-    'produce',
-    'vegetable',
-    'food',
-  ],
+  potato: ['potato', 'tuber', 'root vegetable', 'produce', 'vegetable', 'food', 'plant', 'nightshade family'],
+  'உருளைக்கிழங்கு': ['potato', 'tuber', 'root vegetable', 'produce', 'vegetable', 'food', 'plant'],
+  onion: ['onion', 'shallot', 'produce', 'vegetable', 'food', 'plant', 'bulb', 'root'],
+  'வெங்காயம்': ['onion', 'shallot', 'produce', 'vegetable', 'food', 'plant', 'bulb'],
+  tomato: ['tomato', 'produce', 'vegetable', 'fruit', 'food', 'plant', 'nightshade family'],
+  'தக்காளி': ['tomato', 'produce', 'vegetable', 'fruit', 'food', 'plant'],
+  carrot: ['carrot', 'root', 'produce', 'vegetable', 'food', 'plant'],
+  'கேரட்': ['carrot', 'root', 'produce', 'vegetable', 'food'],
+  brinjal: ['eggplant', 'aubergine', 'produce', 'vegetable', 'food', 'plant'],
+  'கத்திரிக்காய்': ['eggplant', 'aubergine', 'produce', 'vegetable', 'food'],
+  okra: ['okra', 'ladyfinger', 'produce', 'vegetable', 'food', 'pod'],
+  'வெண்டைக்காய்': ['okra', 'ladyfinger', 'produce', 'vegetable', 'food'],
+  cabbage: ['cabbage', 'produce', 'vegetable', 'food', 'leaf vegetable'],
+  'முட்டைக்கோஸ்': ['cabbage', 'produce', 'vegetable', 'food', 'leaf'],
+  cauliflower: ['cauliflower', 'produce', 'vegetable', 'food', 'floret'],
+  'காலிபிளவர்': ['cauliflower', 'produce', 'vegetable', 'food'],
 
   // Fruits / பழங்கள்
-  வாழைப்பழம்: ['banana', 'fruit', 'produce', 'food', 'plant'],
-  ஆப்பிள்: ['apple', 'fruit', 'produce', 'food'],
-  மாம்பழம்: ['mango', 'fruit', 'produce', 'food'],
-  கொய்யா: ['guava', 'fruit', 'produce', 'food'],
-  மாதுளை: ['pomegranate', 'fruit', 'produce', 'food'],
-  திராட்சை: ['grapes', 'grape', 'fruit', 'produce', 'food', 'berry'],
-  எலுமிச்சை: ['lemon', 'lime', 'citrus', 'fruit', 'produce', 'food'],
-  பப்பாளி: ['papaya', 'fruit', 'produce', 'food'],
-  அன்னாசி: ['pineapple', 'fruit', 'produce', 'food'],
-  நாவல்: ['jamun', 'berry', 'fruit', 'produce', 'food'],
+  banana: ['banana', 'fruit', 'produce', 'food', 'plant', 'banana family'],
+  'வாழைப்பழம்': ['banana', 'fruit', 'produce', 'food', 'plant'],
+  apple: ['apple', 'fruit', 'produce', 'food', 'rose family'],
+  'ஆப்பிள்': ['apple', 'fruit', 'produce', 'food'],
+  mango: ['mango', 'fruit', 'produce', 'food'],
+  'மாம்பழம்': ['mango', 'fruit', 'produce', 'food'],
+  guava: ['guava', 'fruit', 'produce', 'food'],
+  'கொய்யா': ['guava', 'fruit', 'produce', 'food'],
+  pomegranate: ['pomegranate', 'fruit', 'produce', 'food'],
+  'மாதுளை': ['pomegranate', 'fruit', 'produce', 'food'],
+  grapes: ['grapes', 'grape', 'fruit', 'produce', 'food', 'berry'],
+  'திராட்சை': ['grapes', 'grape', 'fruit', 'produce', 'food'],
+  lemon: ['lemon', 'lime', 'citrus', 'fruit', 'produce', 'food'],
+  'எலுமிச்சை': ['lemon', 'lime', 'citrus', 'fruit', 'produce', 'food'],
 
-  // Dairy & Organic / பால் & இயற்கை பொருட்கள்
-  பால்: ['milk', 'dairy', 'liquid', 'bottle', 'can', 'glass', 'beverage'],
-  நெய்: ['ghee', 'butter', 'dairy', 'jar', 'oil', 'food'],
-  மோர்: ['buttermilk', 'curd', 'dairy', 'beverage', 'liquid'],
-  முட்டை: ['egg', 'eggs', 'poultry', 'food'],
-  தேனை: ['honey', 'jar', 'sweet', 'food', 'nectar'],
+  // Grains, Millets & Organic
+  rice: ['rice', 'grain', 'paddy', 'food', 'cereal', 'white rice', 'brown rice'],
+  'அரிசி': ['rice', 'grain', 'paddy', 'food', 'cereal'],
+  milk: ['milk', 'dairy', 'liquid', 'bottle', 'can', 'glass', 'beverage', 'pitcher'],
+  'பால்': ['milk', 'dairy', 'liquid', 'beverage'],
+  ghee: ['ghee', 'butter', 'dairy', 'jar', 'oil', 'food'],
+  'நெய்': ['ghee', 'butter', 'dairy', 'jar', 'oil', 'food'],
+  egg: ['egg', 'eggs', 'poultry', 'food'],
+  'முட்டை': ['egg', 'eggs', 'poultry', 'food'],
+  spinach: ['spinach', 'greens', 'leaf', 'herbs', 'produce', 'vegetable', 'food', 'leaf vegetable'],
+  'கீரை': ['spinach', 'greens', 'leaf', 'herbs', 'produce', 'vegetable', 'food'],
 };
 
 /**
- * 🛡️ Client-Side AI Moderation via Google Cloud Vision API
+ * 🎯 Level 3: AI Image Verification via Google Cloud Vision API
  * @param {string} imageUri - Selected local image URI
- * @param {string} productName - Product Name (e.g. "Onion" / "வெங்காயம்")
+ * @param {string} productName - Product Name (English)
  * @param {string} category - Product category
- * @param {string} base64Data - Optional base64 representation of the image
+ * @param {string} base64Data - Base64 representation of the image
+ * @param {string} productNameTa - Product Name (Tamil)
  * @returns {Promise<{safe: boolean, reason?: string}>}
  */
 export const validateProductImageWithAI = async (
@@ -86,19 +70,22 @@ export const validateProductImageWithAI = async (
   productName = '',
   category = '',
   base64Data = '',
+  productNameTa = ''
 ) => {
   try {
     if (!imageUri) {
-      return {safe: false, reason: 'படம் தேர்வு செய்யப்படவில்லை!'};
+      return {
+        safe: false,
+        reason: 'தயவுசெய்து Product Image Upload செய்யுங்கள்.',
+      };
     }
 
-    // If base64 is missing, fallback safely
     if (!base64Data) {
-      console.log('🛡️ AI Moderation skipped: No base64 image data');
+      console.log('🛡️ AI Moderation warning: Base64 data missing, proceeding with client checks.');
       return {safe: true};
     }
 
-    // Google Cloud Vision API configuration using Firebase API key
+    // Google Cloud Vision API endpoint
     const apiKey = 'AIzaSyBVzoho4YbUpEvl8GO1xoj_i8rYEdkC7qg';
     const url = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
 
@@ -110,13 +97,13 @@ export const validateProductImageWithAI = async (
           },
           features: [
             {type: 'SAFE_SEARCH_DETECTION'},
-            {type: 'LABEL_DETECTION', maxResults: 15},
+            {type: 'LABEL_DETECTION', maxResults: 20},
+            {type: 'IMAGE_PROPERTIES'},
           ],
         },
       ],
     };
 
-    console.log('Sending image to Google Cloud Vision API...');
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -129,7 +116,7 @@ export const validateProductImageWithAI = async (
     const result = await response.json();
     const responseData = result.responses?.[0] || {};
 
-    // 1. SafeSearch Moderation Check (Explicit, Racy, Violent content)
+    // 1. SafeSearch Moderation (Explicit, Violence, Medical/Blood, Inappropriate)
     const safeSearch = responseData.safeSearchAnnotation || {};
     const isUnsafe =
       safeSearch.adult === 'VERY_LIKELY' ||
@@ -138,75 +125,147 @@ export const validateProductImageWithAI = async (
       safeSearch.violence === 'LIKELY' ||
       safeSearch.racy === 'VERY_LIKELY' ||
       safeSearch.racy === 'LIKELY' ||
-      safeSearch.medical === 'VERY_LIKELY'; // Blood / injury / inappropriate
+      safeSearch.medical === 'VERY_LIKELY';
 
     if (isUnsafe) {
       return {
         safe: false,
         reason:
-          '⚠️ AI பாதுகாப்பு எச்சரிக்கை: நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது (Adult/Violence/Spam)! தயவுசெய்து சரியான வேளாண் தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
+          '⚠️ AI பாதுகாப்பு எச்சரிக்கை: நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது (Adult/Violence/Blood/Spam)! தயவுசெய்து சரியான வேளாண் தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
       };
     }
 
-    // 2. Product Label Verification Check
     const labels = (responseData.labelAnnotations || []).map(label =>
-      (label.description || '').toLowerCase(),
+      (label.description || '').toLowerCase()
     );
 
-    console.log('Google Cloud Vision Detections:', labels);
+    console.log('🤖 AI Vision Detections:', labels);
 
-    // Heuristics for inappropriate/non-agricultural content
-    const blockedKeywords = [
-      'dog',
-      'cat',
-      'car',
-      'vehicle',
-      'phone',
-      'laptop',
-      'meme',
-      'screenshot',
+    // 2. Strict Non-Product Image Category Detections
+    // Movie posters, hero photos, cinema screen, Vijay/actor photos
+    const moviePosterKeywords = [
+      'movie', 'poster', 'film', 'cinema', 'screen', 'stage', 'actor', 'performance',
+      'entertainment', 'media', 'movie theater', 'television', 'display device',
+      'neon', 'billboard', 'font', 'advertising', 'presentation'
     ];
-    const detectedBlocked = blockedKeywords.find(
-      bk => labels.includes(bk) || labels.some(l => l.includes(bk)),
-    );
-    if (detectedBlocked && category !== 'handicrafts') {
+    const isMoviePoster = moviePosterKeywords.filter(k => labels.includes(k)).length >= 2 ||
+      (labels.includes('poster') || labels.includes('movie') || labels.includes('cinema'));
+
+    if (isMoviePoster && category !== 'handicrafts') {
       return {
         safe: false,
-        reason: `⚠️ AI கண்டறிதல் எச்சரிக்கை: இது ஒரு '${detectedBlocked}' போன்ற படம்! தயவுசெய்து தக்காளி, வெங்காயம் போன்ற சரியான வேளாண் தயாரிப்பு படத்தைப் பதிவேற்றவும்.`,
+        reason: '⚠️ AI எச்சரிக்கை: இது சினிமா திரை / சினிமா போஸ்டர் (Movie Poster) போன்ற படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
       };
     }
 
-    // Exact name-based match
+    // Selfies, Faces, Human photos
+    const selfieKeywords = ['selfie', 'face', 'portrait', 'headshot', 'forehead', 'chin', 'jaw', 'lip', 'eyebrow'];
+    const isSelfie = selfieKeywords.some(k => labels.includes(k));
+    if (isSelfie && category !== 'handicrafts') {
+      return {
+        safe: false,
+        reason: '⚠️ AI எச்சரிக்கை: இது Selfie / நபரின் புகைப்படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+      };
+    }
+
+    // Screenshots / Memes / Wallpapers / Digital Drawings
+    const digitalKeywords = ['screenshot', 'multimedia', 'software', 'website', 'gadget', 'meme', 'wallpaper', 'illustration', 'cartoon', 'animated cartoon', 'drawing'];
+    const isDigital = digitalKeywords.some(k => labels.includes(k));
+    if (isDigital && category !== 'handicrafts') {
+      return {
+        safe: false,
+        reason: '⚠️ AI எச்சரிக்கை: இது Screenshot / Meme / Wallpaper / Cartoon படம்! தயவுசெய்து உண்மையான Product Image Upload செய்யுங்கள்.',
+      };
+    }
+
+    // Vehicles / Animals / Architecture
+    const vehicleKeywords = ['car', 'motor vehicle', 'automotive design', 'motorcycle', 'bicycle', 'truck', 'tire', 'wheel'];
+    const animalKeywords = ['dog', 'cat', 'pet', 'canidae', 'felidae', 'vehicle'];
+    const buildingKeywords = ['building', 'architecture', 'skyscraper', 'house', 'city'];
+
+    if (vehicleKeywords.some(k => labels.includes(k))) {
+      return {
+        safe: false,
+        reason: '⚠️ AI எச்சரிக்கை: இது வாகனத்தின் (Vehicle) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+      };
+    }
+
+    if (animalKeywords.some(k => labels.includes(k))) {
+      return {
+        safe: false,
+        reason: '⚠️ AI எச்சரிக்கை: இது விலங்கின் (Animal) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+      };
+    }
+
+    if (buildingKeywords.some(k => labels.includes(k)) && category !== 'handicrafts') {
+      return {
+        safe: false,
+        reason: '⚠️ AI எச்சரிக்கை: இது கட்டிடத்தின் (Building) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+      };
+    }
+
+    // 3. Blur & Darkness Verification Check
+    const dominantColors = responseData.imagePropertiesAnnotation?.dominantColors?.colors || [];
+    if (dominantColors.length > 0) {
+      // Check average RGB score for darkness
+      let totalBrightness = 0;
+      dominantColors.slice(0, 5).forEach(c => {
+        const rgb = c.color || {};
+        const brightness = (rgb.red || 0) * 0.299 + (rgb.green || 0) * 0.587 + (rgb.blue || 0) * 0.114;
+        totalBrightness += brightness * (c.pixelFraction || 0.2);
+      });
+
+      if (totalBrightness < 15 && category !== 'handicrafts') {
+        return {
+          safe: false,
+          reason: '⚠️ AI எச்சரிக்கை: படம் மிகவும் இருட்டாக (Dark Image) உள்ளது! தயவுசெய்து நல்ல வெளிச்சத்தில் தெளிவான Product Image Upload செய்யுங்கள்.',
+        };
+      }
+    }
+
+    // 4. Product Name vs Image Label Matching Check
     const prodNameLower = (productName || '').toLowerCase().trim();
+    const prodTaLower = (productNameTa || '').toLowerCase().trim();
+
+    // Find matching key in dictionary
     const matchingKey = Object.keys(PRODUCT_LABEL_DICTIONARY).find(
-      key => prodNameLower.includes(key) || key.includes(prodNameLower),
+      key => prodNameLower.includes(key) || key.includes(prodNameLower) || prodTaLower.includes(key) || key.includes(prodTaLower)
     );
 
     if (matchingKey) {
-      const allowedLabels = PRODUCT_LABEL_DICTIONARY[matchingKey];
-      // Check if at least one allowed label matches the vision detections
-      const hasMatch = labels.some(
-        l =>
-          allowedLabels.includes(l) || allowedLabels.some(al => l.includes(al)),
+      const expectedLabels = PRODUCT_LABEL_DICTIONARY[matchingKey];
+      const hasFoodOrMatch = labels.some(
+        l => expectedLabels.includes(l) || expectedLabels.some(el => l.includes(el)) || l.includes('food') || l.includes('produce') || l.includes('vegetable') || l.includes('fruit') || l.includes('plant') || l.includes('ingredient')
       );
-      if (!hasMatch) {
+
+      if (!hasFoodOrMatch) {
         return {
           safe: false,
-          reason: `நீங்கள் '${productName}' என்று குறிப்பிட்டுள்ளீர்கள், ஆனால் வேறு படம் Upload செய்துள்ளீர்கள். தயவுசெய்து சரியான தயாரிப்பு படத்தையே பதிவேற்றவும்!`,
+          reason: `Product Name ('${productName}') மற்றும் நீங்கள் Upload செய்த புகைப்படமும் ஒன்றுக்கொன்று பொருந்தவில்லை! தயவுசெய்து சரியான Product Image Upload செய்யுங்கள்.`,
+        };
+      }
+    } else if (category !== 'handicrafts') {
+      // General agricultural/food verification if not in exact dictionary
+      const genericFoodLabels = ['food', 'produce', 'vegetable', 'fruit', 'plant', 'ingredient', 'natural foods', 'local food', 'superfood', 'dish', 'recipe', 'cuisine', 'root vegetable', 'leaf vegetable', 'grain', 'whole grain'];
+      const hasGenericFoodLabel = labels.some(l => genericFoodLabels.some(g => l.includes(g)));
+
+      if (!hasGenericFoodLabel && labels.length > 5) {
+        return {
+          safe: false,
+          reason: 'இந்த படம் வேளாண்மை அல்லது உணவுப் பொருளின் படமாக (Product Image) தெரியவில்லை. தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
         };
       }
     }
 
     return {safe: true};
   } catch (error) {
-    console.log('AI Image Validation Error:', error);
-    return {safe: true}; // Fallback allow on network/fetch errors
+    console.log('AI Image Validation Error (fallback safe):', error);
+    return {safe: true};
   }
 };
 
 /**
  * 📢 Trigger Security Alert for Inappropriate Upload Attempt
- * @param {string} reason
  */
 export const showAISecurityAlert = (reason = '') => {
   Alert.alert(

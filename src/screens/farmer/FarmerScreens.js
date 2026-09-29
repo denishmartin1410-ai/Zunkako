@@ -41,6 +41,11 @@ import {
   formatUnitPrice,
   validateUnitAndCategory,
 } from '../../utils/priceHelper';
+import {
+  validateLevel1Form,
+  validateLevel2BusinessRules,
+  validateLevel4Duplicate,
+} from '../../services/productValidationService';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -1494,6 +1499,7 @@ export const AddProductScreen = ({navigation}) => {
   const [craftingTime, setCraftingTime] = useState('1'); // Default 1 day
   const [descriptionTa, setDescriptionTa] = useState('');
   const [imageUri, setImageUri] = useState(null);
+  const [imageBase64, setImageBase64] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [farmerAddress, setFarmerAddress] = useState(
@@ -1608,14 +1614,6 @@ export const AddProductScreen = ({navigation}) => {
   const handleImagePick = async () => {
     try {
       const {launchImageLibrary} = require('react-native-image-picker');
-      const {
-        uploadImageToCloudinary,
-      } = require('../../services/cloudinaryServices');
-      const {
-        validateProductImageWithAI,
-        showAISecurityAlert,
-      } = require('../../services/imageSecurityService');
-
       const result = await launchImageLibrary({
         mediaType: 'photo',
         quality: 0.8,
@@ -1627,140 +1625,111 @@ export const AddProductScreen = ({navigation}) => {
         return;
       }
       const uri = result.assets[0].uri;
-      const base64 = result.assets[0].base64;
-
-      // 🛡️ AI Image Security & Content Moderation Check
-      const aiCheck = await validateProductImageWithAI(
-        uri,
-        name,
-        category,
-        base64,
-      );
-      if (!aiCheck.safe) {
-        showAISecurityAlert(aiCheck.reason);
-        return;
-      }
+      const base64 = result.assets[0].base64 || '';
 
       setImageUri(uri);
+      setImageBase64(base64);
       imageUrlRef.current = '';
-      setIsUploading(true);
-      const up = await uploadImageToCloudinary(uri, 'products');
-      setIsUploading(false);
-      if (up.success) {
-        imageUrlRef.current = up.url;
-        setImageUri(uri + '?uploaded=1');
-        Alert.alert(
-          '✅',
-          t('farmer.photoUploaded', {
-            defaultValue: 'புகைப்படம் பதிவேற்றம் செய்யப்பட்டது! (AI Verified)',
-          }),
-        );
-      } else {
-        setImageUri(null);
-        imageUrlRef.current = '';
-        Alert.alert(
-          t('common.error', {defaultValue: 'பிழை'}),
-          t('farmer.uploadFailed', {defaultValue: 'Upload failed'}),
-        );
-      }
     } catch (e) {
-      setIsUploading(false);
+      console.log('Image pick error:', e);
     }
   };
 
   const handleAdd = async () => {
-    if (!name.trim() || !price.trim() || !stock.trim()) {
+    // 🎯 Step 1 (Level 1): Form Validation Check
+    const l1Result = validateLevel1Form({
+      imageUri,
+      name,
+      nameTa,
+      price,
+      stock,
+      freshHours,
+      shelfLife,
+      material,
+      craftingTime,
+      farmerAddress,
+      unit,
+      category,
+    });
+    if (!l1Result.valid) {
       Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        t('farmer.fillAll', {
-          defaultValue: 'பெயர், விலை, கையிருப்பு அனைத்தும் நிரப்பவும்',
-        }),
+        t('common.error', {defaultValue: 'பிழை / Form Validation Error'}),
+        l1Result.error,
       );
       return;
     }
 
-    const valCheck = validateUnitAndCategory(unit, category, name, nameTa);
-    if (!valCheck.valid) {
+    // 🎯 Step 2 (Level 2): Business Rules Validation Check
+    const l2Result = validateLevel2BusinessRules(name, nameTa, category, unit);
+    if (!l2Result.valid) {
       Alert.alert(
-        t('common.error', {defaultValue: 'பிழை / Validation Alert'}),
-        valCheck.msg,
+        t('common.error', {defaultValue: 'பிழை / Business Validation Alert'}),
+        l2Result.error,
       );
       return;
     }
 
-    const isPerishable = [
-      'vegetables',
-      'fruits',
-      'greens',
-      'dairy',
-      'herbs',
-      'organic',
-    ].includes(category);
-    const isNonPerishable = ['grains', 'millets', 'nuts'].includes(category);
-    const isHandicraft = category === 'handicrafts';
-
-    if (isPerishable && !freshHours.trim()) {
-      Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        t('farmer.fillFreshHours', {
-          defaultValue: 'புத்துணர்வு நேரத்தை உள்ளிடவும்',
-        }),
-      );
-      return;
-    }
-
-    if (isNonPerishable && !shelfLife.trim()) {
-      Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        t('farmer.fillShelfLife', {
-          defaultValue: 'பாதுகாப்பு காலத்தை உள்ளிடவும்',
-        }),
-      );
-      return;
-    }
-
-    if (isHandicraft) {
-      if (!material.trim()) {
-        Alert.alert(
-          t('common.error', {defaultValue: 'பிழை'}),
-          t('farmer.fillMaterial', {
-            defaultValue: 'பயன்படுத்தப்பட்ட பொருளின் பெயரை உள்ளிடவும்!',
-          }),
-        );
-        return;
-      }
-      if (!craftingTime.trim()) {
-        Alert.alert(
-          t('common.error', {defaultValue: 'பிழை'}),
-          t('farmer.fillCraftingTime', {
-            defaultValue: 'தயாரிப்பு காலத்தை உள்ளிடவும்',
-          }),
-        );
-        return;
-      }
-    }
-
-    const cleanAddr = farmerAddress.trim();
-    if (!cleanAddr || cleanAddr.length < 15 || !/\d/.test(cleanAddr)) {
-      Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        'விவசாயி கண்டிப்பாக கதவு எண், தெரு பெயர், பகுதி, மாவட்டம் மற்றும் PIN code ஆகியவற்றுடன் கூடிய முழு முகவரியை உள்ளிட வேண்டும்!\n\nFarmer must enter a complete address including Door Number, Street Name, Area, District, and PIN code!',
-      );
-      return;
-    }
-
-    if (!imageUrlRef.current) {
-      Alert.alert(
-        t('common.error', {defaultValue: 'பிழை'}),
-        t('farmer.addPhoto', {
-          defaultValue: 'தயாரிப்பு புகைப்படம் சேர்க்கவும்!',
-        }),
-      );
-      return;
-    }
+    // 🎯 Step 3 (Level 4): Duplicate Product Detection Check
     setIsSaving(true);
+    const farmerId = user?.id || user?.uid || '';
+    const l4Result = await validateLevel4Duplicate(farmerId, name, category, price, unit);
+    if (!l4Result.valid) {
+      setIsSaving(false);
+      Alert.alert(
+        t('common.error', {defaultValue: 'நகல் பொருள் எச்சரிக்கை / Duplicate Alert'}),
+        l4Result.error,
+      );
+      return;
+    }
+
+    // 🎯 Step 4 (Level 3): AI Image Verification (Cloud Vision API + Moderation)
+    const {
+      validateProductImageWithAI,
+      showAISecurityAlert,
+    } = require('../../services/imageSecurityService');
+
+    const aiCheck = await validateProductImageWithAI(
+      imageUri,
+      name,
+      category,
+      imageBase64,
+      nameTa,
+    );
+    if (!aiCheck.safe) {
+      setIsSaving(false);
+      showAISecurityAlert(aiCheck.reason);
+      return;
+    }
+
+    // 🎯 Step 5: ALL VALIDATIONS PASSED -> Cloudinary Upload & Firestore Save
     try {
+      const {
+        uploadImageToCloudinary,
+      } = require('../../services/cloudinaryServices');
       const {addProduct} = require('../../services/firebase');
+
+      const up = await uploadImageToCloudinary(imageUri, 'products');
+      if (!up.success) {
+        setIsSaving(false);
+        Alert.alert(
+          t('common.error', {defaultValue: 'பிழை'}),
+          'படத்தைப் பதிவேற்றுவதில் தோல்வி (Cloudinary Upload failed). தயவுசெய்து இணைய இணைப்பைச் சரிபார்க்கவும்.',
+        );
+        return;
+      }
+
+      imageUrlRef.current = up.url;
+
+      const isPerishable = [
+        'vegetables',
+        'fruits',
+        'greens',
+        'dairy',
+        'herbs',
+        'organic',
+      ].includes(category);
+      const isNonPerishable = ['grains', 'millets', 'nuts'].includes(category);
+      const isHandicraft = category === 'handicrafts';
 
       const productPayload = {
         name: name.trim(),
@@ -1771,12 +1740,12 @@ export const AddProductScreen = ({navigation}) => {
         category,
         descriptionTa: descriptionTa.trim(),
         description: descriptionTa.trim(),
-        image: imageUrlRef.current,
-        images: [imageUrlRef.current],
-        farmerId: user?.id || user?.uid || '',
+        image: up.url,
+        images: [up.url],
+        farmerId: farmerId,
         farmerName: user?.name || '',
         farmerNameTa: user?.name || '',
-        farmerAddress: cleanAddr,
+        farmerAddress: farmerAddress.trim(),
         location: user?.location || '',
         coordinates:
           latitude && longitude ? {lat: latitude, lng: longitude} : null,
@@ -1805,7 +1774,7 @@ export const AddProductScreen = ({navigation}) => {
         Alert.alert(
           '✅',
           t('farmer.productAdded', {
-            defaultValue: 'தயாரிப்பு சேர்க்கப்பட்டது!',
+            defaultValue: 'தயாரிப்பு வெற்றிகரமாக சரிபார்க்கப்பட்டு சேர்க்கப்பட்டது!',
           }),
           [
             {
@@ -1826,7 +1795,7 @@ export const AddProductScreen = ({navigation}) => {
     }
   };
 
-  const isUploaded = imageUri && imageUrlRef.current;
+  const isUploaded = imageUri;
 
   return (
     <View style={[S.container, {backgroundColor: themeColors.bg}]}>
@@ -1869,7 +1838,7 @@ export const AddProductScreen = ({navigation}) => {
               {isUploaded && (
                 <View style={S.uploadBadge}>
                   <Text style={S.uploadBadgeTxt}>
-                    ✅ {t('farmer.uploaded', {defaultValue: 'Uploaded!'})}
+                    ✓ {t('farmer.photoSelected', {defaultValue: 'Photo Selected'})}
                   </Text>
                 </View>
               )}
