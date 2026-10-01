@@ -335,13 +335,13 @@ const AllProductsScreen = ({navigation}) => {
                         {localFarmerName}
                       </Text>
                       {farmer.isVerified && (
-                        <Text style={styles.verifiedBadge}>✅</Text>
+                        <Text style={styles.verifiedBadge}></Text>
                       )}
                     </View>
                     <Text
                       style={[styles.farmerLoc, {color: themeColors.subText}]}
                       numberOfLines={1}>
-                      📍 {farmer.locationTa || farmer.location || ''}
+                      {farmer.locationTa || farmer.location || ''}
                     </Text>
                   </View>
                   <View style={styles.ratingRow}>

@@ -8,7 +8,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   } catch (e) {
-    console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e.message);
+    console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e.message);
   }
 }
 
@@ -20,7 +20,7 @@ if (!serviceAccount) {
     try {
       serviceAccount = require('../../serviceAccount.json');
     } catch (err) {
-      console.log('⚠️ Service Account Key file not found locally.');
+      console.log('Service Account Key file not found locally.');
     }
   }
 }
@@ -32,9 +32,9 @@ if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
-      console.log('🔥 Firebase Admin SDK initialized successfully!');
+      console.log('Firebase Admin SDK initialized successfully!');
     } else {
-      console.log('⚠️ Firebase Admin running without service account key.');
+      console.log('Firebase Admin running without service account key.');
       admin.initializeApp();
     }
   } catch (err) {

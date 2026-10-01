@@ -137,7 +137,7 @@ const FarmerQRScreen = ({navigation}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>
-          📷 {t('farmer.qrCode', {defaultValue: 'My QR Code'})}
+          {t('farmer.qrCode', {defaultValue: 'My QR Code'})}
         </Text>
         <View style={{width: rs(40)}} />
       </LinearGradient>
@@ -181,7 +181,7 @@ const FarmerQRScreen = ({navigation}) => {
             ) : (
               // ✅ Fallback: Library இல்லாதபோது
               <View style={styles.fallbackBox}>
-                <Text style={styles.fallbackIcon}>📱</Text>
+                <Text style={styles.fallbackIcon}></Text>
                 <Text style={[styles.fallbackTitle, {color: COLORS.textMuted}]}>
                   உங்கள் ID:
                 </Text>
@@ -200,7 +200,7 @@ const FarmerQRScreen = ({navigation}) => {
           {/* Badge */}
           <View style={styles.badge}>
             <Text style={styles.badgeTxt}>
-              🏆 {t('farmer.zunkakoFarmer', {defaultValue: 'Zunkako விவசாயி'})}
+              {t('farmer.zunkakoFarmer', {defaultValue: 'Zunkako விவசாயி'})}
             </Text>
           </View>
         </LinearGradient>

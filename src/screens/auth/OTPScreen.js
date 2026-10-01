@@ -234,7 +234,7 @@ const OTPScreen = ({navigation, route}) => {
               ) : (
                 <TouchableOpacity onPress={handleResend}>
                   <Text style={styles.resendTxt}>
-                    🔄 OTP மீண்டும் அனுப்பு / Resend OTP
+                    OTP மீண்டும் அனுப்பு / Resend OTP
                   </Text>
                 </TouchableOpacity>
               )}
@@ -258,7 +258,7 @@ const OTPScreen = ({navigation, route}) => {
                   <ActivityIndicator color={COLORS.white} />
                 ) : (
                   <Text style={styles.verifyTxt}>
-                    ✅ சரிபார்க்க / Verify OTP
+                    சரிபார்க்க / Verify OTP
                   </Text>
                 )}
               </LinearGradient>
@@ -267,7 +267,7 @@ const OTPScreen = ({navigation, route}) => {
             {/* Info */}
             <View style={styles.infoBox}>
               <Text style={styles.infoTxt}>
-                📌 OTP உங்கள் phone-க்கு SMS வரும்{'\n'}
+                OTP உங்கள் phone-க்கு SMS வரும்{'\n'}
                 OTP will arrive via SMS
               </Text>
             </View>

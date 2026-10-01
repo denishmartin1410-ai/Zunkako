@@ -17,7 +17,7 @@ const {width, height} = Dimensions.get('window');
 const WelcomeScreen = ({navigation}) => {
   const {t} = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(60)).current;
+  const slideAnim = useRef(new Animated.Value(40)).current;
   const card1Anim = useRef(new Animated.Value(width)).current;
   const card2Anim = useRef(new Animated.Value(width)).current;
 
@@ -50,12 +50,18 @@ const WelcomeScreen = ({navigation}) => {
     ]).start();
   }, [fadeAnim, slideAnim, card1Anim, card2Anim]);
 
-  const FloatingCard = ({emoji, label, sublabel, style, anim}) => (
+  const cleanText = text =>
+    (text || '').replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+
+  const FloatingCard = ({label, sublabel, style, anim}) => (
     <Animated.View
       style={[styles.floatingCard, style, {transform: [{translateX: anim}]}]}>
-      <Text style={styles.cardEmoji}>{emoji}</Text>
-      <Text style={styles.cardLabel}>{label}</Text>
-      <Text style={styles.cardSub}>{sublabel}</Text>
+      <Text style={styles.cardLabel} numberOfLines={1}>
+        {cleanText(label)}
+      </Text>
+      <Text style={styles.cardSub} numberOfLines={1}>
+        {cleanText(sublabel)}
+      </Text>
     </Animated.View>
   );
 
@@ -71,7 +77,6 @@ const WelcomeScreen = ({navigation}) => {
       <LinearGradient
         colors={['#0D5C32', '#1B8A4E', '#1565C0']}
         style={styles.heroSection}>
-        {/* Decorative shapes */}
         <View style={styles.shapeTL} />
         <View style={styles.shapeBR} />
 
@@ -80,15 +85,18 @@ const WelcomeScreen = ({navigation}) => {
             styles.heroContent,
             {opacity: fadeAnim, transform: [{translateY: slideAnim}]},
           ]}>
-          <Text style={styles.heroEmoji}>🌿</Text>
           <Text style={styles.heroTitle}>Zunkako</Text>
-          <Text style={styles.heroSubtitle}>{t('welcome.heroSubtitle')}</Text>
+          <Text style={styles.heroSubtitle} numberOfLines={2}>
+            {cleanText(t('welcome.heroSubtitle'))}
+          </Text>
 
           <View style={styles.tagRow}>
             {[t('welcome.tag1'), t('welcome.tag2'), t('welcome.tag3')].map(
               (tag, i) => (
                 <View key={i} style={styles.tag}>
-                  <Text style={styles.tagText}>{tag}</Text>
+                  <Text style={styles.tagText} numberOfLines={1}>
+                    {cleanText(tag)}
+                  </Text>
                 </View>
               ),
             )}
@@ -97,14 +105,12 @@ const WelcomeScreen = ({navigation}) => {
 
         {/* Floating info cards */}
         <FloatingCard
-          emoji="🥦"
           label={t('welcome.card1Label')}
           sublabel={t('welcome.card1Sub')}
           anim={card1Anim}
           style={styles.card1}
         />
         <FloatingCard
-          emoji="👨‍🌾"
           label={t('welcome.card2Label')}
           sublabel={t('welcome.card2Sub')}
           anim={card2Anim}
@@ -114,19 +120,25 @@ const WelcomeScreen = ({navigation}) => {
 
       {/* Bottom white section */}
       <View style={styles.bottomSection}>
-        <Text style={styles.welcomeTitle}>{t('welcome.title')}</Text>
-        <Text style={styles.welcomeSubtitle}>{t('welcome.subtitle')}</Text>
+        <Text style={styles.welcomeTitle} numberOfLines={1} adjustsFontSizeToFit>
+          {cleanText(t('welcome.title'))}
+        </Text>
+        <Text style={styles.welcomeSubtitle} numberOfLines={2}>
+          {cleanText(t('welcome.subtitle'))}
+        </Text>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
           {[
-            {num: '200+', label: t('welcome.statFarmers')},
-            {num: '500+', label: t('welcome.statProducts')},
-            {num: '10K+', label: t('welcome.statConsumers')},
+            {num: '200+', label: cleanText(t('welcome.statFarmers'))},
+            {num: '500+', label: cleanText(t('welcome.statProducts'))},
+            {num: '10K+', label: cleanText(t('welcome.statConsumers'))},
           ].map((stat, i) => (
             <View key={i} style={styles.statItem}>
               <Text style={styles.statNum}>{stat.num}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>
+                {stat.label}
+              </Text>
             </View>
           ))}
         </View>
@@ -141,7 +153,7 @@ const WelcomeScreen = ({navigation}) => {
             style={styles.loginBtnGrad}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}>
-            <Text style={styles.loginBtnText}>{t('welcome.loginBtn')}</Text>
+            <Text style={styles.loginBtnText}>{cleanText(t('welcome.loginBtn'))}</Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -151,7 +163,9 @@ const WelcomeScreen = ({navigation}) => {
           onPress={() =>
             navigation.navigate('RoleSelection', {mode: 'register'})
           }>
-          <Text style={styles.registerBtnText}>{t('welcome.registerBtn')}</Text>
+          <Text style={styles.registerBtnText}>
+            {cleanText(t('welcome.registerBtn'))}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -161,10 +175,10 @@ const WelcomeScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: COLORS.white},
   heroSection: {
-    height: height * 0.58,
+    height: height * 0.52,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 40,
+    paddingTop: 30,
     overflow: 'hidden',
   },
   shapeTL: {
@@ -185,36 +199,35 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  heroContent: {alignItems: 'center', zIndex: 2},
-  heroEmoji: {fontSize: 54, marginBottom: 4},
+  heroContent: {alignItems: 'center', zIndex: 2, paddingHorizontal: SPACING.lg},
   heroTitle: {
-    fontSize: 58,
+    fontSize: 44,
     fontWeight: '900',
     color: COLORS.white,
-    letterSpacing: 4,
+    letterSpacing: 3,
   },
   heroSubtitle: {
-    fontSize: FONTS.lg,
-    color: 'rgba(255,255,255,0.85)',
+    fontSize: FONTS.md,
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
     fontWeight: FONTS.medium,
-    lineHeight: 26,
-    marginTop: 8,
+    lineHeight: 22,
+    marginTop: 6,
   },
   tagRow: {
     flexDirection: 'row',
     gap: 8,
-    marginTop: 16,
+    marginTop: 14,
     flexWrap: 'wrap',
     justifyContent: 'center',
   },
   tag: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: RADIUS.full,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   tagText: {
     color: COLORS.white,
@@ -223,58 +236,57 @@ const styles = StyleSheet.create({
   },
   floatingCard: {
     position: 'absolute',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(10px)',
+    borderColor: 'rgba(255,255,255,0.35)',
     alignItems: 'center',
-    minWidth: 110,
+    maxWidth: width * 0.42,
   },
-  card1: {bottom: 15, left: 16},
-  card2: {bottom: 15, right: 16},
-  cardEmoji: {fontSize: 28},
+  card1: {bottom: 12, left: 12},
+  card2: {bottom: 12, right: 12},
   cardLabel: {
     color: COLORS.white,
     fontSize: FONTS.xs,
     fontWeight: FONTS.semiBold,
-    marginTop: 4,
   },
-  cardSub: {color: 'rgba(255,255,255,0.7)', fontSize: 9},
+  cardSub: {color: 'rgba(255,255,255,0.8)', fontSize: 10, marginTop: 2},
   bottomSection: {
     flex: 1,
     backgroundColor: COLORS.white,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    marginTop: -24,
-    padding: SPACING.xxl,
+    marginTop: -20,
+    padding: SPACING.xl,
     alignItems: 'center',
   },
   welcomeTitle: {
     fontSize: FONTS.xxl,
     fontWeight: FONTS.bold,
     color: COLORS.textPrimary,
-    marginBottom: 6,
+    marginBottom: 4,
+    textAlign: 'center',
   },
   welcomeSubtitle: {
-    fontSize: FONTS.md,
+    fontSize: FONTS.sm,
     color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginVertical: SPACING.xl,
+    marginVertical: SPACING.lg,
     backgroundColor: COLORS.gradientSoft[0],
     borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
+    padding: SPACING.md,
   },
-  statItem: {alignItems: 'center'},
+  statItem: {alignItems: 'center', flex: 1},
   statNum: {
-    fontSize: FONTS.xxl,
+    fontSize: FONTS.xl,
     fontWeight: FONTS.extraBold,
     color: COLORS.primaryGreen,
   },
@@ -286,21 +298,21 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   loginBtnGrad: {
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: 'center',
     borderRadius: RADIUS.lg,
   },
   loginBtnText: {
     color: COLORS.white,
-    fontSize: FONTS.lg,
+    fontSize: FONTS.md,
     fontWeight: FONTS.bold,
   },
   registerBtn: {
     width: '100%',
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: RADIUS.lg,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: COLORS.primaryGreen,
   },
   registerBtnText: {

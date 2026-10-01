@@ -168,7 +168,7 @@ const OrderDetailScreen = ({route, navigation}) => {
     {
       id: 1,
       label: t('orders.refundReasonBadQuality', {
-        defaultValue: 'பொருட்களின் தரம் சரியில்லை / கெட்டுப்போயுள்ளது',
+        defaultValue: 'பொருளின் தரம் சரியில்லை',
       }),
     },
     {
@@ -180,7 +180,7 @@ const OrderDetailScreen = ({route, navigation}) => {
     {
       id: 3,
       label: t('orders.refundReasonDamaged', {
-        defaultValue: 'பொருட்களின் தரம் சரியில்லை / கெட்டுப்போயுள்ளது',
+        defaultValue: 'பொருட்களின் தரம் கெட்டுப்போயுள்ளது',
       }),
     },
     {
@@ -258,7 +258,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         (Date.now() - deliveryTime.getTime()) / (1000 * 60 * 60);
       if (hoursSinceDelivery > 24) {
         Alert.alert(
-          '⚠️ ' +
+          '' +
             t('orders.refundExpired', {
               defaultValue: 'பணம் திரும்ப கோரும் நேரம் முடிந்துவிட்டது',
             }),
@@ -300,7 +300,7 @@ const OrderDetailScreen = ({route, navigation}) => {
           message: `Customer requested a refund for order #${
             order.orderId || order.id?.slice(-4)
           }. Reason: ${refundReason}`,
-          emoji: '💸',
+          emoji: '',
           bgColor: '#FFF3E0',
           type: 'refund_requested',
         });
@@ -315,14 +315,14 @@ const OrderDetailScreen = ({route, navigation}) => {
           message: `Your refund request for order #${
             order.orderId || order.id?.slice(-4)
           } has been submitted.`,
-          emoji: '💸',
+          emoji: '',
           bgColor: '#FFF3E0',
           type: 'refund_requested',
         });
       }
 
       Alert.alert(
-        '✅',
+        '',
         t('orders.refundSuccess', {
           defaultValue: 'பணம் திரும்ப கோரிக்கை சமர்ப்பிக்கப்பட்டது!',
         }),
@@ -346,7 +346,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         (Date.now() - orderTime.getTime()) / (1000 * 60 * 60);
       if (hoursSinceOrder > 3) {
         Alert.alert(
-          '⚠️ ' +
+          '' +
             t('orders.cancelExpired', {
               defaultValue: 'ரத்து செய்யும் நேரம் முடிந்துவிட்டது',
             }),
@@ -383,7 +383,7 @@ const OrderDetailScreen = ({route, navigation}) => {
             message: `Order #${
               order.orderId || order.id?.slice(-4)
             } has been cancelled. Reason: ${cancelReason}`,
-            emoji: '❌',
+            emoji: '',
             bgColor: '#FFEBEE',
             type: 'order_cancelled',
           });
@@ -398,13 +398,13 @@ const OrderDetailScreen = ({route, navigation}) => {
             message: `Your order #${
               order.orderId || order.id?.slice(-4)
             } has been cancelled.`,
-            emoji: '❌',
+            emoji: '',
             bgColor: '#FFEBEE',
             type: 'order_cancelled',
           });
         }
         Alert.alert(
-          '✅',
+          '',
           t('orders.cancelSuccess', {
             defaultValue: 'Order cancelled successfully!',
           }),
@@ -432,7 +432,7 @@ const OrderDetailScreen = ({route, navigation}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>
-          📦 {t('orders.orderDetails', {defaultValue: 'Order Details'})}
+          {t('orders.orderDetails', {defaultValue: 'Order Details'})}
         </Text>
         <View style={{width: rs(40)}} />
       </LinearGradient>
@@ -451,7 +451,7 @@ const OrderDetailScreen = ({route, navigation}) => {
             </Text>
           </View>
           {orderDate ? (
-            <Text style={styles.orderDate}>📅 {orderDate}</Text>
+            <Text style={styles.orderDate}>{orderDate}</Text>
           ) : null}
           <View
             style={[
@@ -471,7 +471,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {order.status !== 'Refund Requested' && (
           <View style={styles.timelineCard}>
             <Text style={styles.sectionTitle}>
-              🚀 {t('orders.orderStatus', {defaultValue: 'ஆர்டர் நிலை'})}
+              {t('orders.orderStatus', {defaultValue: 'ஆர்டர் நிலை'})}
             </Text>
             <View style={styles.timeline}>
               {steps.map((step, idx) => {
@@ -540,7 +540,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {/* Items */}
         <View style={styles.itemsCard}>
           <Text style={styles.sectionTitle}>
-            🛍 {t('orders.products', {defaultValue: 'தயாரிப்புகள்'})}
+            {t('orders.products', {defaultValue: 'தயாரிப்புகள்'})}
           </Text>
           {(order.items || []).map((item, i) => (
             <View
@@ -567,7 +567,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {/* Price Summary */}
         <View style={styles.summaryCard}>
           <Text style={styles.sectionTitle}>
-            💰 {t('orders.priceSummary', {defaultValue: 'தொகை விவரம்'})}
+            {t('orders.priceSummary', {defaultValue: 'தொகை விவரம்'})}
           </Text>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>
@@ -597,7 +597,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {order.farmerName && (
           <View style={styles.farmerCard}>
             <Text style={styles.sectionTitle}>
-              👨‍🌾 {t('farmer.farmerLabel', {defaultValue: 'Farmer'})}
+              {t('farmer.farmerLabel', {defaultValue: 'Farmer'})}
             </Text>
             <Text style={styles.farmerName}>
               {i18n.language === 'ta'
@@ -605,7 +605,7 @@ const OrderDetailScreen = ({route, navigation}) => {
                 : order.farmerName || order.farmerNameTa}
             </Text>
             {order.farmerPhone && (
-              <Text style={styles.farmerPhone}>📞 {order.farmerPhone}</Text>
+              <Text style={styles.farmerPhone}>{order.farmerPhone}</Text>
             )}
           </View>
         )}
@@ -643,13 +643,13 @@ const OrderDetailScreen = ({route, navigation}) => {
                 order.status === 'Refunded' && styles.refundedBtnTxt,
               ]}>
               {order.status === 'Refund Requested'
-                ? '💸 ' +
+                ? '' +
                   t('orders.refundSubmitted', {
                     defaultValue: 'Refund request submitted',
                   })
                 : order.status === 'Refunded'
-                ? '💜 ' + t('orders.statusRefunded', {defaultValue: 'Refunded'})
-                : '💸 ' +
+                ? '' + t('orders.statusRefunded', {defaultValue: 'Refunded'})
+                : '' +
                   t('orders.requestRefund', {defaultValue: 'Request Refund'})}
             </Text>
           </TouchableOpacity>

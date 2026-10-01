@@ -85,7 +85,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
       {isHighlighted && (
         <View style={styles.highlightBadge}>
           <Text style={styles.highlightBadgeTxt}>
-            🎯 {t('preOrder.selectedHarvest')}
+            {t('preOrder.selectedHarvest')}
           </Text>
         </View>
       )}
@@ -108,18 +108,18 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
             styles.topBadge,
             {backgroundColor: item.badgeColor || COLORS.accentGold},
           ]}>
-          <Text style={styles.topBadgeTxt}>{item.badge || '⭐ Hot'}</Text>
+          <Text style={styles.topBadgeTxt}>{item.badge || 'Hot'}</Text>
         </View>
         <View style={styles.savingsBadge}>
           <Text style={styles.savingsTxt}>
-            💰 ₹{item.originalPrice - item.price}{' '}
+            ₹{item.originalPrice - item.price}{' '}
             {t('product.savings', {defaultValue: 'சேமிப்பு'})}
           </Text>
         </View>
         {/* Countdown */}
         <View style={styles.countdownBadge}>
           <Text style={styles.countdownTxt}>
-            ⏳{' '}
+            {' '}
             {item.daysUntilHarvest === 0
               ? t('preOrder.harvestingToday', {defaultValue: 'அறுவடை இன்று!'})
               : item.daysUntilHarvest === 1
@@ -154,7 +154,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
               {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'},
             ]}>
             <Text style={[styles.metaChipTxt, {color: themeColors.text}]}>
-              👨‍🌾 {item.farmer}
+              {item.farmer}
             </Text>
           </View>
           <View
@@ -163,7 +163,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
               {backgroundColor: isDark ? '#1A334B' : '#E3F2FD'},
             ]}>
             <Text style={[styles.metaChipTxt, {color: COLORS.primaryBlue}]}>
-              📅 {item.harvestDate}
+              {item.harvestDate}
             </Text>
           </View>
         </View>
@@ -177,7 +177,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <Text style={[styles.progressLabel, {color: themeColors.text}]}>
-              🔥{' '}
+              {' '}
               {t('preOrder.peoplePreOrdered', {
                 count: item.totalPreOrders,
                 defaultValue: '{{count}} pre-ordered',
@@ -204,7 +204,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
           </View>
           {fillPercent >= 80 && (
             <Text style={styles.almostText}>
-              ⚡ கிட்டத்தட்ட நிரம்பியது! / Almost full!
+              கிட்டத்தட்ட நிரம்பியது! / Almost full!
             </Text>
           )}
         </View>
@@ -244,7 +244,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
         {/* Guarantee */}
         <View style={styles.guaranteeBox}>
           <Text style={styles.guaranteeTxt}>
-            ✅ {t('preOrder.guaranteeFresh')}
+            {t('preOrder.guaranteeFresh')}
           </Text>
         </View>
 
@@ -269,7 +269,7 @@ const PreOrderCard = ({item, onPreOrder, isHighlighted}) => {
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.75}>
-                📅 {t('preOrder.preOrderBtnText')}
+                {t('preOrder.preOrderBtnText')}
               </Text>
               <Text
                 style={styles.preOrderSubTxt}
@@ -555,7 +555,7 @@ const PreOrderScreen = ({navigation, route}) => {
             item.name,
             i18n.language,
           )} has been placed by ${customerName}.`,
-          emoji: '📅',
+          emoji: '',
           bgColor: '#E3F2FD',
           type: 'new_preorder',
         });
@@ -566,19 +566,19 @@ const PreOrderScreen = ({navigation, route}) => {
       await createNotification({
         userId: user.uid || user.id,
         title: t('preOrder.successTitle', {
-          defaultValue: '🎉 முன் ஆர்டர் வெற்றி!',
+          defaultValue: 'முன் ஆர்டர் வெற்றி!',
         }),
         message: t('preOrder.successDesc', {
           defaultValue:
             'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.',
         }),
-        emoji: '🎉',
+        emoji: '',
         bgColor: '#E8F5E9',
         type: 'preorder_confirmed',
       });
 
       Alert.alert(
-        t('preOrder.successTitle', {defaultValue: '🎉 முன் ஆர்டர் வெற்றி!'}),
+        t('preOrder.successTitle', {defaultValue: 'முன் ஆர்டர் வெற்றி!'}),
         t('preOrder.successDesc', {
           defaultValue:
             'உங்கள் முன் ஆர்டர் உறுதி செய்யப்பட்டது! விவசாயிக்கு தகவல் அனுப்பப்பட்டது.',
@@ -690,7 +690,7 @@ const PreOrderScreen = ({navigation, route}) => {
             ]}>
             <Text style={[styles.modalTitle, {color: themeColors.text}]}>
               {t('preOrder.fillDetailsTitle', {
-                defaultValue: '📋 Enter Delivery Details',
+                defaultValue: 'Enter Delivery Details',
               })}
             </Text>
 
@@ -834,7 +834,7 @@ const PreOrderScreen = ({navigation, route}) => {
                           defaultValue: 'Location Linked ✓',
                         })
                       : t('preOrder.linkGPSBtn', {
-                          defaultValue: '📍 Link GPS Location',
+                          defaultValue: 'Link GPS Location',
                         })}
                   </Text>
                 )}

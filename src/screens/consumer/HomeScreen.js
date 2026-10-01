@@ -478,34 +478,40 @@ const HomeScreen = ({navigation}) => {
 
   const uniqueFeatures = [
     {
-      emoji: '🌾',
+      iconName: 'calendar',
+      badgeColor: '#E8F5E9',
       label: t('home.harvestCalendar', {defaultValue: 'அறுவடை நாள்காட்டி'}),
       screen: 'HarvestCalendar',
     },
     {
-      emoji: '⏱',
+      iconName: 'clock',
+      badgeColor: '#E3F2FD',
       label: t('home.freshnessTracker', {
         defaultValue: 'புத்துணர்ச்சி கண்காணிப்பு',
       }),
       screen: 'FreshnessTracker',
     },
     {
-      emoji: '👨‍👩‍👧',
+      iconName: 'users',
+      badgeColor: '#FFF3E0',
       label: t('home.groupBuy', {defaultValue: 'கூட்டு வாங்கல்'}),
       screen: 'VillageGroupBuy',
     },
     {
-      emoji: '📅',
+      iconName: 'shopping-bag',
+      badgeColor: '#F3E5F5',
       label: t('home.preOrder', {defaultValue: 'முன் ஆர்டர்'}),
       screen: 'PreOrder',
     },
     {
-      emoji: '🥗',
+      iconName: 'activity',
+      badgeColor: '#E0F2F1',
       label: t('home.nutritionReport', {defaultValue: 'ஊட்டச்சத்து அறிக்கை'}),
       screen: 'NutritionReport',
     },
     {
-      emoji: '🗺️',
+      iconName: 'map-pin',
+      badgeColor: '#FFEBEE',
       label: t('home.farmVisit', {defaultValue: 'பண்ணை வருகை'}),
       screen: 'FarmVisit',
     },
@@ -549,7 +555,7 @@ const HomeScreen = ({navigation}) => {
           <View style={styles.headerTop}>
             <View style={{flex: 1}}>
               <Text style={styles.greeting}>
-                {t('home.greeting', {defaultValue: 'வணக்கம்! 👋'})}
+                {t('home.greeting', {defaultValue: 'வணக்கம்!'})}
               </Text>
               <Text style={styles.userName} numberOfLines={1}>
                 {user?.name || t('common.guest', {defaultValue: 'நண்பர்'})}
@@ -631,17 +637,16 @@ const HomeScreen = ({navigation}) => {
             style={styles.qrBtn}
             onPress={() => navigation.navigate('QRScan')}>
             <Text style={styles.qrBtnText}>
-              📷 {t('home.qrScan', {defaultValue: 'விவசாயி QR ஸ்கேன் செய்க'})}
+              {t('home.qrScan', {defaultValue: 'விவசாயி QR ஸ்கேன் செய்க'})}
             </Text>
           </TouchableOpacity>
           <View style={styles.uniqueRow}>
             {uniqueFeatures.slice(0, 3).map(item => (
               <TouchableOpacity
                 key={item.screen}
-                style={styles.uniqueCard}
+                style={[styles.uniqueCard, {backgroundColor: item.badgeColor || 'rgba(255,255,255,0.2)'}]}
                 onPress={() => navigation.navigate(item.screen)}>
-                <Text style={styles.uniqueEmoji}>{item.emoji}</Text>
-                <Text style={styles.uniqueLabel}>{item.label}</Text>
+                <Text style={styles.uniqueLabel} numberOfLines={2} adjustsFontSizeToFit>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -649,10 +654,9 @@ const HomeScreen = ({navigation}) => {
             {uniqueFeatures.slice(3).map(item => (
               <TouchableOpacity
                 key={item.screen}
-                style={styles.uniqueCard}
+                style={[styles.uniqueCard, {backgroundColor: item.badgeColor || 'rgba(255,255,255,0.2)'}]}
                 onPress={() => navigation.navigate(item.screen)}>
-                <Text style={styles.uniqueEmoji}>{item.emoji}</Text>
-                <Text style={styles.uniqueLabel}>{item.label}</Text>
+                <Text style={styles.uniqueLabel} numberOfLines={2} adjustsFontSizeToFit>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -697,7 +701,7 @@ const HomeScreen = ({navigation}) => {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
-                  ⭐{' '}
+                  {' '}
                   {t('home.featuredProducts', {
                     defaultValue: 'சிறப்பு தயாரிப்புகள்',
                   })}
@@ -727,7 +731,7 @@ const HomeScreen = ({navigation}) => {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
-                👨‍🌾 {t('home.topFarmers', {defaultValue: 'சிறந்த விவசாயிகள்'})}
+                {t('home.topFarmers', {defaultValue: 'சிறந்த விவசாயிகள்'})}
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('AllFarmers')}>
@@ -750,7 +754,7 @@ const HomeScreen = ({navigation}) => {
             <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
               {searchQuery
                 ? `"${searchQuery}"`
-                : `🌿 ${t('home.allProducts', {
+                : `${t('home.allProducts', {
                     defaultValue: 'All Products',
                   })}`}
             </Text>
@@ -766,7 +770,7 @@ const HomeScreen = ({navigation}) => {
                     fontSize: rs(13),
                   },
                 ]}>
-                🎯🎯 All ➔
+                All ➔
               </Text>
             </TouchableOpacity>
           </View>
@@ -815,7 +819,7 @@ const HomeScreen = ({navigation}) => {
                         styles.farmerGroupTitle,
                         {color: themeColors.text},
                       ]}>
-                      👨‍🌾 {displayName}{' '}
+                      {displayName}{' '}
                       {t('home.farmProducts', {
                         defaultValue: 'Farm Products',
                       })}
@@ -919,9 +923,9 @@ const styles = StyleSheet.create({
   },
   uniqueEmoji: {fontSize: rs(24), marginBottom: SPACING.xs},
   uniqueLabel: {
-    color: COLORS.white,
-    fontSize: rs(11),
-    fontWeight: '600',
+    color: '#1B5E20',
+    fontSize: rs(12),
+    fontWeight: '700',
     textAlign: 'center',
     lineHeight: rs(16),
     flexShrink: 1,

@@ -224,14 +224,14 @@ const RegisterScreen = ({navigation, route}) => {
       // ✅ Registration successful - Show email verification alert with Spam note
       Alert.alert(
         t('authAlerts.regSuccessTitle', {
-          defaultValue: '✅ பதிவு வெற்றிகரமாக முடிந்தது!',
+          defaultValue: 'பதிவு வெற்றிகரமாக முடிந்தது!',
         }),
         t('authAlerts.regSuccessMsg', {
           defaultValue:
-            '📧 உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\n' +
-            `உங்கள் மின்னஞ்சல் முகவரிக்கு (${email.trim()}) சரிபார்ப்பு லிங்க் (Verification Link) அனுப்பப்பட்டுள்ளது.\n\n` +
-            '👉 குறிப்பு: இந்த சரிபார்ப்பு லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் இருக்கும்.\n' +
-            '👉 அந்த லிங்கை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்!',
+            'உங்கள் கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது!\n\n' +
+            `உங்கள் மின்னஞ்சல் முகவரிக்கு (${email.trim()}) சரிபார்ப்பு லிங்க் அனுப்பப்பட்டுள்ளது.\n\n` +
+            'குறிப்பு: இந்த சரிபார்ப்பு லிங்க் உங்கள் மின்னஞ்சல் Inbox அல்லது Spam / Junk Folder-ல் இருக்கும்.\n' +
+            'அந்த லிங்கை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்!',
         }),
         [
           {
@@ -285,7 +285,7 @@ const RegisterScreen = ({navigation, route}) => {
               sub: t('login.sellProducts', {
                 defaultValue: 'Sell your products',
               }),
-              emoji: '👨‍🌾',
+              emoji: '',
               colors: ['#E8F5E9', '#C8E6C9'],
               borderColor: '#A5D6A7',
               textColor: '#1B5E20',
@@ -294,7 +294,7 @@ const RegisterScreen = ({navigation, route}) => {
               label: t('login.consumer', {defaultValue: 'Consumer'}),
               taLabel: t('login.consumer', {defaultValue: 'நுகர்வோர்'}),
               sub: t('login.buyFresh', {defaultValue: 'Buy fresh vegetables'}),
-              emoji: '🛒',
+              emoji: '',
               colors: ['#E3F2FD', '#BBDEFB'],
               borderColor: '#90CAF9',
               textColor: '#0D47A1',
@@ -303,7 +303,7 @@ const RegisterScreen = ({navigation, route}) => {
               label: t('login.delivery', {defaultValue: 'Delivery'}),
               taLabel: t('login.delivery', {defaultValue: 'டெலிவரி'}),
               sub: t('login.deliverOrders', {defaultValue: 'Deliver orders'}),
-              emoji: '🚚',
+              emoji: '',
               colors: ['#FFF3E0', '#FFE0B2'],
               borderColor: '#FFCC80',
               textColor: '#E65100',
@@ -346,7 +346,7 @@ const RegisterScreen = ({navigation, route}) => {
 
         {/* ── Form Fields (state-ஐ individual set functions use பண்றோம்) ── */}
         <Field
-          label={'👤 ' + t('profile.fullName')}
+          label={t('profile.fullName')}
           value={name}
           onChangeText={setName}
           error={errors.name}
@@ -354,7 +354,7 @@ const RegisterScreen = ({navigation, route}) => {
           textContentType="name"
         />
         <Field
-          label={'📧 ' + t('farmer.email')}
+          label={t('farmer.email')}
           value={email}
           onChangeText={text => setEmail(text.trim())}
           keyboardType="email-address"
@@ -364,7 +364,7 @@ const RegisterScreen = ({navigation, route}) => {
           autoCorrect={false}
         />
         <Field
-          label={'📍 ' + t('farmer.location')}
+          label={t('farmer.location')}
           value={location}
           onChangeText={setLocation}
           error={errors.location}
@@ -383,7 +383,7 @@ const RegisterScreen = ({navigation, route}) => {
           textContentType="newPassword"
         />
         <Field
-          label={'🔒 ' + t('validation.confirmPasswordRequired')}
+          label={t('validation.confirmPasswordRequired')}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secure
@@ -476,7 +476,7 @@ const RegisterScreen = ({navigation, route}) => {
         {/* OTP Register Button */}
         <TouchableOpacity style={styles.otpBtn} onPress={handleOTPRegister}>
           <Text style={styles.otpBtnText}>
-            📱 {t('register.otpBtn', {defaultValue: 'OTP Register'})}
+            {t('register.otpBtn', {defaultValue: 'OTP Register'})}
           </Text>
         </TouchableOpacity>
 

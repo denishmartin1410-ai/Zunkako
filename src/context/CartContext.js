@@ -63,8 +63,8 @@ export const CartProvider = ({children}) => {
 
       if (currentQty >= maxStock) {
         Alert.alert(
-          'மன்னிக்கவும் (Sorry)',
-          'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+          'மன்னிக்கவும்',
+          'போதுமான இருப்பு இல்லை!',
         );
         return prev;
       }
@@ -88,8 +88,8 @@ export const CartProvider = ({children}) => {
           const maxStock = item.stock !== undefined ? Number(item.stock) : 999;
           if (item.quantity >= maxStock) {
             Alert.alert(
-              'மன்னிக்கவும் (Sorry)',
-              'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+              'மன்னிக்கவும்',
+              'போதுமான இருப்பு இல்லை!',
             );
             return item;
           }
@@ -126,8 +126,8 @@ export const CartProvider = ({children}) => {
             targetItem.stock !== undefined ? Number(targetItem.stock) : 999;
           if (newQuantity > maxStock) {
             Alert.alert(
-              'மன்னிக்கவும் (Sorry)',
-              'போதுமான இருப்பு இல்லை! (Not enough stock available!)',
+              'மன்னிக்கவும்',
+              'போதுமான இருப்பு இல்லை!',
             );
             return prev;
           }

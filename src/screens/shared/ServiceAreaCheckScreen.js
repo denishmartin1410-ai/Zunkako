@@ -36,11 +36,11 @@ const ServiceAreaCheckScreen = ({onServiceAreaConfirmed, onSkip}) => {
           onServiceAreaConfirmed(true);
         } else {
           Alert.alert(
-            '📍 கவலைப்படாதீர்கள்!',
-            `நீங்கள் இப்போது ${LAUNCH_CONFIG.cityName}-லிருந்து ${result.distance} km தூரத்தில் இருக்கிறீர்கள்.\n\nNot in our service area yet!\n\nஆனால் விரைவில் உங்கள் நகரத்திற்கும் வருகிறோம்! மின்னஞ்சல் மூலம் பதிவு செய்யுங்கள் 📧`,
+            'கவலைப்படாதீர்கள்!',
+            `நீங்கள் இப்போது ${LAUNCH_CONFIG.cityName}-லிருந்து ${result.distance} km தூரத்தில் இருக்கிறீர்கள்.\n\nNot in our service area yet!\n\nஆனால் விரைவில் உங்கள் நகரத்திற்கும் வருகிறோம்! மின்னஞ்சல் மூலம் பதிவு செய்யுங்கள்`,
             [
               {
-                text: '📧 எனக்கு அறிவிக்கவும்',
+                text: 'எனக்கு அறிவிக்கவும்',
                 onPress: () => onSkip('waitlist'),
               },
               {
@@ -75,10 +75,10 @@ const ServiceAreaCheckScreen = ({onServiceAreaConfirmed, onSkip}) => {
       onServiceAreaConfirmed(true);
     } else {
       Alert.alert(
-        '😊 விரைவில் வருகிறோம்!',
+        'விரைவில் வருகிறோம்!',
         `Pincode ${pincode} தற்போது உங்கள் பகுதியில் எங்கள் சேவை கிடைக்கவில்லை.\n\nதற்போது ${LAUNCH_CONFIG.cityName} மட்டும்.\n\nஉங்கள் மின்னஞ்சல் தாருங்கள் - உங்கள் பகுதியில் தொடங்கும் போது அறிவிப்போம்! 🌿`,
         [
-          {text: '📧 Waitlist', onPress: () => onSkip('waitlist')},
+          {text: 'Waitlist', onPress: () => onSkip('waitlist')},
           {text: 'Browse', onPress: () => onSkip('browse')},
         ],
       );
@@ -135,7 +135,7 @@ const ServiceAreaCheckScreen = ({onServiceAreaConfirmed, onSkip}) => {
                     </>
                   ) : (
                     <Text style={styles.locationBtnTxt}>
-                      📍 என் இடம் சரிபார்க்க / Check My Location
+                      என் இடம் சரிபார்க்க / Check My Location
                     </Text>
                   )}
                 </LinearGradient>
@@ -153,7 +153,7 @@ const ServiceAreaCheckScreen = ({onServiceAreaConfirmed, onSkip}) => {
             <>
               {/* Manual pincode */}
               <Text style={styles.pincodeLabel}>
-                📮 பின்கோடு உள்ளிடவும் / Enter Pincode
+                பின்கோடு உள்ளிடவும் / Enter Pincode
               </Text>
               <View style={styles.pincodeRow}>
                 <TextInput

@@ -166,7 +166,7 @@ const HarvestCalendarScreen = ({navigation}) => {
           })}{' '}
           -{' '}
           {selectedDay === TODAY_KEY
-            ? t('harvestCalendar.todayBadge', {defaultValue: '📍 இன்று'})
+            ? t('harvestCalendar.todayBadge', {defaultValue: 'இன்று'})
             : t('harvestCalendar.thisDay', {defaultValue: 'இந்த நாள்'})}
         </Text>
         <View style={styles.freshBadgeRow}>
@@ -177,7 +177,7 @@ const HarvestCalendarScreen = ({navigation}) => {
             ]}>
             <Text style={styles.freshBadgeTxt}>
               {t('harvestCalendar.freshBadgeText', {
-                defaultValue: '🌿 புதியது = இன்று',
+                defaultValue: 'புதியது = இன்று',
               })}
             </Text>
           </View>
@@ -235,7 +235,7 @@ const HarvestCalendarScreen = ({navigation}) => {
                       </Text>
                       {item.fresh && (
                         <View style={styles.freshTag}>
-                          <Text style={styles.freshTagTxt}>🌿 Fresh</Text>
+                          <Text style={styles.freshTagTxt}>Fresh</Text>
                         </View>
                       )}
                     </View>
@@ -254,10 +254,10 @@ const HarvestCalendarScreen = ({navigation}) => {
                           styles.itemFarmer,
                           {color: themeColors.subText},
                         ]}>
-                        👨‍🌾 {item.farmer}
+                        {item.farmer}
                       </Text>
                       <Text style={styles.itemQty}>
-                        📦 {item.qty} {item.unit}
+                        {item.qty} {item.unit}
                       </Text>
                     </View>
                   </View>

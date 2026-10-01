@@ -55,7 +55,7 @@ async function setupAdmin() {
   );
 
   console.log(
-    '✅ Admin user document successfully saved in Firestore with userType: "admin"',
+    'Admin user document successfully saved in Firestore with userType: "admin"',
   );
   console.log('You can now log in using admin@f2c.com and SuperSecretPassword');
   process.exit(0);

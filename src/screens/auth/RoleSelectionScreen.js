@@ -19,24 +19,24 @@ const TRANSLATIONS = {
     tagline: 'தொடர உங்கள் சுயவிவரத்தைத் தேர்ந்தெடுக்கவும்',
     consumer: 'நுகர்வோர்',
     farmer: 'விவசாயி',
-    delivery: 'டெலிவரி',
-    back: '← பின்னால்',
+    delivery: 'டெலிவரி முகவர்',
+    back: 'பின்னால்',
   },
   en: {
     title: 'Who are you?',
     tagline: 'Choose your profile to continue',
     consumer: 'Consumer',
     farmer: 'Farmer',
-    delivery: 'Delivery',
-    back: '← Back',
+    delivery: 'Delivery Partner',
+    back: 'Back',
   },
   ml: {
     title: 'നിങ്ങൾ ആരാണ്?',
     tagline: 'തുടരാൻ നിങ്ങളുടെ പ്രൊഫൈൽ തിരഞ്ഞെടുക്കുക',
     consumer: 'ഉപഭോക്താവ്',
     farmer: 'കർഷകൻ',
-    delivery: 'ഡെലിവറി',
-    back: '← തിരികെ',
+    delivery: 'ഡെലിവറി പാർട്ണർ',
+    back: 'തിരികെ',
   },
 };
 
@@ -44,7 +44,7 @@ const RoleSelectionScreen = ({navigation, route}) => {
   const {i18n} = useTranslation();
   const currentLang = i18n.language || 'ta';
   const langText = TRANSLATIONS[currentLang] || TRANSLATIONS.ta;
-  const mode = route.params?.mode || 'login'; // 'login' or 'register'
+  const mode = route.params?.mode || 'login';
 
   const handleRoleSelect = role => {
     if (mode === 'login') {
@@ -54,18 +54,30 @@ const RoleSelectionScreen = ({navigation, route}) => {
     }
   };
 
-  const RoleCard = ({role, label, emoji, colors}) => (
+  const RoleCard = ({role, label, subtitle, colors, accentColor}) => (
     <TouchableOpacity
       style={styles.card}
-      activeOpacity={0.9}
+      activeOpacity={0.88}
       onPress={() => handleRoleSelect(role)}>
       <LinearGradient
         colors={colors}
         style={styles.cardGradient}
         start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}>
-        <Text style={styles.cardEmoji}>{emoji}</Text>
-        <Text style={styles.cardLabel}>{label}</Text>
+        end={{x: 1, y: 0}}>
+        <View style={[styles.badgeDot, {backgroundColor: accentColor}]} />
+        <View style={styles.cardContent}>
+          <Text style={styles.cardLabel} numberOfLines={1} adjustsFontSizeToFit>
+            {label}
+          </Text>
+          <Text style={styles.cardSub} numberOfLines={1}>
+            {role === 'consumer'
+              ? 'Buy fresh produce directly'
+              : role === 'farmer'
+              ? 'Sell crops & harvests'
+              : 'Deliver fresh orders'}
+          </Text>
+        </View>
+        <Text style={styles.arrowIcon}>→</Text>
       </LinearGradient>
     </TouchableOpacity>
   );
@@ -83,13 +95,18 @@ const RoleSelectionScreen = ({navigation, route}) => {
         style={styles.headerGradient}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backBtn}>
-          <Text style={styles.backTxt}>{langText.back}</Text>
+          style={styles.backBtn}
+          activeOpacity={0.7}>
+          <Text style={styles.backTxt}>← {langText.back}</Text>
         </TouchableOpacity>
 
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{langText.title}</Text>
-          <Text style={styles.tagline}>{langText.tagline}</Text>
+          <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit>
+            {langText.title}
+          </Text>
+          <Text style={styles.tagline} numberOfLines={2}>
+            {langText.tagline}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -97,20 +114,20 @@ const RoleSelectionScreen = ({navigation, route}) => {
         <RoleCard
           role="consumer"
           label={langText.consumer}
-          emoji="🛒"
-          colors={['#E3F2FD', '#BBDEFB']}
+          colors={['#FFFFFF', '#F0F7FF']}
+          accentColor="#2196F3"
         />
         <RoleCard
           role="farmer"
           label={langText.farmer}
-          emoji="👨‍🌾"
-          colors={['#E8F5E9', '#C8E6C9']}
+          colors={['#FFFFFF', '#F0FFF5']}
+          accentColor="#27AE60"
         />
         <RoleCard
           role="delivery"
           label={langText.delivery}
-          emoji="🚚"
-          colors={['#FFF3E0', '#FFE0B2']}
+          colors={['#FFFFFF', '#FFF8F0']}
+          accentColor="#FF7043"
         />
       </View>
     </View>
@@ -123,72 +140,92 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F7FA',
   },
   headerGradient: {
-    height: height * 0.35,
-    paddingHorizontal: 24,
+    height: height * 0.3,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: 45,
     justifyContent: 'center',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
   },
   backBtn: {
     position: 'absolute',
-    top: 50,
+    top: 45,
     left: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.full,
     backgroundColor: 'rgba(255,255,255,0.2)',
   },
   backTxt: {
-    color: '#FFF',
-    fontWeight: 'bold',
+    color: COLORS.white,
+    fontSize: FONTS.sm,
+    fontWeight: FONTS.semiBold,
   },
   titleContainer: {
-    marginTop: 40,
+    alignItems: 'center',
+    marginTop: 15,
   },
   title: {
-    fontSize: 34,
-    fontWeight: '900',
-    color: '#FFF',
-    marginBottom: 8,
+    fontSize: FONTS.xxl,
+    fontWeight: FONTS.extraBold,
+    color: COLORS.white,
+    marginBottom: 6,
     textAlign: 'center',
   },
   tagline: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.85)',
+    fontSize: FONTS.sm,
+    color: 'rgba(255,255,255,0.9)',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    marginTop: -40,
+    paddingHorizontal: SPACING.xl,
+    marginTop: -25,
     justifyContent: 'center',
-    gap: 20,
+    gap: 16,
   },
   card: {
-    height: height * 0.14,
-    borderRadius: 20,
+    height: 90,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   cardGradient: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    gap: 20,
+    paddingHorizontal: SPACING.xl,
   },
-  cardEmoji: {
-    fontSize: 48,
+  badgeDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 16,
+  },
+  cardContent: {
+    flex: 1,
   },
   cardLabel: {
-    fontSize: 24,
+    fontSize: FONTS.lg,
+    fontWeight: FONTS.bold,
+    color: COLORS.textPrimary,
+  },
+  cardSub: {
+    fontSize: FONTS.xs,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  arrowIcon: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#2C3E50',
+    color: COLORS.primaryGreen,
   },
 });
 

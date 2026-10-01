@@ -30,7 +30,7 @@ const sendSMS = async (toPhone, messageBody) => {
       to: formattedPhone,
     });
 
-    console.log(`✅ SMS Sent! SID: ${message.sid} to ${formattedPhone}`);
+    console.log(`SMS Sent! SID: ${message.sid} to ${formattedPhone}`);
     return { success: true, messageSid: message.sid };
   } catch (error) {
     console.error('Twilio Send SMS Error:', error.message);
@@ -56,7 +56,7 @@ const sendWhatsApp = async (toPhone, messageBody) => {
       to: `whatsapp:${formattedPhone}`,
     });
 
-    console.log(`✅ WhatsApp Sent! SID: ${message.sid} to ${formattedPhone}`);
+    console.log(`WhatsApp Sent! SID: ${message.sid} to ${formattedPhone}`);
     return { success: true, messageSid: message.sid };
   } catch (error) {
     console.error('Twilio Send WhatsApp Error:', error.message);

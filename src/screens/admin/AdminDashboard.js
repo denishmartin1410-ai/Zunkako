@@ -41,13 +41,13 @@ const getLat = coords => coords?.lat ?? coords?.latitude;
 const getLng = coords => coords?.lng ?? coords?.longitude;
 
 const STATUS_CONFIG = {
-  Pending: {bg: '#E3F2FD', color: '#1565C0', emoji: '⏳'},
-  Confirmed: {bg: '#E8F5E9', color: '#2E7D32', emoji: '✅'},
-  Shipped: {bg: '#FFF3E0', color: '#E65100', emoji: '📦'},
-  Delivered: {bg: '#E8F5E9', color: '#2E7D32', emoji: '🎉'},
-  Cancelled: {bg: '#FFEBEE', color: '#C62828', emoji: '❌'},
-  'Refund Requested': {bg: '#FFF3E0', color: '#FF5722', emoji: '💸'},
-  Refunded: {bg: '#F3E5F5', color: '#7B1FA2', emoji: '💜'},
+  Pending: {bg: '#E3F2FD', color: '#1565C0', emoji: ''},
+  Confirmed: {bg: '#E8F5E9', color: '#2E7D32', emoji: ''},
+  Shipped: {bg: '#FFF3E0', color: '#E65100', emoji: ''},
+  Delivered: {bg: '#E8F5E9', color: '#2E7D32', emoji: ''},
+  Cancelled: {bg: '#FFEBEE', color: '#C62828', emoji: ''},
+  'Refund Requested': {bg: '#FFF3E0', color: '#FF5722', emoji: ''},
+  Refunded: {bg: '#F3E5F5', color: '#7B1FA2', emoji: ''},
 };
 
 const AdminDashboard = () => {
@@ -387,33 +387,33 @@ const AdminDashboard = () => {
       await docRef.set(extraPayload, {merge: true});
 
       // Send a notification to the Consumer about status change
-      let title = '📅 Pre-Order Update';
+      let title = 'Pre-Order Update';
       let message = `Your pre-ordered ${
         item.nameEn || item.name
       } has been updated to ${newStatus}.`;
-      let emoji = '📅';
+      let emoji = '';
       let bgColor = '#E3F2FD';
 
       if (newStatus === 'harvested') {
-        title = '🌾 Crop Harvested!';
+        title = 'Crop Harvested!';
         message = `Your pre-ordered ${
           item.nameEn || item.name || 'crop'
         } has been harvested and is ready for pickup/delivery!`;
-        emoji = '🌾';
+        emoji = '';
         bgColor = '#E8F5E9';
       } else if (newStatus === 'completed') {
-        title = '🎉 Pre-Order Completed!';
+        title = 'Pre-Order Completed!';
         message = `Your pre-order for ${
           item.nameEn || item.name || 'crop'
         } has been successfully delivered and completed.`;
-        emoji = '🎉';
+        emoji = '';
         bgColor = '#E8F5E9';
       } else if (newStatus === 'Refunded') {
-        title = '💜 Pre-Order Refunded';
+        title = 'Pre-Order Refunded';
         message = `Your refund request for ${
           item.nameEn || item.name || 'crop'
         } pre-order has been approved and refunded.`;
-        emoji = '💜';
+        emoji = '';
         bgColor = '#F3E5F5';
 
         // Notify the Farmer as well
@@ -421,13 +421,13 @@ const AdminDashboard = () => {
           try {
             await createNotification({
               userId: item.farmerId,
-              title: '💜 Pre-Order Refunded',
+              title: 'Pre-Order Refunded',
               message: `Pre-order for ${
                 item.nameEn || item.name || 'crop'
               } by ${
                 item.deliveryName || item.userName || 'User'
               } has been marked as refunded by admin.`,
-              emoji: '💜',
+              emoji: '',
               bgColor: '#F3E5F5',
               type: 'preorder_refunded',
             });
@@ -473,9 +473,9 @@ const AdminDashboard = () => {
         }),
       );
 
-      Alert.alert('✅ Success', `Pre-Order marked as ${newStatus}`);
+      Alert.alert('Success', `Pre-Order marked as ${newStatus}`);
     } catch (err) {
-      Alert.alert('❌ Error', err.message);
+      Alert.alert('Error', err.message);
     }
   };
 
@@ -515,7 +515,7 @@ const AdminDashboard = () => {
                 message: `Your order #${
                   order.orderId || order.id?.slice(-4)
                 } has been ${newStatus.toLowerCase()}.`,
-                emoji: STATUS_CONFIG[newStatus]?.emoji || '📦',
+                emoji: STATUS_CONFIG[newStatus]?.emoji || '',
                 bgColor: STATUS_CONFIG[newStatus]?.bg || '#E8F5E9',
                 type: `order_${newStatus.toLowerCase()}`,
               });
@@ -527,15 +527,15 @@ const AdminDashboard = () => {
                 message: `Order #${
                   order.orderId || order.id?.slice(-4)
                 } status changed to ${newStatus}.`,
-                emoji: STATUS_CONFIG[newStatus]?.emoji || '📦',
+                emoji: STATUS_CONFIG[newStatus]?.emoji || '',
                 bgColor: STATUS_CONFIG[newStatus]?.bg || '#E8F5E9',
                 type: `order_${newStatus.toLowerCase()}`,
               });
             }
 
-            Alert.alert('✅ Success', `Order marked as ${newStatus}!`);
+            Alert.alert('Success', `Order marked as ${newStatus}!`);
           } catch (e) {
-            Alert.alert('❌ Error', e.message);
+            Alert.alert('Error', e.message);
           }
         },
       },
@@ -546,14 +546,14 @@ const AdminDashboard = () => {
   const handleAssignDeliveryBoy = order => {
     if (deliveryBoys.length === 0) {
       Alert.alert(
-        '🚚 No Delivery Partners',
+        'No Delivery Partners',
         'No delivery boys have registered yet.\n\nTo add delivery boys:\n1. They should register in the app with "Delivery" role\n2. They will appear here automatically',
       );
       return;
     }
 
     const buttons = deliveryBoys.map(db => ({
-      text: `🚚 ${db.name || db.email || 'Partner'}`,
+      text: `${db.name || db.email || 'Partner'}`,
       onPress: async () => {
         try {
           await firestore()
@@ -568,13 +568,13 @@ const AdminDashboard = () => {
           // Notify the delivery boy
           await createNotification({
             userId: db.id,
-            title: '📦 New Delivery Assigned!',
+            title: 'New Delivery Assigned!',
             message: `Order #${
               order.orderId || order.id?.slice(-4)
             } assigned to you.\nPickup: ${
               order.farmerName || 'Farmer'
             }\nDeliver to: ${order.consumerName || 'Customer'}`,
-            emoji: '🚚',
+            emoji: '',
             bgColor: '#E3F2FD',
             type: 'delivery_assigned',
           });
@@ -582,18 +582,18 @@ const AdminDashboard = () => {
           if (order.farmerId) {
             await createNotification({
               userId: order.farmerId,
-              title: '🚚 Delivery Partner Assigned',
+              title: 'Delivery Partner Assigned',
               message: `Delivery partner ${
                 db.name || 'Partner'
               } assigned for order #${order.orderId || order.id?.slice(-4)}.`,
-              emoji: '🚚',
+              emoji: '',
               bgColor: '#E3F2FD',
               type: 'delivery_assigned',
             });
           }
 
           Alert.alert(
-            '✅ Assigned!',
+            'Assigned!',
             `${db.name || 'Partner'} assigned to order #${
               order.orderId || order.id?.slice(-4)
             }`,
@@ -607,7 +607,7 @@ const AdminDashboard = () => {
     buttons.push({text: 'Cancel', style: 'cancel'});
 
     Alert.alert(
-      '🚚 Select Delivery Partner',
+      'Select Delivery Partner',
       `Order #${order.orderId || order.id?.slice(-4)}\nCustomer: ${
         order.consumerName || 'N/A'
       }\nAddress: ${order.deliveryAddress || 'N/A'}`,
@@ -619,7 +619,7 @@ const AdminDashboard = () => {
     const cfg = STATUS_CONFIG[item.status] || {
       bg: '#F5F5F5',
       color: '#999',
-      emoji: '📦',
+      emoji: '',
     };
     const orderDate =
       item.createdAt?.toDate?.()?.toLocaleDateString('en-IN') || '';
@@ -630,7 +630,7 @@ const AdminDashboard = () => {
         <View style={styles.cardHeader}>
           <View>
             <Text style={styles.orderId}>
-              📦 #{item.orderId || item.id.slice(-4)}
+              #{item.orderId || item.id.slice(-4)}
             </Text>
             <Text style={styles.orderDate}>{orderDate}</Text>
           </View>
@@ -643,25 +643,25 @@ const AdminDashboard = () => {
 
         <View style={styles.detailSection}>
           <Text style={styles.detail}>
-            🧑‍🌾 Farmer: {item.farmerName || 'N/A'}
+            Farmer: {item.farmerName || 'N/A'}
           </Text>
           <Text style={styles.detail}>
-            🛒 Customer: {item.consumerName || 'N/A'}
+            Customer: {item.consumerName || 'N/A'}
           </Text>
-          <Text style={styles.detail}>💰 Total: ₹{item.total}</Text>
+          <Text style={styles.detail}>Total: ₹{item.total}</Text>
           {item.deliveryAddress && (
             <View>
               <Text style={styles.detail}>
-                📍 Address: {item.deliveryAddress}
+                Address: {item.deliveryAddress}
               </Text>
               {item.deliveryPincode && (
                 <Text style={[styles.detail, {color: COLORS.textSecondary}]}>
-                  📌 PIN Code: {item.deliveryPincode}
+                  PIN Code: {item.deliveryPincode}
                 </Text>
               )}
               {item.consumerPhone && (
                 <Text style={[styles.detail, {color: COLORS.textSecondary}]}>
-                  📞 Phone: {item.consumerPhone}
+                  Phone: {item.consumerPhone}
                 </Text>
               )}
             </View>
@@ -669,7 +669,7 @@ const AdminDashboard = () => {
           {item.deliveryBoyName && (
             <Text
               style={[styles.detail, {color: '#1565C0', fontWeight: 'bold'}]}>
-              🚚 Delivery: {item.deliveryBoyName}
+              Delivery: {item.deliveryBoyName}
             </Text>
           )}
         </View>
@@ -702,7 +702,7 @@ const AdminDashboard = () => {
                 )
               }>
               <Text style={[styles.actionBtnTxt, {color: '#2E7D32'}]}>
-                ✅ Confirm
+                Confirm
               </Text>
             </TouchableOpacity>
           )}
@@ -723,7 +723,7 @@ const AdminDashboard = () => {
                 )
               }>
               <Text style={[styles.actionBtnTxt, {color: '#E65100'}]}>
-                📦 Purchased
+                Purchased
               </Text>
             </TouchableOpacity>
           )}
@@ -744,7 +744,7 @@ const AdminDashboard = () => {
                 )
               }>
               <Text style={[styles.actionBtnTxt, {color: '#2E7D32'}]}>
-                🎉 Deliver
+                Deliver
               </Text>
             </TouchableOpacity>
           )}
@@ -768,7 +768,7 @@ const AdminDashboard = () => {
                 )
               }>
               <Text style={[styles.actionBtnTxt, {color: '#7B1FA2'}]}>
-                💜 Mark Refunded
+                Mark Refunded
               </Text>
             </TouchableOpacity>
           )}
@@ -783,7 +783,7 @@ const AdminDashboard = () => {
                 ]}
                 onPress={() => handleAssignDeliveryBoy(item)}>
                 <Text style={[styles.actionBtnTxt, {color: '#1565C0'}]}>
-                  🚚 Assign Delivery
+                  Assign Delivery
                 </Text>
               </TouchableOpacity>
             )}
@@ -798,7 +798,7 @@ const AdminDashboard = () => {
                 ]}
                 onPress={() => handleTrackLive(item)}>
                 <Text style={[styles.actionBtnTxt, {color: '#3F51B5'}]}>
-                  🗺️ Track Live
+                  Track Live
                 </Text>
               </TouchableOpacity>
             )}
@@ -813,7 +813,7 @@ const AdminDashboard = () => {
     {key: 'Confirmed', label: 'Confirmed'},
     {key: 'Shipped', label: 'Purchased'},
     {key: 'Delivered', label: 'Delivered'},
-    {key: 'refund', label: `💸 Refund (${refundCount})`},
+    {key: 'refund', label: `Refund (${refundCount})`},
     {key: 'Cancelled', label: 'Cancelled'},
   ];
 
@@ -822,7 +822,7 @@ const AdminDashboard = () => {
       <LinearGradient
         colors={[COLORS.primaryGreen, '#1B8A4E']}
         style={styles.header}>
-        <Text style={styles.headerTitle}>👑 Admin Dashboard</Text>
+        <Text style={styles.headerTitle}>Admin Dashboard</Text>
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutTxt}>Logout</Text>
         </TouchableOpacity>
@@ -901,7 +901,7 @@ const AdminDashboard = () => {
                     setUsersModalType('farmer');
                     setUsersModalVisible(true);
                   }}>
-                  <Text style={styles.statEmoji}>👨‍🌾</Text>
+                  <Text style={styles.statEmoji}></Text>
                   <Text style={styles.statNum}>{userStats.farmers}</Text>
                   <Text style={styles.statLabel}>Farmers</Text>
                 </TouchableOpacity>
@@ -911,7 +911,7 @@ const AdminDashboard = () => {
                     setUsersModalType('consumer');
                     setUsersModalVisible(true);
                   }}>
-                  <Text style={styles.statEmoji}>🛒</Text>
+                  <Text style={styles.statEmoji}></Text>
                   <Text style={styles.statNum}>{userStats.consumers}</Text>
                   <Text style={styles.statLabel}>Customers</Text>
                 </TouchableOpacity>
@@ -921,7 +921,7 @@ const AdminDashboard = () => {
                     setUsersModalType('delivery');
                     setUsersModalVisible(true);
                   }}>
-                  <Text style={styles.statEmoji}>🚚</Text>
+                  <Text style={styles.statEmoji}></Text>
                   <Text style={styles.statNum}>{userStats.deliveryBoys}</Text>
                   <Text style={styles.statLabel}>Delivery</Text>
                 </TouchableOpacity>
@@ -933,7 +933,7 @@ const AdminDashboard = () => {
                 onPress={() => setFeedbackModalVisible(true)}>
                 <View style={styles.feedbackBannerContent}>
                   <Text style={styles.feedbackBannerText}>
-                    💬 User Feedbacks ({feedbacks.length})
+                    User Feedbacks ({feedbacks.length})
                   </Text>
                   <Text style={styles.feedbackBannerSub}>
                     View suggestions, voice recordings, & screenshots
@@ -956,7 +956,7 @@ const AdminDashboard = () => {
                 onPress={() => setPreOrdersModalVisible(true)}>
                 <View style={styles.feedbackBannerContent}>
                   <Text style={[styles.feedbackBannerText, {color: '#1565C0'}]}>
-                    📅 User Pre-Orders ({preOrders.length})
+                    User Pre-Orders ({preOrders.length})
                   </Text>
                   <Text style={[styles.feedbackBannerSub, {color: '#1E88E5'}]}>
                     Track crop reservations and update status (Harvested /
@@ -987,7 +987,7 @@ const AdminDashboard = () => {
               style={styles.modalCloseBtn}>
               <Text style={styles.modalCloseTxt}>← Back</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>🗺️ Live Tracking</Text>
+            <Text style={styles.modalTitle}>Live Tracking</Text>
             <View style={{width: 60}} />
           </LinearGradient>
 
@@ -995,13 +995,13 @@ const AdminDashboard = () => {
           {selectedOrderForTracking && (
             <View style={styles.trackingInfoBanner}>
               <Text style={styles.trackingInfoTxt}>
-                📦 #
+                #
                 {selectedOrderForTracking.orderId ||
                   selectedOrderForTracking.id?.slice(-4)}{' '}
                 • {selectedOrderForTracking.consumerName || 'Customer'}
               </Text>
               <Text style={styles.trackingInfoSub}>
-                🚚{' '}
+                {' '}
                 {selectedOrderForTracking.deliveryBoyName || 'Delivery Partner'}
               </Text>
             </View>
@@ -1081,7 +1081,7 @@ const AdminDashboard = () => {
                     typeof farmerLng === 'number' && (
                       <Marker
                         coordinate={{latitude: farmerLat, longitude: farmerLng}}
-                        title="🧑‍🌾 Farmer"
+                        title="Farmer"
                         description={
                           selectedOrderForTracking.farmerName ||
                           'Farmer Location'
@@ -1098,7 +1098,7 @@ const AdminDashboard = () => {
                           latitude: customerLat,
                           longitude: customerLng,
                         }}
-                        title="🏠 Customer"
+                        title="Customer"
                         description={
                           selectedOrderForTracking.consumerName ||
                           'Customer Location'
@@ -1111,7 +1111,7 @@ const AdminDashboard = () => {
                   {typeof dbLat === 'number' && typeof dbLng === 'number' && (
                     <Marker
                       coordinate={{latitude: dbLat, longitude: dbLng}}
-                      title="🚚 Delivery Partner"
+                      title="Delivery Partner"
                       description={
                         selectedOrderForTracking.deliveryBoyName ||
                         'Delivery Partner'
@@ -1145,15 +1145,15 @@ const AdminDashboard = () => {
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, {backgroundColor: '#4CAF50'}]} />
-              <Text style={styles.legendTxt}>🧑‍🌾 Farmer</Text>
+              <Text style={styles.legendTxt}>Farmer</Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, {backgroundColor: '#1565C0'}]} />
-              <Text style={styles.legendTxt}>🚚 Delivery</Text>
+              <Text style={styles.legendTxt}>Delivery</Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, {backgroundColor: '#F44336'}]} />
-              <Text style={styles.legendTxt}>🏠 Customer</Text>
+              <Text style={styles.legendTxt}>Customer</Text>
             </View>
           </View>
 
@@ -1185,7 +1185,7 @@ const AdminDashboard = () => {
               style={styles.modalCloseBtn}>
               <Text style={styles.modalCloseTxt}>← Back</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>💬 User Feedbacks</Text>
+            <Text style={styles.modalTitle}>User Feedbacks</Text>
             <View style={{width: 60}} />
           </LinearGradient>
 
@@ -1200,10 +1200,10 @@ const AdminDashboard = () => {
 
               const roleLabel =
                 item.userType === 'farmer'
-                  ? '👨‍🌾 Farmer'
+                  ? 'Farmer'
                   : item.userType === 'delivery'
-                  ? '🚚 Delivery'
-                  : '🛒 Customer';
+                  ? 'Delivery'
+                  : 'Customer';
 
               return (
                 <View style={styles.feedbackCard}>
@@ -1219,12 +1219,12 @@ const AdminDashboard = () => {
                     <View style={styles.contactRow}>
                       {item.userEmail ? (
                         <Text style={styles.contactText}>
-                          📧 {item.userEmail}
+                          {item.userEmail}
                         </Text>
                       ) : null}
                       {item.userPhone ? (
                         <Text style={styles.contactText}>
-                          📞 {item.userPhone}
+                          {item.userPhone}
                         </Text>
                       ) : null}
                     </View>
@@ -1233,8 +1233,8 @@ const AdminDashboard = () => {
                   <View style={styles.feedbackBody}>
                     <Text style={styles.feedbackType}>
                       {item.type === 'voice'
-                        ? '🎙️ Voice Feedback'
-                        : '📝 Written Feedback'}
+                        ? 'Voice Feedback'
+                        : 'Written Feedback'}
                     </Text>
                     {item.type === 'voice' ? (
                       <View
@@ -1270,7 +1270,7 @@ const AdminDashboard = () => {
                             if (!url) {
                               Alert.alert(
                                 'Voice Feedback',
-                                'வகுக்கப்பட்ட ஒலிப்பதிவு கோப்பு எதுவும் இல்லை (No audio recording file found for this feedback)',
+                                'வகுக்கப்பட்ட ஒலிப்பதிவு கோப்பு எதுவும் இல்லை',
                               );
                               return;
                             }
@@ -1302,7 +1302,7 @@ const AdminDashboard = () => {
                   {item.attachmentUrl ? (
                     <View style={styles.attachmentBox}>
                       <Text style={styles.attachmentLabel}>
-                        📎 Attached Screenshot:
+                        Attached Screenshot:
                       </Text>
                       <TouchableOpacity
                         activeOpacity={0.9}
@@ -1344,7 +1344,7 @@ const AdminDashboard = () => {
               style={styles.modalCloseBtn}>
               <Text style={styles.modalCloseTxt}>← Back</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>📅 Pre-Orders List</Text>
+            <Text style={styles.modalTitle}>Pre-Orders List</Text>
             <View style={{width: 60}} />
           </LinearGradient>
 
@@ -1412,7 +1412,7 @@ const AdminDashboard = () => {
                 </View>
 
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                  👤 Customer:{' '}
+                  Customer:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     {item.deliveryName || item.userName || 'User'}
                   </Text>
@@ -1420,7 +1420,7 @@ const AdminDashboard = () => {
                 {item.deliveryPhone && (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📞 Phone:{' '}
+                    Phone:{' '}
                     <Text style={{fontWeight: '600', color: '#333'}}>
                       {item.deliveryPhone}
                     </Text>
@@ -1429,7 +1429,7 @@ const AdminDashboard = () => {
                 {item.deliveryAddress && (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📍 Address:{' '}
+                    Address:{' '}
                     <Text style={{fontWeight: '600', color: '#333'}}>
                       {item.deliveryAddress}
                     </Text>
@@ -1438,7 +1438,7 @@ const AdminDashboard = () => {
                 {item.deliveryPincode && (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📮 PIN Code:{' '}
+                    PIN Code:{' '}
                     <Text style={{fontWeight: '600', color: '#333'}}>
                       {item.deliveryPincode}
                     </Text>
@@ -1447,7 +1447,7 @@ const AdminDashboard = () => {
                 {item.deliveryLocation && (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    🌐 GPS:{' '}
+                    GPS:{' '}
                     <Text style={{fontWeight: '600', color: '#333'}}>
                       {item.deliveryLocation}
                     </Text>
@@ -1456,32 +1456,32 @@ const AdminDashboard = () => {
                 {item.preOrderDate && (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📅 Pre-Ordered Date:{' '}
+                    Pre-Ordered Date:{' '}
                     <Text style={{fontWeight: '600', color: '#333'}}>
                       {new Date(item.preOrderDate).toLocaleDateString()}
                     </Text>
                   </Text>
                 )}
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                  👨‍🌾 Farmer:{' '}
+                  Farmer:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     {item.farmer || 'Farmer'}
                   </Text>
                 </Text>
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                  📦 Quantity:{' '}
+                  Quantity:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     {item.quantity || item.qty} {item.unit || 'kg'}
                   </Text>
                 </Text>
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                  💵 Price:{' '}
+                  Price:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     ₹{item.totalAmount || item.totalPrice}
                   </Text>
                 </Text>
                 <Text style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                  📅 Harvest Date:{' '}
+                  Harvest Date:{' '}
                   <Text style={{fontWeight: '600', color: '#333'}}>
                     {item.harvestDate
                       ? item.harvestDate.includes('-') &&
@@ -1514,7 +1514,7 @@ const AdminDashboard = () => {
                         fontWeight: 'bold',
                         fontSize: 14,
                       }}>
-                      🚫 {item.status.toUpperCase()}
+                      {item.status.toUpperCase()}
                     </Text>
                     {item.cancelReason && (
                       <Text
@@ -1555,7 +1555,7 @@ const AdminDashboard = () => {
                         }}
                         onPress={() => handleRefundPreOrder(item)}>
                         <Text style={{color: '#7B1FA2', fontWeight: 'bold'}}>
-                          💜 Mark Refunded
+                          Mark Refunded
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -1580,7 +1580,7 @@ const AdminDashboard = () => {
                           handleUpdatePreOrderStatus(item, 'harvested')
                         }>
                         <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
-                          🚜 Mark Harvest
+                          Mark Harvest
                         </Text>
                       </TouchableOpacity>
                     ) : (
@@ -1596,7 +1596,7 @@ const AdminDashboard = () => {
                           justifyContent: 'center',
                         }}>
                         <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                          🚜 Harvested ✓
+                          Harvested ✓
                         </Text>
                       </View>
                     )}
@@ -1617,7 +1617,7 @@ const AdminDashboard = () => {
                           handleUpdatePreOrderStatus(item, 'completed')
                         }>
                         <Text style={{color: '#FF9800', fontWeight: 'bold'}}>
-                          ✅ Mark Deliver
+                          Mark Deliver
                         </Text>
                       </TouchableOpacity>
                     ) : (
@@ -1633,7 +1633,7 @@ const AdminDashboard = () => {
                           justifyContent: 'center',
                         }}>
                         <Text style={{color: '#4CAF50', fontWeight: 'bold'}}>
-                          ✅ Delivered ✓
+                          Delivered ✓
                         </Text>
                       </View>
                     )}
@@ -1643,7 +1643,7 @@ const AdminDashboard = () => {
             )}
             ListEmptyComponent={
               <View style={{alignItems: 'center', paddingVertical: 80}}>
-                <Text style={{fontSize: 50, marginBottom: 12}}>📅</Text>
+                <Text style={{fontSize: 50, marginBottom: 12}}></Text>
                 <Text style={{color: '#999', fontSize: 16}}>
                   No user pre-orders found
                 </Text>
@@ -1672,10 +1672,10 @@ const AdminDashboard = () => {
             </TouchableOpacity>
             <Text style={styles.modalTitle}>
               {usersModalType === 'farmer'
-                ? '👨‍🌾 Farmers List'
+                ? 'Farmers List'
                 : usersModalType === 'consumer'
-                ? '🛒 Customers List'
-                : '🚚 Delivery Partners'}
+                ? 'Customers List'
+                : 'Delivery Partners'}
             </Text>
             <View style={{width: 60}} />
           </LinearGradient>
@@ -1710,35 +1710,35 @@ const AdminDashboard = () => {
                     color: '#333',
                     marginBottom: 6,
                   }}>
-                  👤 Name: {item.name || 'User'}
+                  Name: {item.name || 'User'}
                 </Text>
                 {item.phone || item.mobile ? (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📞 Phone: {item.phone || item.mobile}
+                    Phone: {item.phone || item.mobile}
                   </Text>
                 ) : null}
                 {item.email ? (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    ✉️ Email: {item.email}
+                    Email: {item.email}
                   </Text>
                 ) : null}
                 {item.address || item.location ? (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📍 Address: {item.address || item.location}
+                    Address: {item.address || item.location}
                   </Text>
                 ) : null}
                 {item.pincode ? (
                   <Text
                     style={{color: '#666', fontSize: 14, marginVertical: 2}}>
-                    📮 PIN Code: {item.pincode}
+                    PIN Code: {item.pincode}
                   </Text>
                 ) : null}
                 {item.createdAt ? (
                   <Text style={{color: '#888', fontSize: 12, marginTop: 8}}>
-                    📅 Registered on:{' '}
+                    Registered on:{' '}
                     {item.createdAt?.toDate
                       ? item.createdAt.toDate().toLocaleDateString()
                       : typeof item.createdAt === 'string'

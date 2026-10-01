@@ -3,6 +3,20 @@
 // Premium Green + Blue Gradient Theme
 // ====================================================
 
+import {Dimensions, PixelRatio} from 'react-native';
+
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
+const scale = SCREEN_WIDTH / 375;
+
+// Dynamic responsive font scaling with safe clamp boundary to prevent overflow
+export const getResponsiveFontSize = size => {
+  const newSize = size * scale;
+  const fontScale = PixelRatio.getFontScale();
+  // Bound font scale between 0.85 and 1.15 so text never clips on small/large devices
+  const clampedFontScale = Math.min(Math.max(fontScale, 0.85), 1.15);
+  return Math.round(PixelRatio.roundToNearestPixel(newSize / clampedFontScale));
+};
+
 export const COLORS = {
   // Primary Gradient Colors
   primaryGreen: '#1B8A4E',
@@ -76,18 +90,17 @@ export const COLORS = {
 
 export const FONTS = {
   // ─────────────────────────────────────────
-  // Font Sizes - பெரியவர்கள் முதல் சிறியவர்கள்
-  // வரை அனைவரும் தெளிவாக படிக்க வேண்டும்
+  // Standardized Responsive Font Sizes (15-70 Age Group Multi-device Fit)
   // ─────────────────────────────────────────
-  xs: 13, // முன்பு: 10  → இப்போ: 13  (tags, badges)
-  sm: 15, // முன்பு: 12  → இப்போ: 15  (sub labels, hints)
-  md: 17, // முன்பு: 14  → இப்போ: 17  (body text, inputs)
-  lg: 19, // முன்பு: 16  → இப்போ: 19  (section titles)
-  xl: 22, // முன்பு: 18  → இப்போ: 22  (card titles)
-  xxl: 26, // முன்பு: 22  → இப்போ: 26  (screen titles)
-  xxxl: 32, // முன்பு: 28  → இப்போ: 32  (hero text)
-  display: 42, // முன்பு: 36  → இப்போ: 42  (big numbers)
-  hero: 52, // முன்பு: 44  → இப்போ: 52  (splash/welcome)
+  xs: 12,
+  sm: 14,
+  md: 16,
+  lg: 18,
+  xl: 20,
+  xxl: 24,
+  xxxl: 28,
+  display: 34,
+  hero: 40,
 
   // Font Weights (use as strings for RN)
   thin: '100',
@@ -99,11 +112,11 @@ export const FONTS = {
   extraBold: '800',
   black: '900',
 
-  // Line Heights - reading comfort-க்காக
-  lineHeightSm: 22, // முன்பு: 18
-  lineHeightMd: 26, // முன்பு: 22
-  lineHeightLg: 30, // முன்பு: 26
-  lineHeightXl: 38, // முன்பு: 32
+  // Line Heights
+  lineHeightSm: 20,
+  lineHeightMd: 24,
+  lineHeightLg: 28,
+  lineHeightXl: 34,
 };
 
 export const SPACING = {

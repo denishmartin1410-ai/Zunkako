@@ -140,7 +140,7 @@ export const validateLevel1Form = (data) => {
   if (!imageUri) {
     return {
       valid: false,
-      error: 'தயவுசெய்து Product Image Upload செய்யுங்கள். (Please select a product image)',
+      error: 'தயவுசெய்து தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள். (Please select a product image)',
     };
   }
 
@@ -467,7 +467,7 @@ export const validateLevel4Duplicate = async (farmerId, name, category, price, u
     if (isDuplicate) {
       return {
         valid: false,
-        error: 'இந்த Product ஏற்கனவே உங்களால் Upload செய்யப்பட்டுள்ளது. (Duplicate Product detected)',
+        error: 'இந்த தயாரிப்பு ஏற்கனவே உங்களால் பதிவேற்றம் செய்யப்பட்டுள்ளது. (Duplicate Product detected)',
       };
     }
 

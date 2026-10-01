@@ -160,7 +160,7 @@ export const AuthProvider = ({children}) => {
           success: false,
           error: i18n.t('authAlerts.emailNotVerifiedMsg', {
             defaultValue:
-              '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nஉங்கள் மின்னஞ்சல் (Inbox அல்லது Spam Folder) சரிபார்த்து உறுதிப்படுத்தல் லிங்கை கிளிக் செய்யவும்.',
+              '📧 உங்கள் மின்னஞ்சல் இன்னும் சரிபார்க்கப்படவில்லை!\n\nஉங்கள் மின்னஞ்சலை சரிபார்த்து உறுதிப்படுத்தல் லிங்கை கிளிக் செய்யவும்.',
           }),
           errorType: 'email-not-verified',
           email: formattedEmail,

@@ -87,7 +87,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
       );
       return;
     }
-    const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: https://zunkako.web.app/groupbuy/${group.id}`;
+    const shareMsg = `கூட்டு வாங்கல்: "${group.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்!\n\nVillage Group Buy! Join "${group.title}" to get 15-25% discount & free delivery!\n\nJoin now: https://zunkako.web.app/groupbuy/${group.id}`;
     try {
       await Share.share({message: shareMsg});
     } catch (e) {}
@@ -115,7 +115,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
       {isHighlighted && (
         <View style={styles.highlightBadge}>
           <Text style={styles.highlightBadgeTxt}>
-            🎯{' '}
+            {' '}
             {t('groupBuy.invitedGroup', {
               defaultValue: 'Invited Group / அழைக்கப்பட்ட குழு',
             })}
@@ -277,7 +277,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}>
                 <Text style={styles.joinBtnTxt}>
-                  📢{' '}
+                  {' '}
                   {t('groupBuy.inviteFriends', {
                     defaultValue: 'நண்பர்களை அழைக்கவும்',
                   })}
@@ -294,7 +294,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}>
                 <Text style={styles.joinBtnTxt}>
-                  ✅ {t('groupBuy.joinGroup', {defaultValue: 'குழுவில் சேர்'})}
+                  {t('groupBuy.joinGroup', {defaultValue: 'குழுவில் சேர்'})}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -302,7 +302,7 @@ const GroupCard = ({group, onJoin, onDirectAdd, user, isHighlighted}) => {
         ) : (
           <View style={styles.fullBtn}>
             <Text style={styles.fullBtnTxt}>
-              🔴{' '}
+              {' '}
               {t('groupBuy.groupFull', {
                 defaultValue: 'குழு நிறைவடைந்தது (5/5)',
               })}
@@ -379,7 +379,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
       }));
 
       Alert.alert(
-        t('groupBuy.successTitle', {defaultValue: '🎉 வெற்றி!'}),
+        t('groupBuy.successTitle', {defaultValue: 'வெற்றி!'}),
         `${consumerName} ${t('groupBuy.addedSuccess', {
           defaultValue: 'குழுவில் சேர்க்கப்பட்டார்!',
         })}`,
@@ -420,7 +420,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
         } குழுவில் 15-25% இணைந்து தள்ளுபடி பெறுங்கள்!`,
       );
       const body = encodeURIComponent(
-        `கூட்டு வாங்கல்: "${selectedGroupForAdd.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்! 🎁\n\n` +
+        `கூட்டு வாங்கல்: "${selectedGroupForAdd.title}" குழுவில் இணைந்து 15-25% தள்ளுபடி பெறுங்கள்!\n\n` +
           `Village Group Buy! Join "${selectedGroupForAdd.title}" to get 15-25% discount & free delivery!\n\n` +
           `Join now: https://zunkako.web.app/groupbuy/${selectedGroupForAdd.id}`,
       );
@@ -433,7 +433,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
         } else {
           Alert.alert(
             t('groupBuy.inviteSuccessTitle', {
-              defaultValue: '📧 அழைப்பு அனுப்பப்பட்டது!',
+              defaultValue: 'அழைப்பு அனுப்பப்பட்டது!',
             }),
             t('groupBuy.inviteSuccessMsg', {
               defaultValue: `${email} முகவரிக்கு வெற்றிகரமாக அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது. நீங்கள் (${organizerName}) அவர்களை இந்த குழுவில் சேர்த்துள்ளீர்கள் என்பது அவர்களுக்குத் தெரிவிக்கப்பட்டது!`,
@@ -499,7 +499,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
       return;
     }
     Alert.alert(
-      '✅ குழுவில் சேர்',
+      'குழுவில் சேர்',
       `"${group.title}" குழுவில் சேர வேண்டுமா?\n\nநீங்கள் ${group.discount} தள்ளுபடி மற்றும் இலவச டெலிவரி பெறுவீர்கள்!\n\nJoin "${group.title}"?\nYou'll get ${group.discount} discount + free delivery!`,
       [
         {text: 'இல்லை / No', style: 'cancel'},
@@ -513,7 +513,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
             );
             if (res.success) {
               Alert.alert(
-                '🎉 சேர்ந்தீர்கள்!',
+                'சேர்ந்தீர்கள்!',
                 'வெற்றிகரமாக குழுவில் சேர்ந்தீர்கள்!\nSuccessfully joined the group!',
               );
             } else {
@@ -560,7 +560,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
 
     if (res.success) {
       Alert.alert(
-        t('groupBuy.groupCreatedTitle', {defaultValue: '✅ Group Created!'}),
+        t('groupBuy.groupCreatedTitle', {defaultValue: 'Group Created!'}),
         t('groupBuy.groupCreatedDesc', {
           defaultValue: 'Your group buy has been successfully created!',
         }),
@@ -674,7 +674,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
               },
             ]}>
             <Text style={[styles.createFormTitle, {color: themeColors.text}]}>
-              🆕 {t('groupBuy.createTitle')}
+              {t('groupBuy.createTitle')}
             </Text>
             {[
               {key: 'title', label: t('groupBuy.formName'), placeholder: ''},
@@ -736,7 +736,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
                 colors={COLORS.gradientButton}
                 style={styles.createSubmitGrad}>
                 <Text style={styles.createSubmitTxt}>
-                  ✅ {t('groupBuy.createBtnSubmit')}
+                  {t('groupBuy.createBtnSubmit')}
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -788,7 +788,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
               <Text
                 style={[styles.modalTitle, {color: themeColors.text}]}
                 numberOfLines={1}>
-                👥{' '}
+                {' '}
                 {t('groupBuy.directAddTitle', {
                   defaultValue: 'உறுப்பினர்களை நேரடியாக சேர்',
                 })}
@@ -836,7 +836,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
               <View style={styles.emptyContainer}>
                 <Text
                   style={[styles.emptyText, {color: themeColors.textMuted}]}>
-                  📭{' '}
+                  {' '}
                   {t('groupBuy.noConsumers', {
                     defaultValue: 'வாடிக்கையாளர்கள் யாரும் இல்லை.',
                   })}
@@ -858,7 +858,7 @@ const VillageGroupBuyScreen = ({navigation, route}) => {
                         <ActivityIndicator color={COLORS.white} size="small" />
                       ) : (
                         <Text style={styles.createSubmitTxt}>
-                          ✉️{' '}
+                          {' '}
                           {t('groupBuy.inviteBtn', {
                             defaultValue:
                               'நேரடியாகச் சேர் மற்றும் அழைப்பு அனுப்பு',

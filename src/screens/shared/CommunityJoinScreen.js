@@ -107,16 +107,16 @@ const CommunityJoinScreen = ({userType, userName, onContinue}) => {
             <View style={styles.benefitsList}>
               {(isFarmer
                 ? [
-                    '📢 New feature updates',
-                    '💡 Farming tips share',
-                    '🤝 Other farmers nearby connect',
-                    '⚡ Priority support available',
+                    'New feature updates',
+                    'Farming tips share',
+                    'Other farmers nearby connect',
+                    'Priority support available',
                   ]
                 : [
-                    '🌿 Fresh product alerts',
-                    '💰 Special offers & discounts',
-                    '👨‍🌾 Farmer stories',
-                    '🎁 Exclusive member benefits',
+                    'Fresh product alerts',
+                    'Special offers & discounts',
+                    'Farmer stories',
+                    'Exclusive member benefits',
                   ]
               ).map((benefit, i) => (
                 <Text key={i} style={styles.benefitItem}>

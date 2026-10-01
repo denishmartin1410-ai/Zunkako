@@ -48,13 +48,13 @@ const STATUS_FLOW = {
   Confirmed: {
     next: 'Shipped',
     labelKey: 'delivery.markPurchased',
-    defaultLabel: '📦 Mark Purchased',
+    defaultLabel: 'Mark Purchased',
     color: '#2196F3',
   },
   Shipped: {
     next: 'Delivered',
     labelKey: 'delivery.markDelivered',
-    defaultLabel: '🎉 Mark Delivered',
+    defaultLabel: 'Mark Delivered',
     color: '#4CAF50',
   },
 };
@@ -262,7 +262,7 @@ const DeliveryDashboard = ({navigation}) => {
   const navigateToLocation = (lat, lng, label = 'Destination') => {
     if (!lat || !lng) {
       Alert.alert(
-        '❌ Location Error',
+        'Location Error',
         'Location coordinates not available for this address.',
       );
       return;
@@ -350,14 +350,14 @@ const DeliveryDashboard = ({navigation}) => {
           userId: order.consumerId,
           title:
             newStatus === 'Delivered'
-              ? '🎉 Order Delivered!'
-              : `📦 Order ${newStatus === 'Shipped' ? 'Purchased' : newStatus}`,
+              ? 'Order Delivered!'
+              : `Order ${newStatus === 'Shipped' ? 'Purchased' : newStatus}`,
           message: `Your order #${
             order.orderId || order.id?.slice(-4)
           } is now ${
             newStatus === 'Shipped' ? 'purchased' : newStatus.toLowerCase()
           }.`,
-          emoji: newStatus === 'Delivered' ? '🎉' : '🚚',
+          emoji: newStatus === 'Delivered' ? '' : '',
           bgColor: newStatus === 'Delivered' ? '#E8F5E9' : '#FFF3E0',
           type: `delivery_${newStatus.toLowerCase().replace(/ /g, '_')}`,
         });
@@ -371,13 +371,13 @@ const DeliveryDashboard = ({navigation}) => {
           message: `Order #${order.orderId || order.id?.slice(-4)} is ${
             newStatus === 'Shipped' ? 'purchased' : newStatus.toLowerCase()
           }.`,
-          emoji: newStatus === 'Delivered' ? '🎉' : '🚚',
+          emoji: newStatus === 'Delivered' ? '' : '',
           bgColor: '#E8F5E9',
           type: `delivery_${newStatus.toLowerCase().replace(/ /g, '_')}`,
         });
       }
 
-      Alert.alert('✅ Updated', `Order marked as ${newStatus}`);
+      Alert.alert('Updated', `Order marked as ${newStatus}`);
     } catch (e) {
       Alert.alert('Error', e.message);
     }
@@ -405,7 +405,7 @@ const DeliveryDashboard = ({navigation}) => {
         <View style={styles.cardHeader}>
           <View>
             <Text style={[styles.orderId, {color: themeColors.text}]}>
-              📦 #{item.orderId || item.id?.slice(-4)}
+              #{item.orderId || item.id?.slice(-4)}
             </Text>
             <Text style={[styles.orderDate, {color: themeColors.textMuted}]}>
               {item.createdAt?.toDate?.()?.toLocaleDateString() || ''}
@@ -445,7 +445,7 @@ const DeliveryDashboard = ({navigation}) => {
               ]}>
               <Text
                 style={[styles.locationLabel, {color: themeColors.textMuted}]}>
-                🧑‍🌾 PICKUP AREA (FARMER)
+                PICKUP AREA (FARMER)
               </Text>
               <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.farmerName || 'Farmer'}
@@ -469,7 +469,7 @@ const DeliveryDashboard = ({navigation}) => {
               ]}>
               <Text
                 style={[styles.locationLabel, {color: themeColors.textMuted}]}>
-                🏠 DELIVER AREA (CUSTOMER)
+                DELIVER AREA (CUSTOMER)
               </Text>
               <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.consumerName || 'Customer'}
@@ -498,7 +498,7 @@ const DeliveryDashboard = ({navigation}) => {
                 {backgroundColor: isDark ? '#262626' : '#F8F9FA'},
               ]}>
               <Text style={[styles.itemsTitle, {color: themeColors.text}]}>
-                📋 {t('delivery.items', {defaultValue: 'Items'})} (
+                {t('delivery.items', {defaultValue: 'Items'})} (
                 {(item.items || []).length})
               </Text>
               {(item.items || []).map((itm, idx) => (
@@ -516,7 +516,7 @@ const DeliveryDashboard = ({navigation}) => {
                     borderTopColor: themeColors.border,
                   },
                 ]}>
-                💰 {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
+                {t('delivery.totalAmount', {defaultValue: 'Total'})}: ₹
                 {item.total}
               </Text>
             </View>
@@ -526,7 +526,7 @@ const DeliveryDashboard = ({navigation}) => {
               onPress={() => handleAcceptOrder(item)}>
               <Text style={styles.updateBtnTxt}>
                 {t('delivery.acceptDeliveryBtn', {
-                  defaultValue: '🤝 Accept Delivery',
+                  defaultValue: 'Accept Delivery',
                 })}
               </Text>
             </TouchableOpacity>
@@ -546,14 +546,14 @@ const DeliveryDashboard = ({navigation}) => {
               ]}>
               <Text
                 style={[styles.locationLabel, {color: themeColors.textMuted}]}>
-                🧑‍🌾 PICKUP FROM (FARMER)
+                PICKUP FROM (FARMER)
               </Text>
               <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.farmerName || 'Farmer'}
               </Text>
               {item.farmerPhone ? (
                 <Text style={[styles.locationPhone, {color: themeColors.text}]}>
-                  📞 {item.farmerPhone}
+                  {item.farmerPhone}
                 </Text>
               ) : null}
               <Text
@@ -570,7 +570,7 @@ const DeliveryDashboard = ({navigation}) => {
                   marginTop: 4,
                   fontSize: rs(13),
                 }}>
-                💵 Pay to Farmer: ₹{getFarmerOrderTotal(item)}
+                Pay to Farmer: ₹{getFarmerOrderTotal(item)}
               </Text>
 
               {item.status === 'Confirmed' ? (
@@ -591,7 +591,7 @@ const DeliveryDashboard = ({navigation}) => {
                       styles.navBtnTxt,
                       {color: isDark ? '#90CAF9' : '#1565C0'},
                     ]}>
-                    🗺️ Navigate to Farmer
+                    Navigate to Farmer
                   </Text>
                 </TouchableOpacity>
               ) : (
@@ -600,7 +600,7 @@ const DeliveryDashboard = ({navigation}) => {
                     styles.stepCompletedLabel,
                     isDark && {backgroundColor: '#1B3E24', color: '#81C784'},
                   ]}>
-                  ✅ Picked Up from Farmer
+                  Picked Up from Farmer
                 </Text>
               )}
             </View>
@@ -617,14 +617,14 @@ const DeliveryDashboard = ({navigation}) => {
               ]}>
               <Text
                 style={[styles.locationLabel, {color: themeColors.textMuted}]}>
-                🏠 DELIVER TO (CUSTOMER)
+                DELIVER TO (CUSTOMER)
               </Text>
               <Text style={[styles.locationName, {color: themeColors.text}]}>
                 {item.consumerName || 'Customer'}
               </Text>
               {item.consumerPhone ? (
                 <Text style={[styles.locationPhone, {color: themeColors.text}]}>
-                  📞 {item.consumerPhone}
+                  {item.consumerPhone}
                 </Text>
               ) : null}
               <Text
@@ -650,7 +650,7 @@ const DeliveryDashboard = ({navigation}) => {
                   marginTop: 4,
                   fontSize: rs(13),
                 }}>
-                💵 Collect from Customer: ₹{item.total}
+                Collect from Customer: ₹{item.total}
               </Text>
 
               {item.status === 'Delivered' ? (
@@ -659,7 +659,7 @@ const DeliveryDashboard = ({navigation}) => {
                     styles.stepCompletedLabel,
                     isDark && {backgroundColor: '#1B3E24', color: '#81C784'},
                   ]}>
-                  ✅ Delivered to Consumer
+                  Delivered to Consumer
                 </Text>
               ) : item.status === 'Shipped' ? (
                 <View style={{gap: 8, marginTop: 4}}>
@@ -682,7 +682,7 @@ const DeliveryDashboard = ({navigation}) => {
                         styles.navBtnTxt,
                         {color: isDark ? '#81C784' : '#2E7D32'},
                       ]}>
-                      🗺️ Navigate to Customer
+                      Navigate to Customer
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -699,7 +699,7 @@ const DeliveryDashboard = ({navigation}) => {
                         styles.navBtnTxt,
                         {color: '#FFFFFF', fontWeight: 'bold'},
                       ]}>
-                      ✅ Delivered to Customer
+                      Delivered to Customer
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -709,7 +709,7 @@ const DeliveryDashboard = ({navigation}) => {
                     styles.stepLockedLabel,
                     isDark && {backgroundColor: '#2E2E2E', color: '#888'},
                   ]}>
-                  🔒 Available after product pickup
+                  Available after product pickup
                 </Text>
               )}
             </View>
@@ -721,7 +721,7 @@ const DeliveryDashboard = ({navigation}) => {
                 {backgroundColor: isDark ? '#262626' : '#F8F9FA'},
               ]}>
               <Text style={[styles.itemsTitle, {color: themeColors.text}]}>
-                📋 {t('delivery.items', {defaultValue: 'Items'})} (
+                {t('delivery.items', {defaultValue: 'Items'})} (
                 {(item.items || []).length})
               </Text>
               {(item.items || []).map((itm, idx) => {
@@ -790,7 +790,7 @@ const DeliveryDashboard = ({navigation}) => {
         <View style={styles.headerTop}>
           <View style={{flex: 1}}>
             <Text style={styles.greeting}>
-              🚚 {t('delivery.title', {defaultValue: 'Delivery Partner'})}
+              {t('delivery.title', {defaultValue: 'Delivery Partner'})}
             </Text>
             <Text style={styles.userName} numberOfLines={1}>
               {user?.name || 'Partner'}
@@ -866,19 +866,19 @@ const DeliveryDashboard = ({navigation}) => {
         {[
           {
             key: 'available',
-            label: `🤝 ${t('delivery.available', {
+            label: `${t('delivery.available', {
               defaultValue: 'Available',
             })} (${availableOrders.length})`,
           },
           {
             key: 'active',
-            label: `🟢 ${t('delivery.active', {defaultValue: 'Active'})} (${
+            label: `${t('delivery.active', {defaultValue: 'Active'})} (${
               activeOrders.length
             })`,
           },
           {
             key: 'completed',
-            label: `✅ ${t('delivery.completed', {
+            label: `${t('delivery.completed', {
               defaultValue: 'Completed',
             })} (${completedOrders.length})`,
           },
@@ -931,10 +931,10 @@ const DeliveryDashboard = ({navigation}) => {
             <View style={styles.emptyBox}>
               <Text style={styles.emptyEmoji}>
                 {activeTab === 'available'
-                  ? '🤝'
+                  ? ''
                   : activeTab === 'active'
-                  ? '🚚'
-                  : '📦'}
+                  ? ''
+                  : ''}
               </Text>
               <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
                 {activeTab === 'available'

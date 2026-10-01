@@ -209,18 +209,18 @@ const LoginScreen = ({navigation, route}) => {
           // Email not verified - offer to resend
           Alert.alert(
             t('authAlerts.emailNotVerifiedTitle', {
-              defaultValue: '📧 மின்னஞ்சல் சரிபார்ப்பு தேவை!',
+              defaultValue: 'மின்னஞ்சல் சரிபார்ப்பு தேவை!',
             }),
             t('authAlerts.emailNotVerifiedMsg', {
               defaultValue:
                 `உங்கள் மின்னஞ்சல் (${email.trim()}) இன்னும் உறுதிப்படுத்தப்படவில்லை.\n\n` +
-                '👉 குறிப்பு: உறுதிப்படுத்தல் லிங்க் உங்கள் Email Inbox அல்லது Spam / Junk Folder-ல் அனுப்பப்பட்டுள்ளது. அதை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்.',
+                'குறிப்பு: உறுதிப்படுத்தல் லிங்க் உங்கள் மின்னஞ்சல் Inbox அல்லது Spam / Junk Folder-ல் அனுப்பப்பட்டுள்ளது. அதை கிளிக் செய்து சரிபார்த்த பின் உள்நுழையவும்.',
             }),
             [
               {text: t('common.ok', {defaultValue: 'சரி'}), style: 'cancel'},
               {
                 text: t('authAlerts.resendLinkBtn', {
-                  defaultValue: '📩 லிங்க் மீண்டும் அனுப்பு',
+                  defaultValue: 'லிங்க் மீண்டும் அனுப்பு',
                 }),
                 onPress: async () => {
                   const res = await resendVerificationEmail(
@@ -230,7 +230,7 @@ const LoginScreen = ({navigation, route}) => {
                   if (res.success) {
                     Alert.alert(
                       t('authAlerts.linkSentTitle', {
-                        defaultValue: '✅ லிங்க் அனுப்பப்பட்டது!',
+                        defaultValue: 'லிங்க் அனுப்பப்பட்டது!',
                       }),
                       t('authAlerts.linkSentMsg', {
                         defaultValue:
@@ -306,7 +306,7 @@ const LoginScreen = ({navigation, route}) => {
           onPress={() => navigation.goBack()}
           style={{position: 'absolute', top: 50, left: SPACING.xl}}
         />
-        <Text style={styles.headerEmoji}>👋</Text>
+        <Text style={styles.headerEmoji}></Text>
         <Text style={styles.headerTitle}>
           {t('login.welcome', {defaultValue: 'Welcome Back!'})}
         </Text>
@@ -327,21 +327,21 @@ const LoginScreen = ({navigation, route}) => {
           const roleConfig = {
             farmer: {
               label: t('login.farmer', {defaultValue: 'Farmer'}),
-              emoji: '👨‍🌾',
+              emoji: '',
               colors: ['#E8F5E9', '#C8E6C9'],
               borderColor: '#A5D6A7',
               textColor: '#1B5E20',
             },
             consumer: {
               label: t('login.consumer', {defaultValue: 'Consumer'}),
-              emoji: '🛒',
+              emoji: '',
               colors: ['#E3F2FD', '#BBDEFB'],
               borderColor: '#90CAF9',
               textColor: '#0D47A1',
             },
             delivery: {
               label: t('login.delivery', {defaultValue: 'Delivery'}),
-              emoji: '🚚',
+              emoji: '',
               colors: ['#FFF3E0', '#FFE0B2'],
               borderColor: '#FFCC80',
               textColor: '#E65100',

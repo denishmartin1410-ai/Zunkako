@@ -42,38 +42,38 @@ exports.sendOrderStatusSMS = functions.firestore
     // ── Status-க்கு ஏற்ற Tamil message ──
     const statusMessages = {
       Confirmed: {
-        consumer: `✅ F2C Order Confirmed!\nஉங்கள் Order #${orderId.slice(
+        consumer: `Zunkako Order Confirmed!\nஉங்கள் ஆர்டர் #${orderId.slice(
           -4,
         )} உறுதி செய்யப்பட்டது.\nமொத்தம்: ₹${
           newData.total
         }\nவிரைவில் டெலிவரி வரும்!`,
-        farmer: `🛒 புதிய Order!\nOrder #${orderId.slice(
+        farmer: `புதிய ஆர்டர்!\nஆர்டர் #${orderId.slice(
           -4,
-        )} confirm ஆச்சு.\nமொத்தம்: ₹${newData.total}\nF2C App-ல் பார்க்கவும்.`,
+        )} உறுதி செய்யப்பட்டது.\nமொத்தம்: ₹${newData.total}\nZunkako App-ல் பார்க்கவும்.`,
       },
       Shipped: {
-        consumer: `🚚 F2C Delivery On the Way!\nஉங்கள் Order #${orderId.slice(
+        consumer: `Zunkako Delivery On the Way!\nஉங்கள் ஆர்டர் #${orderId.slice(
           -4,
         )} அனுப்பப்பட்டது.\n30-60 நிமிடத்தில் வரும்!\nTrack: f2capp.com/track/${orderId}`,
-        farmer: `📦 Order அனுப்பப்பட்டது!\nOrder #${orderId.slice(
+        farmer: `ஆர்டர் அனுப்பப்பட்டது!\nஆர்டர் #${orderId.slice(
           -4,
-        )} delivery boy-கிட்ட கொடுக்கப்பட்டது.`,
+        )} டெலிவரி நபரிடம் கொடுக்கப்பட்டது.`,
       },
       Delivered: {
-        consumer: `🎉 F2C Delivered!\nஉங்கள் Order #${orderId.slice(
+        consumer: `Zunkako Delivered!\nஉங்கள் ஆர்டர் #${orderId.slice(
           -4,
-        )} கிடைத்தது!\nF2C-ல் shop பண்ணியதற்கு நன்றி 🌿\nReview தரவும்: f2capp.com/review`,
-        farmer: `💰 Order Delivered!\nOrder #${orderId.slice(
+        )} கிடைத்தது!\nZunkako-வில் சாப் பண்ணியதற்கு நன்றி 🌿\nவிமர்சனம் தரவும்: f2capp.com/review`,
+        farmer: `Order Delivered!\nOrder #${orderId.slice(
           -4,
-        )} successfully delivered!\nPayment 2 நாட்களில் வரும்.`,
+        )} successfully delivered!\nபணம் 2 நாட்களில் வரும்.`,
       },
       Cancelled: {
-        consumer: `❌ F2C Order Cancelled\nOrder #${orderId.slice(
+        consumer: `Zunkako Order Cancelled\nஆர்டர் #${orderId.slice(
           -4,
-        )} cancel ஆச்சு.\nRefund: 3-5 business days.\nSupport: 9876543210`,
-        farmer: `⚠️ Order Cancel!\nOrder #${orderId.slice(
+        )} ரத்து செய்யப்பட்டது.\nRefund: 3-5 business days.\nSupport: 9876543210`,
+        farmer: `Order Cancel!\nOrder #${orderId.slice(
           -4,
-        )} consumer cancel பண்ணினார்.`,
+        )} வாடிக்கையாளர் ரத்து செய்தார்.`,
       },
     };
 
@@ -130,11 +130,11 @@ exports.sendNewOrderSMS = functions.firestore
 
     // Farmer-க்கு new order SMS
     if (orderData.farmerPhone) {
-      const message = `🌾 F2C - புதிய Order!\nOrder #${orderId.slice(
+      const message = `🌾 Zunkako - புதிய ஆர்டர்!\nOrder #${orderId.slice(
         -4,
       )}\nConsumer: ${orderData.consumerName}\nமொத்தம்: ₹${
         orderData.total
-      }\nஉடனே App-ல் accept பண்ணவும்!`;
+      }\nஉடனே App-ல் ஏற்றுக்கொள்ளவும்!`;
 
       await client.messages
         .create({
@@ -198,17 +198,17 @@ exports.sendWhatsAppUpdate = functions.firestore
     }
 
     const waMessages = {
-      Confirmed: `✅ *F2C Order Confirmed!*\n\nOrder ID: #${orderId.slice(
+      Confirmed: `*Zunkako Order Confirmed!*\n\nOrder ID: #${orderId.slice(
         -4,
       )}\nமொத்தம்: ₹${
         newData.total
-      }\n\n📦 உங்கள் order process ஆகிறது...\n🚚 விரைவில் deliver ஆகும்!\n\nTrack: f2capp.com/track/${orderId}`,
-      Shipped: `🚚 *உங்கள் Order வருகிறது!*\n\nOrder #${orderId.slice(
+      }\n\nஉங்கள் ஆர்டர் செயல்முறை ஆகிறது...\nவிரைவில் டெலிவரி ஆகும்!\n\nTrack: f2capp.com/track/${orderId}`,
+      Shipped: `*உங்கள் ஆர்டர் வருகிறது!*\n\nOrder #${orderId.slice(
         -4,
-      )} on the way!\n⏱ 30-60 நிமிடத்தில் கிடைக்கும்\n\n📍 Live Track: f2capp.com/track/${orderId}`,
-      Delivered: `🎉 *Delivered Successfully!*\n\nOrder #${orderId.slice(
+      )} on the way!\n30-60 நிமிடத்தில் கிடைக்கும்\n\nLive Track: f2capp.com/track/${orderId}`,
+      Delivered: `*Delivered Successfully!*\n\nOrder #${orderId.slice(
         -4,
-      )} கிடைத்தது!\n\n⭐ Review தரவும் - உங்கள் feedback எங்களுக்கு முக்கியம்!\nf2capp.com/review/${orderId}\n\n🌿 F2C-ல் shop பண்ணியதற்கு நன்றி!`,
+      )} கிடைத்தது!\n\n⭐ விமர்சனம் தரவும் - உங்கள் கருத்து எங்களுக்கு முக்கியம்!\nf2capp.com/review/${orderId}\n\n🌿Zunkako-வில் சாப் பண்ணியதற்கு நன்றி!`,
     };
 
     const waMessage = waMessages[newData.status];
@@ -263,7 +263,7 @@ exports.sendCustomOTP = functions.https.onCall(async (data, context) => {
   const twilioPhone = functions.config().twilio?.phone || '+17372508034';
 
   await client.messages.create({
-    body: `உங்கள் F2C OTP: ${otp}\n5 நிமிடத்தில் expire ஆகும்.\nYour F2C OTP: ${otp}`,
+    body: `உங்கள் Zunkako OTP: ${otp}\n5 நிமிடத்தில் காலாவதியாகும்.\nYour Zunkako OTP: ${otp}`,
     from: twilioPhone,
     to: '+91' + phone,
   });
@@ -297,7 +297,7 @@ exports.moderateProductImage = functions.storage
         detections.racy === 'VERY_LIKELY';
 
       if (isUnsafe) {
-        console.log(`❌ AI Moderation: Unsafe image detected! ${filePath}`);
+        console.log(`AI Moderation: Unsafe image detected! ${filePath}`);
         const bucket = admin.storage().bucket(object.bucket);
         await bucket.file(filePath).delete();
 
@@ -305,7 +305,7 @@ exports.moderateProductImage = functions.storage
         if (metadata.userId) {
           await admin.firestore().collection('notifications').add({
             userId: metadata.userId,
-            title: '⚠️ எச்சரிக்கை: படம் நிராகரிக்கப்பட்டது!',
+            title: 'எச்சரிக்கை: படம் நிராகரிக்கப்பட்டது!',
             message:
               'நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது. தயவுசெய்து சரியான தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
             createdAt: admin.firestore.FieldValue.serverTimestamp(),

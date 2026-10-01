@@ -81,9 +81,9 @@ const FarmVisitScreen = ({navigation}) => {
     }
     if (i18n.language === 'ml') {
       return [
-        '✅ നേരിട്ട് വിളവെടുക്കാം',
-        '✅ കൃഷിയിടം സന്ദർശിക്കാം',
-        '✅ ജൈവ കൃഷി രീതികൾ പഠിക്കാം',
+        'നേരിട്ട് വിളവെടുക്കാം',
+        'കൃഷിയിടം സന്ദർശിക്കാം',
+        'ജൈവ കൃഷി രീതികൾ പഠിക്കാം',
       ];
     }
     return farm.activitiesEn || farm.activities || [];
@@ -132,14 +132,14 @@ const FarmVisitScreen = ({navigation}) => {
           availableDaysTa: ['சனி', 'ஞாயிறு'],
           availableDays: ['Saturday', 'Sunday'],
           activities: [
-            '✅ நேரடி அறுவடை செய்யலாம்',
-            '✅ விளைநிலங்களை சுற்றிப்பார்க்கலாம்',
-            '✅ இயற்கை விவசாய முறைகளை அறியலாம்',
+            'நேரடி அறுவடை செய்யலாம்',
+            'விளைநிலங்களை சுற்றிப்பார்க்கலாம்',
+            'இயற்கை விவசாய முறைகளை அறியலாம்',
           ],
           activitiesEn: [
-            '✅ Harvest directly',
-            '✅ Farm tour',
-            '✅ Learn organic farming',
+            'Harvest directly',
+            'Farm tour',
+            'Learn organic farming',
           ],
         }));
         setFarms(mappedFarms);
@@ -199,11 +199,11 @@ const FarmVisitScreen = ({navigation}) => {
 
     let formattedMessage = '';
     if (i18n.language === 'ta') {
-      formattedMessage = `👋 வணக்கம்! தங்கள் பண்ணைக்கு நேரில் வர அனுமதி கேட்கிறேன்.\n📅 தேதி: ${formattedDate}\n⏰ நேரம்: ${selectedSlot}\n👥 உறுப்பினர்கள்: ${visitors} பேர்\nநாங்கள் வரலாமா?`;
+      formattedMessage = `வணக்கம்! தங்கள் பண்ணைக்கு நேரில் வர அனுமதி கேட்கிறேன்.\nதேதி: ${formattedDate}\nநேரம்: ${selectedSlot}\nஉறுப்பினர்கள்: ${visitors} பேர்\nநாங்கள் வரலாமா?`;
     } else if (i18n.language === 'ml') {
-      formattedMessage = `👋 നമസ്കാരം! നിങ്ങളുടെ ഫാം സന്ദർശിക്കാൻ ഞാൻ അനുവാദം ചോദിക്കുന്നു.\n📅 തിയ്യതി: ${formattedDate}\n⏰ സമയം: ${selectedSlot}\n👥 സന്ദർശകർ: ${visitors} പേർ\nഞങ്ങൾ വന്നോട്ടെ?`;
+      formattedMessage = `നമസ്കാരം! നിങ്ങളുടെ ഫാം സന്ദർശിക്കാൻ ഞാൻ അനുവാദം ചോദിക്കുന്നു.\nതിയ്യതി: ${formattedDate}\nസമയം: ${selectedSlot}\nസന്ദർശകർ: ${visitors} പേർ\nഞങ്ങൾ വന്നോട്ടെ?`;
     } else {
-      formattedMessage = `👋 Hello! I would like to request permission to visit your farm.\n📅 Date: ${formattedDate}\n⏰ Time: ${selectedSlot}\n👥 Visitors: ${visitors} ${getVisitorsLabel(
+      formattedMessage = `Hello! I would like to request permission to visit your farm.\nDate: ${formattedDate}\nTime: ${selectedSlot}\nVisitors: ${visitors} ${getVisitorsLabel(
         parseInt(visitors),
       )}\nCan we visit?`;
     }
@@ -365,7 +365,7 @@ const FarmVisitScreen = ({navigation}) => {
 
         {/* Available days */}
         <Text style={[styles.subTitle, {color: themeColors.text}]}>
-          📅{' '}
+          {' '}
           {t('farmVisit.visitDays', {
             defaultValue: 'வருகை நாட்கள் / Visit Days',
           })}
@@ -392,7 +392,7 @@ const FarmVisitScreen = ({navigation}) => {
 
         {/* Activities */}
         <Text style={[styles.subTitle, {color: themeColors.text}]}>
-          🌟{' '}
+          {' '}
           {t('farmVisit.activities', {defaultValue: 'செய்யலாம் / Activities'})}:
         </Text>
         {getFarmActivities(farm).map((act, i) => (
@@ -416,7 +416,7 @@ const FarmVisitScreen = ({navigation}) => {
             start={{x: 0, y: 0}}
             end={{x: 1, y: 0}}>
             <Text style={styles.bookBtnTxt}>
-              📅{' '}
+              {' '}
               {t('farmVisit.bookBtn', {defaultValue: 'பண்ணை வருகை பதிவு செய்'})}
             </Text>
           </LinearGradient>
@@ -434,7 +434,7 @@ const FarmVisitScreen = ({navigation}) => {
           <BackButton onPress={() => navigation.goBack()} />
         </View>
         <View style={styles.headerContent}>
-          <Text style={styles.headerEmoji}>🗺️</Text>
+          <Text style={styles.headerEmoji}></Text>
           <Text style={styles.headerTitle}>
             {t('farmVisit.title', {defaultValue: 'பண்ணை வருகை'})}
           </Text>
@@ -466,7 +466,7 @@ const FarmVisitScreen = ({navigation}) => {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled">
                 <Text style={[styles.bookingTitle, {color: themeColors.text}]}>
-                  📅 {selectedFarm.farmName} -{' '}
+                  {selectedFarm.farmName} -{' '}
                   {t('farmVisit.attendance', {defaultValue: 'வருகை பதிவு'})}
                 </Text>
                 <Text
@@ -480,7 +480,7 @@ const FarmVisitScreen = ({navigation}) => {
                 {/* Date input */}
                 <Text
                   style={[styles.bookingLabel, {color: themeColors.subText}]}>
-                  📅{' '}
+                  {' '}
                   {t('farmVisit.dateLabel', {
                     defaultValue: 'தேதி (DD/MM/YYYY) சனி/ஞாயிறு மட்டும்',
                   })}
@@ -507,7 +507,7 @@ const FarmVisitScreen = ({navigation}) => {
                 {/* Slot selector */}
                 <Text
                   style={[styles.bookingLabel, {color: themeColors.subText}]}>
-                  ⏰ {t('farmVisit.timeLabel', {defaultValue: 'நேரம்'})}:
+                  {t('farmVisit.timeLabel', {defaultValue: 'நேரம்'})}:
                 </Text>
                 {(selectedFarm.visitSlots || []).map((slot, i) => (
                   <TouchableOpacity
@@ -541,7 +541,7 @@ const FarmVisitScreen = ({navigation}) => {
                 {/* Visitors count */}
                 <Text
                   style={[styles.bookingLabel, {color: themeColors.subText}]}>
-                  👥{' '}
+                  {' '}
                   {t('farmVisit.visitorsLabel', {
                     defaultValue: 'உறுப்பினர்கள் எண்ணிக்கை',
                   })}
@@ -611,7 +611,7 @@ const FarmVisitScreen = ({navigation}) => {
                       colors={COLORS.gradientButton}
                       style={styles.confirmGrad}>
                       <Text style={styles.confirmTxt}>
-                        ✅{' '}
+                        {' '}
                         {t('farmVisit.confirmBtn', {defaultValue: 'Confirm'})}
                       </Text>
                     </LinearGradient>

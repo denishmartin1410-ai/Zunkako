@@ -171,7 +171,7 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
       {!isMe && (
         <View
           style={[styles.customerDot, isDark && {backgroundColor: '#1E1E1E'}]}>
-          <Text style={{fontSize: 10}}>👤</Text>
+          <Text style={{fontSize: 10}}></Text>
         </View>
       )}
       <View
@@ -193,7 +193,7 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
               },
             ]}>
             <View style={styles.mapHeaderRow}>
-              <Text style={{fontSize: 24}}>🗺️</Text>
+              <Text style={{fontSize: 24}}></Text>
               <View style={styles.mapTextCol}>
                 <Text style={[styles.mapTitle, {color: themeColors.text}]}>
                   {t('chat.sharedLocation', {
@@ -316,7 +316,7 @@ export const FarmerChatListScreen = ({navigation}) => {
         <BackButton onPress={() => navigation.goBack()} />
         <View style={{flex: 1, marginLeft: SPACING.md}}>
           <Text style={styles.headerTitle}>
-            💬 {t('farmer.customerChats', {defaultValue: 'நுகர்வோர் அரட்டை'})}
+            {t('farmer.customerChats', {defaultValue: 'நுகர்வோர் அரட்டை'})}
           </Text>
         </View>
       </LinearGradient>
@@ -375,7 +375,7 @@ export const FarmerChatListScreen = ({navigation}) => {
                   <Text
                     style={[styles.chatLastMsg, {color: themeColors.subText}]}
                     numberOfLines={1}>
-                    {item.lastSenderId === farmerId ? '✓ ' : ''}
+                    {item.lastSenderId === farmerId ? '✓✓' : ''}
                     {item.lastMessage ||
                       t('chat.startChatting', {
                         defaultValue: 'அரட்டையை தொடங்குங்கள்',
@@ -388,7 +388,7 @@ export const FarmerChatListScreen = ({navigation}) => {
           ItemSeparatorComponent={() => <View style={{height: SPACING.sm}} />}
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Text style={{fontSize: 56}}>💬</Text>
+              <Text style={{fontSize: 56}}></Text>
             </View>
           }
         />
@@ -569,10 +569,10 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
           <Text style={styles.roomSub}>
             {partnerStatus.isOnline
               ? i18n.language === 'ta'
-                ? '🟢 ஆன்லைன்'
+                ? 'ஆன்லைன்'
                 : i18n.language === 'ml'
-                ? '🟢 ഓൺലൈൻ'
-                : '🟢 Online'
+                ? 'ഓൺലൈൻ'
+                : 'Online'
               : formatLastSeen(partnerStatus.lastSeen, i18n.language || 'ta')}
           </Text>
         </View>
@@ -594,7 +594,7 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
-            <Text style={{fontSize: 56}}>💬</Text>
+            <Text style={{fontSize: 56}}></Text>
             <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
               {consumerName}
             </Text>
@@ -685,7 +685,7 @@ export const FarmerCustomerChatRoomScreen = ({route, navigation}) => {
                     onPress={async () => {
                       setDeleteModalVisible(false);
                       const deletedText = t('chat.messageDeletedEveryone', {
-                        defaultValue: '🚫 This message was deleted',
+                        defaultValue: 'This message was deleted',
                       });
                       await deleteChatMessageForEveryone(
                         farmerId,

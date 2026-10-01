@@ -341,16 +341,16 @@ const StoryVideoScreen = ({navigation}) => {
           </Text>
           {[
             t('story.tip1', {
-              defaultValue: '🌅 காலை நேரத்தில் பண்ணையை வீடியோ எடுக்கவும்',
+              defaultValue: 'காலை நேரத்தில் பண்ணையை வீடியோ எடுக்கவும்',
             }),
             t('story.tip2', {
-              defaultValue: '🌿 உங்கள் பயிர்கள், அறுவடை செயல்முறையை காட்டவும்',
+              defaultValue: 'உங்கள் பயிர்கள், அறுவடை செயல்முறையை காட்டவும்',
             }),
             t('story.tip3', {
-              defaultValue: '😊 நேரடியாக கேமராவை பார்த்து பேசவும்',
+              defaultValue: 'நேரடியாக கேமராவை பார்த்து பேசவும்',
             }),
             t('story.tip4', {
-              defaultValue: '📱 கிடைமட்ட முறையில் வீடியோ எடுக்கவும்',
+              defaultValue: 'கிடைமட்ட முறையில் வீடியோ எடுக்கவும்',
             }),
           ].map((tip, i) => (
             <Text

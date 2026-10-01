@@ -193,7 +193,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
         newStatus,
       );
       if (r.success) {
-        Alert.alert('✅ Success', `Pre-Order status updated to: ${newStatus}`);
+        Alert.alert('Success', `Pre-Order status updated to: ${newStatus}`);
 
         // Update locally
         setPreOrders(prev =>
@@ -206,26 +206,26 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
 
         // Notify user about status change
         const firestore = require('@react-native-firebase/firestore').default;
-        let title = '📅 Pre-Order Update';
+        let title = 'Pre-Order Update';
         let message = `Your pre-ordered ${
           item.nameEn || item.name
         } has been updated to ${newStatus} by the farmer.`;
-        let emoji = '📅';
+        let emoji = '';
         let bgColor = '#E3F2FD';
 
         if (newStatus === 'harvested') {
-          title = '🌾 Crop Harvested!';
+          title = 'Crop Harvested!';
           message = `Your pre-ordered ${
             item.nameEn || item.name || 'crop'
           } has been harvested and is ready for pickup/delivery!`;
-          emoji = '🌾';
+          emoji = '';
           bgColor = '#E8F5E9';
         } else if (newStatus === 'completed') {
-          title = '🎉 Pre-Order Completed!';
+          title = 'Pre-Order Completed!';
           message = `Your pre-order for ${
             item.nameEn || item.name || 'crop'
           } has been successfully delivered and completed.`;
-          emoji = '🎉';
+          emoji = '';
           bgColor = '#E8F5E9';
         }
 
@@ -368,29 +368,25 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
     {
       label: t('farmer.totalSales', {defaultValue: 'மொத்த விற்பனை'}),
       val: `₹${stats.totalSales.toLocaleString()}`,
-      icon: '💰',
-      color: '#4CAF50',
+      badgeColor: '#4CAF50',
       onPress: openSalesDetails,
     },
     {
       label: t('farmer.thisMonth', {defaultValue: 'இந்த மாதம்'}),
       val: `₹${stats.thisMonthRevenue.toLocaleString()}`,
-      icon: '📈',
-      color: '#2196F3',
+      badgeColor: '#2196F3',
       onPress: openMonthlyDetails,
     },
     {
       label: t('nav.orders', {defaultValue: 'ஆர்டர்கள்'}),
       val: `${stats.totalOrders}`,
-      icon: '📦',
-      color: '#FF9800',
+      badgeColor: '#FF9800',
       onPress: () => navigation.navigate('FarmerOrders'),
     },
     {
       label: t('nav.products', {defaultValue: 'தயாரிப்புகள்'}),
       val: `${myProducts.length}`,
-      icon: '🥬',
-      color: '#9C27B0',
+      badgeColor: '#9C27B0',
       onPress: () => navigation.navigate('MyProducts'),
     },
   ];
@@ -403,7 +399,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
         <View style={S.dashHeaderTop}>
           <View style={{flex: 1}}>
             <Text style={S.dashGreeting}>
-              {t('home.greeting', {defaultValue: 'வணக்கம்! 👨‍🌾'})}
+              {t('home.greeting', {defaultValue: 'வணக்கம்!'})}
             </Text>
             <Text style={S.dashName} numberOfLines={1}>
               {user?.name || t('farmer.farmerLabel', {defaultValue: 'Farmer'})}
@@ -481,14 +477,14 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                 style={[
                   S.statCard,
                   {
-                    borderTopColor: stat.color,
+                    borderTopColor: stat.badgeColor,
                     backgroundColor: themeColors.cardBg,
                     borderColor: themeColors.border,
                     borderWidth: 1,
                   },
                 ]}>
-                <Text style={S.statEmoji}>{stat.icon}</Text>
-                <Text style={[S.statVal, {color: stat.color}]}>{stat.val}</Text>
+                <View style={[S.statBadgeDot, {backgroundColor: stat.badgeColor}]} />
+                <Text style={[S.statVal, {color: stat.badgeColor}]}>{stat.val}</Text>
                 <Text style={[S.statLbl, {color: themeColors.subText}]}>
                   {stat.label}
                 </Text>
@@ -498,27 +494,27 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
         )}
         <View style={S.section}>
           <Text style={[S.sTitle, {color: themeColors.text}]}>
-            ⚡ {t('farmer.quickActions', {defaultValue: 'விரைவு செயல்கள்'})}
+            {t('farmer.quickActions', {defaultValue: 'விரைவு செயல்கள்'})}
           </Text>
           <View style={S.qaGrid}>
             {[
               {
-                icon: '➕',
+                icon: '',
                 label: t('farmer.addProduct', {defaultValue: 'தயாரிப்பு சேர்'}),
                 screen: 'AddProduct',
               },
               {
-                icon: '📷',
+                icon: '',
                 label: t('farmer.qrCode', {defaultValue: 'QR குறியீடு'}),
                 screen: 'FarmerQR',
               },
               {
-                icon: '📅',
+                icon: '',
                 label: t('farmer.addHarvest', {defaultValue: 'அறுவடை சேர்'}),
                 screen: 'FarmerAddHarvest',
               },
               {
-                icon: '📋',
+                icon: '',
                 label: t('preOrder.title', {defaultValue: 'മുൻകൂട്ടി ഓർഡറുകൾ'}),
                 onPress: () => {
                   loadFarmerPreOrders();
@@ -526,19 +522,19 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                 },
               },
               {
-                icon: '💬',
+                icon: '',
                 label: t('farmer.customerChats', {
                   defaultValue: 'வாடிக்கையாளர் அரட்டை',
                 }),
                 screen: 'FarmerCustomerChats',
               },
               {
-                icon: '🎬',
+                icon: '',
                 label: t('farmer.myStory', {defaultValue: 'என் கதை'}),
                 screen: 'StoryVideo',
               },
               {
-                icon: '⚙️',
+                icon: '',
                 label: t('profile.settings', {defaultValue: 'அமைப்புகள்'}),
                 screen: 'Settings',
               },
@@ -566,7 +562,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
         <View style={S.section}>
           <View style={S.sectionHeader}>
             <Text style={[S.sTitle, {color: themeColors.text}]}>
-              🥬 {t('farmer.myProducts', {defaultValue: 'என் தயாரிப்புகள்'})}
+              {t('farmer.myProducts', {defaultValue: 'என் தயாரிப்புகள்'})}
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('MyProducts')}>
               <Text style={S.seeAll}>
@@ -655,7 +651,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
             ]}>
             <BackButton onPress={() => setPreOrdersModalVisible(false)} />
             <Text style={[S.headerTitle, {flex: 1, marginLeft: 16}]}>
-              📅 {t('preOrder.title', {defaultValue: 'முன்பதிவுகள்'})} (
+              {t('preOrder.title', {defaultValue: 'முன்பதிவுகள்'})} (
               {preOrders.length})
             </Text>
           </LinearGradient>
@@ -797,7 +793,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           fontSize: 14,
                           marginVertical: 2,
                         }}>
-                        📞{' '}
+                        {' '}
                         {t('preOrder.deliveryPhone', {defaultValue: 'Phone'})}:{' '}
                         <Text
                           style={{fontWeight: '600', color: themeColors.text}}>
@@ -812,7 +808,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           fontSize: 14,
                           marginVertical: 2,
                         }}>
-                        📍{' '}
+                        {' '}
                         {t('preOrder.deliveryAddress', {
                           defaultValue: 'Address',
                         })}
@@ -833,7 +829,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           fontSize: 14,
                           marginVertical: 2,
                         }}>
-                        🌐 GPS:{' '}
+                        GPS:{' '}
                         <Text
                           style={{fontWeight: '600', color: themeColors.text}}>
                           {item.deliveryLocation}
@@ -846,7 +842,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                         fontSize: 14,
                         marginVertical: 2,
                       }}>
-                      📅{' '}
+                      {' '}
                       {t('orders.preOrderedOn', {defaultValue: 'Ordered On'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
@@ -864,7 +860,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                         fontSize: 14,
                         marginVertical: 2,
                       }}>
-                      📦 {t('orders.quantity', {defaultValue: 'Quantity'})}:{' '}
+                      {t('orders.quantity', {defaultValue: 'Quantity'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
                         {item.quantity || item.qty} {item.unit || 'kg'}
@@ -876,7 +872,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                         fontSize: 14,
                         marginVertical: 2,
                       }}>
-                      💵 {t('orders.total', {defaultValue: 'Price'})}:{' '}
+                      {t('orders.total', {defaultValue: 'Price'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
                         ₹{item.totalAmount || item.totalPrice}
@@ -888,7 +884,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                         fontSize: 14,
                         marginVertical: 2,
                       }}>
-                      🌾 {t('product.harvest', {defaultValue: 'Harvest'})}:{' '}
+                      {t('product.harvest', {defaultValue: 'Harvest'})}:{' '}
                       <Text
                         style={{fontWeight: '600', color: themeColors.text}}>
                         {item.harvestDate
@@ -918,7 +914,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           alignItems: 'center',
                         }}>
                         <Text style={{color: '#FF5252', fontWeight: 'bold'}}>
-                          🚫 {item.status.toUpperCase()}
+                          {item.status.toUpperCase()}
                         </Text>
                         {item.cancelReason && (
                           <Text
@@ -977,10 +973,10 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                             fontWeight: 'bold',
                           }}>
                           {item.status === 'completed'
-                            ? '✅ Delivered / Completed'
+                            ? 'Delivered / Completed'
                             : item.status === 'harvested'
-                            ? '🚜 Harvested'
-                            : '⏳ Reserved'}
+                            ? 'Harvested'
+                            : 'Reserved'}
                         </Text>
                       </View>
                     )}
@@ -989,7 +985,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
               }}
               ListEmptyComponent={
                 <View style={{alignItems: 'center', paddingVertical: 80}}>
-                  <Text style={{fontSize: 50, marginBottom: 12}}>📅</Text>
+                  <Text style={{fontSize: 50, marginBottom: 12}}></Text>
                   <Text style={{color: themeColors.textMuted, fontSize: 16}}>
                     {t('preOrder.noPreOrders', {
                       defaultValue: 'No pre-orders found',
@@ -1013,7 +1009,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
             style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
             <View style={S.modalHeader}>
               <Text style={[S.modalTitle, {color: themeColors.text}]}>
-                💰 {t('farmer.totalSales', {defaultValue: 'மொத்த விற்பனை'})}
+                {t('farmer.totalSales', {defaultValue: 'மொத்த விற்பனை'})}
               </Text>
               <TouchableOpacity
                 onPress={() => setSalesModalVisible(false)}
@@ -1056,13 +1052,13 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                 </View>
 
                 <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
-                  📦{' '}
+                  {' '}
                   {t('farmer.salesList', {defaultValue: 'விற்பனைப் பட்டியல்'})}
                 </Text>
 
                 {detailsOrders.length === 0 ? (
                   <View style={{alignItems: 'center', paddingVertical: 40}}>
-                    <Text style={{fontSize: 40, marginBottom: 8}}>💰</Text>
+                    <Text style={{fontSize: 40, marginBottom: 8}}></Text>
                     <Text style={{color: themeColors.textMuted}}>
                       {t('orders.noOrders', {
                         defaultValue: 'ஆர்டர்கள் எதுவும் இல்லை',
@@ -1104,7 +1100,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           fontSize: 13,
                           fontWeight: '600',
                         }}>
-                        👤{' '}
+                        {' '}
                         {order.consumerName || order.customerName || 'Customer'}
                       </Text>
                       <Text
@@ -1113,7 +1109,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           color: themeColors.subText,
                           marginVertical: 4,
                         }}>
-                        📍 {order.deliveryAddress || order.address || ''}
+                        {order.deliveryAddress || order.address || ''}
                       </Text>
                       <View
                         style={{
@@ -1155,7 +1151,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
             style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
             <View style={S.modalHeader}>
               <Text style={[S.modalTitle, {color: themeColors.text}]}>
-                📈 {t('farmer.thisMonth', {defaultValue: 'இந்த மாதம்'})}
+                {t('farmer.thisMonth', {defaultValue: 'இந்த மாதம்'})}
               </Text>
               <TouchableOpacity
                 onPress={() => setMonthlyModalVisible(false)}
@@ -1198,7 +1194,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                 </View>
 
                 <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
-                  📦{' '}
+                  {' '}
                   {t('farmer.thisMonthOrdersList', {
                     defaultValue: 'இந்த மாத ஆர்டர்கள் பட்டியல்',
                   })}
@@ -1206,7 +1202,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
 
                 {detailsOrders.length === 0 ? (
                   <View style={{alignItems: 'center', paddingVertical: 40}}>
-                    <Text style={{fontSize: 40, marginBottom: 8}}>📈</Text>
+                    <Text style={{fontSize: 40, marginBottom: 8}}></Text>
                     <Text style={{color: themeColors.textMuted}}>
                       {t('orders.noOrders', {
                         defaultValue: 'ஆர்டர்கள் எதுவும் இல்லை',
@@ -1292,7 +1288,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                           color: themeColors.subText,
                           marginVertical: 4,
                         }}>
-                        📍 {order.deliveryAddress || order.address || ''}
+                        {order.deliveryAddress || order.address || ''}
                       </Text>
                       <View
                         style={{
@@ -1713,7 +1709,7 @@ export const AddProductScreen = ({navigation}) => {
         setIsSaving(false);
         Alert.alert(
           t('common.error', {defaultValue: 'பிழை'}),
-          'படத்தைப் பதிவேற்றுவதில் தோல்வி (Cloudinary Upload failed). தயவுசெய்து இணைய இணைப்பைச் சரிபார்க்கவும்.',
+          'படத்தைப் பதிவேற்றுவதில் தோல்வி. தயவுசெய்து இணைய இணைப்பைச் சரிபார்க்கவும்.',
         );
         return;
       }
@@ -1772,7 +1768,7 @@ export const AddProductScreen = ({navigation}) => {
       setIsSaving(false);
       if (r.success) {
         Alert.alert(
-          '✅',
+          '',
           t('farmer.productAdded', {
             defaultValue: 'தயாரிப்பு வெற்றிகரமாக சரிபார்க்கப்பட்டு சேர்க்கப்பட்டது!',
           }),
@@ -1801,8 +1797,12 @@ export const AddProductScreen = ({navigation}) => {
     <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={S.headerTitle}>
-          ➕ {t('farmer.addProduct', {defaultValue: 'தயாரிப்பு சேர்'})}
+        <Text
+          style={S.headerTitle}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.75}>
+          {t('farmer.addProduct', {defaultValue: 'தயாரிப்பு சேர்'})}
         </Text>
         <View style={{width: 40}} />
       </LinearGradient>
@@ -1853,7 +1853,7 @@ export const AddProductScreen = ({navigation}) => {
             </View>
           ) : (
             <>
-              <Text style={S.imgUploadEmoji}>📷</Text>
+              <Text style={S.imgUploadEmoji}></Text>
               <Text style={[S.imgUploadTxt, {color: themeColors.text}]}>
                 {t('farmer.addPhotoLabel', {defaultValue: 'படம் சேர்க்கவும்'})}
               </Text>
@@ -1867,27 +1867,27 @@ export const AddProductScreen = ({navigation}) => {
         </TouchableOpacity>
 
         <FormField
-          label={`📦 ${t('farmer.productNameEn', {
+          label={`${t('farmer.productNameEn', {
             defaultValue: 'Product Name (English)',
           })}`}
           value={name}
           onChangeText={setName}
         />
         <FormField
-          label={`📦 ${t('farmer.productNameTa', {
+          label={`${t('farmer.productNameTa', {
             defaultValue: 'தயாரிப்பு பெயர் (தமிழ்)',
           })}`}
           value={nameTa}
           onChangeText={setNameTa}
         />
         <FormField
-          label={`💰 ${t('farmer.price', {defaultValue: 'விலை (₹)'})}`}
+          label={`${t('farmer.price', {defaultValue: 'விலை (₹)'})}`}
           value={price}
           onChangeText={setPrice}
           keyboard="numeric"
         />
         <FormField
-          label={`📦 ${t('farmer.stockQty', {defaultValue: 'Stock Quantity'})}`}
+          label={`${t('farmer.stockQty', {defaultValue: 'Stock Quantity'})}`}
           value={stock}
           onChangeText={setStock}
           keyboard="numeric"
@@ -1901,7 +1901,7 @@ export const AddProductScreen = ({navigation}) => {
           'organic',
         ].includes(category) && (
           <FormField
-            label={`⏱️ ${t('farmer.freshHours', {
+            label={`${t('farmer.freshHours', {
               defaultValue: 'Freshness Time (Hours)',
             })}`}
             value={freshHours}
@@ -1915,7 +1915,7 @@ export const AddProductScreen = ({navigation}) => {
 
         {['grains', 'millets', 'nuts'].includes(category) && (
           <FormField
-            label={`📦 ${t('farmer.shelfLife', {
+            label={`${t('farmer.shelfLife', {
               defaultValue: 'Shelf Life (Months)',
             })}`}
             value={shelfLife}
@@ -1930,7 +1930,7 @@ export const AddProductScreen = ({navigation}) => {
         {category === 'handicrafts' && (
           <>
             <FormField
-              label={`🧶 ${t('farmer.material', {
+              label={`${t('farmer.material', {
                 defaultValue: 'Material Used',
               })}`}
               value={material}
@@ -1940,7 +1940,7 @@ export const AddProductScreen = ({navigation}) => {
               })}
             />
             <FormField
-              label={`⏳ ${t('farmer.craftingTime', {
+              label={`${t('farmer.craftingTime', {
                 defaultValue: 'Crafting Time (Days)',
               })}`}
               value={craftingTime}
@@ -1954,9 +1954,9 @@ export const AddProductScreen = ({navigation}) => {
         )}
 
         <FormField
-          label={`📍 ${t('farmer.fullAddress', {
+          label={`${t('farmer.fullAddress', {
             defaultValue:
-              'விவசாயி முகவரி (Door No, Street, Area, District, Pincode)',
+              'விவசாயி முகவரி',
           })}`}
           value={farmerAddress}
           onChangeText={setFarmerAddress}
@@ -1966,7 +1966,7 @@ export const AddProductScreen = ({navigation}) => {
         />
 
         <Text style={[S.fieldLabel, {color: themeColors.text}]}>
-          ⚖️ {t('farmer.unit', {defaultValue: 'அளவு வகை'})}
+          {t('farmer.unit', {defaultValue: 'அளவு வகை'})}
         </Text>
         <ScrollView
           horizontal
@@ -1997,7 +1997,7 @@ export const AddProductScreen = ({navigation}) => {
         </ScrollView>
 
         <Text style={[S.fieldLabel, {color: themeColors.text}]}>
-          📂 {t('farmer.category', {defaultValue: 'வகை'})}
+          {t('farmer.category', {defaultValue: 'வகை'})}
         </Text>
         <ScrollView
           horizontal
@@ -2071,7 +2071,7 @@ export const AddProductScreen = ({navigation}) => {
             flexDirection: 'row',
             alignItems: 'center',
           }}>
-          <Text style={{fontSize: 24, marginRight: 10}}>📍</Text>
+          <Text style={{fontSize: 24, marginRight: 10}}></Text>
           <View style={{flex: 1}}>
             <Text
               style={{
@@ -2105,8 +2105,8 @@ export const AddProductScreen = ({navigation}) => {
             end={{x: 1, y: 0}}>
             <Text style={S.submitTxt}>
               {isSaving
-                ? `⏳ ${t('farmer.saving', {defaultValue: 'சேமிக்கிறோம்...'})}`
-                : `✅ ${t('farmer.addProduct', {
+                ? `${t('farmer.saving', {defaultValue: 'சேமிக்கிறோம்...'})}`
+                : `${t('farmer.addProduct', {
                     defaultValue: 'தயாரிப்பு சேர்க்கவும்',
                   })}`}
             </Text>
@@ -2188,7 +2188,7 @@ export const EditProductScreen = ({route, navigation}) => {
       setIsSaving(false);
       if (r.success) {
         Alert.alert(
-          '✅',
+          '',
           t('farmer.changesSaved', {
             defaultValue: 'மாற்றங்கள் சேமிக்கப்பட்டன!',
           }),
@@ -2232,13 +2232,13 @@ export const EditProductScreen = ({route, navigation}) => {
           {getLocalProductName(product.name, product.nameTa, i18n.language)}
         </Text>
         <FormField
-          label={`💰 ${t('farmer.price', {defaultValue: 'விலை (₹)'})}`}
+          label={`${t('farmer.price', {defaultValue: 'விலை (₹)'})}`}
           value={price}
           onChangeText={setPrice}
           keyboard="numeric"
         />
         <FormField
-          label={`📦 ${t('farmer.stock', {defaultValue: 'கையிருப்பு'})}`}
+          label={`${t('farmer.stock', {defaultValue: 'கையிருப்பு'})}`}
           value={stock}
           onChangeText={setStock}
           keyboard="numeric"
@@ -2250,8 +2250,8 @@ export const EditProductScreen = ({route, navigation}) => {
           <LinearGradient colors={COLORS.gradientButton} style={S.submitGrad}>
             <Text style={S.submitTxt}>
               {isSaving
-                ? '⏳...'
-                : '💾 ' + t('common.save', {defaultValue: 'சேமிக்கவும்'})}
+                ? '...'
+                : '' + t('common.save', {defaultValue: 'சேமிக்கவும்'})}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -2319,7 +2319,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
             o.id === orderId ? {...o, status: newStatus, ...extraFields} : o,
           ),
         );
-        Alert.alert('✅', `Status: ${newStatus}`);
+        Alert.alert('', `Status: ${newStatus}`);
       }
     } catch (e) {
       Alert.alert(t('common.error', {defaultValue: 'பிழை'}), e.message);
@@ -2338,7 +2338,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
     <View style={[S.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <Text style={S.headerTitle}>
-          📦 {t('farmer.receivedOrders', {defaultValue: 'வந்த ஆர்டர்கள்'})}
+          {t('farmer.receivedOrders', {defaultValue: 'வந்த ஆர்டர்கள்'})}
         </Text>
       </LinearGradient>
       {isLoading ? (
@@ -2360,7 +2360,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
           }>
           {orders.length === 0 ? (
             <View style={S.emptyBox}>
-              <Text style={S.emptyEmoji}>📦</Text>
+              <Text style={S.emptyEmoji}></Text>
               <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                 {t('orders.noOrders', {
                   defaultValue: 'இன்னும் தயாரிப்புகள் இல்லை',
@@ -2427,7 +2427,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                         color: themeColors.text,
                         fontWeight: 'bold',
                       }}>
-                      👤 {displayCustomerName}
+                      {displayCustomerName}
                     </Text>
                     {!!displayCustomerPhone && (
                       <Text
@@ -2436,7 +2436,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           color: themeColors.subText,
                           marginTop: 2,
                         }}>
-                        📞 {displayCustomerPhone}
+                        {displayCustomerPhone}
                       </Text>
                     )}
                     {!!displayAddress && (
@@ -2446,7 +2446,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           color: themeColors.subText,
                           marginTop: 2,
                         }}>
-                        📍 {displayAddress}{' '}
+                        {displayAddress}{' '}
                         {displayPincode ? `(PIN: ${displayPincode})` : ''}
                       </Text>
                     )}
@@ -2457,7 +2457,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           color: themeColors.subText,
                           marginTop: 2,
                         }}>
-                        🌐 GPS: {displayLocation}
+                        GPS: {displayLocation}
                       </Text>
                     )}
                   </View>
@@ -2536,7 +2536,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                             fontSize: rs(FONTS.xs),
                             fontWeight: 'bold',
                           }}>
-                          ✅ {t('farmer.accept', {defaultValue: 'Accept'})}
+                          {t('farmer.accept', {defaultValue: 'Accept'})}
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -2554,7 +2554,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                             fontSize: rs(FONTS.xs),
                             fontWeight: 'bold',
                           }}>
-                          ❌ {t('farmer.reject', {defaultValue: 'Reject'})}
+                          {t('farmer.reject', {defaultValue: 'Reject'})}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -2574,7 +2574,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: rs(FONTS.xs),
                           fontWeight: '600',
                         }}>
-                        ⏳{' '}
+                        {' '}
                         {t('farmer.waitingPickup', {
                           defaultValue: 'Waiting for pickup',
                         })}
@@ -2596,7 +2596,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: rs(FONTS.xs),
                           fontWeight: '600',
                         }}>
-                        📦{' '}
+                        {' '}
                         {t('farmer.itemPurchased', {
                           defaultValue: 'Item has been purchased',
                         })}
@@ -2618,7 +2618,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: rs(FONTS.xs),
                           fontWeight: '600',
                         }}>
-                        🎉{' '}
+                        {' '}
                         {t('farmer.itemDelivered', {
                           defaultValue: 'Item has been delivered',
                         })}
@@ -2666,7 +2666,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                 marginBottom: SPACING.md,
                 textAlign: 'center',
               }}>
-              ❌{' '}
+              {' '}
               {t('orders.rejectTitle', {
                 defaultValue: 'Select Rejection Reason',
               })}
@@ -2740,7 +2740,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
             style={[S.modalContainer, {backgroundColor: themeColors.cardBg}]}>
             <View style={S.modalHeader}>
               <Text style={[S.modalTitle, {color: themeColors.text}]}>
-                📦{' '}
+                {' '}
                 {t('orders.orderDetails', {defaultValue: 'ஆர்டர் விவரங்கள்'})}
               </Text>
               <TouchableOpacity
@@ -2807,7 +2807,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                 {/* Consumer Details */}
                 <View style={{marginBottom: SPACING.lg}}>
                   <Text style={[S.modalSecTitle, {color: themeColors.text}]}>
-                    👤{' '}
+                    {' '}
                     {t('orders.customerDetails', {
                       defaultValue: 'வாடிக்கையாளர் விவரங்கள்',
                     })}
@@ -2840,7 +2840,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: 13,
                           marginTop: 4,
                         }}>
-                        📞{' '}
+                        {' '}
                         {selectedOrder.consumerPhone ||
                           selectedOrder.customerPhone}
                       </Text>
@@ -2854,7 +2854,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: 13,
                           marginTop: 4,
                         }}>
-                        📍{' '}
+                        {' '}
                         {selectedOrder.deliveryAddress || selectedOrder.address}{' '}
                         {selectedOrder.deliveryPincode || selectedOrder.pincode
                           ? `(PIN: ${
@@ -2873,7 +2873,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontSize: 13,
                           marginTop: 4,
                         }}>
-                        🌐 GPS:{' '}
+                        GPS:{' '}
                         {selectedOrder.consumerCoords
                           ? `${
                               selectedOrder.consumerCoords.lat ||
@@ -2961,7 +2961,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 13,
                         }}>
-                        ❌{' '}
+                        {' '}
                         {t('farmer.rejectReason', {
                           defaultValue: 'Reject Reason',
                         })}
@@ -2988,7 +2988,7 @@ export const FarmerOrdersScreen = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 13,
                         }}>
-                        💸{' '}
+                        {' '}
                         {t('orders.refundReason', {
                           defaultValue: 'Refund Reason',
                         })}
@@ -3072,11 +3072,11 @@ export const FarmerProfileScreen = ({navigation}) => {
         <Text style={S.fProfileName}>{user?.name}</Text>
         {user?.isVerified && (
           <Text style={S.verifiedBadge}>
-            ✅ {t('farmer.verified', {defaultValue: 'சரிபார்க்கப்பட்டது'})}
+            {t('farmer.verified', {defaultValue: 'சரிபார்க்கப்பட்டது'})}
           </Text>
         )}
         <Text style={S.fProfileLoc}>
-          📍{' '}
+          {' '}
           {user?.location ||
             t('farmer.noLocation', {defaultValue: 'இடம் சேர்க்கவில்லை'})}
         </Text>
@@ -3209,7 +3209,7 @@ export const FarmerProfileScreen = ({navigation}) => {
               S.logoutCardTxt,
               {color: isDark ? '#FF8A80' : COLORS.accentRed},
             ]}>
-            🚪 {t('settings.logout', {defaultValue: 'வெளியேறு'})}
+            {t('settings.logout', {defaultValue: 'வெளியேறு'})}
           </Text>
         </TouchableOpacity>
         <View style={{height: 90}} />
@@ -3366,11 +3366,12 @@ const S = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerTitle: {
-    fontSize: rs(FONTS.xl),
+    fontSize: rs(FONTS.lg),
     fontWeight: 'bold',
     color: COLORS.white,
     flex: 1,
     textAlign: 'center',
+    paddingHorizontal: 8,
   },
   backTxt: {
     color: COLORS.white,
@@ -3423,6 +3424,7 @@ const S = StyleSheet.create({
     ...SHADOWS.small,
   },
   statEmoji: {fontSize: rs(28), marginBottom: SPACING.sm},
+  statBadgeDot: {width: 10, height: 10, borderRadius: 5, marginBottom: SPACING.sm},
   statVal: {fontSize: rs(FONTS.xxl), fontWeight: '800'},
   statLbl: {fontSize: rs(FONTS.xs), color: COLORS.textMuted, marginTop: 2},
   section: {paddingHorizontal: SPACING.lg, marginBottom: SPACING.lg},

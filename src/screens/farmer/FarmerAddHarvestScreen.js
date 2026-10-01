@@ -250,7 +250,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
       const res = await addHarvest(harvestData);
       if (res.success) {
         Alert.alert(
-          '✅ ' + t('common.success', {defaultValue: 'Success'}),
+          t('common.success', {defaultValue: 'Success'}),
           t('farmer.changesSaved', {defaultValue: 'Changes Saved!'}),
         );
         setFormData({
@@ -307,7 +307,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.headerTitle, {marginLeft: SPACING.md}]}>
-          📅 {t('farmer.addHarvest', {defaultValue: 'Add Harvest'})}
+          {t('farmer.addHarvest', {defaultValue: 'Add Harvest'})}
         </Text>
       </LinearGradient>
 
@@ -391,7 +391,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <Text style={{fontSize: 24, marginRight: 10}}>📍</Text>
+            <Text style={{fontSize: 24, marginRight: 10}}></Text>
             <View style={{flex: 1}}>
               <Text
                 style={{
@@ -479,7 +479,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             })}
           </Text>
           <View style={styles.guideItem}>
-            <Text style={styles.guideEmoji}>📦</Text>
+            <Text style={styles.guideEmoji}></Text>
             <Text style={[styles.guideText, {color: themeColors.subText}]}>
               {t('farmer.qtyExpl', {
                 defaultValue:
@@ -488,7 +488,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             </Text>
           </View>
           <View style={styles.guideItem}>
-            <Text style={styles.guideEmoji}>⚖️</Text>
+            <Text style={styles.guideEmoji}></Text>
             <Text style={[styles.guideText, {color: themeColors.subText}]}>
               {t('farmer.unitExpl', {
                 defaultValue:
@@ -497,7 +497,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             </Text>
           </View>
           <View style={styles.guideItem}>
-            <Text style={styles.guideEmoji}>🏷️</Text>
+            <Text style={styles.guideEmoji}></Text>
             <Text style={[styles.guideText, {color: themeColors.subText}]}>
               {t('farmer.discountPriceExpl', {
                 defaultValue:
@@ -506,7 +506,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
             </Text>
           </View>
           <View style={styles.guideItem}>
-            <Text style={styles.guideEmoji}>💰</Text>
+            <Text style={styles.guideEmoji}></Text>
             <Text style={[styles.guideText, {color: themeColors.subText}]}>
               {t('farmer.regularPriceExpl', {
                 defaultValue:
@@ -527,7 +527,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
               <ActivityIndicator color={COLORS.white} />
             ) : (
               <Text style={styles.submitTxt}>
-                ✅ {t('farmer.saveHarvest', {defaultValue: 'Save to Calendar'})}
+                {t('farmer.saveHarvest', {defaultValue: 'Save to Calendar'})}
               </Text>
             )}
           </LinearGradient>
@@ -570,7 +570,7 @@ const FarmerAddHarvestScreen = ({navigation}) => {
                     colors={visual.colors || ['#E8F5E9', '#C8E6C9']}
                     style={styles.harvestItemEmojiContainer}>
                     <Text style={styles.harvestItemEmoji}>
-                      {visual.emoji || '🌾'}
+                      {visual.emoji || ''}
                     </Text>
                   </LinearGradient>
 
@@ -587,14 +587,14 @@ const FarmerAddHarvestScreen = ({navigation}) => {
                         styles.harvestItemDetails,
                         {color: themeColors.subText},
                       ]}>
-                      📅 {uiDate} • 📦 {item.qty} {item.unit}
+                      {uiDate} • {item.qty} {item.unit}
                     </Text>
                     <Text
                       style={[
                         styles.harvestItemPrice,
                         {color: isDark ? '#4CAF50' : '#0D5C32'},
                       ]}>
-                      🏷️ ₹{item.price} (Reg: ₹{item.originalPrice})
+                      ₹{item.price} (Reg: ₹{item.originalPrice})
                     </Text>
                   </View>
 

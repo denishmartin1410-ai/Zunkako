@@ -156,7 +156,7 @@ const ProductDetailScreen = ({route, navigation}) => {
         setAvgRating(r.newAvgRating || avgRating);
         setReviewCount(r.newReviewCount || reviewCount + 1);
         Alert.alert(
-          '✅',
+          '',
           t('product.ratingSubmitted', {
             defaultValue: 'மதிப்பீடு சமர்ப்பிக்கப்பட்டது!',
           }),
@@ -268,13 +268,13 @@ const ProductDetailScreen = ({route, navigation}) => {
                 farmer: {id: product.farmerId},
               })
             }>
-            <Text style={styles.farmerEmoji}>👨‍🌾</Text>
+            <Text style={styles.farmerEmoji}></Text>
             <View style={styles.farmerInfo}>
               <Text style={[styles.farmerNameTxt, {color: themeColors.text}]}>
                 {localFarmerName}
               </Text>
               <Text style={[styles.farmerLoc, {color: themeColors.subText}]}>
-                📍 {product.location}
+                {product.location}
               </Text>
             </View>
             <Text
@@ -290,7 +290,7 @@ const ProductDetailScreen = ({route, navigation}) => {
           {product.coordinates && (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
-                📍{' '}
+                {' '}
                 {t('product.farmerLocation', {
                   defaultValue: 'விவசாயி இருக்கும் இடம்',
                 })}
@@ -344,7 +344,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                   ]}
                   numberOfLines={1}
                   adjustsFontSizeToFit>
-                  🗺️{' '}
+                  {' '}
                   {t('product.getDirections', {
                     defaultValue: 'నేரடியாக சென்று வாங்க வழிகாட்டு',
                   })}
@@ -356,7 +356,7 @@ const ProductDetailScreen = ({route, navigation}) => {
           {/* Description */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
-              📄 {t('product.description', {defaultValue: 'விளக்கம்'})}
+              {t('product.description', {defaultValue: 'விளக்கம்'})}
             </Text>
             <Text style={[styles.description, {color: themeColors.subText}]}>
               {localDesc}
@@ -367,7 +367,7 @@ const ProductDetailScreen = ({route, navigation}) => {
           {product.nutritionInfo && (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, {color: themeColors.text}]}>
-                🥗 {t('product.nutrition', {defaultValue: 'ஊட்டச்சத்து'})}{' '}
+                {t('product.nutrition', {defaultValue: 'ஊட்டச்சத்து'})}{' '}
                 (100g)
               </Text>
               <View style={styles.nutritionGrid}>
@@ -401,14 +401,14 @@ const ProductDetailScreen = ({route, navigation}) => {
           {/* Harvest info */}
           <View style={styles.infoRow}>
             <View style={[styles.infoChip, {backgroundColor: themeColors.bg}]}>
-              <Text style={styles.infoEmoji}>📅</Text>
+              <Text style={styles.infoEmoji}></Text>
               <Text style={[styles.infoText, {color: themeColors.subText}]}>
                 {t('product.harvest', {defaultValue: 'அறுவடை'})}:{' '}
                 {product.harvestDate}
               </Text>
             </View>
             <View style={[styles.infoChip, {backgroundColor: themeColors.bg}]}>
-              <Text style={styles.infoEmoji}>⏰</Text>
+              <Text style={styles.infoEmoji}></Text>
               <Text style={[styles.infoText, {color: themeColors.subText}]}>
                 {t('product.freshness', {defaultValue: 'புத்துணர்ச்சி'})}:{' '}
                 {product.expiryDays}{' '}
@@ -439,7 +439,7 @@ const ProductDetailScreen = ({route, navigation}) => {
                     styles.ratedText,
                     {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
                   ]}>
-                  ✅{' '}
+                  {' '}
                   {t('product.alreadyRated', {
                     defaultValue: 'நீங்கள் ஏற்கனவே மதிப்பிட்டுள்ளீர்கள்',
                   })}
@@ -516,9 +516,9 @@ const ProductDetailScreen = ({route, navigation}) => {
               alignItems: 'center',
             }}>
             <Text style={{color: '#FF5252', fontWeight: 'bold', fontSize: 16}}>
-              🚫{' '}
+              {' '}
               {t('product.soldOut', {
-                defaultValue: 'SOLD OUT (கையிருப்பு இல்லை)',
+                defaultValue: 'SOLD OUT',
               })}
             </Text>
           </View>

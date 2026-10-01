@@ -127,7 +127,7 @@ const CartScreen = ({navigation}) => {
                 {getLocalProductName(item.name, item.nameTa, i18n.language)}
               </Text>
               <Text style={[styles.cartFarmer, {color: themeColors.subText}]}>
-                👨‍🌾{' '}
+                {' '}
                 {i18n.language === 'ta'
                   ? item.farmerNameTa || item.farmerName
                   : item.farmerName || item.farmerNameTa || ''}
@@ -231,7 +231,7 @@ const CartScreen = ({navigation}) => {
                 styles.freeDelivery,
                 {color: isDark ? '#4CAF50' : COLORS.primaryGreen},
               ]}>
-              ✅{' '}
+              {' '}
               {t('cart.freeDelivery', {
                 defaultValue: 'Free Delivery for first 3 months!',
               })}

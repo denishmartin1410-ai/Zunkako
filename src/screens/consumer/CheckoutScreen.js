@@ -390,7 +390,7 @@ const CheckoutScreen = ({navigation}) => {
       setIsLoading(false);
 
       Alert.alert(
-        `✅ ${t('checkout.success', {defaultValue: 'ஆர்டர் வெற்றி!'})}`,
+        `${t('checkout.success', {defaultValue: 'ஆர்டர் வெற்றி!'})}`,
         t('checkout.successMsg', {
           defaultValue:
             'உங்கள் ஆர்டர் வெற்றிகரமாக பதிவாகியது!\nYour order has been placed successfully!',
@@ -438,7 +438,7 @@ const CheckoutScreen = ({navigation}) => {
             },
           ]}>
           <Text style={[styles.cardTitle, {color: themeColors.text}]}>
-            📋{' '}
+            {' '}
             {t('checkout.deliveryDetails', {defaultValue: 'டெலிவரி விவரங்கள்'})}
           </Text>
           <View style={styles.formField}>
@@ -557,20 +557,20 @@ const CheckoutScreen = ({navigation}) => {
                   }}>
                   {consumerLocation
                     ? `${t('checkout.locationAdded', {
-                        defaultValue: '✅ GPS இருப்பிடம் இணைக்கப்பட்டது',
+                        defaultValue: 'GPS இருப்பிடம் இணைக்கப்பட்டது',
                       })} (${consumerLocation.lat.toFixed(
                         4,
                       )}, ${consumerLocation.lng.toFixed(4)})`
                     : t('checkout.locationMissing', {
                         defaultValue:
-                          '❌ GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)',
+                          'GPS இருப்பிடம் இல்லை (பில்டிற்கு மிக முக்கியம்)',
                       })}
                 </Text>
               </View>
               {fetchingLocation ? (
                 <ActivityIndicator color={COLORS.primaryGreen} size="small" />
               ) : (
-                <Text style={{fontSize: rs(16)}}>📍</Text>
+                <Text style={{fontSize: rs(16)}}></Text>
               )}
             </TouchableOpacity>
           </View>
@@ -617,7 +617,7 @@ const CheckoutScreen = ({navigation}) => {
             },
           ]}>
           <Text style={[styles.cardTitle, {color: themeColors.text}]}>
-            🛒 {t('checkout.yourOrder', {defaultValue: 'உங்கள் ஆர்டர்'})}
+            {t('checkout.yourOrder', {defaultValue: 'உங்கள் ஆர்டர்'})}
           </Text>
           {cartItems.map((item, i) => (
             <View
@@ -659,7 +659,7 @@ const CheckoutScreen = ({navigation}) => {
             },
           ]}>
           <Text style={[styles.cardTitle, {color: themeColors.text}]}>
-            💰 {t('checkout.priceDetails', {defaultValue: 'தொகை விவரம்'})}
+            {t('checkout.priceDetails', {defaultValue: 'தொகை விவரம்'})}
           </Text>
           <View style={styles.priceRow}>
             <Text style={[styles.priceLabel, {color: themeColors.subText}]}>
@@ -688,7 +688,7 @@ const CheckoutScreen = ({navigation}) => {
           {!!discount && (
             <View style={styles.priceRow}>
               <Text style={[styles.priceLabel, {color: '#FF5252'}]}>
-                🎁{' '}
+                {' '}
                 {t('checkout.bulkDiscount', {
                   defaultValue: 'கூட்டு தள்ளுபடி (5%)',
                 })}
@@ -744,7 +744,7 @@ const CheckoutScreen = ({navigation}) => {
               borderLeftColor: isDark ? '#4CAF50' : COLORS.primaryGreen,
             },
           ]}>
-          <Text style={styles.codIcon}>💵</Text>
+          <Text style={styles.codIcon}></Text>
           <View style={{flex: 1}}>
             <Text
               style={[

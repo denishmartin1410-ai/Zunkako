@@ -1,6 +1,6 @@
 // ============================================================
 // src/components/ContentReportModal.js
-// 🛡️ Content Moderation Report Modal for Zunkako App
+// Content Moderation Report Modal for Zunkako App
 // Allows users to report inappropriate Reels, Stories, Products, or Users
 // ============================================================
 
@@ -190,7 +190,7 @@ const ContentReportModal = ({
             ) : (
               <Text style={styles.submitButtonText}>
                 {currentLang === 'ta'
-                  ? 'புகார் அனுப்புக (Submit Report)'
+                  ? 'புகார் அனுப்புக'
                   : currentLang === 'ml'
                   ? 'പരാതി സമർപ്പിക്കുക'
                   : 'Submit Report'}

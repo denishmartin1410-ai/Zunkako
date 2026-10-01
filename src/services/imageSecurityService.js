@@ -76,12 +76,12 @@ export const validateProductImageWithAI = async (
     if (!imageUri) {
       return {
         safe: false,
-        reason: 'தயவுசெய்து Product Image Upload செய்யுங்கள்.',
+        reason: 'தயவுசெய்து தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
     if (!base64Data) {
-      console.log('🛡️ AI Moderation warning: Base64 data missing, proceeding with client checks.');
+      console.log('AI Moderation warning: Base64 data missing, proceeding with client checks.');
       return {safe: true};
     }
 
@@ -131,7 +131,7 @@ export const validateProductImageWithAI = async (
       return {
         safe: false,
         reason:
-          '⚠️ AI பாதுகாப்பு எச்சரிக்கை: நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது (Adult/Violence/Blood/Spam)! தயவுசெய்து சரியான வேளாண் தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
+          'AI பாதுகாப்பு எச்சரிக்கை: நீங்கள் பதிவேற்றிய படம் சமூக விதிமுறைகளுக்கு முரணாக உள்ளது (Adult/Violence/Blood/Spam)! தயவுசெய்து சரியான வேளாண் தயாரிப்பு படத்தைப் பதிவேற்றவும்.',
       };
     }
 
@@ -139,7 +139,7 @@ export const validateProductImageWithAI = async (
       (label.description || '').toLowerCase()
     );
 
-    console.log('🤖 AI Vision Detections:', labels);
+    console.log('AI Vision Detections:', labels);
 
     // 2. Strict Non-Product Image Category Detections
     // Movie posters, hero photos, cinema screen, Vijay/actor photos
@@ -154,7 +154,7 @@ export const validateProductImageWithAI = async (
     if (isMoviePoster && category !== 'handicrafts') {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது சினிமா திரை / சினிமா போஸ்டர் (Movie Poster) போன்ற படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது சினிமா திரை / சினிமா போஸ்டர் போன்ற படம்! தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
@@ -164,7 +164,7 @@ export const validateProductImageWithAI = async (
     if (isSelfie && category !== 'handicrafts') {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது Selfie / நபரின் புகைப்படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது Selfie / நபரின் புகைப்படம்! தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
@@ -174,7 +174,7 @@ export const validateProductImageWithAI = async (
     if (isDigital && category !== 'handicrafts') {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது Screenshot / Meme / Wallpaper / Cartoon படம்! தயவுசெய்து உண்மையான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது Screenshot / Meme / Wallpaper / Cartoon படம்! தயவுசெய்து உண்மையான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
@@ -186,21 +186,21 @@ export const validateProductImageWithAI = async (
     if (vehicleKeywords.some(k => labels.includes(k))) {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது வாகனத்தின் (Vehicle) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது வாகனத்தின் படம்! தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
     if (animalKeywords.some(k => labels.includes(k))) {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது விலங்கின் (Animal) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது விலங்கின் படம்! தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
     if (buildingKeywords.some(k => labels.includes(k)) && category !== 'handicrafts') {
       return {
         safe: false,
-        reason: '⚠️ AI எச்சரிக்கை: இது கட்டிடத்தின் (Building) படம்! தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+        reason: 'AI எச்சரிக்கை: இது கட்டிடத்தின் படம்! தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
       };
     }
 
@@ -218,7 +218,7 @@ export const validateProductImageWithAI = async (
       if (totalBrightness < 15 && category !== 'handicrafts') {
         return {
           safe: false,
-          reason: '⚠️ AI எச்சரிக்கை: படம் மிகவும் இருட்டாக (Dark Image) உள்ளது! தயவுசெய்து நல்ல வெளிச்சத்தில் தெளிவான Product Image Upload செய்யுங்கள்.',
+          reason: 'AI எச்சரிக்கை: படம் மிகவும் இருட்டாக உள்ளது! தயவுசெய்து நல்ல வெளிச்சத்தில் தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
         };
       }
     }
@@ -241,7 +241,7 @@ export const validateProductImageWithAI = async (
       if (!hasFoodOrMatch) {
         return {
           safe: false,
-          reason: `Product Name ('${productName}') மற்றும் நீங்கள் Upload செய்த புகைப்படமும் ஒன்றுக்கொன்று பொருந்தவில்லை! தயவுசெய்து சரியான Product Image Upload செய்யுங்கள்.`,
+          reason: `Product Name ('${productName}') மற்றும் நீங்கள் பதிவேற்றம் செய்த புகைப்படமும் ஒன்றுக்கொன்று பொருந்தவில்லை! தயவுசெய்து சரியான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.`,
         };
       }
     } else if (category !== 'handicrafts') {
@@ -252,7 +252,7 @@ export const validateProductImageWithAI = async (
       if (!hasGenericFoodLabel && labels.length > 5) {
         return {
           safe: false,
-          reason: 'இந்த படம் வேளாண்மை அல்லது உணவுப் பொருளின் படமாக (Product Image) தெரியவில்லை. தயவுசெய்து தெளிவான Product Image Upload செய்யுங்கள்.',
+          reason: 'இந்த படம் வேளாண்மை அல்லது உணவுப் பொருளின் படமாக தெரியவில்லை. தயவுசெய்து தெளிவான தயாரிப்புப் படத்தைப் பதிவேற்றுங்கள்.',
         };
       }
     }
@@ -269,7 +269,7 @@ export const validateProductImageWithAI = async (
  */
 export const showAISecurityAlert = (reason = '') => {
   Alert.alert(
-    '🛡️ AI பாதுகாப்பு எச்சரிக்கை',
+    'AI பாதுகாப்பு எச்சரிக்கை',
     reason ||
       'நீங்கள் பதிவேற்றிய படம் தயாரிப்புடன் பொருந்தவில்லை அல்லது சமூக விதிமுறைகளுக்கு முரணாக உள்ளது!\n\nதயவுசெய்து சரியான வேளாண் தயாரிப்பின் படத்தையே பதிவேற்றவும்.',
     [{text: 'சரி (OK)', style: 'cancel'}],

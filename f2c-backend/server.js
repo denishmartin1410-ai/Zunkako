@@ -5,7 +5,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
-  console.log(`✅ ZUNKAKO Backend running on port ${PORT}`);
+  console.log(`ZUNKAKO Backend running on port ${PORT}`);
 
   // 🚀 Start Background Worker to listen for new Firestore notifications
   if (db && messaging) {
@@ -49,24 +49,24 @@ const server = app.listen(PORT, () => {
                       },
                     },
                   });
-                  console.log(`✅ Push sent to ${data.userId} for: ${data.title}`);
+                  console.log(`Push sent to ${data.userId} for: ${data.title}`);
                 } else {
-                  console.log(`⚠️ No FCM token for user ${data.userId}`);
+                  console.log(`No FCM token for user ${data.userId}`);
                 }
 
                 // 3. Mark as sent so we don't send again
                 await change.doc.ref.update({ pushSent: true });
               } catch (error) {
-                console.log('❌ Background Push Error:', error.message);
+                console.log('Background Push Error:', error.message);
               }
             }
           });
         });
     } catch (e) {
-      console.log('⚠️ Notification worker error:', e.message);
+      console.log('Notification worker error:', e.message);
     }
   } else {
-    console.log('⚠️ Firestore DB not connected. Server is running in API-only mode.');
+    console.log('Firestore DB not connected. Server is running in API-only mode.');
   }
 });
 

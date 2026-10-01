@@ -179,7 +179,7 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
       {!isMe && (
         <View
           style={[styles.farmerDot, isDark && {backgroundColor: '#1A3028'}]}>
-          <Text style={{fontSize: 10}}>👨‍🌾</Text>
+          <Text style={{fontSize: 10}}></Text>
         </View>
       )}
       <View
@@ -201,7 +201,7 @@ const MessageBubble = ({message, isMe, onLongPress}) => {
               },
             ]}>
             <View style={styles.mapHeaderRow}>
-              <Text style={{fontSize: 24}}>🗺️</Text>
+              <Text style={{fontSize: 24}}></Text>
               <View style={styles.mapTextCol}>
                 <Text style={[styles.mapTitle, {color: themeColors.text}]}>
                   {t('chat.sharedLocation', {
@@ -279,7 +279,7 @@ export const ChatListScreen = ({navigation}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.headerTitle, {marginLeft: SPACING.md}]}>
-          💬 {t('chat.farmerChat', {defaultValue: 'விவசாயி அரட்டை'})}
+          {t('chat.farmerChat', {defaultValue: 'விவசாயி அரட்டை'})}
         </Text>
       </LinearGradient>
 
@@ -324,7 +324,7 @@ export const ChatListScreen = ({navigation}) => {
                       ]}>
                       {item.nameTa || item.name}
                     </Text>
-                    {item.isVerified && <Text style={{fontSize: 13}}> ✅</Text>}
+                    {item.isVerified && <Text style={{fontSize: 13}}></Text>}
                   </View>
                 </View>
                 <Text
@@ -339,7 +339,7 @@ export const ChatListScreen = ({navigation}) => {
                     styles.chatFarmerLoc,
                     {color: themeColors.textMuted},
                   ]}>
-                  📍 {(item.location || '').split(',')[0]}
+                  {(item.location || '').split(',')[0]}
                 </Text>
               </View>
               <Text style={[styles.chatArrow, {color: themeColors.subText}]}>
@@ -354,7 +354,7 @@ export const ChatListScreen = ({navigation}) => {
           )}
           ListEmptyComponent={
             <View style={{alignItems: 'center', paddingVertical: 60}}>
-              <Text style={{fontSize: 56}}>👨‍🌾</Text>
+              <Text style={{fontSize: 56}}></Text>
             </View>
           }
         />
@@ -527,21 +527,21 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
 
   const AI_CHATBOT_PRESETS = [
     {
-      q: t('chat.presetQ1', {defaultValue: '📦 கையிருப்பு இருக்கா?'}),
+      q: t('chat.presetQ1', {defaultValue: 'கையிருப்பு இருக்கா?'}),
       a: t('chat.presetA1', {
         defaultValue:
-          'பயிற்சி பெற்ற உழவர் பண்ணையில் போதிய கையிருப்பு (Stock) தயார் நிலையில் உள்ளது!',
+          'பயிற்சி பெற்ற உழவர் பண்ணையில் போதிய கையிருப்பு தயார் நிலையில் உள்ளது!',
       }),
     },
     {
-      q: t('chat.presetQ2', {defaultValue: '💵 தற்போதைய விலை என்ன?'}),
+      q: t('chat.presetQ2', {defaultValue: 'தற்போதைய விலை என்ன?'}),
       a: t('chat.presetA2', {
         defaultValue:
           'எங்கள் விவசாயி இடைத்தரகர் இன்றி குறைந்த மற்றும் நியாயமான நேரடிப் பண்ணை விலையில் வழங்குகிறார்.',
       }),
     },
     {
-      q: t('chat.presetQ3', {defaultValue: '🌿 இயற்கை முறையிலானதா?'}),
+      q: t('chat.presetQ3', {defaultValue: 'இயற்கை முறையிலானதா?'}),
       a: t('chat.presetA3', {
         defaultValue:
           'ஆம்! 100% தூய இயற்கை மற்றும் ஆர்கானிக் சான்றிதழ் பெற்ற முறைகளில் விளைவிக்கப்பட்டது.',
@@ -549,7 +549,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
     },
     {
       q: t('chat.presetQ4', {
-        defaultValue: '🚚 எப்போது விநியோகம் செய்யப்படும்?',
+        defaultValue: 'எப்போது விநியோகம் செய்யப்படும்?',
       }),
       a: t('chat.presetA4', {
         defaultValue:
@@ -557,45 +557,45 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
       }),
     },
     {
-      q: t('chat.presetQ5', {defaultValue: '📍 பண்ணை முகவரி பெறலாமா?'}),
+      q: t('chat.presetQ5', {defaultValue: 'பண்ணை முகவரி பெறலாமா?'}),
       a: t('chat.presetA5', {
         defaultValue:
-          'நிச்சயமாக! பண்ணை வருகை (Farm Visit) பகுதியில் எங்கள் பண்ணை அமைவிட விவரங்களைப் பெறலாம்.',
+          'நிச்சயமாக! பண்ணை வருகை பகுதியில் எங்கள் பண்ணை அமைவிட விவரங்களைப் பெறலாம்.',
       }),
     },
     {
-      q: t('chat.presetQ6', {defaultValue: '🌾 அடுத்த புதிய அறுவடை எப்போது?'}),
+      q: t('chat.presetQ6', {defaultValue: 'அடுத்த புதிய அறுவடை எப்போது?'}),
       a: t('chat.presetA6', {
         defaultValue:
-          'அறுவடை நாள்காட்டி (Harvest Calendar) பகுதியில் நடப்பு வார அறுவடை தேதிகளைப் பார்க்கலாம்.',
+          'அறுவடை நாள்காட்டி பகுதியில் நடப்பு வார அறுவடை தேதிகளைப் பார்க்கலாம்.',
       }),
     },
     {
       q: t('chat.presetQ7', {
-        defaultValue: '🧺 மொத்தமாக (Bulk Order) வாங்க முடியுமா?',
+        defaultValue: 'மொத்தமாக வாங்க முடியுமா?',
       }),
       a: t('chat.presetA7', {
         defaultValue:
-          'ஆம், மொத்த ஆணைக்கு (Group Buy / Bulk Order) சிறப்புத் தள்ளுபடி சലுகைகள் உண்டு.',
+          'ஆம், மொத்த ஆணைக்கு சிறப்புத் தள்ளுபடி சലுகைகள் உண்டு.',
       }),
     },
     {
-      q: t('chat.presetQ8', {defaultValue: '📜 தர பரிசோதனை சான்றிதழ் உண்டா?'}),
+      q: t('chat.presetQ8', {defaultValue: 'தர பரிசோதனை சான்றிதழ் உண்டா?'}),
       a: t('chat.presetA8', {
         defaultValue:
           'ஆம்! QR code ஸ்கேன் செய்து பண்ணையின் தர சான்றிதழ் அறிக்கையைப் பார்க்கலாம்.',
       }),
     },
     {
-      q: t('chat.presetQ9', {defaultValue: '📅 முன்-ஆர்டர் செய்வது எப்படி?'}),
+      q: t('chat.presetQ9', {defaultValue: 'முன்-ஆர்டர் செய்வது எப்படி?'}),
       a: t('chat.presetA9', {
         defaultValue:
-          'முன்-ஆர்டர் (Pre-Order) பக்கத்தில் உங்கள் அறுவடை தேவையை முன்பதிவு செய்ய முடியும்.',
+          'முன்-ஆர்டர் பக்கத்தில் உங்கள் அறுவடை தேவையை முன்பதிவு செய்ய முடியும்.',
       }),
     },
     {
       q: t('chat.presetQ10', {
-        defaultValue: '📞 விவசாயியுடன் நேரடித் தொடர்பு கொள்ளலாமா?',
+        defaultValue: 'விவசாயியுடன் நேரடித் தொடர்பு கொள்ளலாமா?',
       }),
       a: t('chat.presetA10', {
         defaultValue:
@@ -639,12 +639,12 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
   const getOnlineStatusText = () => {
     const lang = i18n.language || 'ta';
     if (lang === 'ta') {
-      return '🟢 ஆன்லைன் (AI அசிஸ்டண்ட் ஆக்டிவ்)';
+      return 'ஆன்லைன்';
     }
     if (lang === 'ml') {
-      return '🟢 ഓൺലൈൻ (AI അസിസ്റ്റന്റ് സജീവം)';
+      return 'ഓൺലൈൻ';
     }
-    return '🟢 Online (AI Assistant Active)';
+    return 'Online';
   };
 
   return (
@@ -668,7 +668,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
           <View style={styles.roomNameRow}>
             <Text style={styles.roomName}>{farmer.nameTa || farmer.name}</Text>
             {farmer.isVerified && (
-              <Text style={{fontSize: 13, marginLeft: 4}}>✅</Text>
+              <Text style={{fontSize: 13, marginLeft: 4}}></Text>
             )}
           </View>
           <Text style={styles.roomStatus}>
@@ -695,7 +695,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
         )}
         ListEmptyComponent={
           <View style={styles.emptyChat}>
-            <Text style={styles.emptyChatEmoji}>💬</Text>
+            <Text style={styles.emptyChatEmoji}></Text>
             <Text style={[styles.emptyChatTxt, {color: themeColors.subText}]}>
               {farmer.nameTa || farmer.name} -{' '}
               {t('chat.startConversation', {
@@ -726,7 +726,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
           }}>
           {t('chat.aiQuestionsHeader', {
             defaultValue:
-              '🤖 தானியங்கி கேள்விகள் (Automatic AI Questions) - தொட்டு அனுப்பவும்:',
+              '🤖 தானியங்கி கேள்விகள் - தொட்டு அனுப்பவும்:',
           })}
         </Text>
         <ScrollView
@@ -794,7 +794,7 @@ const FarmerChatRoomScreen = ({route, navigation}) => {
                     onPress={async () => {
                       setDeleteModalVisible(false);
                       const deletedText = t('chat.messageDeletedEveryone', {
-                        defaultValue: '🚫 This message was deleted',
+                        defaultValue: 'This message was deleted',
                       });
                       await deleteChatMessageForEveryone(
                         farmer.id,

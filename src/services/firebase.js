@@ -27,32 +27,32 @@ export const firebaseEmailLogin = async (email, password) => {
     }
     if (error.code === 'auth/wrong-password') {
       message =
-        '🔑 தவறான கடவுச்சொல்!\n\nஇந்த மின்னஞ்சலுக்கான கடவுச்சொல் தவறாக உள்ளது.\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nWrong password! Please enter the correct password or try "Forgot Password".';
+        'தவறான கடவுச்சொல்!\n\nஇந்த மின்னஞ்சலுக்கான கடவுச்சொல் தவறாக உள்ளது.\nசரியான கடவுச்சொல்லை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nWrong password! Please enter the correct password or try "Forgot Password".';
       errorType = 'wrong-password';
     }
     if (error.code === 'auth/invalid-email') {
       message =
-        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format! Please enter a valid email address.';
+        'தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format! Please enter a valid email address.';
       errorType = 'invalid-email';
     }
     if (error.code === 'auth/too-many-requests') {
       message =
-        '⏳ பல முறை தவறான கடவுச்சொல்!\n\nஉங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது. சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nToo many failed attempts. Please wait or reset your password.';
+        'பல முறை தவறான கடவுச்சொல்!\n\nஉங்கள் கணக்கு தற்காலிகமாக முடக்கப்பட்டுள்ளது. சிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும் அல்லது கடவுச்சொல்லை மீட்டமைக்கவும்.\n\nToo many failed attempts. Please wait or reset your password.';
       errorType = 'too-many-requests';
     }
     if (error.code === 'auth/invalid-credential') {
       message =
-        '🔑 தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்!\n\nநீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது.\nசரியான தகவல்களை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nIncorrect email or password. Please try again or use "Forgot Password".';
+        'தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்!\n\nநீங்கள் உள்ளிட்ட மின்னஞ்சல் அல்லது கடவுச்சொல் தவறாக உள்ளது.\nசரியான தகவல்களை உள்ளிடவும் அல்லது "கடவுச்சொல் மறந்தீர்களா?" என்பதை முயற்சிக்கவும்.\n\nIncorrect email or password. Please try again or use "Forgot Password".';
       errorType = 'wrong-password';
     }
     if (error.code === 'auth/user-disabled') {
       message =
-        '🚫 உங்கள் கணக்கு முடக்கப்பட்டுள்ளது!\n\nநிர்வாகி உங்கள் கணக்கை முடக்கியுள்ளார்.\nதயவுசெய்து நிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled by the administrator. Please contact admin.';
+        'உங்கள் கணக்கு முடக்கப்பட்டுள்ளது!\n\nநிர்வாகி உங்கள் கணக்கை முடக்கியுள்ளார்.\nதயவுசெய்து நிர்வாகியை தொடர்பு கொள்ளவும்.\n\nYour account has been disabled by the administrator. Please contact admin.';
       errorType = 'account-disabled';
     }
     if (error.code === 'auth/network-request-failed') {
       message =
-        '📶 இணைய இணைப்பு இல்லை!\n\nதயவுசெய்து உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nNo internet connection. Please check your network and try again.';
+        'இணைய இணைப்பு இல்லை!\n\nதயவுசெய்து உங்கள் இணைய இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.\n\nNo internet connection. Please check your network and try again.';
       errorType = 'network';
     }
     return {success: false, error: message, errorType};
@@ -68,22 +68,22 @@ export const firebaseEmailRegister = async (email, password) => {
     let errorType = 'generic';
     if (error.code === 'auth/email-already-in-use') {
       message =
-        '⚠️ இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\n\nஇந்த Email Address ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது. வேறு Email பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered with another account. Please use a different email or login.';
+        'இந்த மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!\n\nஇந்த மின்னஞ்சல் ஏற்கனவே வேறொரு பெயரில் பதிவு செய்யப்பட்டுள்ளது. வேறு மின்னஞ்சல் பயன்படுத்தவும் அல்லது Login செய்யவும்.\n\nThis email is already registered with another account. Please use a different email or login.';
       errorType = 'email-exists';
     }
     if (error.code === 'auth/weak-password') {
       message =
-        '🔒 கடவுச்சொல் பலவீனமாக உள்ளது!\n\nகுறைந்தது 6 எழுத்துக்கள் வேண்டும்.\nஒரு வலுவான கடவுச்சொல் உருவாக்கவும்.\n\nPassword is too weak. Must be at least 6 characters.';
+        'கடவுச்சொல் பலவீனமாக உள்ளது!\n\nகுறைந்தது 6 எழுத்துக்கள் வேண்டும்.\nஒரு வலுவான கடவுச்சொல் உருவாக்கவும்.\n\nPassword is too weak. Must be at least 6 characters.';
       errorType = 'weak-password';
     }
     if (error.code === 'auth/invalid-email') {
       message =
-        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
+        'தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
       errorType = 'invalid-email';
     }
     if (error.code === 'auth/network-request-failed') {
       message =
-        '📶 இணைய இணைப்பு இல்லை!\n\nNo internet connection. Please check your network.';
+        'இணைய இணைப்பு இல்லை!\n\nNo internet connection. Please check your network.';
       errorType = 'network';
     }
     return {success: false, error: message, errorType};
@@ -110,9 +110,9 @@ export const sendPhoneOTP = async phoneNumber => {
       (error.message && error.message.includes('BILLING_NOT_ENABLED'))
     ) {
       message =
-        '📱 OTP சேவை தற்போது கிடைக்கவில்லை!\n\n' +
+        'OTP சேவை தற்போது கிடைக்கவில்லை!\n\n' +
         'Firebase Blaze (pay-as-you-go) plan தேவை.\n' +
-        'தயவுசெய்து Email Login பயன்படுத்தவும்.\n\n' +
+        'தயவுசெய்து மின்னஞ்சல் Login பயன்படுத்தவும்.\n\n' +
         'OTP service is currently unavailable.\n' +
         'Firebase Blaze plan is required for Phone Auth.\n' +
         'Please use Email Login instead.';
@@ -158,15 +158,15 @@ export const sendPasswordResetEmail = async email => {
       'மீட்டமை லிங்க் அனுப்ப முடியவில்லை / Could not send reset link';
     if (error.code === 'auth/user-not-found') {
       message =
-        '❌ இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email. Please check your email address or register a new account.\n\nஇந்த Email-ல் எந்த கணக்கும் பதிவு செய்யப்படவில்லை. மின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.';
+        'இந்த மின்னஞ்சலில் கணக்கு எதுவும் இல்லை!\n\nNo account found with this email. Please check your email address or register a new account.\n\nஇந்த மின்னஞ்சலில் எந்த கணக்கும் பதிவு செய்யப்படவில்லை. மின்னஞ்சலை சரிபார்க்கவும் அல்லது புதிய கணக்கு உருவாக்கவும்.';
     }
     if (error.code === 'auth/invalid-email') {
       message =
-        '❌ தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
+        'தவறான மின்னஞ்சல் வடிவம்!\n\nசரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.\nஎ.கா: example@gmail.com\n\nInvalid email format!';
     }
     if (error.code === 'auth/too-many-requests') {
       message =
-        '⏳ அதிக கோரிக்கைகள்!\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.\n\nToo many requests. Please wait and try again.';
+        'அதிக கோரிக்கைகள்!\n\nசிறிது நேரம் காத்திருந்து மீண்டும் முயற்சிக்கவும்.\n\nToo many requests. Please wait and try again.';
     }
     return {success: false, error: message};
   }
@@ -712,7 +712,7 @@ export const deleteChatMessageForEveryone = async (
   farmerId,
   consumerId,
   messageId,
-  deletedText = '🚫 This message was deleted',
+  deletedText = 'This message was deleted',
 ) => {
   try {
     const chatRoomId = getChatRoomId(farmerId, consumerId);
@@ -1298,7 +1298,7 @@ export const createOrderNotification = async (type, orderData) => {
       notifs.push(
         createNotification({
           userId: orderData.farmerId,
-          title: '🛒 புதிய ஆர்டர் வந்தது!',
+          title: 'புதிய ஆர்டர் வந்தது!',
           titleEn: 'New Order Received!',
           message: `${
             orderData.consumerName || 'Customer'
@@ -1317,18 +1317,18 @@ export const createOrderNotification = async (type, orderData) => {
       // Notify consumer
       const statusMessages = {
         Confirmed: {
-          ta: '✅ ஆர்டர் உறுதிசெய்யப்பட்டது!',
+          ta: 'ஆர்டர் உறுதிசெய்யப்பட்டது!',
           en: 'Order Confirmed!',
         },
-        Shipped: {ta: '🚚 ஆர்டர் அனுப்பப்பட்டது!', en: 'Order Shipped!'},
-        Delivered: {ta: '🎉 ஆர்டர் வழங்கப்பட்டது!', en: 'Order Delivered!'},
-        Cancelled: {ta: '❌ ஆர்டர் ரத்து செய்யப்பட்டது', en: 'Order Cancelled'},
+        Shipped: {ta: 'ஆர்டர் அனுப்பப்பட்டது!', en: 'Order Shipped!'},
+        Delivered: {ta: 'ஆர்டர் வழங்கப்பட்டது!', en: 'Order Delivered!'},
+        Cancelled: {ta: 'ஆர்டர் ரத்து செய்யப்பட்டது', en: 'Order Cancelled'},
         'Refund Requested': {
-          ta: '💸 பணம் திரும்ப கோரிக்கை பெற்றது',
+          ta: 'பணம் திரும்ப கோரிக்கை பெறப்பட்டது',
           en: 'Refund Request Received',
         },
         'Refund Success': {
-          ta: '✅ பணம் திரும்ப வெற்றி!',
+          ta: 'பணம் திரும்புவது வெற்றி!',
           en: 'Refund Successful!',
         },
       };

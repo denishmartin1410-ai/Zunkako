@@ -345,7 +345,7 @@ export const OrdersScreen = ({navigation, route}) => {
           message: `Your pre-order for ${
             order.nameEn || order.name
           } has been cancelled.`,
-          emoji: '❌',
+          emoji: '',
           bgColor: '#FFEBEE',
           isRead: false,
           type: 'preorder_cancelled',
@@ -366,7 +366,7 @@ export const OrdersScreen = ({navigation, route}) => {
             message: `Pre-order for ${
               order.nameEn || order.name
             } has been cancelled by the customer. Reason: ${cancelReason}`,
-            emoji: '❌',
+            emoji: '',
             bgColor: '#FFEBEE',
             isRead: false,
             type: 'preorder_cancelled',
@@ -412,7 +412,7 @@ export const OrdersScreen = ({navigation, route}) => {
     if (hoursSinceCompleted > 24) {
       Alert.alert(
         t('common.error', {defaultValue: 'பிழை'}),
-        'பொருள் வழங்கப்பட்ட 24 மணி நேரத்திற்குள் மட்டுமே திரும்பக் கோர (Refund) முடியும்!\n\nRefund can only be requested within 24 hours of delivery!',
+        'பொருள் வழங்கப்பட்ட 24 மணி நேரத்திற்குள் மட்டுமே பணம் திரும்பக் கோர முடியும்!\n\nRefund can only be requested within 24 hours of delivery!',
       );
       return;
     }
@@ -448,7 +448,7 @@ export const OrdersScreen = ({navigation, route}) => {
           message: `Your refund request for ${
             order.nameEn || order.name
           } pre-order has been submitted.`,
-          emoji: '💸',
+          emoji: '',
           bgColor: '#FFEBEE',
           isRead: false,
           type: 'preorder_refund_requested',
@@ -469,7 +469,7 @@ export const OrdersScreen = ({navigation, route}) => {
             message: `Refund requested for pre-order ${
               order.nameEn || order.name
             }. Reason: ${refundReason}`,
-            emoji: '💸',
+            emoji: '',
             bgColor: '#FFEBEE',
             isRead: false,
             type: 'preorder_refund_requested',
@@ -551,11 +551,11 @@ export const OrdersScreen = ({navigation, route}) => {
         .collection('items')
         .add({
           userId: uid,
-          title: '🎉 Pre-Order Completed!',
+          title: 'Pre-Order Completed!',
           message: `Your pre-ordered crop ${
             order.nameEn || order.name
           } receipt has been confirmed. Thank you!`,
-          emoji: '🎉',
+          emoji: '',
           bgColor: '#E8F5E9',
           isRead: false,
           type: 'preorder_completed',
@@ -570,13 +570,13 @@ export const OrdersScreen = ({navigation, route}) => {
           .collection('items')
           .add({
             userId: order.farmerId,
-            title: '🎉 Pre-Order Completed!',
+            title: 'Pre-Order Completed!',
             message: `Customer ${
               order.deliveryName || user.name || 'User'
             } has marked pre-ordered crop ${
               order.nameEn || order.name
             } as received.`,
-            emoji: '🎉',
+            emoji: '',
             bgColor: '#E8F5E9',
             isRead: false,
             type: 'preorder_completed',
@@ -588,7 +588,7 @@ export const OrdersScreen = ({navigation, route}) => {
       const r = await getConsumerPreOrders(uid);
       setPreOrders(Array.isArray(r?.data) ? r.data : []);
 
-      Alert.alert('✅ Done', 'Receipt confirmed successfully! Thank you.');
+      Alert.alert('Done', 'Receipt confirmed successfully! Thank you.');
     } catch (e) {
       Alert.alert('Error', e.message);
     }
@@ -610,7 +610,7 @@ export const OrdersScreen = ({navigation, route}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={S.headerTitle}>
-          📦 {t('nav.orders', {defaultValue: 'Orders'})}
+          {t('nav.orders', {defaultValue: 'Orders'})}
         </Text>
         <View style={{width: 40}} />
       </LinearGradient>
@@ -634,7 +634,7 @@ export const OrdersScreen = ({navigation, route}) => {
               activeTab === 'normal' && S.tabTxtActive,
               activeTab !== 'normal' && {color: themeColors.subText},
             ]}>
-            📦 {t('orders.normalOrdersTab', {defaultValue: 'Orders'})}
+            {t('orders.normalOrdersTab', {defaultValue: 'Orders'})}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -646,7 +646,7 @@ export const OrdersScreen = ({navigation, route}) => {
               activeTab === 'pre' && S.tabTxtActive,
               activeTab !== 'pre' && {color: themeColors.subText},
             ]}>
-            📅 {t('orders.preOrdersTab', {defaultValue: 'Pre-Orders'})}
+            {t('orders.preOrdersTab', {defaultValue: 'Pre-Orders'})}
           </Text>
         </TouchableOpacity>
       </View>
@@ -672,7 +672,7 @@ export const OrdersScreen = ({navigation, route}) => {
           {activeTab === 'normal' ? (
             orders.length === 0 ? (
               <View style={S.emptyBox}>
-                <Text style={S.emptyEmoji}>📦</Text>
+                <Text style={S.emptyEmoji}></Text>
                 <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                   {t('orders.noOrders', {
                     defaultValue: 'No orders yet',
@@ -730,7 +730,7 @@ export const OrdersScreen = ({navigation, route}) => {
                     </View>
                   </View>
                   <Text style={[S.orderDate, {color: themeColors.textMuted}]}>
-                    📅{' '}
+                    {' '}
                     {order.createdAt?.toDate?.()?.toLocaleDateString('ta-IN') ||
                       ''}
                   </Text>
@@ -757,7 +757,7 @@ export const OrdersScreen = ({navigation, route}) => {
             )
           ) : preOrders.length === 0 ? (
             <View style={S.emptyBox}>
-              <Text style={S.emptyEmoji}>📅</Text>
+              <Text style={S.emptyEmoji}></Text>
               <Text style={[S.emptyText, {color: themeColors.textMuted}]}>
                 {t('preOrder.noPreOrders', {
                   defaultValue: 'No pre-orders yet',
@@ -861,7 +861,7 @@ export const OrdersScreen = ({navigation, route}) => {
                     </View>
                   </View>
                   <Text style={[S.orderDate, {color: themeColors.textMuted}]}>
-                    📅{' '}
+                    {' '}
                     {t('orders.preOrderedOn', {
                       defaultValue: 'Ordered On',
                     })}
@@ -879,7 +879,7 @@ export const OrdersScreen = ({navigation, route}) => {
                     {localName}
                   </Text>
                   <Text style={[S.orderItems, {color: themeColors.subText}]}>
-                    👨‍🌾 {order.farmer} | 📦 {order.qty} {order.unit}
+                    {order.farmer} | {order.qty} {order.unit}
                   </Text>
 
                   {/* Harvest Countdown */}
@@ -895,7 +895,7 @@ export const OrdersScreen = ({navigation, route}) => {
                         fontWeight: 'bold',
                         color: COLORS.accentGold,
                       }}>
-                      ⏳{' '}
+                      {' '}
                       {diffDays === 0
                         ? t('preOrder.harvestingToday', {
                             defaultValue: 'Harvesting Today!',
@@ -1115,7 +1115,7 @@ export const OrdersScreen = ({navigation, route}) => {
                                 fontWeight: 'bold',
                                 fontSize: rs(13),
                               }}>
-                              ❌{' '}
+                              {' '}
                               {t('preOrder.cancelPreOrderBtn', {
                                 defaultValue: 'முன் ஆர்டரை ரத்து செய்',
                               })}
@@ -1143,7 +1143,7 @@ export const OrdersScreen = ({navigation, route}) => {
                                 fontWeight: 'bold',
                                 fontSize: rs(13),
                               }}>
-                              💸{' '}
+                              {' '}
                               {t('preOrder.refundPreOrderBtn', {
                                 defaultValue: 'பணத்தை திரும்பப் பெறக் கோரு',
                               })}
@@ -1399,7 +1399,7 @@ export const ConsumerProfileScreen = ({navigation}) => {
             ])
           }>
           <Text style={[S.logoutText, isDark && {color: '#FF8A80'}]}>
-            🚪 {t('settings.logout', {defaultValue: 'வெளியேறு'})}
+            {t('settings.logout', {defaultValue: 'வெளியேறு'})}
           </Text>
         </TouchableOpacity>
         <View style={{height: 90}} />
@@ -1537,12 +1537,12 @@ export const FarmerProfileScreen = ({route, navigation}) => {
         {farmer.isVerified && (
           <Text
             style={{color: 'rgba(255,255,255,0.9)', fontSize: rs(FONTS.xs)}}>
-            ✅{' '}
+            {' '}
             {t('farmer.verified', {defaultValue: 'சரிபார்க்கப்பட்ட விவசாயி'})}
           </Text>
         )}
         <Text style={S.farmerLoc}>
-          📍 {farmer.locationTa || farmer.location || ''}
+          {farmer.locationTa || farmer.location || ''}
         </Text>
       </LinearGradient>
       <ScrollView
@@ -2050,7 +2050,7 @@ export const AllFarmersScreen = ({navigation}) => {
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={S.headerRow}>
         <BackButton onPress={() => navigation.goBack()} />
         <Text style={S.headerTitle}>
-          👨‍🌾 {t('home.topFarmers', {defaultValue: 'அனைத்து விவசாயிகள்'})}
+          {t('home.topFarmers', {defaultValue: 'அனைத்து விவசாயிகள்'})}
         </Text>
         <View style={{width: 40}} />
       </LinearGradient>
@@ -2062,7 +2062,7 @@ export const AllFarmersScreen = ({navigation}) => {
         />
       ) : farmers.length === 0 ? (
         <View style={S.emptyBox}>
-          <Text style={S.emptyEmoji}>👨‍🌾</Text>
+          <Text style={S.emptyEmoji}></Text>
         </View>
       ) : (
         <FlatList
@@ -2096,7 +2096,7 @@ export const AllFarmersScreen = ({navigation}) => {
                       : item.name || item.nameTa}
                   </Text>
                   {item.isVerified && (
-                    <Text style={{fontSize: rs(12), marginLeft: 4}}>✅</Text>
+                    <Text style={{fontSize: rs(12), marginLeft: 4}}></Text>
                   )}
                 </View>
                 <Text style={[S.farmerListLoc, {color: themeColors.subText}]}>

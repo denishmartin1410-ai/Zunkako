@@ -67,7 +67,7 @@ const LegalScreen = ({ route, navigation }) => {
     switch (activeType) {
       case 'privacy':
         return {
-          title: currentLang === 'ta' ? 'Zunkako தனியுரிமைக் கொள்கை (Privacy Policy)' : currentLang === 'ml' ? 'Zunkako സ്വകാര്യതാ നയം' : 'Zunkako Privacy Policy',
+          title: currentLang === 'ta' ? 'Zunkako தனியுரிமைக் கொள்கை' : currentLang === 'ml' ? 'Zunkako സ്വകാര്യതാ നയം' : 'Zunkako Privacy Policy',
           lastUpdated: 'Effective Date: September 2026',
           intro: currentLang === 'ta'
             ? 'Zunkako உங்கள் தனியுரிமையை 100% பாதுகாப்பதில் உறுதியாக உள்ளது. இந்த தனியுரிமைக் கொள்கை நாங்கள் எந்தெந்தத் தகவல்களைச் சேகரிக்கிறோம், அவற்றை எவ்வாறு பாதுகாப்பாகப் பயன்படுத்துகிறோம் என்பதை விரிவாக விளக்குகிறது.'
@@ -76,15 +76,15 @@ const LegalScreen = ({ route, navigation }) => {
             : 'Zunkako is committed to protecting your privacy. This policy details how we collect, use, and protect your personal information.',
           sections: [
             {
-              title: currentLang === 'ta' ? '1. நாங்கள் சேகரிக்கும் தகவல்கள் (Data We Collect)' : currentLang === 'ml' ? '1. ഞങ്ങൾ ശേഖരിക്കുന്ന വിവരങ്ങൾ' : '1. Information We Collect',
+              title: currentLang === 'ta' ? '1. நாங்கள் சேகரிக்கும் தகவல்கள்' : currentLang === 'ml' ? '1. ഞങ്ങൾ ശേഖരിക്കുന്ന വിവരങ്ങൾ' : '1. Information We Collect',
               body: currentLang === 'ta'
-                ? 'நாங்கள் பின்வரும் தகவல்களை சேகரிக்கிறோம்:\n• தனிப்பயன் விவரங்கள்: பெயர், மின்னஞ்சல் முகவரி, மொபைல் எண்.\n• இருப்பிடத் தரவு (GPS Location): பொருட்கள் டெலிவரி செய்யவும் பண்ணை தூரத்தை கணக்கிடவும் பயன்படுகிறது.\n• ஆர்டர் வரலாறு: நீங்கள் வாங்கிய காய்கறிகள் மற்றும் பணம் செலுத்திய ரசீதுகள்.\n• பதிவேற்றிய புகைப்படங்கள் மற்றும் வீடியோக்கள்: விவசாயிகள் பதிவேற்றும் அறுவடை படங்கள் மற்றும் Reels வீடியோக்கள்.\n• சாதன விவரங்கள் மற்றும் FCM Tokens: உங்களது மொபைல் போன் மாடல் மற்றும் Push Notification அனுப்புவதற்கான Tokens.'
+                ? 'நாங்கள் பின்வரும் தகவல்களை சேகரிக்கிறோம்:\n• தனிப்பயன் விவரங்கள்: பெயர், மின்னஞ்சல் முகவரி, மொபைல் எண்.\n• இருப்பிடத் தரவு: பொருட்கள் டெலிவரி செய்யவும் பண்ணை தூரத்தை கணக்கிடவும் பயன்படுகிறது.\n• ஆர்டர் வரலாறு: நீங்கள் வாங்கிய காய்கறிகள் மற்றும் பணம் செலுத்திய ரசீதுகள்.\n• பதிவேற்றிய புகைப்படங்கள் மற்றும் வீடியோக்கள்: விவசாயிகள் பதிவேற்றும் அறுவடை படங்கள் மற்றும் Reels வீடியோக்கள்.\n• சாதன விவரங்கள் மற்றும் FCM Tokens: உங்களது மொபைல் போன் மாடல் மற்றும் Push Notification அனுப்புவதற்கான Tokens.'
                 : currentLang === 'ml'
                 ? 'ഞങ്ങൾ ശേഖരിക്കുന്ന വിവരങ്ങൾ:\n• പേര്, ഇമെയിൽ, ഫോൺ നമ്പർ.\n• ലൊക്കേഷൻ വിവരങ്ങൾ (GPS).\n• ഓർഡർ ഹിസ്റ്ററിയും പേയ്‌മെന്റ് വിവരങ്ങളും.\n• അപ്‌ലോഡ് ചെയ്ത ചിത്രങ്ങളും വീഡിയോകളും.\n• ഉപകരണ വിവരങ്ങളും നോട്ടിഫിക്കേഷൻ ടോക്കണുകളും.'
                 : 'We collect:\n• Personal Information: Name, email address, phone number.\n• Location Data (GPS): Used strictly for order delivery and farm distance calculations.\n• Transaction History: Products purchased and payment receipts.\n• Uploaded Content: Farm story reels and product images uploaded by users.\n• Device Identifiers: Device model and FCM push notification tokens.',
             },
             {
-              title: currentLang === 'ta' ? '2. தகவல்களைப் பயன்படுத்தும் நோக்கம் (How We Use Data)' : currentLang === 'ml' ? '2. വിവരങ്ങളുടെ ഉപയോഗം' : '2. How We Use Your Data',
+              title: currentLang === 'ta' ? '2. தகவல்களைப் பயன்படுத்தும் நோக்கம்' : currentLang === 'ml' ? '2. വിവരങ്ങളുടെ ഉപയോഗം' : '2. How We Use Your Data',
               body: currentLang === 'ta'
                 ? 'உங்கள் தகவல்கள் பின்வரும் நன்மைகளுக்காக மட்டுமே பயன்படுத்தப்படுகின்றன:\n• உங்களுடைய ஆர்டர்களைச் சரியாகச் செயல்படுத்தி டெலிவரி செய்ய.\n• விவசாயிகள் மற்றும் நுகர்வோர் இடையே தொடர்பை ஏற்படுத்த.\n• ஆர்டர் நிலை குறித்த நேரலை Push Notification தகவல்களை அனுப்ப.\n• போலி கணக்குகள் மற்றும் நிதி மோசடிகளைத் தடுக்க.'
                 : currentLang === 'ml'
@@ -92,17 +92,17 @@ const LegalScreen = ({ route, navigation }) => {
                 : 'Your data is used strictly for:\n• Processing and delivering your agricultural orders.\n• Facilitating direct farmer-consumer communication.\n• Sending real-time push notifications regarding order status.\n• Preventing fraud, fake profiles, and unauthorized platform access.',
             },
             {
-              title: currentLang === 'ta' ? '3. தரவு பகிர்வு & பாதுகாப்பு (Data Sharing & Zero Third-Party Sale)' : currentLang === 'ml' ? '3. വിവരങ്ങൾ പങ്കിടൽ' : '3. Data Sharing & Security',
+              title: currentLang === 'ta' ? '3. தரவு பகிர்வு & பாதுகாப்பு' : currentLang === 'ml' ? '3. വിവരങ്ങൾ പങ്കിടൽ' : '3. Data Sharing & Security',
               body: currentLang === 'ta'
-                ? '🔒 பாதுகாப்பு உத்தரவாதம்:\n• உங்கள் போன் எண் அல்லது தனிப்பட்ட விவரங்கள் எந்தவொரு விளம்பர நிறுவனங்களுக்கும் விற்கப்படாது (NOT sold to third parties).\n• டெலிவரி செய்ய ஒதுக்கப்பட்ட Delivery Partner மற்றும் ஆன்லைன் கட்டணச் செயலிக்கு (Payment Gateway) மட்டுமே தேவையான தகவல்கள் பகிரப்படும்.\n• அனைத்துத் தரவுகளும் Google Firebase-ன் SSL/TLS 256-bit குறியாக்கம் (Encryption) மூலம் பாதுகாப்பாக சேமிக்கப்படுகின்றன.'
+                ? 'பாதுகாப்பு உத்தரவாதம்:\n• உங்கள் போன் எண் அல்லது தனிப்பட்ட விவரங்கள் எந்தவொரு விளம்பர நிறுவனங்களுக்கும் விற்கப்படாது.\n• டெலிவரி செய்ய ஒதுக்கப்பட்ட Delivery Partner மற்றும் ஆன்லைன் கட்டணச் செயலிக்கு மட்டுமே தேவையான தகவல்கள் பகிரப்படும்.\n• அனைத்துத் தரவுகளும் Google Firebase-ன் SSL/TLS 256-bit குறியாக்கம் மூலம் பாதுகாப்பாக சேமிக்கப்படுகின்றன.'
                 : currentLang === 'ml'
-                ? '🔒 സുരക്ഷാ ഗ്യാരണ്ടി:\n• നിങ്ങളുടെ വിവരങ്ങൾ മൂന്നാം കക്ഷികൾക്ക് വിൽക്കില്ല.\n• ഡെലിവറി പാർട്ണർമാർക്കും പേയ്‌മെന്റ് പ്രോസസ്സറുകൾക്കും മാത്രം ആവശ്യമായ വിവരങ്ങൾ നൽകുന്നു.\n• വിവരങ്ങൾ ഫയർബേസ് എൻക്രിപ്ഷൻ വഴി സുരക്ഷിതമാണ്.'
-                : '🔒 Data Security Guarantee:\n• Your data is NEVER sold to third-party advertisers or data brokers.\n• Information is shared ONLY with assigned delivery partners and payment processors to complete transactions.\n• All data is encrypted using Google Firebase SSL/TLS 256-bit security standards.',
+                ? 'സുരക്ഷാ ഗ്യാരണ്ടി:\n• നിങ്ങളുടെ വിവരങ്ങൾ മൂന്നാം കക്ഷികൾക്ക് വിൽക്കില്ല.\n• ഡെലിവറി പാർട്ണർമാർക്കും പേയ്‌മെന്റ് പ്രോസസ്സറുകൾക്കും മാത്രം ആവശ്യമായ വിവരങ്ങൾ നൽകുന്നു.\n• വിവരങ്ങൾ ഫയർബേസ് എൻക്രിപ്ഷൻ വഴി സുരക്ഷിതമാണ്.'
+                : 'Data Security Guarantee:\n• Your data is NEVER sold to third-party advertisers or data brokers.\n• Information is shared ONLY with assigned delivery partners and payment processors to complete transactions.\n• All data is encrypted using Google Firebase SSL/TLS 256-bit security standards.',
             },
             {
-              title: currentLang === 'ta' ? '4. பயனர் உரிமைகள் (User Data Rights & Account Deletion)' : currentLang === 'ml' ? '4. ഉപയോക്തൃ അവകാശങ്ങൾ' : '4. User Data Rights',
+              title: currentLang === 'ta' ? '4. பயனர் உரிமைகள்' : currentLang === 'ml' ? '4. ഉപയോക്തൃ അവകാശങ്ങൾ' : '4. User Data Rights',
               body: currentLang === 'ta'
-                ? 'உங்களுக்கு உங்கள் தரவு மீது முழு உரிமை உண்டு:\n• உங்கள் கணக்கை எப்போது வேண்டுமானாலும் நீக்கலாம் (Account Deletion).\n• உங்கள் தகவல்களின் நகலை எங்களிடம் கோரலாம்.\n• விளம்பர அறிவிப்புகளைத் தவிர்க்கலாம் (Opt-out).'
+                ? 'உங்களுக்கு உங்கள் தரவு மீது முழு உரிமை உண்டு:\n• உங்கள் கணக்கை எப்போது வேண்டுமானாலும் நீக்கலாம்.\n• உங்கள் தகவல்களின் நகலை எங்களிடம் கோரலாம்.\n• விளம்பர அறிவிப்புகளைத் தவிர்க்கலாம்.'
                 : currentLang === 'ml'
                 ? '• നിങ്ങളുടെ അക്കൗണ്ട് എപ്പോൾ വേണമെങ്കിലും നീക്കം ചെയ്യാം.\n• വിവരങ്ങളുടെ പകർപ്പ് ആവശ്യപ്പെടാം.'
                 : 'You have full rights over your data:\n• Request complete account deletion at any time.\n• Request a copy of all stored personal information.\n• Opt-out of non-essential push notifications.',
@@ -112,7 +112,7 @@ const LegalScreen = ({ route, navigation }) => {
 
       case 'community':
         return {
-          title: currentLang === 'ta' ? 'Zunkako சமூக வழிகாட்டுதல்கள் (Community Guidelines)' : currentLang === 'ml' ? 'Zunkako കമ്മ്യൂണിറ്റി മാർഗ്ഗനിർദ്ദേശങ്ങൾ' : 'Community Guidelines',
+          title: currentLang === 'ta' ? 'Zunkako சமூக வழிகாட்டுதல்கள்' : currentLang === 'ml' ? 'Zunkako കമ്മ്യൂണിറ്റി മാർഗ്ഗനിർദ്ദേശങ്ങൾ' : 'Community Guidelines',
           lastUpdated: 'Updated: September 2026',
           intro: currentLang === 'ta'
             ? 'Zunkako ஒரு நேர்மையான விவசாய சந்தை தளமாகும். இதில் விவசாயிகள் மற்றும் நுகர்வோர் அனைவரும் பாதுகாப்பாக செயல்பட கீழ்க்கண்ட சமூக விதிகளை கண்டிப்பாக பின்பற்ற வேண்டும்.'
@@ -121,7 +121,7 @@ const LegalScreen = ({ route, navigation }) => {
             : 'To maintain a safe agricultural community, all users must follow these rules when uploading content or using Zunkako.',
           sections: [
             {
-              title: currentLang === 'ta' ? '✅ அனுமதிக்கப்பட்ட உள்ளடக்கங்கள் (Allowed Content)' : currentLang === 'ml' ? '✅ അനുവദനീയമായവ' : '✅ Allowed Content',
+              title: currentLang === 'ta' ? 'அனுமதிக்கப்பட்ட உள்ளடக்கங்கள்' : currentLang === 'ml' ? 'അനുവദനീയമായവ' : 'Allowed Content',
               body: currentLang === 'ta'
                 ? '• புதிய காய்கறிகள், பழங்கள் மற்றும் இயற்கை விவசாய பொருட்களின் படங்கள்.\n• விவசாய நிலங்கள், அறுவடை நேரலை வீடியோக்கள் மற்றும் இயற்கை விவசாய குறிப்புகள்.\n• நுகர்வோருக்கான உண்மையான மதிப்பீடுகள் மற்றும் கருத்துக்கள்.'
                 : currentLang === 'ml'
@@ -129,17 +129,17 @@ const LegalScreen = ({ route, navigation }) => {
                 : '• Genuine photographs of fresh vegetables, fruits, and farm produce.\n• Authentic videos of farming fields, crop harvests, and organic practices.\n• Honest product reviews and constructive feedback.',
             },
             {
-              title: currentLang === 'ta' ? '🚫 தடைசெய்யப்பட்ட உள்ளடக்கங்கள் (Strictly Prohibited)' : currentLang === 'ml' ? '🚫 കർശനമായി നിരോധിച്ചവ' : '🚫 Strictly Prohibited Content',
+              title: currentLang === 'ta' ? 'தடைசெய்யப்பட்ட உள்ளடக்கங்கள்' : currentLang === 'ml' ? 'കർശനമായി നിരോധിച്ചവ' : 'Strictly Prohibited Content',
               body: currentLang === 'ta'
-                ? '❌ ஆபாசம் அல்லது தவறான படங்கள் (Adult / Explicit Content).\n❌ அரசியல் விவாதங்கள், சினிமா கிளிப்புகள் மற்றும் மீம்ஸ்கள்.\n❌ வன்முறை அல்லது வெறுப்பைத் தூண்டும் கருத்துக்கள்.\n❌ போலி காய்கறி படங்கள் அல்லது பிற தளங்களில் இருந்து திருடப்பட்ட படங்கள்.\n❌ தேவையில்லாத ஸ்பேம் விளம்பரங்கள் மற்றும் போலியான தொலைபேசி எண்கள்.'
+                ? 'ஆபாசம் அல்லது தவறான படங்கள்.\nஅரசியல் விவாதங்கள், சினிமா கிளிப்புகள் மற்றும் மீம்ஸ்கள்.\nவன்முறை அல்லது வெறுப்பைத் தூண்டும் கருத்துக்கள்.\nபோலி காய்கறி படங்கள் அல்லது பிற தளங்களில் இருந்து திருடப்பட்ட படங்கள்.\nதேவையில்லாத ஸ்பேம் விளம்பரங்கள் மற்றும் போலியான தொலைபேசி எண்கள்.'
                 : currentLang === 'ml'
-                ? '❌ അശ്ലീല ഉള്ളടക്കം.\n❌ രാഷ്ട്രീയം, സിനിമ, മീമുകൾ.\n❌ അക്രമകരമായ ദൃശ്യങ്ങൾ.\n❌ വ്യാജ ഉൽപ്പന്ന ചിത്രങ്ങൾ.'
-                : '❌ Adult, explicit, or sexually suggestive material.\n❌ Political propaganda, movie clips, and unrelated meme videos.\n❌ Hate speech, harassment, or violent content.\n❌ Fake product photos downloaded from third-party internet sites.\n❌ Unsolicited spam, commercial advertising, or fraudulent offers.',
+                ? 'അശ്ലീല ഉള്ളടക്കം.\nരാഷ്ട്രീയം, സിനിമ, മീമുകൾ.\nഅക്രമകരമായ ദൃശ്യങ്ങൾ.\nവ്യാജ ഉൽപ്പന്ന ചിത്രങ്ങൾ.'
+                : 'Adult, explicit, or sexually suggestive material.\nPolitical propaganda, movie clips, and unrelated meme videos.\nHate speech, harassment, or violent content.\nFake product photos downloaded from third-party internet sites.\nUnsolicited spam, commercial advertising, or fraudulent offers.',
             },
             {
-              title: currentLang === 'ta' ? '⚖️ கணக்கு இடைநிறுத்தம் & நடவடிக்கை (Account Suspension Policy)' : currentLang === 'ml' ? '⚖️ അക്കൗണ്ട് സസ്‌പെൻഷൻ' : '⚖️ Moderation & Account Suspension',
+              title: currentLang === 'ta' ? 'கணக்கு இடைநிறுத்தம் & நடவடிக்கை' : currentLang === 'ml' ? 'അക്കൗണ്ട് സസ്‌പെൻഷൻ' : 'Moderation & Account Suspension',
               body: currentLang === 'ta'
-                ? '• சமூக விதிமுறைகளை மீறும் கணக்குகள் முன்னறிவிப்பின்றி உடனடியாக இடைநிறுத்தம் (Permanent Account Suspension) செய்யப்படும்.\n• போலி பொருட்கள் விற்கும் விவசாயிகள் மீது சட்டப்பூர்வ நடவடிக்கை எடுக்கப்படும்.'
+                ? '• சமூக விதிமுறைகளை மீறும் கணக்குகள் முன்னறிவிப்பின்றி உடனடியாக இடைநிறுத்தம் செய்யப்படும்.\n• போலி பொருட்கள் விற்கும் விவசாயிகள் மீது சட்டப்பூர்வ நடவடிக்கை எடுக்கப்படும்.'
                 : currentLang === 'ml'
                 ? '• നിയമലംഘനം നടത്തുന്ന അക്കൗണ്ടുകൾ ഉടൻ സസ്‌പെൻഡ് ചെയ്യും.'
                 : '• Accounts violating community guidelines will face immediate content removal and permanent account suspension.\n• Fraudulent sellers listing fake organic items will be permanently barred from Zunkako marketplace.',
@@ -149,7 +149,7 @@ const LegalScreen = ({ route, navigation }) => {
 
       case 'about':
         return {
-          title: currentLang === 'ta' ? 'Zunkako பற்றிய விவரங்கள் (About Us)' : currentLang === 'ml' ? 'Zunkako യെക്കുറിച്ച്' : 'About Zunkako App',
+          title: currentLang === 'ta' ? 'Zunkako பற்றிய விவரங்கள்' : currentLang === 'ml' ? 'Zunkako യെക്കുറിച്ച്' : 'About Zunkako App',
           lastUpdated: 'Version 1.0.0 (Production Release)',
           intro: currentLang === 'ta'
             ? 'Zunkako என்பது விவசாயிகளையும் நுகர்வோரையும் நேரடியாக இணைக்கும் ஒரு புரட்சிகர டிஜிட்டல் தளமாகும். இடைத்தரகர்கள் இல்லாமல் நியாயமான விலையில் புதிய காய்கறிகளை உங்கள் வீட்டு வாசலுக்குக் கொண்டு சேர்ப்பதே எங்கள் முதன்மை இலக்காகும்.'
@@ -158,7 +158,7 @@ const LegalScreen = ({ route, navigation }) => {
             : 'Zunkako is a revolutionary Farm-to-Consumer platform eliminating agricultural middlemen, empowering rural farmers, and delivering fresh harvest directly to households.',
           sections: [
             {
-              title: currentLang === 'ta' ? '🌱 எங்கள் நோக்கம் (Our Mission)' : currentLang === 'ml' ? '🌱 ഞങ്ങളുടെ ലക്ഷ്യം' : '🌱 Our Mission',
+              title: currentLang === 'ta' ? 'எங்கள் நோக்கம்' : currentLang === 'ml' ? 'ഞങ്ങളുടെ ലക്ഷ്യം' : 'Our Mission',
               body: currentLang === 'ta'
                 ? '• விவசாயிகளுக்கு அவர்களின் உழைப்பிற்கு ஏற்ற நியாயமான லாபம் கிடைக்கச் செய்வது.\n• நுகர்வோருக்கு 100% புதிய மற்றும் தரமான காய்கறிகளை 10-30% குறைந்த விலையில் வழங்குவது.'
                 : currentLang === 'ml'
@@ -166,19 +166,19 @@ const LegalScreen = ({ route, navigation }) => {
                 : '• Empowering hard-working farmers with direct market access and dignified profits.\n• Providing consumers with fresh farm produce at fair transparent prices without middleman markups.',
             },
             {
-              title: currentLang === 'ta' ? '⭐ Zunkako சிறப்பம்சங்கள் (Key Highlights)' : currentLang === 'ml' ? '⭐ പ്രധാന സവിശേഷതകൾ' : '⭐ Platform Highlights',
+              title: currentLang === 'ta' ? 'Zunkako சிறப்பம்சங்கள்' : currentLang === 'ml' ? 'പ്രധാന സവിശേഷതകൾ' : 'Platform Highlights',
               body: currentLang === 'ta'
-                ? '🌾 Harvest Calendar - வாராந்திர அறுவடை அட்டவணை.\n⏱ Freshness Tracker - அறுவடை செய்யப்பட்ட நேரலை கணக்கீடு.\n👨‍👩‍👧 Group Buy & Pre-Order - குழுவாக வாங்கி கூடுதல் தள்ளுபடி பெறுதல்.\n🗺️ Farm Visit - பண்ணைகளுக்கு நேரில் சென்று பார்வையிடும் வசதி.\n📷 QR Verification - விவசாயியின் நம்பகத்தன்மையை சரிபார்க்கும் வசதி.'
+                ? 'Harvest Calendar - வாராந்திர அறுவடை அட்டவணை.\nFreshness Tracker - அறுவடை செய்யப்பட்ட நேரலை கணக்கீடு.\nGroup Buy & Pre-Order - குழுவாக வாங்கி கூடுதல் தள்ளுபடி பெறுதல்.\nFarm Visit - பண்ணைகளுக்கு நேரில் சென்று பார்வையிடும் வசதி.\nQR Verification - விவசாயியின் நம்பகத்தன்மையை சரிபார்க்கும் வசதி.'
                 : currentLang === 'ml'
-                ? '🌾 വിളവെടുപ്പ് കലണ്ടർ.\n⏱ ഫ്രഷ്‌നെസ് ട്രാക്കർ.\n👨‍👩‍👧 ഗ്രൂപ്പ് ബൈ സൗകര്യം.\n🗺️ ഫാം വിസിറ്റ്.'
-                : '🌾 Harvest Calendar: Weekly crop scheduling.\n⏱ Freshness Tracker: Real-time time elapsed since harvest.\n👨‍👩‍👧 Group Buy & Pre-Order: Direct bulk discounts.\n🗺️ Farm Visit: Booking experiential farm tours.',
+                ? 'വിളവെടുപ്പ് കലണ്ടർ.\nഫ്രഷ്‌നെസ് ട്രാക്കർ.\nഗ്രൂപ്പ് ബൈ സൗകര്യം.\nഫാം വിസിറ്റ്.'
+                : 'Harvest Calendar: Weekly crop scheduling.\nFreshness Tracker: Real-time time elapsed since harvest.\nGroup Buy & Pre-Order: Direct bulk discounts.\nFarm Visit: Booking experiential farm tours.',
             },
           ],
         };
 
       case 'refund':
         return {
-          title: currentLang === 'ta' ? 'பணம் திரும்பப்பெறும் கொள்கை (Refund & Cancellation Policy)' : currentLang === 'ml' ? 'റീഫണ്ട് നയം' : 'Refund & Cancellation Policy',
+          title: currentLang === 'ta' ? 'பணம் திரும்பப்பெறும் கொள்கை' : currentLang === 'ml' ? 'റീഫണ്ട് നയം' : 'Refund & Cancellation Policy',
           lastUpdated: 'Updated: September 2026',
           intro: currentLang === 'ta'
             ? 'Zunkako-வில் நீங்கள் வாங்கும் ஒவ்வொரு பொருட்களுக்கும் முழு திருப்தி உத்தரவாதம் உண்டு. பணம் திரும்பப் பெறுதல் மற்றும் ரத்து செய்வதற்கான விதிகள் கீழே விரிவாக கொடுக்கப்பட்டுள்ளன.'
@@ -187,15 +187,15 @@ const LegalScreen = ({ route, navigation }) => {
             : 'Zunkako guarantees full satisfaction with every order. Read our transparent cancellation and refund rules below.',
           sections: [
             {
-              title: currentLang === 'ta' ? '🔄 ஆர்டர் ரத்துக் கொள்கை (Order Cancellation Rules)' : currentLang === 'ml' ? '🔄 ഓർഡർ റദ്ദാക്കൽ' : '🔄 Order Cancellation Rules',
+              title: currentLang === 'ta' ? 'ஆர்டர் ரத்துக் கொள்கை' : currentLang === 'ml' ? 'ഓർഡർ റദ്ദാക്കൽ' : 'Order Cancellation Rules',
               body: currentLang === 'ta'
-                ? '• தயாரிப்புகள் விவசாயியால் அனுப்பப்படுவதற்கு முன் ரத்து செய்தால்: 100% முழுப் பணமும் உடனடியாகத் திருப்பியளிக்கப்படும் (Full Refund).\n• பொருட்கள் வாகனத்தில் அனுப்பப்பட்ட பின் ரத்து செய்தால்: டெலிவரி கட்டணம் மட்டும் கழிக்கப்பட்டு மீதித் தொகை திருப்பியளிக்கப்படும்.'
+                ? '• தயாரிப்புகள் விவசாயியால் அனுப்பப்படுவதற்கு முன் ரத்து செய்தால்: 100% முழுப் பணமும் உடனடியாகத் திருப்பியளிக்கப்படும்.\n• பொருட்கள் வாகனத்தில் அனுப்பப்பட்ட பின் ரத்து செய்தால்: டெலிவரி கட்டணம் மட்டும் கழிக்கப்பட்டு மீதித் தொகை திருப்பியளிக்கப்படும்.'
                 : currentLang === 'ml'
                 ? '• സാധനങ്ങൾ അയക്കുന്നതിന് മുൻപ് റദ്ദാക്കിയാൽ: മുഴുവൻ തുകയും റീഫണ്ട് ചെയ്യും.\n• അയച്ചതിന് ശേഷം: ഡെലിവറി നിരക്ക് ഒഴികെ റീഫണ്ട് ചെയ്യും.'
-                : '• Cancellation before item dispatch: 100% Instant Full Refund.\n• Cancellation after item dispatch: Partial refund (order total minus delivery charges).',
+                : '• Cancellation before item dispatch: 100% Instant Full Refund.\n• Cancellation after item dispatch: Partial refund.',
             },
             {
-              title: currentLang === 'ta' ? '📦 சேதமடைந்த / தவறான பொருட்கள் (Damaged / Wrong Product Refund)' : currentLang === 'ml' ? '📦 കേടായ ഉൽപ്പന്നങ്ങൾ' : '📦 Damaged or Wrong Product Guarantee',
+              title: currentLang === 'ta' ? 'சேதமடைந்த / தவறான பொருட்கள்' : currentLang === 'ml' ? 'കേടായ ഉൽപ്പന്നങ്ങൾ' : 'Damaged or Wrong Product Guarantee',
               body: currentLang === 'ta'
                 ? '• சேதமடைந்த அல்லது அழுகிய காய்கறிகள் வழங்கப்பட்டால்: 48 மணி நேரத்திற்குள் ஆப்பில் புகைப்படத்துடன் முறையிட்டால் 100% பணம் திருப்பித் தரப்படும் அல்லது புதிய பொருள் மாற்றப்படும்.\n• தவறான பொருள் டெலிவரி செய்யப்பட்டால்: 48 மணி நேரத்திற்குள் முழு பணம் திருப்பியளிக்கப்படும்.'
                 : currentLang === 'ml'
@@ -203,9 +203,9 @@ const LegalScreen = ({ route, navigation }) => {
                 : '• Damaged or spoiled produce: Report via app with photo within 48 hours for a 100% full refund or immediate replacement.\n• Wrong product delivered: 100% refund processed within 48 hours.',
             },
             {
-              title: currentLang === 'ta' ? '⏱️ பணம் வரவாகும் காலம் (Refund Processing Timeline)' : currentLang === 'ml' ? '⏱️ റീഫണ്ട് സമയം' : '⏱️ Refund Processing Timeline',
+              title: currentLang === 'ta' ? 'பணம் வரவாகும் காலம்' : currentLang === 'ml' ? 'റീഫണ്ട് സമയം' : 'Refund Processing Timeline',
               body: currentLang === 'ta'
-                ? '• UPI / GPay / PhonePe மூலம் செலுத்திய பணம்: 24 முதல் 48 மணி நேரத்திற்குள் வங்கிக் கணக்கில் வரவாகும்.\n• வங்கி கார்டுகள் (Debit/Credit Card): 3 முதல் 5 வேலை நாட்களுக்குள் வரவாகும்.'
+                ? '• UPI / GPay / PhonePe மூலம் செலுத்திய பணம்: 24 முதல் 48 மணி நேரத்திற்குள் வங்கிக் கணக்கில் வரவாகும்.\n• வங்கி கார்டுகள்: 3 முதல் 5 வேலை நாட்களுக்குள் வரவாகும்.'
                 : currentLang === 'ml'
                 ? '• UPI / GPay വഴി ചെയ്ത പേയ്‌മെന്റുകൾ 24-48 മണിക്കൂറിനുള്ളിൽ തിരികെ ലഭിക്കും.'
                 : '• UPI / GPay / PhonePe: Processed within 24 to 48 hours.\n• Credit / Debit Cards: Reflected in bank account within 3 to 5 business days.',
@@ -215,7 +215,7 @@ const LegalScreen = ({ route, navigation }) => {
 
       case 'delivery':
         return {
-          title: currentLang === 'ta' ? 'டெலிவரி கொள்கை (Delivery Policy)' : currentLang === 'ml' ? 'ഡെലിവറി നയം' : 'Delivery Policy',
+          title: currentLang === 'ta' ? 'டெலிவரி கொள்கை' : currentLang === 'ml' ? 'ഡെലിവറി നയം' : 'Delivery Policy',
           lastUpdated: 'Updated: September 2026',
           intro: currentLang === 'ta'
             ? 'புதிய காய்கறிகளை விரைவாகவும் பாதுகாப்பாகவும் நுகர்வோருக்கு கொண்டு சேர்ப்பதற்கான Zunkako டெலிவரி விதிகளின் தொகுப்பு.'
@@ -224,7 +224,7 @@ const LegalScreen = ({ route, navigation }) => {
             : 'Zunkako delivery policy ensuring fresh produce reaches households within hours of harvest.',
           sections: [
             {
-              title: currentLang === 'ta' ? '📍 டெலிவரி மண்டலங்கள் & நேரம் (Delivery Coverage & Timelines)' : currentLang === 'ml' ? '📍 ഡെലിവറി ഏരിയകൾ' : '📍 Delivery Coverage & Timelines',
+              title: currentLang === 'ta' ? 'டெலிவரி மண்டலங்கள் & நேரம்' : currentLang === 'ml' ? 'ഡെലിവറി ഏരിയകൾ' : 'Delivery Coverage & Timelines',
               body: currentLang === 'ta'
                 ? '• காலை 8:00 மணி வரை செய்யப்படும் ஆர்டர்கள் அன்றைய தினமே (Same-day Delivery) மாலை 5:00 மணிக்கு முன் விநியோகம் செய்யப்படும்.\n• பண்ணையிலிருந்து நேரடியாக 30 கி.மீ சுற்றளவுக்குள் விரைவு டெலிவரி செய்யப்படுகிறது.'
                 : currentLang === 'ml'
@@ -236,7 +236,7 @@ const LegalScreen = ({ route, navigation }) => {
 
       case 'agreement':
         return {
-          title: currentLang === 'ta' ? 'விவசாயி / விற்பனையாளர் ஒப்பந்தம் (Seller Agreement)' : currentLang === 'ml' ? 'കർഷക കരാർ' : 'Farmer & Seller Agreement',
+          title: currentLang === 'ta' ? 'விவசாயி / விற்பனையாளர் ஒப்பந்தம்' : currentLang === 'ml' ? 'കർഷക കരാർ' : 'Farmer & Seller Agreement',
           lastUpdated: 'Updated: September 2026',
           intro: currentLang === 'ta'
             ? 'Zunkako தளத்தில் காய்கறிகள் மற்றும் பழங்களை விற்பனை செய்யும் விவசாயிகளுக்கான கமிஷன் மற்றும் செட்டில்மென்ட் விதிகள்.'
@@ -245,7 +245,7 @@ const LegalScreen = ({ route, navigation }) => {
             : 'Operational terms, commission structures, and payout schedules for registered Zunkako farmers.',
           sections: [
             {
-              title: currentLang === 'ta' ? '🧑‍🌾 விவசாயி பொறுப்புகள் (Farmer Obligations)' : currentLang === 'ml' ? '🧑‍🌾 കർഷകന്റെ ബാധ്യതകൾ' : '🧑‍🌾 Farmer Obligations',
+              title: currentLang === 'ta' ? 'விவசாயி பொறுப்புகள்' : currentLang === 'ml' ? 'കർഷകന്റെ ബാധ്യതകൾ' : 'Farmer Obligations',
               body: currentLang === 'ta'
                 ? '• தயாரிப்புகளின் தரம், அளவு மற்றும் சரியான எடைக்கு விவசாயியே முழுப் பொறுப்பு.\n• விவசாயி தனது ஆதார் / அரசு அடையாள அட்டையை சமர்ப்பித்து கணக்கை உறுதிப்படுத்த வேண்டும்.'
                 : currentLang === 'ml'
@@ -253,7 +253,7 @@ const LegalScreen = ({ route, navigation }) => {
                 : '• Farmer is 100% responsible for crop quality, accurate weight, and fresh harvest delivery.\n• Mandatory ID verification (Aadhaar / Farmer ID) required prior to listing.',
             },
             {
-              title: currentLang === 'ta' ? '💰 கமிஷன் & 7-நாள் செட்டில்மென்ட் (Commission & 7-Day Payout)' : currentLang === 'ml' ? '💰 കമ്മീഷനും പേയ്‌മെന്റും' : '💰 Commission & Payout Terms',
+              title: currentLang === 'ta' ? 'கமிஷன் & 7-நாள் செட்டில்மென்ட்' : currentLang === 'ml' ? 'കമ്മീഷനും പേയ്‌മെന്റും' : 'Commission & Payout Terms',
               body: currentLang === 'ta'
                 ? '• Zunkako தளம் வெற்றிபெறும் ஒவ்வொரு விற்பனையிலிருந்தும் 8% கமிஷன் சேவைக் கட்டணமாகப் பெறுகிறது.\n• விற்பனைத் தொகை நுகர்வோருக்கு டெலிவரி செய்யப்பட்ட 7 நாட்களுக்குள் விவசாயியின் வங்கிக் கணக்கிற்கு நேரடியாக அணுப்பப்படும்.'
                 : currentLang === 'ml'
@@ -265,7 +265,7 @@ const LegalScreen = ({ route, navigation }) => {
 
       case 'licenses':
         return {
-          title: currentLang === 'ta' ? 'திறந்த மூல உரிமங்கள் (Open Source Licenses)' : currentLang === 'ml' ? 'ഓപ്പൺ സോഴ്സ് ലൈസൻസുകൾ' : 'Open Source Licenses',
+          title: currentLang === 'ta' ? 'திறந்த மூல உரிமங்கள்' : currentLang === 'ml' ? 'ഓപ്പൺ സോഴ്സ് ലൈസൻസുകൾ' : 'Open Source Licenses',
           lastUpdated: 'Zunkako Mobile App Dependencies',
           intro: currentLang === 'ta'
             ? 'Zunkako மொபைல் செயலியை உருவாக்க பயன்பட்ட திறந்த மூல மென்பொருள் உரிமங்களின் பட்டியல் கீழே வழங்கப்பட்டுள்ளது.'
@@ -278,7 +278,7 @@ const LegalScreen = ({ route, navigation }) => {
       case 'terms':
       default:
         return {
-          title: currentLang === 'ta' ? 'Zunkako சேவை விதிமுறைகள் (Terms & Conditions)' : currentLang === 'ml' ? 'Zunkako ഉപയോഗ നിബന്ധനകൾ' : 'Terms & Conditions',
+          title: currentLang === 'ta' ? 'Zunkako சேவை விதிமுறைகள்' : currentLang === 'ml' ? 'Zunkako ഉപയോഗ നിബന്ധനകൾ' : 'Terms & Conditions',
           lastUpdated: 'Updated: September 2026',
           intro: currentLang === 'ta'
             ? 'Zunkako செயலியைப் பயன்படுத்துவதன் மூலம் நீங்கள் இந்த சேவை விதிமுறைகளை ஏற்றுக்கொள்கிறீர்கள்.'
@@ -287,7 +287,7 @@ const LegalScreen = ({ route, navigation }) => {
             : 'By using the Zunkako mobile application, you agree to comply with and be bound by the following terms.',
           sections: [
             {
-              title: currentLang === 'ta' ? '1. தகுதி & கணக்கு பாதுகாப்பு (Eligibility & Account Rules)' : currentLang === 'ml' ? '1. യോഗ്യത' : '1. Eligibility & User Accounts',
+              title: currentLang === 'ta' ? '1. தகுதி & கணக்கு பாதுகாப்பு' : currentLang === 'ml' ? '1. യോഗ്യത' : '1. Eligibility & User Accounts',
               body: currentLang === 'ta'
                 ? '• பயனர் 18 வயது நிறைவடைந்தவராக இருக்க வேண்டும்.\n• சரியான மொபைல் எண் மற்றும் விவரங்களை வழங்க வேண்டும்.\n• போலி கணக்குகள் உருவாக்கினால் கணக்கு முடக்கப்படும்.'
                 : currentLang === 'ml'
@@ -295,7 +295,7 @@ const LegalScreen = ({ route, navigation }) => {
                 : '• Users must be at least 18 years old.\n• Registration requires valid mobile phone verification.\n• Fake profiles or proxy accounts are strictly prohibited.',
             },
             {
-              title: currentLang === 'ta' ? '2. சந்தை விதிகள் (Marketplace & Payment Rules)' : currentLang === 'ml' ? '2. മാർക്കറ്റ് നിയമങ്ങൾ' : '2. Marketplace Transactions',
+              title: currentLang === 'ta' ? '2. சந்தை விதிகள்' : currentLang === 'ml' ? '2. മാർക്കറ്റ് നിയമങ്ങൾ' : '2. Marketplace Transactions',
               body: currentLang === 'ta'
                 ? '• நுகர்வோர் ஆர்டர் செய்த தொகையை டெலிவரி நேரத்திலோ அல்லது ஆன்லைனிலோ செலுத்த வேண்டும்.\n• விவசாயி தரமான காய்கறிகளை மட்டுமே விநியோகிக்க வேண்டும்.'
                 : currentLang === 'ml'
@@ -373,10 +373,10 @@ const LegalScreen = ({ route, navigation }) => {
           style={[styles.searchInput, { backgroundColor: cardBg, color: textColor, borderColor }]}
           placeholder={
             currentLang === 'ta'
-              ? '🔍 தேடுக (எ.கா. data, refund, delivery...)'
+              ? '🔍 தேடுக'
               : currentLang === 'ml'
               ? '🔍 തിരയുക...'
-              : '🔍 Search policy clauses (e.g. data, refund, delivery...)'
+              : '🔍 Search policy clauses'
           }
           placeholderTextColor="#888"
           value={searchQuery}
