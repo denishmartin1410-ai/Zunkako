@@ -32,20 +32,29 @@ const App = () => {
     requestUserPermissions();
 
     // 2. Foreground Message Handler
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log(
-        'A new FCM message arrived in foreground!',
-        JSON.stringify(remoteMessage),
-      );
-      if (remoteMessage.notification) {
-        Alert.alert(
-          remoteMessage.notification.title || 'New Notification',
-          remoteMessage.notification.body || 'You have a new message',
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log(
+          'A new FCM message arrived in foreground!',
+          JSON.stringify(remoteMessage),
         );
-      }
-    });
+        if (remoteMessage.notification) {
+          Alert.alert(
+            remoteMessage.notification.title || 'New Notification',
+            remoteMessage.notification.body || 'You have a new message',
+          );
+        }
+      });
+    } catch (e) {
+      console.log('FCM messaging listener init error:', e);
+    }
 
-    return unsubscribe;
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []);
   return (
     <SafeAreaProvider>
