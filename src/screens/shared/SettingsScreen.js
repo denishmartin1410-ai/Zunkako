@@ -24,14 +24,17 @@ import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import i18n from '../../locales/i18n';
 import BackButton from '../../utils/BackButton';
 
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const {width} = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
 
 const LANGUAGES = [
-  {code: 'ta', label: 'தமிழ்', subLabel: 'Tamil', flag: '🇮🇳'},
-  {code: 'en', label: 'English', subLabel: 'English', flag: '🇬🇧'},
-  {code: 'ml', label: 'മലയാളം', subLabel: 'Malayalam', flag: '🇮🇳'},
+  {code: 'ta', label: 'தமிழ்', subLabel: 'Tamil', badge: 'TA'},
+  {code: 'en', label: 'English', subLabel: 'English', badge: 'EN'},
+  {code: 'ml', label: 'മലയാളം', subLabel: 'Malayalam', badge: 'ML'},
 ];
 
 const SettingsScreen = ({navigation}) => {
@@ -42,52 +45,52 @@ const SettingsScreen = ({navigation}) => {
 
   const menuItems = [
     {
-      icon: '✏',
+      iconName: 'edit-3',
       label: t('settings.editProfile', {defaultValue: 'Edit Profile'}),
       onPress: () => navigation.navigate('EditProfile'),
     },
     {
-      icon: '💬',
+      iconName: 'message-square',
       label: t('feedback.title', {defaultValue: 'Give Feedback'}),
       onPress: () => navigation.navigate('Feedback'),
     },
     {
-      icon: '❓',
+      iconName: 'help-circle',
       label: t('settings.help', {defaultValue: 'Help & FAQ'}),
       onPress: () => navigation.navigate('HelpAbout', {mode: 'help'}),
     },
     {
-      icon: 'ℹ️',
+      iconName: 'info',
       label: t('legal.about', {defaultValue: 'About Us'}),
       onPress: () => navigation.navigate('Legal', {type: 'about'}),
     },
     {
-      icon: '📜',
+      iconName: 'file-text',
       label: t('legal.terms', {defaultValue: 'Terms & Conditions'}),
       onPress: () => navigation.navigate('Legal', {type: 'terms'}),
     },
     {
-      icon: '🛡️',
+      iconName: 'shield',
       label: t('legal.privacy', {defaultValue: 'Privacy Policy'}),
       onPress: () => navigation.navigate('Legal', {type: 'privacy'}),
     },
     {
-      icon: '🔰',
+      iconName: 'award',
       label: t('legal.community', {defaultValue: 'Community Guidelines'}),
       onPress: () => navigation.navigate('Legal', {type: 'community'}),
     },
     {
-      icon: '🪙',
+      iconName: 'dollar-sign',
       label: t('legal.refund', {defaultValue: 'Refund Policy'}),
       onPress: () => navigation.navigate('Legal', {type: 'refund'}),
     },
     {
-      icon: '🚚',
+      iconName: 'truck',
       label: t('legal.delivery', {defaultValue: 'Delivery Policy'}),
       onPress: () => navigation.navigate('Legal', {type: 'delivery'}),
     },
     {
-      icon: '📦',
+      iconName: 'package',
       label: t('legal.licenses', {defaultValue: 'Open Source Licenses'}),
       onPress: () => navigation.navigate('Legal', {type: 'licenses'}),
     },
@@ -95,7 +98,7 @@ const SettingsScreen = ({navigation}) => {
 
   if (userType === 'farmer') {
     menuItems.push({
-      icon: '🤝',
+      iconName: 'file-check',
       label: t('legal.agreement', {defaultValue: 'Seller Agreement'}),
       onPress: () => navigation.navigate('Legal', {type: 'agreement'}),
     });
@@ -145,12 +148,14 @@ const SettingsScreen = ({navigation}) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* LANGUAGE */}
         <View style={styles.sectionWrap}>
-          <Text style={[styles.sectionLabel, {color: subColor}]}>
-            {'🌐  '}
-            {t('language.select', {
-              defaultValue: 'மொழி தேர்வு / Select Language',
-            })}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm, marginLeft: 4}}>
+            <Feather name="globe" size={16} color={COLORS.primaryGreen} style={{marginRight: 6}} />
+            <Text style={[styles.sectionLabel, {color: subColor, marginBottom: 0}]}>
+              {t('language.select', {
+                defaultValue: 'மொழி தேர்வு / Select Language',
+              })}
+            </Text>
+          </View>
           <View style={[styles.card, {backgroundColor: cardBg, borderColor}]}>
             {LANGUAGES.map((lang, i) => (
               <TouchableOpacity
@@ -166,7 +171,20 @@ const SettingsScreen = ({navigation}) => {
                   },
                 ]}
                 onPress={() => handleLanguageChange(lang.code)}>
-                <Text style={styles.langFlag}>{lang.flag}</Text>
+                <View
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    backgroundColor: isDark ? '#2E3D35' : '#E8F5E9',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 12,
+                  }}>
+                  <Text style={{fontSize: 10, fontWeight: 'bold', color: COLORS.primaryGreen}}>
+                    {lang.badge}
+                  </Text>
+                </View>
                 <View style={styles.langTexts}>
                   <Text style={[styles.langLabel, {color: textColor}]}>
                     {lang.label}
@@ -177,7 +195,7 @@ const SettingsScreen = ({navigation}) => {
                 </View>
                 {currentLang === lang.code && (
                   <View style={styles.checkBadge}>
-                    <Text style={styles.checkTxt}>{'✓'}</Text>
+                    <Ionicons name="checkmark" size={12} color={COLORS.white} />
                   </View>
                 )}
               </TouchableOpacity>
@@ -185,7 +203,7 @@ const SettingsScreen = ({navigation}) => {
           </View>
         </View>
 
-        {/* APPEARANCE - plain text section label to avoid double render */}
+        {/* APPEARANCE */}
         <View style={styles.sectionWrap}>
           <Text style={[styles.sectionLabel, {color: subColor}]}>
             {t('settings.appearanceSection', {defaultValue: 'Appearance'})}
@@ -193,9 +211,12 @@ const SettingsScreen = ({navigation}) => {
           <View style={[styles.card, {backgroundColor: cardBg, borderColor}]}>
             <View style={styles.switchRow}>
               <View style={styles.switchLeft}>
-                <Text style={[styles.switchEmoji, {color: textColor}]}>
-                  {isDark ? '🌙' : '☀️'}
-                </Text>
+                <Feather
+                  name={isDark ? 'moon' : 'sun'}
+                  size={20}
+                  color={isDark ? '#FFD54F' : '#FFA000'}
+                  style={{marginRight: 12}}
+                />
                 <View>
                   <Text style={[styles.switchLabel, {color: textColor}]}>
                     {t('settings.darkMode', {defaultValue: 'இருண்ட பயன்முறை'})}
@@ -215,7 +236,7 @@ const SettingsScreen = ({navigation}) => {
           </View>
         </View>
 
-        {/* APP INFO - plain text icons only */}
+        {/* APP INFO */}
         <View style={styles.sectionWrap}>
           <Text style={[styles.sectionLabel, {color: subColor}]}>
             {t('settings.infoSection', {defaultValue: 'பயன்பாடு பற்றி'})}
@@ -229,19 +250,22 @@ const SettingsScreen = ({navigation}) => {
                   {borderBottomWidth: 1, borderBottomColor: borderColor},
                 ]}
                 onPress={item.onPress}>
-                <Text style={[styles.menuIcon, {color: subColor}]}>
-                  {item.icon}
-                </Text>
-                <Text style={[styles.menuLabel, {color: textColor}]}>
+                <Feather
+                  name={item.iconName}
+                  size={18}
+                  color={COLORS.primaryGreen}
+                  style={{marginRight: 12}}
+                />
+                <Text style={[styles.menuLabel, {color: textColor, flex: 1}]}>
                   {item.label}
                 </Text>
-                <Text style={[styles.menuArrow, {color: subColor}]}>{'>'}</Text>
+                <Feather name="chevron-right" size={16} color={subColor} />
               </TouchableOpacity>
             ))}
             <View style={styles.menuRow}>
-              <Text style={[styles.menuIcon, {color: subColor}]}>v</Text>
+              <Feather name="info" size={16} color={subColor} style={{marginRight: 12}} />
               <Text style={[styles.menuLabel, {color: subColor}]}>
-                Version 1.0.0
+                Version 1.0.1
               </Text>
             </View>
           </View>

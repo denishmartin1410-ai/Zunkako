@@ -21,6 +21,8 @@ import {sendPasswordResetEmail} from '../../services/firebase';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
+import Feather from 'react-native-vector-icons/Feather';
+
 const ForgotPasswordScreen = ({navigation}) => {
   const {t} = useTranslation();
   const [email, setEmail] = useState('');
@@ -69,7 +71,9 @@ const ForgotPasswordScreen = ({navigation}) => {
           onPress={() => navigation.goBack()}
           style={{position: 'absolute', top: 50, left: SPACING.xl}}
         />
-        <Text style={styles.headerEmoji}>🔑</Text>
+        <View style={{alignItems: 'center', marginBottom: 8}}>
+          <Feather name="key" size={36} color={COLORS.white} />
+        </View>
         <Text style={styles.headerTitle}>
           {t('forgot.title', {defaultValue: 'Reset Password'})}
         </Text>
@@ -85,7 +89,9 @@ const ForgotPasswordScreen = ({navigation}) => {
         {emailSent ? (
           // ✅ Success State
           <View style={styles.successBox}>
-            <Text style={styles.successEmoji}>📧</Text>
+            <View style={{alignItems: 'center', marginBottom: 12}}>
+              <Feather name="mail" size={42} color={COLORS.primaryGreen} />
+            </View>
             <Text style={styles.successTitle}>
               {t('forgot.successTitle', {defaultValue: 'Link Sent!'})}
             </Text>

@@ -7,9 +7,9 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`ZUNKAKO Backend running on port ${PORT}`);
 
-  // 🚀 Start Background Worker to listen for new Firestore notifications
+  // Start Background Worker to listen for new Firestore notifications
   if (db && messaging) {
-    console.log('🎧 Listening for new notifications to send push alerts...');
+    console.log('Listening for new notifications to send push alerts...');
     try {
       db.collectionGroup('items')
         .onSnapshot(snapshot => {

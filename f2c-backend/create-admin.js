@@ -15,14 +15,14 @@ async function createSuperAdmin() {
   const adminEmail = 'admin@f2c.com'; // நீங்கள் விரும்பினால் இதை மாற்றிக்கொள்ளலாம்
   const adminPassword = 'SuperSecretPassword@123'; // இதை யாருக்கும் சொல்லாதீர்கள்!
 
-  console.log(`🚀 Creating Super Admin account for ${adminEmail}...`);
+  console.log(`Creating Super Admin account for ${adminEmail}...`);
 
   try {
     let userRecord;
     try {
       // Check if user already exists
       userRecord = await auth.getUserByEmail(adminEmail);
-      console.log('✅ Admin account already exists in Authentication.');
+      console.log('Admin account already exists in Authentication.');
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         // Create new user in Firebase Auth
@@ -32,7 +32,7 @@ async function createSuperAdmin() {
           displayName: 'F2C Super Admin',
           emailVerified: true,
         });
-        console.log('✅ Admin account created in Authentication!');
+        console.log('Admin account created in Authentication!');
       } else {
         throw error;
       }
@@ -44,15 +44,15 @@ async function createSuperAdmin() {
         uid: userRecord.uid,
         name: 'F2C Super Admin',
         email: adminEmail,
-        userType: 'admin', // 👑 This makes them an Admin permanently!
+        userType: 'admin', // This makes them an Admin permanently!
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       },
       {merge: true},
     );
 
-    console.log('✅ Admin document securely saved in Firestore!');
+    console.log('Admin document securely saved in Firestore!');
     console.log('\n=============================================');
-    console.log('🎉 ADMIN ACCOUNT READY!');
+    console.log('ADMIN ACCOUNT READY!');
     console.log(`Email:    ${adminEmail}`);
     console.log(`Password: ${adminPassword}`);
     console.log('=============================================\n');

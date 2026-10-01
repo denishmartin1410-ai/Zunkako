@@ -26,6 +26,7 @@ import {
   getThemeColors,
 } from '../../utils/theme';
 import {getLocalProductName} from '../../utils/translationHelper';
+import Feather from 'react-native-vector-icons/Feather';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -47,12 +48,17 @@ const CartScreen = ({navigation}) => {
         <LinearGradient
           colors={['#0D5C32', '#1B8A4E']}
           style={[styles.header, {justifyContent: 'center'}]}>
-          <Text style={styles.headerTitle}>
-            🛒 {t('nav.cart', {defaultValue: 'என் கார்ட்'})}
-          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <Feather name="shopping-bag" size={22} color={COLORS.white} style={{marginRight: 8}} />
+            <Text style={styles.headerTitle}>
+              {t('nav.cart', {defaultValue: 'என் கார்ட்'})}
+            </Text>
+          </View>
         </LinearGradient>
         <View style={styles.emptyBox}>
-          <Text style={styles.emptyEmoji}>🛒</Text>
+          <View style={{marginBottom: 16}}>
+            <Feather name="shopping-bag" size={64} color={COLORS.textMuted} />
+          </View>
           <Text style={[styles.emptyTitle, {color: themeColors.text}]}>
             {t('cart.empty', {defaultValue: 'கார்ட் காலியாக உள்ளது'})}
           </Text>
@@ -62,9 +68,12 @@ const CartScreen = ({navigation}) => {
             <LinearGradient
               colors={COLORS.gradientButton}
               style={styles.shopBtnGrad}>
-              <Text style={styles.shopBtnTxt}>
-                {t('cart.startShopping', {defaultValue: 'கொள்முதல் தொடங்கு →'})}
-              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={styles.shopBtnTxt}>
+                  {t('cart.startShopping', {defaultValue: 'கொள்முதல் தொடங்கு'}).replace('→', '').trim()}
+                </Text>
+                <Feather name="arrow-right" size={18} color={COLORS.white} style={{marginLeft: 6}} />
+              </View>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -76,9 +85,12 @@ const CartScreen = ({navigation}) => {
     <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <View style={{width: 40}} />
-        <Text style={[styles.headerTitle, {textAlign: 'center'}]}>
-          🛒 {t('nav.cart', {defaultValue: 'என் கார்ட்'})}
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          <Feather name="shopping-bag" size={20} color={COLORS.white} style={{marginRight: 6}} />
+          <Text style={[styles.headerTitle, {textAlign: 'center'}]}>
+            {t('nav.cart', {defaultValue: 'என் கார்ட்'})}
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.clearBtn}
           onPress={() =>
@@ -97,7 +109,7 @@ const CartScreen = ({navigation}) => {
               ],
             )
           }>
-          <Text style={styles.clearBtnTxt}>🗑</Text>
+          <Feather name="trash-2" size={20} color={COLORS.white} />
         </TouchableOpacity>
       </LinearGradient>
 
@@ -188,9 +200,7 @@ const CartScreen = ({navigation}) => {
                 ₹{(item.consumerPrice || item.price) * item.quantity}
               </Text>
               <TouchableOpacity onPress={() => removeFromCart(item.id)}>
-                <Text style={{fontSize: rs(20), color: COLORS.accentRed}}>
-                  ✕
-                </Text>
+                <Feather name="trash-2" size={18} color={COLORS.accentRed} />
               </TouchableOpacity>
             </View>
           </View>

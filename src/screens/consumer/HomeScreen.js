@@ -37,6 +37,8 @@ import {
 import {getConsumerPrice, PLATFORM_FEE} from '../../utils/priceHelper';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {CATEGORIES} from '../../utils/dummyData';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 
 const {width} = Dimensions.get('window');
 const CARD_WIDTH = width * 0.44;
@@ -222,7 +224,7 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
         {/* Organic Badge */}
         {item.isOrganic && (
           <View style={styles.organicBadge}>
-            <Text style={styles.organicText}>🌿</Text>
+            <Ionicons name="leaf" size={12} color="#1B8A4E" />
           </View>
         )}
 
@@ -244,9 +246,12 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
                   : 'rgba(255,255,255,0.85)',
               },
             ]}>
-            <Text style={[styles.ratingText, {color: themeColors.text}]}>
-              {rating} ★
-            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Text style={[styles.ratingText, {color: themeColors.text}]}>
+                {rating}{' '}
+              </Text>
+              <Ionicons name="star" size={10} color="#FFB300" />
+            </View>
           </View>
         )}
 
@@ -326,7 +331,7 @@ const ProductCard = ({item, onAddToCart, onPress}) => {
         <Text
           style={[styles.farmerName, {color: themeColors.subText}]}
           numberOfLines={1}>
-          👨‍🌾 {localFarmerName || ''}
+          {localFarmerName || ''}
         </Text>
 
         {/* Price Row */}
@@ -376,7 +381,7 @@ const FarmerCard = ({item, onPress}) => {
       />
       {item.isVerified && (
         <View style={styles.verifiedBadge}>
-          <Text style={{fontSize: rs(10)}}>✅</Text>
+          <Ionicons name="checkmark-circle" size={14} color="#1B8A4E" />
         </View>
       )}
       <Text
@@ -384,13 +389,16 @@ const FarmerCard = ({item, onPress}) => {
         numberOfLines={1}>
         {localFarmerName}
       </Text>
-      <Text
-        style={[styles.farmerCardLoc, {color: themeColors.subText}]}
-        numberOfLines={1}>
-        📍 {(item.location || '').split(',')[0]}
-      </Text>
+      <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 2}}>
+        <Ionicons name="location-outline" size={11} color={themeColors.subText} />
+        <Text
+          style={[styles.farmerCardLoc, {color: themeColors.subText, marginLeft: 2}]}
+          numberOfLines={1}>
+          {(item.location || '').split(',')[0]}
+        </Text>
+      </View>
       <View style={styles.farmerRatingRow}>
-        <Text style={styles.farmerStar}>⭐</Text>
+        <Ionicons name="star" size={12} color="#FFB300" style={{marginRight: 3}} />
         <Text style={[styles.farmerRatingNum, {color: themeColors.subText}]}>
           {item.rating || '0'}
         </Text>
@@ -565,7 +573,7 @@ const HomeScreen = ({navigation}) => {
               <TouchableOpacity
                 style={[styles.iconBtn, {position: 'relative'}]}
                 onPress={() => navigation.navigate('Notifications')}>
-                <Text style={styles.iconEmoji}>🔔</Text>
+                <Feather name="bell" size={20} color={COLORS.white} />
                 {unreadNotifCount > 0 && (
                   <View
                     style={{
@@ -590,12 +598,12 @@ const HomeScreen = ({navigation}) => {
               <TouchableOpacity
                 style={styles.iconBtn}
                 onPress={() => navigation.navigate('ChatList')}>
-                <Text style={styles.iconEmoji}>💬</Text>
+                <Feather name="message-square" size={20} color={COLORS.white} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cartBtn}
                 onPress={() => navigation.navigate('Cart')}>
-                <Text style={styles.cartEmoji}>🛒</Text>
+                <Feather name="shopping-bag" size={20} color={COLORS.white} />
                 {totalItems > 0 && (
                   <View style={styles.cartBadge}>
                     <Text style={styles.cartBadgeText}>{totalItems}</Text>
@@ -612,7 +620,7 @@ const HomeScreen = ({navigation}) => {
                 borderColor: themeColors.border,
               },
             ]}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <Feather name="search" size={18} color={COLORS.textGray} style={{marginRight: 8}} />
             <TextInput
               style={[styles.searchInput, {color: themeColors.text}]}
               value={searchQuery}
@@ -627,18 +635,19 @@ const HomeScreen = ({navigation}) => {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Text style={{color: COLORS.textGray, fontSize: rs(16)}}>
-                  ✕
-                </Text>
+                <Feather name="x" size={18} color={COLORS.textGray} />
               </TouchableOpacity>
             )}
           </View>
           <TouchableOpacity
             style={styles.qrBtn}
             onPress={() => navigation.navigate('QRScan')}>
-            <Text style={styles.qrBtnText}>
-              {t('home.qrScan', {defaultValue: 'விவசாயி QR ஸ்கேன் செய்க'})}
-            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+              <Ionicons name="qr-code-outline" size={16} color={COLORS.white} style={{marginRight: 6}} />
+              <Text style={styles.qrBtnText}>
+                {t('home.qrScan', {defaultValue: 'விவசாயி QR ஸ்கேன் செய்க'})}
+              </Text>
+            </View>
           </TouchableOpacity>
           <View style={styles.uniqueRow}>
             {uniqueFeatures.slice(0, 3).map(item => (
@@ -646,6 +655,7 @@ const HomeScreen = ({navigation}) => {
                 key={item.screen}
                 style={[styles.uniqueCard, {backgroundColor: item.badgeColor || 'rgba(255,255,255,0.2)'}]}
                 onPress={() => navigation.navigate(item.screen)}>
+                <Feather name={item.iconName} size={16} color={COLORS.primaryGreen} style={{marginBottom: 4}} />
                 <Text style={styles.uniqueLabel} numberOfLines={2} adjustsFontSizeToFit>{item.label}</Text>
               </TouchableOpacity>
             ))}
@@ -656,6 +666,7 @@ const HomeScreen = ({navigation}) => {
                 key={item.screen}
                 style={[styles.uniqueCard, {backgroundColor: item.badgeColor || 'rgba(255,255,255,0.2)'}]}
                 onPress={() => navigation.navigate(item.screen)}>
+                <Feather name={item.iconName} size={16} color={COLORS.primaryGreen} style={{marginBottom: 4}} />
                 <Text style={styles.uniqueLabel} numberOfLines={2} adjustsFontSizeToFit>{item.label}</Text>
               </TouchableOpacity>
             ))}
@@ -680,7 +691,12 @@ const HomeScreen = ({navigation}) => {
                   selectedCategory === cat.id && styles.catChipActive,
                 ]}
                 onPress={() => setSelectedCategory(cat.id)}>
-                <Text style={styles.catEmoji}>{cat.icon}</Text>
+                <Ionicons
+                  name={cat.iconName || 'grid-outline'}
+                  size={16}
+                  color={selectedCategory === cat.id ? COLORS.primaryGreen : themeColors.subText}
+                  style={{marginRight: 6}}
+                />
                 <Text
                   style={[
                     styles.catText,

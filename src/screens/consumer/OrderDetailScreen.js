@@ -25,6 +25,9 @@ import {updateOrderStatus, createNotification} from '../../services/firebase';
 import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
 
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const {width} = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
@@ -84,7 +87,7 @@ const OrderDetailScreen = ({route, navigation}) => {
           styles.container,
           {alignItems: 'center', justifyContent: 'center'},
         ]}>
-        <Text style={{fontSize: rs(48)}}>📦</Text>
+        <Feather name="package" size={48} color={COLORS.textMuted} />
         <Text
           style={{
             color: COLORS.textMuted,
@@ -196,22 +199,22 @@ const OrderDetailScreen = ({route, navigation}) => {
     {
       key: 'Pending',
       label: t('orders.statusPending', {defaultValue: 'ஆர்டர் பெற்றோம்'}),
-      icon: '📋',
+      iconName: 'file-text',
     },
     {
       key: 'Confirmed',
       label: t('orders.statusConfirmed', {defaultValue: 'உறுதி செய்யப்பட்டது'}),
-      icon: '✅',
+      iconName: 'check-circle',
     },
     {
       key: 'Shipped',
-      label: t('orders.statusShipped', {defaultValue: 'அనుப்பப்பட்டது'}),
-      icon: '🚚',
+      label: t('orders.statusShipped', {defaultValue: 'அனுப்பப்பட்டது'}),
+      iconName: 'truck',
     },
     {
       key: 'Delivered',
       label: t('orders.statusDelivered', {defaultValue: 'வழங்கப்பட்டது'}),
-      icon: '🎉',
+      iconName: 'check-square',
     },
   ];
   let statusOrder = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
@@ -221,7 +224,7 @@ const OrderDetailScreen = ({route, navigation}) => {
       {
         key: 'Pending',
         label: t('orders.statusPending', {defaultValue: 'ஆர்டர் பெற்றோம்'}),
-        icon: '📋',
+        iconName: 'file-text',
       },
       {
         key: 'Cancelled',
@@ -234,7 +237,7 @@ const OrderDetailScreen = ({route, navigation}) => {
                 defaultValue: order.rejectReason,
               })})`
             : ''),
-        icon: '❌',
+        iconName: 'x-circle',
       },
     ];
     statusOrder = ['Pending', 'Cancelled'];
@@ -502,7 +505,12 @@ const OrderDetailScreen = ({route, navigation}) => {
                       )}
                     </View>
                     <View style={styles.timelineContent}>
-                      <Text style={[styles.timelineIcon]}>{step.icon}</Text>
+                      <Feather
+                        name={step.iconName || 'check-circle'}
+                        size={16}
+                        color={active ? COLORS.primaryGreen : COLORS.textGray}
+                        style={{marginRight: 8}}
+                      />
                       <Text
                         style={[
                           styles.timelineLabel,
@@ -521,7 +529,7 @@ const OrderDetailScreen = ({route, navigation}) => {
         {/* Refund Requested Status Card */}
         {order.status === 'Refund Requested' && (
           <View style={styles.refundStatusCard}>
-            <Text style={styles.refundStatusIcon}>💸</Text>
+            <Feather name="refresh-cw" size={24} color="#FF5722" style={{marginRight: 12}} />
             <View style={{flex: 1}}>
               <Text style={styles.refundStatusTitle}>
                 {t('orders.refundRequested', {

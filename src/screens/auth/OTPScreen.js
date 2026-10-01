@@ -16,8 +16,8 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../context/AuthContext';
-import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
-import BackButton from '../../utils/BackButton';
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const OTPScreen = ({navigation, route}) => {
   const {phone, userType, name} = route.params;
@@ -176,7 +176,9 @@ const OTPScreen = ({navigation, route}) => {
           onPress={() => navigation.goBack()}
           style={styles.backBtn}
         />
-        <Text style={styles.headerEmoji}>📱</Text>
+        <View style={{alignItems: 'center', marginBottom: 8}}>
+          <Feather name="smartphone" size={36} color={COLORS.white} />
+        </View>
         <Text style={styles.title}>OTP சரிபார்ப்பு</Text>
         <Text style={styles.titleEn}>OTP Verification</Text>
         <Text style={styles.phoneTxt}>+91 {phone}</Text>
@@ -223,7 +225,12 @@ const OTPScreen = ({navigation, route}) => {
             </Animated.View>
 
             {/* Error message */}
-            {error ? <Text style={styles.errorTxt}>⚠ {error}</Text> : null}
+            {error ? (
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 8}}>
+                <Ionicons name="alert-circle-outline" size={14} color={COLORS.accentRed} style={{marginRight: 4}} />
+                <Text style={styles.errorTxt}>{error}</Text>
+              </View>
+            ) : null}
 
             {/* Timer / Resend */}
             <View style={styles.timerBox}>

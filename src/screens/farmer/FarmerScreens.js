@@ -35,6 +35,8 @@ import BackButton from '../../utils/BackButton';
 import {getLocalProductName} from '../../utils/translationHelper';
 import {CATEGORIES} from '../../utils/dummyData';
 import {getCatName} from '../../utils/categoryHelper';
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   getFarmerOrderTotal,
   getFarmerItemPrice,
@@ -414,7 +416,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
             <TouchableOpacity
               style={[S.notifBtn, {position: 'relative'}]}
               onPress={() => navigation.navigate('Notifications')}>
-              <Text style={{fontSize: rs(24)}}>🔔</Text>
+              <Feather name="bell" size={20} color={COLORS.white} />
               {unreadNotifCount > 0 && (
                 <View
                   style={{
@@ -499,42 +501,42 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
           <View style={S.qaGrid}>
             {[
               {
-                icon: '',
+                iconName: 'plus-circle',
                 label: t('farmer.addProduct', {defaultValue: 'தயாரிப்பு சேர்'}),
                 screen: 'AddProduct',
               },
               {
-                icon: '',
+                iconName: 'qr-code',
                 label: t('farmer.qrCode', {defaultValue: 'QR குறியீடு'}),
                 screen: 'FarmerQR',
               },
               {
-                icon: '',
+                iconName: 'calendar',
                 label: t('farmer.addHarvest', {defaultValue: 'அறுவடை சேர்'}),
                 screen: 'FarmerAddHarvest',
               },
               {
-                icon: '',
-                label: t('preOrder.title', {defaultValue: 'മുൻകൂട്ടി ഓർഡറുകൾ'}),
+                iconName: 'shopping-bag',
+                label: t('preOrder.title', {defaultValue: 'முன்பதிவு'}),
                 onPress: () => {
                   loadFarmerPreOrders();
                   setPreOrdersModalVisible(true);
                 },
               },
               {
-                icon: '',
+                iconName: 'message-square',
                 label: t('farmer.customerChats', {
                   defaultValue: 'வாடிக்கையாளர் அரட்டை',
                 }),
                 screen: 'FarmerCustomerChats',
               },
               {
-                icon: '',
+                iconName: 'video',
                 label: t('farmer.myStory', {defaultValue: 'என் கதை'}),
                 screen: 'StoryVideo',
               },
               {
-                icon: '',
+                iconName: 'settings',
                 label: t('profile.settings', {defaultValue: 'அமைப்புகள்'}),
                 screen: 'Settings',
               },
@@ -550,7 +552,11 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                     isDark ? ['#1A3028', '#152A20'] : ['#E8F5E9', '#E3F2FD']
                   }
                   style={S.qaGrad}>
-                  <Text style={S.qaIcon}>{qa.icon}</Text>
+                  {qa.iconName === 'qr-code' ? (
+                    <Ionicons name="qr-code-outline" size={22} color={COLORS.primaryGreen} style={{marginBottom: 4}} />
+                  ) : (
+                    <Feather name={qa.iconName} size={22} color={COLORS.primaryGreen} style={{marginBottom: 4}} />
+                  )}
                   <Text style={[S.qaLabel, {color: themeColors.text}]}>
                     {qa.label}
                   </Text>
@@ -566,7 +572,7 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('MyProducts')}>
               <Text style={S.seeAll}>
-                {t('home.viewAll', {defaultValue: 'அனைத்தும் →'})}
+                {t('home.viewAll', {defaultValue: 'அனைத்தும்'}).replace('→', '').trim()}
               </Text>
             </TouchableOpacity>
           </View>
@@ -580,13 +586,14 @@ export const FarmerDashboardScreen = ({navigation, route}) => {
                 },
               ]}
               onPress={() => navigation.navigate('AddProduct')}>
-              <Text style={S.emptyAddTxt}>
-                ➕{' '}
-                {t('farmer.addProduct', {
-                  defaultValue: 'தயாரிப்பு சேர்',
-                })}{' '}
-                🌱
-              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <Feather name="plus" size={18} color={COLORS.white} style={{marginRight: 6}} />
+                <Text style={S.emptyAddTxt}>
+                  {t('farmer.addProduct', {
+                    defaultValue: 'தயாரிப்பு சேர்',
+                  })}
+                </Text>
+              </View>
             </TouchableOpacity>
           ) : (
             myProducts.slice(0, 3).map(p => (

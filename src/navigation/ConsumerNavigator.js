@@ -43,11 +43,15 @@ import FeedbackScreen from '../screens/shared/FeedbackScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TabIcon = ({label, emoji, focused}) => (
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const TabIcon = ({label, iconName, iconNameActive, focused}) => (
   <View style={styles.tabIconContainer}>
-    <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>
-      {emoji}
-    </Text>
+    <Ionicons
+      name={focused ? (iconNameActive || iconName) : iconName}
+      size={22}
+      color={focused ? COLORS.primaryGreen : COLORS.textMuted}
+    />
     <Text
       style={[styles.tabLabel, focused && styles.tabLabelActive]}
       numberOfLines={1}
@@ -63,13 +67,30 @@ const ConsumerTabs = () => {
   const {t} = useTranslation(); // ✅ Proper hook call (not require)
 
   const tabs = {
-    home: {label: t('nav.home', {defaultValue: 'முகப்பு'}), emoji: '🏠'},
-    reels: {label: t('nav.reels', {defaultValue: 'ரீல்ஸ்'}), emoji: '🎬'},
-    cart: {label: t('nav.cart', {defaultValue: 'கார்ட்'}), emoji: '🛒'},
-    orders: {label: t('nav.orders', {defaultValue: 'ஆர்டர்'}), emoji: '📦'},
+    home: {
+      label: t('nav.home', {defaultValue: 'முகப்பு'}),
+      iconName: 'home-outline',
+      iconNameActive: 'home',
+    },
+    reels: {
+      label: t('nav.reels', {defaultValue: 'ரீல்ஸ்'}),
+      iconName: 'play-circle-outline',
+      iconNameActive: 'play-circle',
+    },
+    cart: {
+      label: t('nav.cart', {defaultValue: 'கார்ட்'}),
+      iconName: 'cart-outline',
+      iconNameActive: 'cart',
+    },
+    orders: {
+      label: t('nav.orders', {defaultValue: 'ஆர்டர்'}),
+      iconName: 'bag-handle-outline',
+      iconNameActive: 'bag-handle',
+    },
     profile: {
       label: t('nav.profile', {defaultValue: 'சுயவிவரம்'}),
-      emoji: '👤',
+      iconName: 'person-outline',
+      iconNameActive: 'person',
     },
   };
 
@@ -87,7 +108,8 @@ const ConsumerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={tabs.home.label}
-              emoji={tabs.home.emoji}
+              iconName={tabs.home.iconName}
+              iconNameActive={tabs.home.iconNameActive}
               focused={focused}
             />
           ),
@@ -100,7 +122,8 @@ const ConsumerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={tabs.reels.label}
-              emoji={tabs.reels.emoji}
+              iconName={tabs.reels.iconName}
+              iconNameActive={tabs.reels.iconNameActive}
               focused={focused}
             />
           ),
@@ -114,7 +137,8 @@ const ConsumerTabs = () => {
             <View>
               <TabIcon
                 label={tabs.cart.label}
-                emoji={tabs.cart.emoji}
+                iconName={tabs.cart.iconName}
+                iconNameActive={tabs.cart.iconNameActive}
                 focused={focused}
               />
               {totalItems > 0 && (
@@ -135,7 +159,8 @@ const ConsumerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={tabs.orders.label}
-              emoji={tabs.orders.emoji}
+              iconName={tabs.orders.iconName}
+              iconNameActive={tabs.orders.iconNameActive}
               focused={focused}
             />
           ),
@@ -148,7 +173,8 @@ const ConsumerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={tabs.profile.label}
-              emoji={tabs.profile.emoji}
+              iconName={tabs.profile.iconName}
+              iconNameActive={tabs.profile.iconNameActive}
               focused={focused}
             />
           ),

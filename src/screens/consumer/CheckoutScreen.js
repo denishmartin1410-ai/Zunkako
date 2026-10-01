@@ -35,7 +35,7 @@ import {
 } from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
-import {getLocalProductName} from '../../utils/translationHelper';
+import Feather from 'react-native-vector-icons/Feather';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
@@ -417,9 +417,12 @@ const CheckoutScreen = ({navigation}) => {
     <View style={[styles.container, {backgroundColor: themeColors.bg}]}>
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>
-          🛍 {t('checkout.title', {defaultValue: 'Checkout'})}
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          <Feather name="shopping-bag" size={20} color={COLORS.white} style={{marginRight: 6}} />
+          <Text style={styles.headerTitle}>
+            {t('checkout.title', {defaultValue: 'Checkout'})}
+          </Text>
+        </View>
         <View style={{width: rs(40)}} />
       </LinearGradient>
 

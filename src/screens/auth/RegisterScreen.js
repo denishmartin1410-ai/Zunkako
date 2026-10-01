@@ -21,6 +21,9 @@ import {useAuth} from '../../context/AuthContext';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+
 // ══════════════════════════════════════════════════════
 // ✅ FIX: Field-ஐ Component-க்கு வெளியே define பண்றோம்!
 // ══════════════════════════════════════════════════════
@@ -57,12 +60,21 @@ const Field = ({
         importantForAutofill={importantForAutofill}
       />
       {secure && onTogglePass && (
-        <TouchableOpacity onPress={onTogglePass}>
-          <Text style={styles.eyeIcon}>{showPass ? '🙈' : '👁'}</Text>
+        <TouchableOpacity onPress={onTogglePass} style={styles.eyeIcon}>
+          <Feather
+            name={showPass ? 'eye-off' : 'eye'}
+            size={20}
+            color={COLORS.textGray}
+          />
         </TouchableOpacity>
       )}
     </View>
-    {error ? <Text style={styles.errText}>⚠ {error}</Text> : null}
+    {error ? (
+      <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 4}}>
+        <Ionicons name="alert-circle-outline" size={14} color={COLORS.accentRed} style={{marginRight: 4}} />
+        <Text style={styles.errText}>{error}</Text>
+      </View>
+    ) : null}
   </View>
 );
 
@@ -399,7 +411,7 @@ const RegisterScreen = ({navigation, route}) => {
           <TouchableOpacity
             style={[styles.checkbox, agree && styles.checkboxActive]}
             onPress={() => setAgree(!agree)}>
-            {agree && <Text style={styles.checkboxTick}>✓</Text>}
+            {agree && <Ionicons name="checkmark" size={12} color={COLORS.white} />}
           </TouchableOpacity>
           <View style={styles.agreeTextContainer}>
             <Text style={styles.agreeText}>
@@ -436,9 +448,12 @@ const RegisterScreen = ({navigation, route}) => {
             {isLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.regBtnText}>
-                {t('register.btnText', {defaultValue: 'Register →'})}
-              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={styles.regBtnText}>
+                  {t('register.btnText', {defaultValue: 'Register'}).replace(/[-=]*>+/, '').trim()}
+                </Text>
+                <Feather name="arrow-right" size={18} color={COLORS.white} style={{marginLeft: 6}} />
+              </View>
             )}
           </LinearGradient>
         </TouchableOpacity>
@@ -454,12 +469,9 @@ const RegisterScreen = ({navigation, route}) => {
 
         {/* Phone Input for OTP */}
         <Field
-          label={
-            '📱 ' +
-            t('register.otpPhoneLabel', {
-              defaultValue: 'Mobile Number for OTP',
-            })
-          }
+          label={t('register.otpPhoneLabel', {
+            defaultValue: 'Mobile Number for OTP',
+          })}
           value={otpPhone}
           onChangeText={text => {
             if (text.includes('@') || /[a-zA-Z]/.test(text)) {

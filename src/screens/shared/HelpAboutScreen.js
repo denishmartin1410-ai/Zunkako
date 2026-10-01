@@ -33,6 +33,9 @@ import {
   getThemeColors,
 } from '../../utils/theme';
 
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 const {width} = Dimensions.get('window');
 const scale = width / 375;
 const rs = size => Math.round(size * scale);
@@ -57,41 +60,41 @@ const FAQ_CATEGORIES = [
 ];
 
 const FAQ_ITEMS = [
-  {id: 1, category: 'orders', icon: '🌿'},
-  {id: 2, category: 'orders', icon: '🛒'},
-  {id: 3, category: 'orders', icon: '❌'},
-  {id: 4, category: 'orders', icon: '⏳'},
-  {id: 5, category: 'farmers', icon: '🏪'},
-  {id: 6, category: 'delivery', icon: '🚚'},
-  {id: 7, category: 'delivery', icon: '⚡'},
-  {id: 8, category: 'delivery', icon: '⏰'},
-  {id: 9, category: 'delivery', icon: '🛵'},
-  {id: 10, category: 'delivery', icon: '🗺️'},
-  {id: 11, category: 'delivery', icon: '📍'},
-  {id: 12, category: 'price', icon: '💵'},
-  {id: 13, category: 'price', icon: '💳'},
-  {id: 14, category: 'price', icon: '🔄'},
-  {id: 15, category: 'quality', icon: '✨'},
-  {id: 16, category: 'quality', icon: '⏱️'},
-  {id: 17, category: 'quality', icon: '🌾'},
-  {id: 18, category: 'quality', icon: '📸'},
-  {id: 19, category: 'quality', icon: '🌱'},
-  {id: 20, category: 'quality', icon: '🥗'},
-  {id: 21, category: 'preorder', icon: '📅'},
-  {id: 22, category: 'preorder', icon: '🌦️'},
-  {id: 23, category: 'preorder', icon: '👨‍👩‍👧'},
-  {id: 24, category: 'preorder', icon: '👥'},
-  {id: 25, category: 'trust', icon: '🔒'},
-  {id: 26, category: 'trust', icon: '✅'},
-  {id: 27, category: 'trust', icon: '📷'},
-  {id: 28, category: 'trust', icon: '💬'},
-  {id: 29, category: 'trust', icon: '🤖'},
-  {id: 30, category: 'farmers', icon: '🎬'},
-  {id: 31, category: 'farmers', icon: '🚜'},
-  {id: 32, category: 'farmers', icon: '🧑‍🌾'},
-  {id: 33, category: 'support', icon: '📞'},
-  {id: 34, category: 'support', icon: '🕒'},
-  {id: 35, category: 'support', icon: '✍️'},
+  {id: 1, category: 'orders', iconName: 'package'},
+  {id: 2, category: 'orders', iconName: 'shopping-cart'},
+  {id: 3, category: 'orders', iconName: 'x-circle'},
+  {id: 4, category: 'orders', iconName: 'clock'},
+  {id: 5, category: 'farmers', iconName: 'grid'},
+  {id: 6, category: 'delivery', iconName: 'truck'},
+  {id: 7, category: 'delivery', iconName: 'zap'},
+  {id: 8, category: 'delivery', iconName: 'clock'},
+  {id: 9, category: 'delivery', iconName: 'navigation'},
+  {id: 10, category: 'delivery', iconName: 'map'},
+  {id: 11, category: 'delivery', iconName: 'map-pin'},
+  {id: 12, category: 'price', iconName: 'dollar-sign'},
+  {id: 13, category: 'price', iconName: 'credit-card'},
+  {id: 14, category: 'price', iconName: 'refresh-cw'},
+  {id: 15, category: 'quality', iconName: 'award'},
+  {id: 16, category: 'quality', iconName: 'clock'},
+  {id: 17, category: 'quality', iconName: 'sun'},
+  {id: 18, category: 'quality', iconName: 'camera'},
+  {id: 19, category: 'quality', iconName: 'check-circle'},
+  {id: 20, category: 'quality', iconName: 'check-square'},
+  {id: 21, category: 'preorder', iconName: 'calendar'},
+  {id: 22, category: 'preorder', iconName: 'cloud-sun'},
+  {id: 23, category: 'preorder', iconName: 'users'},
+  {id: 24, category: 'preorder', iconName: 'user-check'},
+  {id: 25, category: 'trust', iconName: 'lock'},
+  {id: 26, category: 'trust', iconName: 'shield'},
+  {id: 27, category: 'trust', iconName: 'image'},
+  {id: 28, category: 'trust', iconName: 'message-square'},
+  {id: 29, category: 'trust', iconName: 'cpu'},
+  {id: 30, category: 'farmers', iconName: 'video'},
+  {id: 31, category: 'farmers', iconName: 'globe'},
+  {id: 32, category: 'farmers', iconName: 'user'},
+  {id: 33, category: 'support', iconName: 'phone'},
+  {id: 34, category: 'support', iconName: 'clock'},
+  {id: 35, category: 'support', iconName: 'edit-3'},
 ];
 
 const HelpAboutScreen = ({navigation, route}) => {
@@ -108,7 +111,7 @@ const HelpAboutScreen = ({navigation, route}) => {
     return FAQ_ITEMS.map(item => ({
       id: item.id,
       category: item.category,
-      icon: item.icon,
+      iconName: item.iconName,
       q: t(`help.faq${item.id}q`),
       a: t(`help.faq${item.id}a`),
     }));
@@ -133,11 +136,19 @@ const HelpAboutScreen = ({navigation, route}) => {
       {/* Header */}
       <LinearGradient colors={['#0D5C32', '#1B8A4E']} style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>
-          {mode === 'about'
-            ? `ℹ️ ${t('settings.about', {defaultValue: 'About App'})}`
-            : `❓ ${t('settings.help', {defaultValue: 'Help & FAQ'})}`}
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          <Feather
+            name={mode === 'about' ? 'info' : 'help-circle'}
+            size={20}
+            color={COLORS.white}
+            style={{marginRight: 8}}
+          />
+          <Text style={styles.headerTitle}>
+            {mode === 'about'
+              ? t('settings.about', {defaultValue: 'About App'})
+              : t('settings.help', {defaultValue: 'Help & FAQ'})}
+          </Text>
+        </View>
         <View style={{width: rs(40)}} />
       </LinearGradient>
 
@@ -300,19 +311,22 @@ const HelpAboutScreen = ({navigation, route}) => {
                       setOpenFaq(openFaq === faq.id ? null : faq.id)
                     }>
                     <View style={styles.faqHeader}>
-                      <Text style={styles.faqIcon}>{faq.icon}</Text>
+                      <Feather
+                        name={faq.iconName || 'help-circle'}
+                        size={18}
+                        color={COLORS.primaryGreen}
+                        style={{marginRight: 10}}
+                      />
                       <Text
-                        style={[styles.faqQ, {color: themeColors.text}]}
+                        style={[styles.faqQ, {color: themeColors.text, flex: 1}]}
                         numberOfLines={openFaq === faq.id ? 10 : 2}>
                         {faq.id}. {faq.q}
                       </Text>
-                      <Text
-                        style={[
-                          styles.faqArrow,
-                          {color: themeColors.textMuted},
-                        ]}>
-                        {openFaq === faq.id ? '▲' : '▼'}
-                      </Text>
+                      <Feather
+                        name={openFaq === faq.id ? 'chevron-up' : 'chevron-down'}
+                        size={18}
+                        color={themeColors.textMuted}
+                      />
                     </View>
                     {openFaq === faq.id && (
                       <View

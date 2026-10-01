@@ -28,11 +28,15 @@ import {
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TabIcon = ({label, emoji, focused}) => (
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const TabIcon = ({label, iconName, iconNameActive, focused}) => (
   <View style={styles.tabIconContainer}>
-    <Text style={[styles.tabEmoji, focused && styles.tabEmojiActive]}>
-      {emoji}
-    </Text>
+    <Ionicons
+      name={focused ? (iconNameActive || iconName) : iconName}
+      size={22}
+      color={focused ? COLORS.primaryGreen : COLORS.textMuted}
+    />
     <Text
       style={[styles.tabLabel, focused && styles.tabLabelActive]}
       numberOfLines={1}
@@ -59,7 +63,8 @@ const FarmerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={t('nav.dashboard', {defaultValue: 'டாஷ்போர்டு'})}
-              emoji="📊"
+              iconName="grid-outline"
+              iconNameActive="grid"
               focused={focused}
             />
           ),
@@ -72,7 +77,8 @@ const FarmerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={t('nav.products', {defaultValue: 'தயாரிப்புகள்'})}
-              emoji="🥬"
+              iconName="leaf-outline"
+              iconNameActive="leaf"
               focused={focused}
             />
           ),
@@ -85,7 +91,8 @@ const FarmerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={t('nav.orders', {defaultValue: 'ஆர்டர்கள்'})}
-              emoji="📦"
+              iconName="clipboard-outline"
+              iconNameActive="clipboard"
               focused={focused}
             />
           ),
@@ -98,7 +105,8 @@ const FarmerTabs = () => {
           tabBarIcon: ({focused}) => (
             <TabIcon
               label={t('nav.profile', {defaultValue: 'சுயவிவரம்'})}
-              emoji="👨‍🌾"
+              iconName="person-outline"
+              iconNameActive="person"
               focused={focused}
             />
           ),

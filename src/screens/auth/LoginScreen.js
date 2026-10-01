@@ -23,6 +23,9 @@ import {useAuth} from '../../context/AuthContext';
 import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
 import BackButton from '../../utils/BackButton';
 
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
+
 // ✅ InputField OUTSIDE component (no re-render/focus bug)
 const InputField = ({
   label,
@@ -51,7 +54,12 @@ const InputField = ({
       />
       {rightIcon}
     </View>
-    {error ? <Text style={styles.errorText}>⚠ {error}</Text> : null}
+    {error ? (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={14} color={COLORS.accentRed} style={{marginRight: 4}} />
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    ) : null}
   </View>
 );
 
@@ -372,7 +380,7 @@ const LoginScreen = ({navigation, route}) => {
                     styles.selectedBadge,
                     {backgroundColor: currentRole.textColor},
                   ]}>
-                  <Text style={styles.selectedBadgeText}>✓</Text>
+                  <Ionicons name="checkmark" size={12} color={COLORS.white} />
                 </View>
               </LinearGradient>
             </View>
@@ -396,8 +404,12 @@ const LoginScreen = ({navigation, route}) => {
           secureEntry={!showPassword}
           error={errors.password}
           rightIcon={
-            <TouchableOpacity onPress={togglePassword}>
-              <Text style={styles.eyeBtn}>{showPassword ? '🙈' : '👁'}</Text>
+            <TouchableOpacity onPress={togglePassword} style={styles.eyeBtn}>
+              <Feather
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={COLORS.textGray}
+              />
             </TouchableOpacity>
           }
         />
@@ -424,12 +436,12 @@ const LoginScreen = ({navigation, route}) => {
             {isLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.loginBtnText}>
-                {t('login.loginButton', {defaultValue: 'Login →'}).replace(
-                  /[-=]*>+/,
-                  '➔',
-                )}
-              </Text>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={styles.loginBtnText}>
+                  {t('login.loginButton', {defaultValue: 'Login'}).replace(/[-=]*>+/, '').replace('➔', '').trim()}
+                </Text>
+                <Feather name="arrow-right" size={18} color={COLORS.white} style={{marginLeft: 6}} />
+              </View>
             )}
           </LinearGradient>
         </TouchableOpacity>
