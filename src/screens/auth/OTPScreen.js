@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../context/AuthContext';
+import {COLORS, FONTS, SPACING, RADIUS, SHADOWS} from '../../utils/theme';
+import BackButton from '../../utils/BackButton';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 

@@ -36,6 +36,7 @@ import {
 import BackButton from '../../utils/BackButton';
 import Geolocation from '@react-native-community/geolocation';
 import Feather from 'react-native-vector-icons/Feather';
+import {getLocalProductName} from '../../utils/translationHelper';
 
 const {width} = Dimensions.get('window');
 const scale = width / 375;
